@@ -1,0 +1,148 @@
+/**
+ * Module dependencies
+ */
+var os = require('os');
+const express = require('express');
+const app = express();
+// const proxy = require('http-proxy-middleware');
+const fs = require('fs');
+const path = require('path');
+// const mongoose = require('mongoose');
+const config = require('config');
+const serverConfig = config.get('serverConfig');
+
+const helmet = require('helmet');
+
+const logger = require('./utils/winstonLogger');
+
+const verifyToken = require('./utils/VerifyToken');
+// const CheckException = require('./utils/CheckException');
+
+
+/*
+* db Mongoose connection
+* */
+const db = require('./db');
+db.connectMongoose();
+
+/*
+* Helmet helps you secure your Express apps by setting various HTTP headers. It’s not a silver bullet, but it can help!
+* */
+app.use(helmet());
+
+
+/*
+* Handle corsOrigin
+* */
+/*const corsOptions = {
+    origin: '*',
+};
+app.use(cors(corsOptions));*/
+/*app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE');
+    res.header('Access-Control-Allow-Headers', 'Content-Type');
+    next();
+});*/
+
+app.use(function (req, res, next) {
+    logger.info('^^^^^^^^^^^  Core Request req.headers.origin: %s', req.headers.origin);
+    logger.info('^^^^^^^^^^^  Core Request req.originalUrl: %s', req.originalUrl);
+    logger.info('^^^^^^^^^^^  Core Request req.connection.remoteAddress: %s', req.connection.remoteAddress);
+    logger.info('^^^^^^^^^^^  Core Request req.ip: %s', req.ip);
+    logger.info('^^^^^^^^^^^  Core Request req.hostname: %s', req.hostname);
+    next()
+});
+
+/*
+* Authentication JWT
+* */
+app.use((req, res, next) => {
+    verifyToken(req, res, next)
+    // next();
+});
+
+
+/*
+* body Parser
+* in Gateway use in middleware
+* */
+// app.use(express.json({limit: '50mb'}));
+// app.use(express.urlencoded());
+// reStream parsed body before proxying
+const reStream = (proxyReq, req, res) => {
+    if (req.body) {
+        let bodyData = JSON.stringify(req.body);
+        // incase if content-type is application/x-www-form-urlencoded -> we need to change to application/json
+        proxyReq.setHeader('Content-Type', 'application/json');
+        proxyReq.setHeader('Content-Length', Buffer.byteLength(bodyData));
+        // stream the content
+        proxyReq.write(bodyData);
+    }
+};
+
+/*
+* start Routing
+* */
+
+/*Device*/
+app.use(`${serverConfig.SN}/device`, express.json({limit: '50mb'}), require('./routing/device'));
+
+
+//Application Check Version
+app.use(`${serverConfig.SN}/version`, require('./controllers/version'));
+
+// start server
+const port = process.env.NODE_ENV === 'production' ? serverConfig.productPort : serverConfig.port;
+
+app.listen(port, function () {
+    logger.info('********* Server is running on Port: %s', port);
+});
+
+// server Crash Handle
+process.on('unhandledRejection', (reason, promise) => {
+    logger.error('!!!!! SERVER unhandledRejection at:', reason.stack || reason || promise);
+    // Recommended: send the information to sentry.io
+    // or whatever crash reporting service you use
+});
+process.on('uncaughtException', function (err) {
+    logger.error('!!!!! SERVER uncaughtException err:', err);
+});
+
+if (process.env.NODE_APP_INSTANCE === '0') {
+    require('./singleRun');
+
+    /**
+     * Test nodejs Code
+     */
+    const osCpuValue = os.cpus();
+    console.log('@@@@@@@@@@@ BTMS Core os.CPUS() ==> length: %s', osCpuValue.length + ' |model: ' + osCpuValue[0].model + ' |speed: ' + osCpuValue[0].speed + ' |arch: ' + os.arch());
+    console.log('@@@@@@@@@@@ BTMS Core os.hostname(): %s', os.hostname());
+    console.log('@@@@@@@@@@@ BTMS Core os.homedir(): %s', os.homedir());
+    console.log('@@@@@@@@@@@ BTMS Core os.platform(): %s', os.platform() + '/' + os.type());
+    console.log('$$$$$$$$$$$$ process.env.NODE_APP_INSTANCE: %s', process.env.NODE_APP_INSTANCE);
+
+    /*logo Start App*/
+    logger.info("\n__/\\\\\\\\\\_____/\\\\\\__/\\\\\\\\\\\\\\\\\\\\\\__/\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\__/\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\__/\\\\\\________/\\\\\\_\n" +
+        " _\\/\\\\\\\\\\\\___\\/\\\\\\_\\/////\\\\\\///__\\////////////\\\\\\__\\/\\\\\\///////////__\\/\\\\\\_____/\\\\\\//__\n" +
+        "  _\\/\\\\\\/\\\\\\__\\/\\\\\\_____\\/\\\\\\_______________/\\\\\\/___\\/\\\\\\_____________\\/\\\\\\__/\\\\\\//_____\n" +
+        "   _\\/\\\\\\//\\\\\\_\\/\\\\\\_____\\/\\\\\\_____________/\\\\\\/_____\\/\\\\\\\\\\\\\\\\\\\\\\_____\\/\\\\\\\\\\\\//\\\\\\_____\n" +
+        "    _\\/\\\\\\\\//\\\\\\\\/\\\\\\_____\\/\\\\\\___________/\\\\\\/_______\\/\\\\\\///////______\\/\\\\\\//_\\//\\\\\\____\n" +
+        "     _\\/\\\\\\_\\//\\\\\\/\\\\\\_____\\/\\\\\\_________/\\\\\\/_________\\/\\\\\\_____________\\/\\\\\\____\\//\\\\\\___\n" +
+        "      _\\/\\\\\\__\\//\\\\\\\\\\\\_____\\/\\\\\\_______/\\\\\\/___________\\/\\\\\\_____________\\/\\\\\\_____\\//\\\\\\__\n" +
+        "       _\\/\\\\\\___\\//\\\\\\\\\\__/\\\\\\\\\\\\\\\\\\\\\\__/\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\_\\/\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\_\\/\\\\\\______\\//\\\\\\_\n" +
+        "        _\\///_____\\/////__\\///////////__\\///////////////__\\///////////////__\\///________\\///__\n" +
+        "________/\\\\\\\\\\\\\\\\\\_______________________________________________________/\\\\\\_________________________/\\\\\\__\n" +
+        " _____/\\\\\\////////_______________________________________________________\\/\\\\\\________________________\\/\\\\\\__\n" +
+        "  ___/\\\\\\/________________________________________________________________\\/\\\\\\________________________\\/\\\\\\__\n" +
+        "   __/\\\\\\______________/\\\\/\\\\\\\\\\\\\\______/\\\\\\\\\\_____/\\\\____/\\\\___/\\\\________\\/\\\\\\______/\\\\\\\\\\\\\\\\_________\\/\\\\\\__\n" +
+        "    _\\/\\\\\\_____________\\/\\\\\\/////\\\\\\___/\\\\\\///\\\\\\__\\/\\\\\\__/\\\\\\\\_/\\\\\\___/\\\\\\\\\\\\\\\\\\____/\\\\\\/////\\\\\\___/\\\\\\\\\\\\\\\\\\__\n" +
+        "     _\\//\\\\\\____________\\/\\\\\\___\\///___/\\\\\\__\\//\\\\\\_\\//\\\\\\/\\\\\\\\\\/\\\\\\___/\\\\\\////\\\\\\___/\\\\\\\\\\\\\\\\\\\\\\___/\\\\\\////\\\\\\__\n" +
+        "      __\\///\\\\\\__________\\/\\\\\\_________\\//\\\\\\__/\\\\\\___\\//\\\\\\\\\\/\\\\\\\\\\___\\/\\\\\\__\\/\\\\\\__\\//\\\\///////___\\/\\\\\\__\\/\\\\\\__\n" +
+        "       ____\\////\\\\\\\\\\\\\\\\\\_\\/\\\\\\__________\\///\\\\\\\\\\/_____\\//\\\\\\\\//\\\\\\____\\//\\\\\\\\\\\\\\/\\\\__\\//\\\\\\\\\\\\\\\\\\\\_\\//\\\\\\\\\\\\\\/\\\\_\n" +
+        "        _______\\/////////__\\///_____________\\/////________\\///__\\///______\\///////\\//____\\//////////___\\///////\\//__");
+}
+
+logger.info('Crowded Path %s', process.env.PWD);
+
+

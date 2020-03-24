@@ -1,0 +1,92 @@
+syntax = "proto3";
+package report;
+
+import "google/protobuf/any.proto";
+import "google/protobuf/empty.proto";
+
+/**
+ * Report Service
+ */
+service ReportService {
+    /*
+    * Add new Report rpc
+    * @param AddReq
+    */
+    rpc addReport (AddReq) returns (google.protobuf.Empty) {};
+
+    /*
+    * Update Report rpc
+    * @param UpdateReq
+    */
+    rpc updateReport (UpdateReq) returns (google.protobuf.Empty) {};
+
+    /*
+    * Get Report rpc
+    * @param GetReq
+    * @return ReportRes
+    */
+    rpc get (GetReq) returns (ReportRes) {};
+}
+
+/*
+ * API name Microservices
+ */
+enum ApiNameMS {
+    FLIGHT      = 0;
+    HOTEL       = 1;
+    TOUR        = 2;
+    VISA        = 3;
+    REPORT      = 4;
+    PROFILE     = 5;
+    PROMOTION   = 6;
+}
+
+
+/**
+ * Report
+ */
+message Report {
+    ApiNameMS               apiName = 1;
+    string                  ip = 2;
+    string                  sessionId = 3;
+    google.protobuf.Any     request = 4;
+    google.protobuf.Any     response = 5;
+    int64                   createdAt = 6;
+    int64                   updateAt = 7;
+}
+
+/**
+ * Report Result
+ */
+message ReportRes {
+    repeated Report         reports = 1;
+}
+
+/**
+ * Add Request
+ */
+message AddReq {
+    string                  reqId = 1;
+    ApiNameMS               apiName = 2;
+    string                  ip = 3;
+    string                  sessionId = 4;
+    google.protobuf.Any     request = 5;
+}
+
+
+/**
+ * Update Request
+ */
+message UpdateReq {
+    string                  reqId = 1;
+    google.protobuf.Any     response = 2;
+}
+
+/**
+ * getReport Request
+ */
+message GetReq {
+    ApiNameMS               apiName = 1;
+    google.protobuf.Any     search = 2;
+    int32                   page = 3;
+}
