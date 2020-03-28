@@ -1,6 +1,7 @@
 /**
  * Module dependencies
  */
+require('dotenv').config();
 var os = require('os');
 const express = require('express');
 const app = express();
@@ -17,6 +18,7 @@ const logger = require('./utils/winstonLogger');
 
 const verifyToken = require('./utils/VerifyToken');
 // const CheckException = require('./utils/CheckException');
+logger.info('^^^^^^^^^^^  .ENV DBNAME: %s', process.env.MONGO_DATABASE);
 
 
 /*
@@ -45,14 +47,6 @@ app.use(cors(corsOptions));*/
     next();
 });*/
 
-app.use(function (req, res, next) {
-    logger.info('^^^^^^^^^^^  Core Request req.headers.origin: %s', req.headers.origin);
-    logger.info('^^^^^^^^^^^  Core Request req.originalUrl: %s', req.originalUrl);
-    logger.info('^^^^^^^^^^^  Core Request req.connection.remoteAddress: %s', req.connection.remoteAddress);
-    logger.info('^^^^^^^^^^^  Core Request req.ip: %s', req.ip);
-    logger.info('^^^^^^^^^^^  Core Request req.hostname: %s', req.hostname);
-    next()
-});
 
 /*
 * Authentication JWT
@@ -64,30 +58,18 @@ app.use((req, res, next) => {
 
 
 /*
-* body Parser
-* in Gateway use in middleware
-* */
-// app.use(express.json({limit: '50mb'}));
-// app.use(express.urlencoded());
-// reStream parsed body before proxying
-const reStream = (proxyReq, req, res) => {
-    if (req.body) {
-        let bodyData = JSON.stringify(req.body);
-        // incase if content-type is application/x-www-form-urlencoded -> we need to change to application/json
-        proxyReq.setHeader('Content-Type', 'application/json');
-        proxyReq.setHeader('Content-Length', Buffer.byteLength(bodyData));
-        // stream the content
-        proxyReq.write(bodyData);
-    }
-};
-
-/*
 * start Routing
 * */
 
 /*Device*/
-app.use(`${serverConfig.SN}/device`, express.json({limit: '50mb'}), require('./routing/device'));
+app.use(`${serverConfig.SN}/device`, express.json({limit: '50mb'}), require('./routing/_device'));
 
+app.get('/', function (reg, res) {
+    var resp = new NZ.Response('Welcome to KIDS-NODE. -' + os.hostname());
+    db.query('SELECT 1+1', () => {
+        resp.send(res);
+    });
+});
 
 //Application Check Version
 app.use(`${serverConfig.SN}/version`, require('./controllers/version'));
@@ -95,9 +77,34 @@ app.use(`${serverConfig.SN}/version`, require('./controllers/version'));
 // start server
 const port = process.env.NODE_ENV === 'production' ? serverConfig.productPort : serverConfig.port;
 
-app.listen(port, function () {
+var server = app.listen(port, function () {
     logger.info('********* Server is running on Port: %s', port);
 });
+server.setTimeout(10 * 60 * 1000);
+/**
+ * server on Error
+ */
+function onError(error) {
+    if (error.syscall !== 'listen') {
+        throw error;
+    }
+
+    const bind = typeof port === 'string' ? 'Pipe ' + port : 'Port ' + port;
+
+    // handle specific listen errors with friendly messages
+    switch (error.code) {
+        case 'EACCES':
+            console.error(bind + ' requires elevated privileges');
+            process.exit(1);
+            break;
+        case 'EADDRINUSE':
+            console.error(bind + ' is already in use');
+            process.exit(1);
+            break;
+        default:
+            throw error;
+    }
+}
 
 // server Crash Handle
 process.on('unhandledRejection', (reason, promise) => {
@@ -111,16 +118,6 @@ process.on('uncaughtException', function (err) {
 
 if (process.env.NODE_APP_INSTANCE === '0') {
     require('./singleRun');
-
-    /**
-     * Test nodejs Code
-     */
-    const osCpuValue = os.cpus();
-    console.log('@@@@@@@@@@@ BTMS Core os.CPUS() ==> length: %s', osCpuValue.length + ' |model: ' + osCpuValue[0].model + ' |speed: ' + osCpuValue[0].speed + ' |arch: ' + os.arch());
-    console.log('@@@@@@@@@@@ BTMS Core os.hostname(): %s', os.hostname());
-    console.log('@@@@@@@@@@@ BTMS Core os.homedir(): %s', os.homedir());
-    console.log('@@@@@@@@@@@ BTMS Core os.platform(): %s', os.platform() + '/' + os.type());
-    console.log('$$$$$$$$$$$$ process.env.NODE_APP_INSTANCE: %s', process.env.NODE_APP_INSTANCE);
 
     /*logo Start App*/
     logger.info("\n__/\\\\\\\\\\_____/\\\\\\__/\\\\\\\\\\\\\\\\\\\\\\__/\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\__/\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\__/\\\\\\________/\\\\\\_\n" +
@@ -142,7 +139,3 @@ if (process.env.NODE_APP_INSTANCE === '0') {
         "       ____\\////\\\\\\\\\\\\\\\\\\_\\/\\\\\\__________\\///\\\\\\\\\\/_____\\//\\\\\\\\//\\\\\\____\\//\\\\\\\\\\\\\\/\\\\__\\//\\\\\\\\\\\\\\\\\\\\_\\//\\\\\\\\\\\\\\/\\\\_\n" +
         "        _______\\/////////__\\///_____________\\/////________\\///__\\///______\\///////\\//____\\//////////___\\///////\\//__");
 }
-
-logger.info('Crowded Path %s', process.env.PWD);
-
-

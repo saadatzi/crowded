@@ -5,8 +5,9 @@ const logger = require('./utils/winstonLogger');
 /*
 * Mongoose DB Connection
 * */
+
 const mongoDB = config.get('mongoDB');
-const connectionString = `mongodb://${mongoDB.host}:${mongoDB.port}/${mongoDB.name}`;
+const connectionString = `mongodb://${mongoDB.user}:${mongoDB.pass}@${mongoDB.host}:${mongoDB.port}/${mongoDB.dbName}`;
 
 module.exports = {
      connectMongoose: () => {
@@ -21,7 +22,7 @@ module.exports = {
             })
             .catch(err => {
                 logger.error("!!! Mongoose Server Connection catch Failed !!! %j", err);
-                setTimeout(connectMongoose, 10000);
+                setTimeout(() => this.connectMongoose, 10000);
             });
     }
 };

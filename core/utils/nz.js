@@ -2,7 +2,8 @@ const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 
-const settings = require('./settings');
+const config = require('config');
+const settings = config.get('settings');
 
 const Random = require('random-js').Random;
 const random = new Random();

@@ -25,7 +25,7 @@ DeviceSchema.pre('remove', function (next) {
  * Methods
  */
 DeviceSchema.method({
-    //ToDo method need...
+    //ToDo method need... this.model('Animal')
 });
 
 /**

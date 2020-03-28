@@ -1,16 +1,10 @@
+const {
+	MONGO_INITDB_ROOT_USERNAME,
+	MONGO_INITDB_ROOT_PASSWORD,
+	MONGO_DATABASE,
+} = process.env;
+
 module.exports = {
-	hashids_seed:	"cc679a61iipahn2u4ged2df11",
-	hashids_max:	3,
-
-	api_domain:		'https://api.kids.dev.nizek.com/',
-	cdn_domain:		'https://media.kids.dev.nizek.com/',
-	primary_domain:	'https://kids.dev.nizek.com/',
-	project_name:	'Kids',
-
-	panel_route:	'',
-	api_base:		'https://panel.kids.dev.nizek.com/api',
-	media_domain:	'https://panel.kids.dev.nizek.com/_media',
-
 	contact:		{
 		email:		'info@kidsapp.com',
 		phone:		'+965 9744 8984',
@@ -30,16 +24,9 @@ module.exports = {
 	mongoDB: {
 		host: "127.0.0.1",
 		port: 27017,
-		name: "crowded"
-	},
-
-	mysql:		{
-		host:		process.env.NODE_ENV === "development" ? "157.245.21.174" : "localhost",
-		port:		3306,
-		db:			"kids",
-		user:		process.env.NODE_ENV === "development" ? "mehdi" : "kids-node",
-		pass:		process.env.NODE_ENV === "development" ? "VN3blBPNdxWtRSME" : "AakLCcyMriaTcKsf",
-		limit:		5
+		dbName: MONGO_DATABASE,
+		user: MONGO_INITDB_ROOT_USERNAME,
+		pass: MONGO_INITDB_ROOT_PASSWORD
 	},
 
 	mail: {
@@ -62,20 +49,41 @@ module.exports = {
 		maxSize: 100,
 	},
 
+	settings: {
+		hashids_seed:	"cc679a61iipahn2u4ged2df11",
+		hashids_max:	3,
 
-	HASH_key1:		"XWI2EFNCXLhAd9vrmjUQnOjEsJ2xvY2H5B",
-	HASH_key2:		"3ChQljCWLVmzzNCwnY2F0ZWdvcnlJRCc6LhAd9vrmjHlwZSc6InZI",
+		api_domain:		'https://api.kids.dev.nizek.com/',
+		cdn_domain:		'https://media.kids.dev.nizek.com/',
+		primary_domain:	'https://kids.dev.nizek.com/',
+		project_name:	'Kids',
 
-	propic_folder: 'pp13i74x/',
-	temp_folder:   '_temp/',
-	media_path:    '/root/nizek/kids-media/',
+		panel_route:	'',
+		api_base:		'https://panel.kids.dev.nizek.com/api',
+		media_domain:	'https://panel.kids.dev.nizek.com/_media',
 
 
-	email_logo:		'https://media.kids.dev.nizek.com/_email/Kidadvisor-white.png',
 
-	db_date_format: 	'YYYY-MM-DD HH:mm:ss',
-	date_format:		'DD-MM-YYYY',
-	time_format:		'HH:mm',
+		HASH_key1:		"XWI2EFNCXLhAd9vrmjUQnOjEsJ2xvY2H5B",
+		HASH_key2:		"3ChQljCWLVmzzNCwnY2F0ZWdvcnlJRCc6LhAd9vrmjHlwZSc6InZI",
+
+		propic_folder: 'pp13i74x/',
+		temp_folder:   '_temp/',
+		media_path:    '/root/nizek/kids-media/',
+
+
+		email_logo:		'https://media.kids.dev.nizek.com/_email/Kidadvisor-white.png',
+
+		db_date_format: 	'YYYY-MM-DD HH:mm:ss',
+		date_format:		'DD-MM-YYYY',
+		time_format:		'HH:mm',
+
+		'NizekUtils.Localizations.Dump.Enabled':   true,
+		'NizekUtils.Localizations.Dump.Interval':  60,
+		'NizekUtils.Localizations.Fetch.Interval': 300
+	},
+
+
 
 
 	google_login: {
@@ -95,8 +103,4 @@ module.exports = {
 		class: 2,
 		search: 2
 	},
-
-	'NizekUtils.Localizations.Dump.Enabled':   true,
-	'NizekUtils.Localizations.Dump.Interval':  60,
-	'NizekUtils.Localizations.Fetch.Interval': 300
 }

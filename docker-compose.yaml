@@ -15,8 +15,8 @@ services:
     networks:
       - crowded-docker-network
     volumes:
-#      - ./elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
-#      - ./elastic-certificates.p12:/usr/share/elasticsearch/config/elastic-certificates.p12
+      #      - ./elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+      #      - ./elastic-certificates.p12:/usr/share/elasticsearch/config/elastic-certificates.p12
       - elastic:/usr/share/elasticsearch/data
   kibana:
     image: docker.elastic.co/kibana/kibana:7.5.2
@@ -24,8 +24,8 @@ services:
       - "5601:5601"
     networks:
       - crowded-docker-network
-#    volumes:
-#      - ./kibana.yml:/usr/share/kibana/config/kibana.yml
+  #    volumes:
+  #      - ./kibana.yml:/usr/share/kibana/config/kibana.yml
   redis:
     image: "redis:alpine"
     command: redis-server --requirepass d2f3db53e6aefddcfdf5c0f2cd36f95517356e9b
@@ -38,15 +38,48 @@ services:
       - REDIS_REPLICATION_MODE=master
     networks:
       - crowded-docker-network
-  mongodb_container:
-    image: mongo:latest
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: rootpassword
+  mongodb:
+    image: mongo
+    restart: always
+#    environment:
+#      AUTH: "yes"
+      #      - MONGODB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+#      MONGO_INITDB_ROOT_USERNAME: $MONGO_INITDB_ROOT_USERNAME
+#      MONGO_INITDB_ROOT_PASSWORD: $MONGO_INITDB_ROOT_PASSWORD
+#      MONGO_INITDB_DATABASE: $MONGO_DATABASE
+    #      - MONGO_ADMIN_USERNAME=${MONGO_ADMIN_USERNAME}
+    #      - MONGO_ADMIN_PASSWORD=${MONGO_ADMIN_PASSWORD}
+    #      - MONGO_DBUSER=${MONGO_DBUSER}
+    #      - MONGO_DBUSER_PASSWORD=${MONGO_DBUSER_PASSWORD}
+#      MONGO_DATABASE: ${MONGO_DATABASE}
+    #      MONGODB_ROOT_PASSWORD
+    #      MONGODB_ADMIN_USER
+    #      MONGODB_ADMIN_PASS
+    #      MONGODB_USER
+    #      MONGODB_PASS
+    #    env_file:
+    #      - $PWD/.env
     ports:
       - 27017:27017
     volumes:
-      - mongodb_data_container:/data/db
+      - $PWD/mongo-entrypoint/startup_script.sh:/docker-entrypoint-initdb.d/startup_script.sh
+      - mongoData:/data/db
+
+#    networks:
+#      - crowded-docker-network
+#    command:
+#      - mongod --auth
+#      - /docker-entrypoint-initdb.d/startup_script.sh
+#  mongo-express:
+#    image: mongo-express
+#    restart: always
+#    ports:
+#      - 8081:8081
+#    environment:
+#      ME_CONFIG_MONGODB_ADMINUSERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+#      ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+#    networks:
+#      - crowded-docker-network
 
 networks:
   crowded-docker-network:
@@ -54,4 +87,5 @@ networks:
 volumes:
   elastic:
     driver: local
-  mongodb_data_container:
+  mongoData:
+    driver: local

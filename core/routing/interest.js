@@ -1,8 +1,25 @@
-const logger = require('./utils/winstonLogger')
-let InterestController = require('./controllers/interest');
-(async () => {
-    console.log("******* single run **********")
-    InterestController.add({title: 'Sports', image: 'sport.jpg'})
+const express = require('express')
+    , router = express.Router();
+const jwtRun = require('../utils/jwtRun')
+
+const logger = require('../utils/winstonLogger');
+
+
+// Instantiate the Device Model
+let InterestController = require('../controllers/interest');
+let SessionController = require('../controllers/session');
+
+/**
+ *  * init Device
+ * -add device in db
+ * -add session in db with deviceId
+ * -update session with token{deviceId, sessionId}
+ * @return token
+ */
+//______________________Init Device_____________________//
+router.post('/add', function (req, res) {
+    logger.info('API: interest/init %j', {body: req.body});
+    InterestController.add(req.body.device)
         .then(interestId => {
             logger.info("*** interest added interest_id: %s", interestId);
             /*SessionController.add({device: deviceId,})
@@ -21,8 +38,7 @@ let InterestController = require('./controllers/interest');
             logger.error("Interest Add Catch err:", err)
             res.err(err)
         })
-})();
+});
 
 
-
-console.log('SINGLE RUN');
+module.exports = router;
