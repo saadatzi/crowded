@@ -2,14 +2,24 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const DeviceSchema = new Schema({
-    uniqId: {type: String, default: '', index: true},
-    ip: {type: String, default: ''},
-    deviceName: {type: String, default: ''},
-    brand: {type: String, default: ''},
-    model: {type: String, default: ''},
-    osName: {type: String, default: ''},
-    osVersion: {type: String, default: ''},
-    createdAt: { type: Date, default: Date.now }
+    userId: {type: Number, index: true},
+    debug: {type: Number, default: 0},
+    identifier: {type: String, index: true},
+    token: {type: String, index: true},
+    status: {type: Number, default: 1 },
+    notificationToken: {type: String, index: true},
+    notificationTokenDev: {type: String, index: true},
+    osType: String,
+    osVersion: String,
+    title: String,
+    name: String,
+    capacity: String,
+    version: String,
+    build: Number,
+    env: String,
+    lastInteract: { type: Date, default: Date.now },
+    createAt: { type: Date, default: Date.now },
+    updateAt: { type: Date, default: Date.now },
 });
 
 /**
@@ -33,15 +43,37 @@ DeviceSchema.method({
  */
 DeviceSchema.static({
     /**
-     * Find device info
+     * Find device by id
      *
      * @param {ObjectId} _id
      * @api private
      */
+    getById: (_id) => this.findById({_id}).exec(),
 
-    load: function (_id) {
-        return this.findOne({_id})
-            .exec();
+    /**
+     * Find device by identifier
+     *
+     * @param {String} identifier
+     * @api private
+     */
+    getByIdentifier: (identifier) => {
+        return Device.findOne({identifier: identifier})
+            .then(device => {
+                console.log("########## getByIdentifier device: ", device)
+                return device
+            })
+            .catch(err => console.log("!!!!!!!! getByIdentifier catch err: ", err));
+            // console.log("########## getByIdentifier device: ", device)
+            // if (err) {
+            // }
+            // return (device)
+        // });
+        /*return new Promise(resolve => {
+            this.findOne({identifier: identifier}, (err, device) => {
+                if (err) {}
+                resolve(device)
+            })
+        });*/
     },
 
     /**
@@ -50,8 +82,7 @@ DeviceSchema.static({
      * @param {Object} options
      * @api private
      */
-
-    list: function (options) {
+    getAll: (options) => {
         const criteria = options.criteria || {};
         const page = options.page || 0;
         const limit = options.limit || 30;

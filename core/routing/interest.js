@@ -1,6 +1,6 @@
 const express = require('express')
     , router = express.Router();
-const jwtRun = require('../utils/jwtRun')
+const jwtRun = require('../utils/jwt')
 
 const logger = require('../utils/winstonLogger');
 

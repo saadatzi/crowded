@@ -1,10 +1,10 @@
 const express = require('express');
 const app = express.Router();
 
-const deviceModel = require('../../models/deviceModel');
-const userModel = require('../../models/userModel');
+const deviceController = require('../controllers/device');
 
-const NZ = require('../../utils/nz');
+const NZ = require('../utils/nz');
+const {sign} = require('../utils/jwt');
 
 const Joi = require('@hapi/joi');
 
@@ -34,44 +34,42 @@ app.post('/auth', async (req, res, next) => {
 	if (result.error)
 		return new NZ.Response(result.error, 'input error.', 400).send(res);
 	
-	let user_id = null;
-	const device = await deviceModel.getByIdentifier(req.body.device.uid);
+	const device = await deviceController.get(req.body.device.uid);
 
 	if (device) {
-		const data = {
-			osVersion: req.body.os.version,
-			name: req.body.device.name,
-			capacity: req.body.device.capacity
-		};
-		await deviceModel.updateDevice(req.body.device.uid, data);
+		// maybe changed some value
+		device.osVersion = req.body.os.version;
+		device.name =  req.body.device.name;
+		await device.save();
 
-		const nDevice = await deviceModel.getByIdentifierAndToken(req.body.device.uid, req.headers['x-token']);
-		if (nDevice) user_id = nDevice.user_id;
-
-		const token = await deviceModel.setTokenAndUser(device.identifier, user_id);
 		response = {
-			access_token:	token,
-			access_type:	user_id ? 'private' : 'public'
+			access_token:	device.token,
+			access_type:	device.userId ? 'private' : 'public'
 		};
-		if (user_id) 
-			response.user = NZ.outputUser(await userModel.get(user_id));
+		// if (user_id)
+		// 	response.user = NZ.outputUser(await userModel.get(device.user_id));
 
 	} else {
-
+		const newToken = sign({});
 		const deviceInfo = {
 			identifier: req.body.device.uid,
+			token: newToken,
 			osType: req.body.os.type,
 			osVersion: req.body.os.version,
 			title: req.body.device.platform,
 			name: req.body.device.name,
 			capacity: req.body.device.capacity
 		};
-		const device = await deviceModel.insertDevice(deviceInfo);
-		
-		response = {
-			access_token: device.token,
-			access_type: 'public'
-		};
+		await deviceController.add(deviceInfo)
+			.then(result => {
+				response = {
+					access_token: result.token,
+					access_type: 'public'
+				};
+			})
+			.catch(err => {});
+
+
 	}
 
 	return new NZ.Response(response).send(res);

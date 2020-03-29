@@ -1,7 +1,7 @@
 const express = require('express');
 const app = express.Router();
 const red = require('../utils/redis');
-const NZ = require('../../utils/nz');
+const NZ = require('../utils/nz');
 const moment = require('moment');
 
 const config = require('config');
@@ -131,7 +131,7 @@ app.use('/*', (req, res, next) => {
 	});
 });
 
-const E = require('../../utils/events');
+const E = require('../utils/events');
 
 app.get('/', async (req, res) => {
 	E.emit('api.home');
@@ -139,18 +139,15 @@ app.get('/', async (req, res) => {
 });
 
 app.use('/device', 		require('./device'));
-app.use('/user', 		require('./user'));
-app.use('/category', 	require('./category'));
-app.use('/collection', 	require('./collection'));
-app.use('/vendor', 		require('./vendor'));
-app.use('/organizer',	require('./organizer'));
-app.use('/order', 		require('./order'));
-app.use('/class', 		require('./class'));
-app.use('/map', 		require('./map'));
-app.use('/search', 		require('./search'));
+// app.use('/version', 		require('./device'));
+app.use('/interest', 	require('./interest'));
 
-app.use('/homepage', 	require('./homepage'));
+app.get('/', function (reg, res) {
+	var resp = new NZ.Response('Welcome to KIDS-NODE. -' + os.hostname());
+	db.query('SELECT 1+1', () => {
+		resp.send(res);
+	});
+});
 
-app.use('/misc', 		require('./misc'));
 
 module.exports = app;

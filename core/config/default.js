@@ -16,7 +16,7 @@ module.exports = {
 
 	serverConfig: {
 		host: "127.0.0.1",
-		port: 7771,
+		port: 7770,
 		productPort: 4001,
 		SN: "/cr198"
 	},

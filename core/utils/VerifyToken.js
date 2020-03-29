@@ -1,11 +1,11 @@
 const logger = require('./winstonLogger');
-const jwtRun = require('./jwtRun');
+const jwtRun = require('./jwt');
 
 const config = require('config');
 const serverConfig = config.get('serverConfig');
 
 function verifyToken(req, res, next) {
-    logger.info('******* Verify Token req Start ********** %s', req.originalUrl);
+    logger.info('******* Verify Token req Start ********** %s', req.method  + (req.originalUrl).replace(new RegExp('/', 'g'),'_'));
     if (req.originalUrl === `${serverConfig.SN}/device/init` || req.originalUrl === 'api-docs') {
         next();
     } else {

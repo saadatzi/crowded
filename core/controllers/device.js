@@ -4,7 +4,8 @@
 let Device = require('../models/Device');
 
 
-const DeviceController = function () {};
+const DeviceController = function () {
+};
 
 /**
  * Add new Device
@@ -14,16 +15,149 @@ const DeviceController = function () {};
  * @return {ObjectId} deviceId
  */
 DeviceController.prototype.add = async function (newDevice) {
-    const device = new Device(newDevice);
-    return await device.save()
-        .then(room => {
-            console.log("***device save success room._id", room._id);
-            return room._id;
-        })
-        .catch(err => {
-            console.log("!!!device save field: ", err);
-            return -1;
-        })
+    if (Array.isArray(newDevice)) { //newInterest instanceof Array
+        return await Device.insertMany(newDevice)
+            .then(device => {
+                console.log("***device many save success room", device);
+                return device;
+            })
+            .catch(err => {
+                console.log("!!!device many save field: ", err);
+                return -1;
+            })
+    } else {
+        return await Device.create(newDevice)
+            .then(device => {
+                console.log("***device save success room._id", device);
+                return device;
+            })
+            .catch(err => {
+                console.log("!!!device save field: ", err);
+                return -1;
+            })
+    }
+};
+
+/**
+ * get Device
+ *
+ * @param {Object || ObjectId} optFilter
+ * @param {String} type
+ *
+ * @return Interest
+ */
+DeviceController.prototype.get = async (optFilter, type = 'identifier') => {
+    if (!optFilter || optFilter instanceof Object) {
+        return await Device.getAll(optFilter)
+            .then(result => {
+                console.log("***Device get All result: ", result);
+                return result;
+            })
+            .catch(err => {
+                console.log("!!!Device getAll field: ", err);
+                return -1;
+            })
+    } else {
+        if (type === 'identifier') {
+            return await Device.getByIdentifier(optFilter)
+                .then(result => {
+                    console.log(`***Device get by id ${optFilter} result: `, result);
+                    return result;
+                })
+                .catch(err => {
+                    console.log("!!!Device get field: ", err);
+                    return -1;
+                });
+        } else if (type === 'id') {
+            return await Device.getById(optFilter)
+                .then(result => {
+                    console.log(`***Device get by id ${optFilter} result: `, result);
+                    return result;
+                })
+                .catch(err => {
+                    console.log("!!!Device get field: ", err);
+                    return -1;
+                })
+        }
+    }
+};
+
+/**
+ * remove Device (by id or filtered)
+ *
+ * @param {Object || ObjectId} optFilter
+ *
+ * @return Query
+ */
+DeviceController.prototype.remove = async (optFilter) => {
+    if (optFilter) {
+        if (optFilter instanceof Object) { //instanceof mongoose.Types.ObjectId
+            //ToDo return Query?!
+            return await Device.remove(optFilter)
+                .then(result => {
+                    console.log("***Device  Remove many result: ", result);
+                    return result;
+                })
+                .catch(err => {
+                    console.log("!!!Device Remove field: ", err);
+                    return -1;
+                })
+        } else {
+            //ToDo return Query?!
+            return await Device.findByIdAndRemove(optFilter)
+                .then(result => {
+                    console.log(`***Device Remove by id ${optFilter} result: `, result);
+                    return result;
+                })
+                .catch(err => {
+                    console.log("!!!Device Remove field: ", err);
+                    return -1;
+                })
+        }
+    } else {
+        throw {errMessage: 'for remove Object conditions or Id is required!'}
+    }
+
+
+};
+
+/**
+ * Update Device
+ *
+ * @param {Object || ObjectId} optFilter
+ * @param {Object} newValue
+ *
+ * @return Query
+ */
+DeviceController.prototype.update = async (optFilter, newValue) => {
+    if (optFilter) {
+        if (optFilter instanceof Object) { //instanceof mongoose.Types.ObjectId
+            return await Device.updateMany(optFilter, newValue)
+                .then(result => {
+                    console.log("***Device  Update many result: ", result);
+                    return result;
+                })
+                .catch(err => {
+                    console.log("!!!Device Update field: ", err);
+                    return -1;
+                })
+        } else {
+            //ToDo return Query?!
+            return await Device.findByIdAndUpdate(optFilter, newValue)
+                .then(result => {
+                    console.log(`***Device Update by id ${optFilter} result: `, result);
+                    return result;
+                })
+                .catch(err => {
+                    console.log("!!!Device Update field: ", err);
+                    return -1;
+                })
+        }
+    } else {
+        throw {errMessage: 'for Update Object conditions or Id is required!'}
+    }
+
+
 };
 
 module.exports = new DeviceController();

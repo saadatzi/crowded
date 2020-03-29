@@ -16,7 +16,7 @@ const helmet = require('helmet');
 
 const logger = require('./utils/winstonLogger');
 
-const verifyToken = require('./utils/VerifyToken');
+const {verifyToken} = require('./utils/jwt');
 // const CheckException = require('./utils/CheckException');
 logger.info('^^^^^^^^^^^  .ENV DBNAME: %s', process.env.MONGO_DATABASE);
 
@@ -51,28 +51,13 @@ app.use(cors(corsOptions));*/
 /*
 * Authentication JWT
 * */
-app.use((req, res, next) => {
-    verifyToken(req, res, next)
-    // next();
-});
+app.use(verifyToken);
 
 
 /*
 * start Routing
 * */
-
-/*Device*/
-app.use(`${serverConfig.SN}/device`, express.json({limit: '50mb'}), require('./routing/_device'));
-
-app.get('/', function (reg, res) {
-    var resp = new NZ.Response('Welcome to KIDS-NODE. -' + os.hostname());
-    db.query('SELECT 1+1', () => {
-        resp.send(res);
-    });
-});
-
-//Application Check Version
-app.use(`${serverConfig.SN}/version`, require('./controllers/version'));
+app.use('/', require('./routing'))
 
 // start server
 const port = process.env.NODE_ENV === 'production' ? serverConfig.productPort : serverConfig.port;
@@ -81,30 +66,7 @@ var server = app.listen(port, function () {
     logger.info('********* Server is running on Port: %s', port);
 });
 server.setTimeout(10 * 60 * 1000);
-/**
- * server on Error
- */
-function onError(error) {
-    if (error.syscall !== 'listen') {
-        throw error;
-    }
 
-    const bind = typeof port === 'string' ? 'Pipe ' + port : 'Port ' + port;
-
-    // handle specific listen errors with friendly messages
-    switch (error.code) {
-        case 'EACCES':
-            console.error(bind + ' requires elevated privileges');
-            process.exit(1);
-            break;
-        case 'EADDRINUSE':
-            console.error(bind + ' is already in use');
-            process.exit(1);
-            break;
-        default:
-            throw error;
-    }
-}
 
 // server Crash Handle
 process.on('unhandledRejection', (reason, promise) => {

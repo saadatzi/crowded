@@ -1266,6 +1266,11 @@ event-target-shim@^5.0.0:
   resolved "https://registry.yarnpkg.com/event-target-shim/-/event-target-shim-5.0.1.tgz#5d4d3ebdf9583d63a5333ce2deb7480ab2b05789"
   integrity sha512-i/2XbnSz/uxRCU6+NdVJgKWDTM427+MqYbkQzD321DuCQJUqOuJKIA0IM2+W2xtYHdKOmZ4dR6fExsd4SXL+WQ==
 
+eventemitter2@^6.2.1:
+  version "6.2.1"
+  resolved "https://registry.yarnpkg.com/eventemitter2/-/eventemitter2-6.2.1.tgz#cec423117a8ce45c471092d0bb01a0aff1ed5e47"
+  integrity sha512-38fV8WMnn95y1ugsY8Iu25hhFTHYSqR+JkDVNSuKmi5/sF79Zt+EpA0N6yCGv/PSCZhIRZlyaIBY3q8ed7ZikA==
+
 eventemitter3@^4.0.0:
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/eventemitter3/-/eventemitter3-4.0.0.tgz#d65176163887ee59f386d64c82610b696a4a74eb"
