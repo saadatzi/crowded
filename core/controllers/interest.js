@@ -29,8 +29,8 @@ InterestController.prototype.add = async (newInterest) => {
     } else {
         return await Interest.create(newInterest)
             .then(room => {
-                console.log("***Interest save success room._id", room._id);
-                return room._id;
+                console.log("***Interest save success room._id", room);
+                return room;
             })
             .catch(err => {
                 console.log("!!!Interest save field: ", err);
@@ -49,13 +49,9 @@ InterestController.prototype.add = async (newInterest) => {
 InterestController.prototype.get = async (optFilter) => {
     if (!optFilter || optFilter instanceof Object) { //newInterest instanceof Array
         return await Interest.getAll(optFilter)
-            .then(result => {
-                console.log("***Interest get All result: ", result);
-                return result;
-            })
+            .then(result => result)
             .catch(err => {
                 console.log("!!!Interest getAll field: ", err);
-                return -1;
             })
     } else {
         return await Interest.get(optFilter)

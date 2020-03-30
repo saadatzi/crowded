@@ -69,7 +69,7 @@ module.exports = {
 
 		propic_folder: 'pp13i74x/',
 		temp_folder:   '_temp/',
-		media_path:    '/root/nizek/kids-media/',
+		media_path:    '/opt/nizek/crowded-media/',
 
 
 		email_logo:		'https://media.kids.dev.nizek.com/_email/Kidadvisor-white.png',

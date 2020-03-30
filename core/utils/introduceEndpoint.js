@@ -7,4 +7,8 @@ module.exports = {
 		token: 		true,
 		isSecure:	false,
 	},
+	POST_interest_add:		{
+		needToken: 	false,
+		isSecure:	false,
+	},
 }

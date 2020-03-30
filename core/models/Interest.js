@@ -45,19 +45,18 @@ InterestSchema.static({
      * @api private
      */
 
-    getAll: (options) => {
+    getAll: async (options) => {
+        console.log("***Interest get All Model options: ", options);
         const criteria = options.criteria || {};
         const page = options.page || 0;
         const limit = options.limit || 50;
-        return this.find(criteria)
-            .sort({createdAt: -1})
+        return await Interest.find(criteria, options.field || '',)
+            .sort({order: -1})
             .limit(limit)
             .skip(limit * page)
-            .exec(function (err, res) {
-                if (err) return {}; //ToDo logger
-                console.log(res);
-                return res;
-            });
+            .exec()
+            .then(result => result)
+            .catch(err => console.log("Interest getAll Catch", err));
     }
 });
 
