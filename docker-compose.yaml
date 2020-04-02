@@ -2,6 +2,7 @@ version: "3.7"
 services:
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.5.2
+    restart: always
     environment:
       - discovery.type=single-node
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
@@ -20,6 +21,7 @@ services:
       - elastic:/usr/share/elasticsearch/data
   kibana:
     image: docker.elastic.co/kibana/kibana:7.5.2
+    restart: always
     ports:
       - "5601:5601"
     networks:
@@ -28,6 +30,7 @@ services:
   #      - ./kibana.yml:/usr/share/kibana/config/kibana.yml
   redis:
     image: "redis:alpine"
+    restart: always
     command: redis-server --requirepass d2f3db53e6aefddcfdf5c0f2cd36f95517356e9b
     ports:
       - "6379:6379"

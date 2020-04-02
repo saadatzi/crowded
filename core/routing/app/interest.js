@@ -1,14 +1,14 @@
 const express = require('express')
     , router = express.Router();
-const jwtRun = require('../utils/jwt')
+const jwtRun = require('../../utils/jwt')
 
-const logger = require('../utils/winstonLogger');
+const logger = require('../../utils/winstonLogger');
 
 
 // Instantiate the Device Model
-const InterestController = require('../controllers/interest');
-const NZ = require('../utils/nz');
-const {uploader} = require('../utils/fileManager')
+const InterestController = require('../../controllers/interest');
+const NZ = require('../../utils/nz');
+const {uploader} = require('../../utils/fileManager');
 
 /**
  *  Add Interest

@@ -6,42 +6,42 @@ const shortid = require('shortid');
 // var mime = require('mime-types');
 const logger = require('./winstonLogger');
 
+const storage = multer.diskStorage({
+    destination: async (req, file, callback) => {
+        console.log("######### multer.storage distination:")
+        if (!file) {
+            return callback(true, null);
+        }
+        const target = (req.originalUrl).split('/');
+        const folder = await NZ.generateRandomFolder(target[0]);
+        logger.info('API: UploadFile destination %j', {folder: folder});
+        // path = `${folder}/${uuid.v4()}_${shortid.generate()}.${PATH.extname(old_path)}`;
+        req._uploadPath = folder;
+        callback(null, folder)
+    },
+    filename: (req, file, callback) => {
+        console.log("######### multer.storage filename:")
+        if (!file.originalname.match(/\.(png|PNG|jpeg|JPEG|jpg|JPG)$/)) {
+            var err = new Error()
+            err.code = 'fileType';
+            return callback(err)
+        } else {
+            logger.info('API: UploadFile filename %j', {name: file.originalname});
+            console.log(file);
+            const fileName = `${uuid.v4()}_${shortid.generate()}.${path.extname(file.originalname)}`;
+            req._uploadFilename = fileName;
+            callback(null, fileName)
+        }
+    }
+});
 
 
 /*
 * UploadImage and save in path
 * */
 const uploader = async (req, res, next) => {
-    const storage = await multer.diskStorage({
-        destination: async (req, file, callback) => {
-            console.log("######### multer.storage distination:")
-            if (!file) {
-                return callback(true, null);
-            }
-            const target = (req.originalUrl).split('/');
-            const folder = await NZ.generateRandomFolder(target[0]);
-            logger.info('API: UploadFile destination %j', {folder: folder});
-            // path = `${folder}/${uuid.v4()}_${shortid.generate()}.${PATH.extname(old_path)}`;
-            req._uploadPath = folder;
-            callback(null, folder)
-        },
-        filename: (req, file, callback) => {
-            console.log("######### multer.storage filename:")
-            if (!file.originalname.match(/\.(png|PNG|jpeg|JPEG|jpg|JPG)$/)) {
-                var err = new Error()
-                err.code = 'fileType';
-                return callback(err)
-            } else {
-                logger.info('API: UploadFile filename %j', {name: file.originalname});
-                console.log(file);
-                const fileName = `${uuid.v4()}_${shortid.generate()}.${path.extname(file.originalname)}`;
-                req._uploadFilename = fileName;
-                callback(null, fileName)
-            }
-        }
-    });
-    const upload = await multer({storage: storage}).single('fileUpload');
-    upload(req, res, function (err) {
+    const upload = await multer({storage}).single('fileUpload');
+    upload(req, res, (err) => {
         if (err) {
             logger.error('API: UploadFile Error uploading file. %s', err);
             return new NZ.Response(null, 'Nothing uploaded.', 400).send(res);

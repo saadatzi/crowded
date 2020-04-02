@@ -1,10 +1,10 @@
 const express = require('express');
 const app = express.Router();
 
-const deviceController = require('../controllers/device');
+const deviceController = require('../../controllers/device');
 
-const NZ = require('../utils/nz');
-const {sign} = require('../utils/jwt');
+const NZ = require('../../utils/nz');
+const {sign} = require('../../utils/jwt');
 
 const Joi = require('@hapi/joi');
 
