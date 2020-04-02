@@ -35,6 +35,8 @@ const storage = multer.diskStorage({
     }
 });
 
+const uploader2 = multer({storage});
+
 
 /*
 * UploadImage and save in path
@@ -85,5 +87,6 @@ const uploader = async (req, res, next) => {
 });*/
 
 module.exports = {
-    uploader
+	uploader,
+	uploader2
 };
