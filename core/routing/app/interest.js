@@ -17,7 +17,7 @@ const {uploader, uploader2} = require('../../utils/fileManager');
  * @return status
  */
 //______________________Add Interest_____________________//
-router.post('/add', uploader2.single('fileUpload'), async (req, res) => {
+router.put('/add', uploader2.single('fileUpload'), async (req, res) => {
     logger.info('API: Add interest/init %j', {body: req.body});
     req.body.image = req._uploadPath+'/'+req._uploadFilename;
     InterestController.add(req.body)

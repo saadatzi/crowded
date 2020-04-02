@@ -37,7 +37,6 @@ const storage = multer.diskStorage({
 
 const uploader2 = multer({storage});
 
-
 /*
 * UploadImage and save in path
 * */
