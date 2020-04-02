@@ -30,7 +30,7 @@ module.exports = {
         logger.info('******* Verify Token req Start ********** %j', api);
         logger.info('******* Verify Token req.originalUrl: %s', req.originalUrl);
         if (!api) {
-            return new NZ.Response({}, 'Not found Endpoint!', 404).send(res);
+            return new NZ.Response({}, 'Endpoint not found!', 404).send(res);
         }
         if (!api.needToken && !api.isSecure) {
             next();

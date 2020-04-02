@@ -5,33 +5,36 @@ const uuid = require('node-uuid');
 const shortid = require('shortid');
 // var mime = require('mime-types');
 const logger = require('./winstonLogger');
+const settings = require('./settings');
 
 const NZ = require('./nz');
 
 const storage = multer.diskStorage({
     destination: async (req, file, callback) => {
-        console.log("######### multer.storage distination:")
         if (!file) {
             return callback(true, null);
         }
-        const target = (req.originalUrl).split('/');
-        const folder = await NZ.generateRandomFolder(target[0]);
-        logger.info('API: UploadFile destination %j', {folder: folder});
+        const target = (req.originalUrl).slice(1).split('/');
+        let folder = await NZ.generateRandomFolder(target[1]);
+        logger.info('API: UploadFile destination req.originalUrl %s', req.originalUrl);
+        logger.info('API: UploadFile destination target[0] %s', target[0]);
+        logger.info('API: UploadFile destination target[1] %s', target[1]);
+        logger.info('API: UploadFile destination target[2] %s', target[2]);
         // path = `${folder}/${uuid.v4()}_${shortid.generate()}.${PATH.extname(old_path)}`;
+        folder = path.join(settings.media_path, folder);
+        logger.info('API: UploadFile destination %j', {folder: folder});
         req._uploadPath = folder;
         callback(null, folder)
     },
     filename: (req, file, callback) => {
         console.log("######### multer.storage filename:")
         if (!file.originalname.match(/\.(png|PNG|jpeg|JPEG|jpg|JPG)$/)) {
-            var err = new Error()
-            err.code = 'fileType';
-            return callback(err)
+            return callback(new Error('fileType'))
         } else {
-            logger.info('API: UploadFile filename %j', {name: file.originalname});
-            console.log(file);
             const fileName = `${uuid.v4()}_${shortid.generate()}.${path.extname(file.originalname)}`;
             req._uploadFilename = fileName;
+            logger.info('!!!!!!!!!!! API: UploadFile file.originalname %j', {name: file.originalname});
+            logger.info('!!!!!!!!!!! API: UploadFile fileName %s', fileName);
             callback(null, fileName)
         }
     }

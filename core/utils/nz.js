@@ -61,6 +61,7 @@ const generateRandomFolder = (foldername, generatorSeed = 3) => {
 	return new Promise(resolve => {
 		const hashidsRandInt = new Array(generatorSeed).fill(0).map(() => random.integer(0, settings.hashids_max));
 		const folder = hashids.encode(hashidsRandInt);
+		console.log('*************** generateRandomFolder settings.media_path: ', settings.media_path);
 		const folderPath = path.join(settings.media_path, foldername, folder);
 		fs.mkdir(folderPath, { recursive: true }, async () => {
             fs.chmod(folderPath, 0o777, () => {

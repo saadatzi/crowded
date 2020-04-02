@@ -5,19 +5,18 @@ const jwtRun = require('../../utils/jwt')
 const logger = require('../../utils/winstonLogger');
 const Joi = require('@hapi/joi');
 
-// Instantiate the Device Model
-const InterestController = require('../../controllers/interest');
+const UserController = require('../../controllers/user');
 const NZ = require('../../utils/nz');
 const {uploader} = require('../../utils/fileManager');
 
 /**
- *  Add Interest
+ *  Add User
  * -upload image and save in req._uploadPath
  * -add Interest in db
  * @return status
  */
 //______________________Add Interest_____________________//
-router.put('/add', uploader, async (req, res) => {
+router.put('/add', async (req, res) => {
     logger.info('API: Add interest/init %j', {body: req.body});
     if (! req._uploadPath || !req._uploadFilename) {
         return new NZ.Response(null, 'fileUpload is Empty!', 400).send(res);
@@ -47,7 +46,7 @@ router.put('/add', uploader, async (req, res) => {
     //     return new NZ.Response(result.error, 'input error.', 400).send(res);
 
     req.body.image = req._uploadPath+'/'+req._uploadFilename;
-    InterestController.add(req.body)
+    UserController.add(req.body)
         .then(interestId => {
             logger.info("*** interest added interest_id: %s", interestId);
         })
@@ -58,18 +57,14 @@ router.put('/add', uploader, async (req, res) => {
 });
 
 /**
- * Get Interest
- * @param showField
- * @param criteria
- * @param page
- * @param limit
- * @return list of interest
+ * Get User
+ * @return User
  */
 //______________________Get Interest_____________________//
 router.get('/', function (req, res) {
     logger.info('API: Get interest/init');
 
-    InterestController.get({field: req.body.showField || `title_${req.headers['accept-language']} image`})
+    UserController.get({field: req.body.showField || `title_${req.headers['accept-language']} image`})
         .then(result => {
             logger.info("*** interest List : %j", result);
             new NZ.Response({

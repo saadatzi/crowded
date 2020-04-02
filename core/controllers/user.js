@@ -149,4 +149,4 @@ UserController.prototype.update = async (optFilter, newValue) => {
 
 };
 
-module.exports = new InterestController();
+module.exports = new UserController();

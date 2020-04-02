@@ -1,3 +1,4 @@
+const path = require('path');
 module.exports = {
 	contact:		{
 		email:		'info@kidsapp.com',
@@ -62,7 +63,7 @@ module.exports = {
 
 	propic_folder: 'pp13i74x/',
 	temp_folder:   '_temp/',
-	media_path:    '/opt/nizek/crowded-media/',
+	media_path:    path.join(process.env.PWD, '../crowded-media/'),
 
 
 	email_logo:		'https://media.kids.dev.nizek.com/_email/Kidadvisor-white.png',
