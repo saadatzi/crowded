@@ -4,8 +4,7 @@ const red = require('../../utils/redis');
 const NZ = require('../../utils/nz');
 const moment = require('moment');
 
-const config = require('config');
-const settings = config.get('settings');
+const settings = require('../../utils/settings');
 
 const CryptoJS = require('crypto-js');
 
@@ -14,7 +13,7 @@ var body_pattern = /([\S\s]*)\.([0-9a-f]{64})$/gim;
 
 
 function _computeHMAC(text, key = 1) {
-	return CryptoJS.HmacSHA256(text, key == 1 ? settings.HASH_key1 : settings.HASH_key2);
+	return CryptoJS.HmacSHA256(text, key === 1 ? settings.HASH_key1 : settings.HASH_key2);
 }
 
 app.use('/*', (req, res, next) => {

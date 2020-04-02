@@ -1,9 +1,3 @@
-const {
-	MONGO_INITDB_ROOT_USERNAME,
-	MONGO_INITDB_ROOT_PASSWORD,
-	MONGO_DATABASE,
-} = process.env;
-
 module.exports = {
 	contact:		{
 		email:		'info@kidsapp.com',
@@ -24,9 +18,9 @@ module.exports = {
 	mongoDB: {
 		host: "127.0.0.1",
 		port: 27017,
-		dbName: MONGO_DATABASE,
-		user: MONGO_INITDB_ROOT_USERNAME,
-		pass: MONGO_INITDB_ROOT_PASSWORD
+		dbName: 'crowded',
+		user: 'root',
+		pass: 'BAp3kTJGu9H-2+N'
 	},
 
 	mail: {
@@ -49,40 +43,37 @@ module.exports = {
 		maxSize: 100,
 	},
 
-	settings: {
-		hashids_seed:	"cc679a61iipahn2u4ged2df11",
-		hashids_max:	3,
+	hashids_seed:	"cc679a61iipahn2u4ged2df11",
+	hashids_max:	3,
 
-		api_domain:		'https://api.kids.dev.nizek.com/',
-		cdn_domain:		'https://media.kids.dev.nizek.com/',
-		primary_domain:	'https://kids.dev.nizek.com/',
-		project_name:	'Kids',
+	api_domain:		'https://api.kids.dev.nizek.com/',
+	cdn_domain:		'https://media.kids.dev.nizek.com/',
+	primary_domain:	'https://kids.dev.nizek.com/',
+	project_name:	'Kids',
 
-		panel_route:	'',
-		api_base:		'https://panel.kids.dev.nizek.com/api',
-		media_domain:	'https://panel.kids.dev.nizek.com/_media',
-
+	panel_route:	'',
+	api_base:		'https://panel.kids.dev.nizek.com/api',
+	media_domain:	'https://panel.kids.dev.nizek.com/_media',
 
 
-		HASH_key1:		"XWI2EFNCXLhAd9vrmjUQnOjEsJ2xvY2H5B",
-		HASH_key2:		"3ChQljCWLVmzzNCwnY2F0ZWdvcnlJRCc6LhAd9vrmjHlwZSc6InZI",
 
-		propic_folder: 'pp13i74x/',
-		temp_folder:   '_temp/',
-		media_path:    '/opt/nizek/crowded-media/',
+	HASH_key1:		"XWI2EFNCXLhAd9vrmjUQnOjEsJ2xvY2H5B",
+	HASH_key2:		"3ChQljCWLVmzzNCwnY2F0ZWdvcnlJRCc6LhAd9vrmjHlwZSc6InZI",
+
+	propic_folder: 'pp13i74x/',
+	temp_folder:   '_temp/',
+	media_path:    '/opt/nizek/crowded-media/',
 
 
-		email_logo:		'https://media.kids.dev.nizek.com/_email/Kidadvisor-white.png',
+	email_logo:		'https://media.kids.dev.nizek.com/_email/Kidadvisor-white.png',
 
-		db_date_format: 	'YYYY-MM-DD HH:mm:ss',
-		date_format:		'DD-MM-YYYY',
-		time_format:		'HH:mm',
+	db_date_format: 	'YYYY-MM-DD HH:mm:ss',
+	date_format:		'DD-MM-YYYY',
+	time_format:		'HH:mm',
 
-		'NizekUtils.Localizations.Dump.Enabled':   true,
-		'NizekUtils.Localizations.Dump.Interval':  60,
-		'NizekUtils.Localizations.Fetch.Interval': 300
-	},
-
+	'NizekUtils.Localizations.Dump.Enabled':   true,
+	'NizekUtils.Localizations.Dump.Interval':  60,
+	'NizekUtils.Localizations.Fetch.Interval': 300,
 
 
 

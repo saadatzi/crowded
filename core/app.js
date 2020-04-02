@@ -1,7 +1,6 @@
 /**
  * Module dependencies
  */
-require('dotenv').config();
 var os = require('os');
 const express = require('express');
 const app = express();
@@ -9,8 +8,7 @@ const app = express();
 const fs = require('fs');
 const path = require('path');
 // const mongoose = require('mongoose');
-const config = require('config');
-const serverConfig = config.get('serverConfig');
+const {serverConfig} = require('./utils/settings');
 
 const helmet = require('helmet');
 

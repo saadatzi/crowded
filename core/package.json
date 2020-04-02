@@ -15,7 +15,6 @@
     "config": "^3.2.4",
     "connect-redis": "^4.0.4",
     "crypto-js": "^4.0.0",
-    "dotenv": "^8.2.0",
     "download": "^7.1.0",
     "eventemitter2": "^6.2.1",
     "express": "^4.17.1",
@@ -45,7 +44,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "NODE_ENV=development pm2 ./index.js"
+    "dev": "NODE_ENV=development pm2 ./app.js"
   },
   "keywords": [
     "microservice",

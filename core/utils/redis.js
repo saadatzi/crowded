@@ -1,7 +1,6 @@
-const redis = require('redis');
-const config = require('config');
-const redisConfig = config.get('redis');
+const redisDb = require('redis');
+const {redis} = require('./settings');
 
-const redClient = redis.createClient({password: redisConfig.password});
+const redClient = redisDb.createClient({password: redis.password});
 
 module.exports = redClient;
