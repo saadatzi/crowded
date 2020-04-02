@@ -4,6 +4,7 @@ const API = require('./introduceEndpoint');
 const NZ = require('./nz');
 const logger = require('./winstonLogger');
 
+console.log('IM HEREEE');
 
 // use 'utf8' to get string instead of byte array  (512 bit key)
 const privateKEY = fs.readFileSync(__dirname + '/private.key', 'utf8');
