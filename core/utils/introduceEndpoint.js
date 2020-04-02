@@ -7,7 +7,7 @@ module.exports = {
 		token: 		true,
 		isSecure:	false,
 	},
-	POST_app_interest_add:		{
+	PUT_app_interest_add:		{
 		needToken: 	false,
 		isSecure:	false,
 	},
