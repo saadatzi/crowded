@@ -4,7 +4,7 @@ module.exports = {
             cwd: './core',
             name: 'crowdedCore',
             script: 'app.js',
-            instances: "max",
+            instances: "2",
             exec_mode : "cluster",
             autorestart: true,
             watch: false,
