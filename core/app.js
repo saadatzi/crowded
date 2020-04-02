@@ -16,7 +16,6 @@ const logger = require('./utils/winstonLogger');
 
 const {verifyToken} = require('./utils/jwt');
 // const CheckException = require('./utils/CheckException');
-logger.info('^^^^^^^^^^^  .ENV DBNAME: %s', process.env.MONGO_DATABASE);
 
 
 /*
