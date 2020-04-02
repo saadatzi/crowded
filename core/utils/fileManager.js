@@ -6,6 +6,8 @@ const shortid = require('shortid');
 // var mime = require('mime-types');
 const logger = require('./winstonLogger');
 
+const NZ = require('./nz');
+
 const storage = multer.diskStorage({
     destination: async (req, file, callback) => {
         console.log("######### multer.storage distination:")
