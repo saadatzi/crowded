@@ -16,25 +16,17 @@ const storage = multer.diskStorage({
         }
         const target = (req.originalUrl).slice(1).split('/');
         let folder = await NZ.generateRandomFolder(target[1]);
-        logger.info('API: UploadFile destination req.originalUrl %s', req.originalUrl);
-        logger.info('API: UploadFile destination target[0] %s', target[0]);
-        logger.info('API: UploadFile destination target[1] %s', target[1]);
-        logger.info('API: UploadFile destination target[2] %s', target[2]);
-        // path = `${folder}/${uuid.v4()}_${shortid.generate()}.${PATH.extname(old_path)}`;
         folder = path.join(settings.media_path, folder);
         logger.info('API: UploadFile destination %j', {folder: folder});
         req._uploadPath = folder;
         callback(null, folder)
     },
     filename: (req, file, callback) => {
-        console.log("######### multer.storage filename:")
         if (!file.originalname.match(/\.(png|PNG|jpeg|JPEG|jpg|JPG)$/)) {
             return callback(new Error('fileType'))
         } else {
             const fileName = `${uuid.v4()}_${shortid.generate()}.${path.extname(file.originalname)}`;
             req._uploadFilename = fileName;
-            logger.info('!!!!!!!!!!! API: UploadFile file.originalname %j', {name: file.originalname});
-            logger.info('!!!!!!!!!!! API: UploadFile fileName %s', fileName);
             callback(null, fileName)
         }
     }
@@ -50,13 +42,6 @@ const uploader = async (req, res, next) => {
             logger.error('API: UploadFile Error uploading file. %s', err);
             return new NZ.Response(null, 'Nothing uploaded.', 400).send(res);
         }
-        logger.info('!!! API: UploadFile Last fileName: %s', req._uploadFilename);
-        /*storeInDB(parseInt(req.params.type), req.body, fileName, req.userId)
-            .then(result => {
-                fileName = '';
-                CheckException.handler(res, result);
-            })
-            .catch(e => null);*/
         next();
     })
 };
