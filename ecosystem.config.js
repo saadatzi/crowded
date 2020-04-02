@@ -7,7 +7,7 @@ module.exports = {
             instances: "max",
             exec_mode : "cluster",
             autorestart: true,
-            watch: true,
+            watch: false,
             ignore_watch: ["node_modules"],
             max_memory_restart: '1G',
             // instance_var: 'INSTANCE_ID',
@@ -20,9 +20,9 @@ module.exports = {
             env_production: {
                 NODE_ENV: 'production'
 			},
-			error_file: 'logs/err.log',
-			out_file: 'logs/out.log',
-			log_file: 'logs/log.log',
+			error_file: './logs/err.log',
+			out_file: './logs/out.log',
+			log_file: './logs/log.log',
 			merge_logs: true
         },
         // {
