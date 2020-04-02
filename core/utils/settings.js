@@ -33,7 +33,7 @@ module.exports = {
 	},
 
 	redis: 			{
-		password: 	'd2f3db53e6aefddcfdf5c0f2cd36f95517356e9b',
+		password: 	'd2f3db53e64ffddcfdf5c0f2cd36f95517356e9b',
 		host:		'localhost',
 		port:		6379,
 		expire: 	60000 * 60
