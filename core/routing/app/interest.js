@@ -8,7 +8,7 @@ const logger = require('../../utils/winstonLogger');
 // Instantiate the Device Model
 const InterestController = require('../../controllers/interest');
 const NZ = require('../../utils/nz');
-const {uploader, uploader2} = require('../../utils/fileManager');
+const {uploader} = require('../../utils/fileManager');
 
 /**
  *  Add Interest
@@ -17,7 +17,7 @@ const {uploader, uploader2} = require('../../utils/fileManager');
  * @return status
  */
 //______________________Add Interest_____________________//
-router.put('/add', uploader2.single('fileUpload'), async (req, res) => {
+router.put('/add', uploader, async (req, res) => {
     logger.info('API: Add interest/init %j', {body: req.body});
     req.body.image = req._uploadPath+'/'+req._uploadFilename;
     InterestController.add(req.body)
