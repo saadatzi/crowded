@@ -1,12 +1,10 @@
 const mongoose = require('mongoose');
-const config = require('config');
 const logger = require('./utils/winstonLogger');
 
 /*
 * Mongoose DB Connection
 * */
-
-const mongoDB = config.get('mongoDB');
+const {mongoDB} = require('./utils/settings');
 const connectionString = `mongodb://${mongoDB.user}:${mongoDB.pass}@${mongoDB.host}:${mongoDB.port}/${mongoDB.dbName}`;
 
 module.exports = {
