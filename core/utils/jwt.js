@@ -56,6 +56,7 @@ module.exports = {
                         logger.error('!!!Verify Token not have Token: Authorization Failed!!! => API: %s', req.originalUrl);
                         return new NZ.Response(null, 'Authorization Failed!!!', 401).send(res);
                     }
+                    return new NZ.Response(null, 'invalid token', 403).send(res);
                 }
             } else {
                 logger.error('!!!Verify Token not have Token: Authorization Failed!!! => API: %s', req.originalUrl);

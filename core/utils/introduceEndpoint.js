@@ -8,11 +8,19 @@ module.exports = {
 		isSecure:	false,
 	},
 	PUT_app_interest_add: {
-		needToken: 	false,
-		isSecure:	false,
+		needToken: 	true,
+		isSecure:	true,
 	},
 	POST_app_user_register: {
 		needToken: 	true,
 		isSecure:	false,
+	},
+	POST_app_user_login: {
+		needToken: 	true,
+		isSecure:	false,
+	},
+	GET_app_user_logout: {
+		needToken: 	true,
+		isSecure:	true,
 	}
-}
+};

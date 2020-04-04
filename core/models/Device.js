@@ -3,9 +3,8 @@ const Schema = mongoose.Schema;
 
 const DeviceSchema = new Schema({
     userId: {type: Schema.ObjectId, ref: 'User', index: true, default: null},
-    debug: {type: Number, default: 0},
-    identifier: {type: String, index: true},
     token: {type: String, index: true},
+    identifier: {type: String, index: true},
     status: {type: Number, default: 1 },
     notificationToken: {type: String, index: true},
     notificationTokenDev: {type: String, index: true},
@@ -17,6 +16,7 @@ const DeviceSchema = new Schema({
     version: String,
     build: Number,
     env: String,
+    debug: {type: Number, default: 0},
     lastInteract: { type: Date, default: Date.now },
     createAt: { type: Date, default: Date.now },
     updateAt: { type: Date, default: Date.now },

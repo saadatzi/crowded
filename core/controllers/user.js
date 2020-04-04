@@ -4,7 +4,7 @@
 const mongoose = require('mongoose');
 let User = require('../models/User');
 
-
+const _this = this;
 const userController = function () {
 };
 
@@ -28,9 +28,9 @@ userController.prototype.add = async (newUser) => {
             })
     } else {
         return await User.create(newUser)
-            .then(room => {
-                console.log("***User save success room", room);
-                return room;
+            .then(user => {
+                console.log("*** User save success user", user);
+                return dto(user);
             })
             .catch(err => {
                 console.log("!!!User save field: ", err);
@@ -161,5 +161,26 @@ userController.prototype.update = async (optFilter, newValue) => {
 
 
 };
+
+/**
+ * DTO User
+ *
+ * @param {User} user
+ *
+ * @return clean user
+ */
+const dto = user => {
+    return {
+        id: user._id,
+        email: user.email,
+        firstname: user.firstname,
+        lastname: user.lastname,
+        sex: user.sex,
+        birthDate: user.birthDate,
+        nationality: user.nationality,
+        image: user.image ? `${settings.cdn_domain}${user.image}` : null,
+    }
+};
+userController.prototype.dto = dto;
 
 module.exports = new userController();

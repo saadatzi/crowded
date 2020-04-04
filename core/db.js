@@ -12,7 +12,8 @@ module.exports = {
         mongoose.connect(connectionString, {
             useUnifiedTopology: true,
             useNewUrlParser: true,
-            useCreateIndex: true
+            useCreateIndex: true,
+            useFindAndModify: false
         })
             .then(poolResult => {
                 logger.info('*** Mongoose Server Connection Success ***');

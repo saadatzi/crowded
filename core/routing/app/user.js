@@ -13,8 +13,7 @@ const {sign} = require('../../utils/jwt');
 
 /**
  *  Add User
- * -upload image and save in req._uploadPath
- * -add Interest in db
+ * -add User in db
  * @return status
  */
 //______________________Add User_____________________//
@@ -46,9 +45,8 @@ router.post('/register', async (req, res) => {
 
             userController.add(req.body)
                 .then(user => {
-                    logger.info("*** User added newUser: %s", user);
-                    const newToken = sign({deviceId: req.deviceId, userId: user._id});
-                    deviceController.update(req.deviceId, {userId: user._id, token: newToken, updateAt: Date.now});
+                    const newToken = sign({deviceId: req.deviceId, userId: user.id});
+                    deviceController.update(req.deviceId, {userId: user.id, token: newToken, updateAt: Date.now()});
                     new NZ.Response({
                         access_token: newToken,
                         access_type: 'private',
@@ -56,12 +54,74 @@ router.post('/register', async (req, res) => {
                     }).send(res);
                 })
                 .catch(err => {
-                    logger.error("User Add Catch err:", err)
-                    v
+                    logger.error("User register Catch err:", err);
                 })
         })
         .catch(err => {
-            console.log('!!!! user gerByEmail catch ert: ', err);
+            console.log('!!!! user register catch ert: ', err);
+            new NZ.Response(null, err.message, 400).send(res);
+        });
+});
+
+/**
+ *  login
+ */
+//______________________Login_____________________//
+router.post('/login', async (req, res) => {
+    logger.info('API: Login User/init %j', {body: req.body});
+
+    const loginSchema = Joi.object().keys({
+        login:	Joi.object().keys({
+            email:          Joi.string().email({ minDomainSegments: 2, tlds: { allow: ['com', 'net', 'org'] } }),
+            password:       Joi.string().min(6).max(63).required(),
+        }).required(),
+    });
+
+    let loginValidation = loginSchema.validate({login: req.body});
+    if (loginValidation.error)
+        return new NZ.Response(loginValidation.error, 'input error.', 400).send(res);
+    userController.get(req.body.email)
+        .then(user => {
+            if (!user || (user.password !== NZ.sha512Hmac(req.body.password, user.salt)))
+                return new NZ.Response(null, 'Wrong email or password, Try again', 400).send(res);
+
+            //update user lastLogin
+            user.lastLogin = Date.now();
+            user.lastInteract = Date.now();
+            user.save();
+
+            const newToken = sign({deviceId: req.deviceId, userId: user.id});
+            //update device(toke,userId,updateAt)
+            deviceController.update(req.deviceId, {userId: user.id, token: newToken, updateAt: Date.now()});
+            new NZ.Response({
+                access_token: newToken,
+                access_type: 'private',
+                user: userController.dto(user)
+            }).send(res);
+
+        })
+        .catch(err => {
+            console.log('!!!! user login catch ert: ', err);
+            new NZ.Response(null, err.message, 400).send(res);
+        });
+});
+
+/**
+ *  logout
+ */
+//______________________Logout_____________________//
+router.get('/logout', async (req, res) => {
+    logger.info('API: logout User/init');
+    const newToken = sign({deviceId: req.deviceId});
+    deviceController.update(req.deviceId, {userId: null, token: newToken, updateAt: Date.now()})
+        .then(device => {
+            new NZ.Response({
+                access_token: newToken,
+                access_type: 'public'
+            }).send(res);
+        })
+        .catch(err => {
+            console.log('!!!! user logout catch ert: ', err);
             new NZ.Response(null, err.message, 400).send(res);
         });
 });
@@ -70,7 +130,7 @@ router.post('/register', async (req, res) => {
  * Get User
  * @return User
  */
-//______________________Get Interest_____________________//
+//______________________Get User_____________________//
 router.get('/', function (req, res) {
     logger.info('API: Get interest/init');
 
