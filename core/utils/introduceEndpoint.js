@@ -1,14 +1,18 @@
 module.exports = {
-	POST_app_device_auth:		{
+	POST_app_device_auth: {
 		needToken: 	false,
 		isSecure:	false,
 	},
-	GET_app_interest:		{
+	GET_app_interest: {
 		token: 		true,
 		isSecure:	false,
 	},
-	PUT_app_interest_add:		{
+	PUT_app_interest_add: {
 		needToken: 	false,
 		isSecure:	false,
 	},
+	POST_app_user_register: {
+		needToken: 	true,
+		isSecure:	false,
+	}
 }

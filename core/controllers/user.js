@@ -2,7 +2,7 @@
  * Module dependencies.
  */
 const mongoose = require('mongoose');
-let Interest = require('../models/Interest');
+let User = require('../models/User');
 
 
 const UserController = function () {
@@ -11,29 +11,29 @@ const UserController = function () {
 /**
  * Add new User
  *
- * @param {Object || Array} newInterest
+ * @param {Object || Array} newUser
  *
  * @return {ObjectId} interestId
  */
-UserController.prototype.add = async (newInterest) => {
-    if (Array.isArray(newInterest)) { //newInterest instanceof Array
-        return await Interest.insertMany(newInterest)
+UserController.prototype.add = async (newUser) => {
+    if (Array.isArray(newUser)) { //newUser instanceof Array
+        return await User.insertMany(newUser)
             .then(room => {
-                console.log("***Interest many save success room", room);
+                console.log("***User many save success room", room);
                 return room;
             })
             .catch(err => {
-                console.log("!!!Interest many save field: ", err);
+                console.log("!!!User many save field: ", err);
                 return -1;
             })
     } else {
-        return await Interest.create(newInterest)
+        return await User.create(newUser)
             .then(room => {
-                console.log("***Interest save success room._id", room._id);
-                return room._id;
+                console.log("***User save success room._id", room);
+                return room;
             })
             .catch(err => {
-                console.log("!!!Interest save field: ", err);
+                console.log("!!!User save field: ", err);
                 return -1;
             })
     }
@@ -44,27 +44,27 @@ UserController.prototype.add = async (newInterest) => {
  *
  * @param {Object || ObjectId} optFilter
  *
- * @return Interest
+ * @return User
  */
 UserController.prototype.get = async (optFilter) => {
-    if (!optFilter || optFilter instanceof Object) { //newInterest instanceof Array
-        return await Interest.getAll(optFilter)
+    if (!optFilter || optFilter instanceof Object) { //newUser instanceof Array
+        return await User.getAll(optFilter)
             .then(result => {
-                console.log("***Interest get All result: ", result);
+                console.log("***User get All result: ", result);
                 return result;
             })
             .catch(err => {
-                console.log("!!!Interest getAll field: ", err);
+                console.log("!!!User getAll field: ", err);
                 return -1;
             })
     } else {
-        return await Interest.get(optFilter)
+        return await User.get(optFilter)
             .then(result => {
-                console.log(`***Interest get by id ${optFilter} result: `, result);
+                console.log(`***User get by id ${optFilter} result: `, result);
                 return result;
             })
             .catch(err => {
-                console.log("!!!Interest get field: ", err);
+                console.log("!!!User get field: ", err);
                 return -1;
             })
     }
@@ -81,24 +81,24 @@ UserController.prototype.remove = async (optFilter) => {
     if (optFilter) {
         if (optFilter instanceof Object) { //instanceof mongoose.Types.ObjectId
             //ToDo return Query?!
-            return await Interest.remove(optFilter)
+            return await User.remove(optFilter)
                 .then(result => {
-                    console.log("***Interest  Remove many result: ", result);
+                    console.log("***User  Remove many result: ", result);
                     return result;
                 })
                 .catch(err => {
-                    console.log("!!!Interest Remove field: ", err);
+                    console.log("!!!User Remove field: ", err);
                     return -1;
                 })
         } else {
             //ToDo return Query?!
-            return await Interest.findByIdAndRemove(optFilter)
+            return await User.findByIdAndRemove(optFilter)
                 .then(result => {
-                    console.log(`***Interest Remove by id ${optFilter} result: `, result);
+                    console.log(`***User Remove by id ${optFilter} result: `, result);
                     return result;
                 })
                 .catch(err => {
-                    console.log("!!!Interest Remove field: ", err);
+                    console.log("!!!User Remove field: ", err);
                     return -1;
                 })
         }
@@ -121,24 +121,24 @@ UserController.prototype.update = async (optFilter, newValue) => {
     if (optFilter) {
         if (optFilter instanceof Object) { //instanceof mongoose.Types.ObjectId
             //ToDo return Query?!
-            return await Interest.updateMany(optFilter, newValue)
+            return await User.updateMany(optFilter, newValue)
                 .then(result => {
-                    console.log("***Interest  Update many result: ", result);
+                    console.log("***User  Update many result: ", result);
                     return result;
                 })
                 .catch(err => {
-                    console.log("!!!Interest Update field: ", err);
+                    console.log("!!!User Update field: ", err);
                     return -1;
                 })
         } else {
             //ToDo return Query?!
-            return await Interest.findByIdAndUpdate(optFilter, newValue)
+            return await User.findByIdAndUpdate(optFilter, newValue)
                 .then(result => {
-                    console.log(`***Interest Update by id ${optFilter} result: `, result);
+                    console.log(`***User Update by id ${optFilter} result: `, result);
                     return result;
                 })
                 .catch(err => {
-                    console.log("!!!Interest Update field: ", err);
+                    console.log("!!!User Update field: ", err);
                     return -1;
                 })
         }

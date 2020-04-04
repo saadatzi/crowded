@@ -15,43 +15,32 @@ const {uploader} = require('../../utils/fileManager');
  * -add Interest in db
  * @return status
  */
-//______________________Add Interest_____________________//
-router.put('/add', async (req, res) => {
-    logger.info('API: Add interest/init %j', {body: req.body});
-    if (! req._uploadPath || !req._uploadFilename) {
-        return new NZ.Response(null, 'fileUpload is Empty!', 400).send(res);
-    }
-    // const schema = Joi.object().keys({
-    //     device:	Joi.object().keys({
-    //         name:		Joi.string().required(),
-    //         capacity:	Joi.string().regex(/^[0-9.GB]{3,18}$/).required(),
-    //         uid:		Joi.string().regex(/^[A-F0-9-]{36}$/).required(),
-    //         platform:	Joi.string().required()
-    //     }).required(),
-    //
-    //     os: Joi.object().keys({
-    //         version:	Joi.string().required(),
-    //         type:		Joi.string().allow('iOS', 'Android').required()
-    //     }).required()
-    // });
-    //
-    // result = schema.validate({
-    //     device:	req.body.device,
-    //     os:		req.body.os
-    // });
-    //
-    // let response = {};
-    //
-    // if (result.error)
-    //     return new NZ.Response(result.error, 'input error.', 400).send(res);
+//______________________Add User_____________________//
+router.post('/register', async (req, res) => {
+    logger.info('API: Register User/init %j', {body: req.body});
 
-    req.body.image = req._uploadPath+'/'+req._uploadFilename;
+    const userSchema = Joi.object().keys({
+        user:	Joi.object().keys({
+            firstname:	    Joi.string().required(),
+            lastname:	    Joi.string().required(),
+            sex:	        Joi.number().required(),
+            email:          Joi.string().email({ minDomainSegments: 2, tlds: { allow: ['com', 'net', 'org'] } }),
+            password:       Joi.string().min(6).max(63).required(),
+            nationality:    Joi.string().required(),
+            birthDate:      Joi.date().required(),
+        }).required(),
+    });
+
+    let userValidation = userSchema.validate({user: req.body});
+    if (userValidation.error)
+        return new NZ.Response(userValidation.error, 'input error.', 400).send(res);
+
     UserController.add(req.body)
-        .then(interestId => {
-            logger.info("*** interest added interest_id: %s", interestId);
+        .then(user => {
+            logger.info("*** User added newUser: %s", user);
         })
         .catch(err => {
-            logger.error("Interest Add Catch err:", err)
+            logger.error("User Add Catch err:", err)
             res.err(err)
         })
 });
