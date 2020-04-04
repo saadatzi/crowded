@@ -4,10 +4,12 @@ const jwtRun = require('../../utils/jwt')
 
 const logger = require('../../utils/winstonLogger');
 const Joi = require('@hapi/joi');
-
-const UserController = require('../../controllers/user');
+const uuid = require('node-uuid');
+const userController = require('../../controllers/user');
+const deviceController = require('../../controllers/device');
 const NZ = require('../../utils/nz');
 const {uploader} = require('../../utils/fileManager');
+const {sign} = require('../../utils/jwt');
 
 /**
  *  Add User
@@ -34,15 +36,34 @@ router.post('/register', async (req, res) => {
     let userValidation = userSchema.validate({user: req.body});
     if (userValidation.error)
         return new NZ.Response(userValidation.error, 'input error.', 400).send(res);
+    userController.get(req.body.email)
+        .then(oldUser => {
+            if (oldUser) return new NZ.Response(null, 'A user with this email already exists', 400).send(res);
 
-    UserController.add(req.body)
-        .then(user => {
-            logger.info("*** User added newUser: %s", user);
+            //hash password
+            req.body.salt = NZ.sha512(uuid.v4());
+            req.body.password = NZ.sha512Hmac(req.body.password, req.body.salt);
+
+            userController.add(req.body)
+                .then(user => {
+                    logger.info("*** User added newUser: %s", user);
+                    const newToken = sign({deviceId: req.deviceId, userId: user._id});
+                    deviceController.update(req.deviceId, {userId: user._id, token: newToken, updateAt: Date.now});
+                    new NZ.Response({
+                        access_token: newToken,
+                        access_type: 'private',
+                        user: user
+                    }).send(res);
+                })
+                .catch(err => {
+                    logger.error("User Add Catch err:", err)
+                    v
+                })
         })
         .catch(err => {
-            logger.error("User Add Catch err:", err)
-            res.err(err)
-        })
+            console.log('!!!! user gerByEmail catch ert: ', err);
+            new NZ.Response(null, err.message, 400).send(res);
+        });
 });
 
 /**
@@ -53,7 +74,7 @@ router.post('/register', async (req, res) => {
 router.get('/', function (req, res) {
     logger.info('API: Get interest/init');
 
-    UserController.get({field: req.body.showField || `title_${req.headers['accept-language']} image`})
+    userController.get({field: req.body.showField || `title_${req.headers['accept-language']} image`})
         .then(result => {
             logger.info("*** interest List : %j", result);
             new NZ.Response({

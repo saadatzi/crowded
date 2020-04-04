@@ -1,5 +1,5 @@
 const logger = require('./utils/winstonLogger')
-let InterestController = require('./controllers/interest');
+let interestController = require('./controllers/interest');
 (async () => {
     console.log("******* single run **********")
     // InterestController.add({title: 'Sports', image: 'sport.jpg'})

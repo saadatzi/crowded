@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 let Interest = require('../models/Interest');
 
 
-const InterestController = function () {
+const interestController = function () {
 };
 
 /**
@@ -15,7 +15,7 @@ const InterestController = function () {
  *
  * @return {ObjectId} interestId
  */
-InterestController.prototype.add = async (newInterest) => {
+interestController.prototype.add = async (newInterest) => {
     if (Array.isArray(newInterest)) { //newInterest instanceof Array
         return await Interest.insertMany(newInterest)
             .then(room => {
@@ -46,7 +46,7 @@ InterestController.prototype.add = async (newInterest) => {
  *
  * @return Interest
  */
-InterestController.prototype.get = async (optFilter) => {
+interestController.prototype.get = async (optFilter) => {
     if (!optFilter || optFilter instanceof Object) { //newInterest instanceof Array
         return await Interest.getAll(optFilter)
             .then(result => result)
@@ -73,7 +73,7 @@ InterestController.prototype.get = async (optFilter) => {
  *
  * @return Query
  */
-InterestController.prototype.remove = async (optFilter) => {
+interestController.prototype.remove = async (optFilter) => {
     if (optFilter) {
         if (optFilter instanceof Object) { //instanceof mongoose.Types.ObjectId
             //ToDo return Query?!
@@ -113,7 +113,7 @@ InterestController.prototype.remove = async (optFilter) => {
  *
  * @return Query
  */
-InterestController.prototype.update = async (optFilter, newValue) => {
+interestController.prototype.update = async (optFilter, newValue) => {
     if (optFilter) {
         if (optFilter instanceof Object) { //instanceof mongoose.Types.ObjectId
             //ToDo return Query?!
@@ -145,4 +145,4 @@ InterestController.prototype.update = async (optFilter, newValue) => {
 
 };
 
-module.exports = new InterestController();
+module.exports = new interestController();

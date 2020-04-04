@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const DeviceSchema = new Schema({
-    userId: {type: Number, index: true},
+    userId: {type: Schema.ObjectId, ref: 'User', index: true, default: null},
     debug: {type: Number, default: 0},
     identifier: {type: String, index: true},
     token: {type: String, index: true},
@@ -48,7 +48,12 @@ DeviceSchema.static({
      * @param {ObjectId} _id
      * @api private
      */
-    getById: (_id) => this.findById({_id}).exec(),
+    getById: (_id) => this.findById({_id})
+        .then(device => {
+            console.log("########## getById device: ", device);
+            return device
+        })
+        .catch(err => console.log("!!!!!!!! getById catch err: ", err)),
 
     /**
      * Find device by identifier
@@ -59,7 +64,7 @@ DeviceSchema.static({
     getByIdentifier: (identifier) => {
         return Device.findOne({identifier: identifier})
             .then(device => {
-                console.log("########## getByIdentifier device: ", device)
+                console.log("########## getByIdentifier device: ", device);
                 return device
             })
             .catch(err => console.log("!!!!!!!! getByIdentifier catch err: ", err));

@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 let User = require('../models/User');
 
 
-const UserController = function () {
+const userController = function () {
 };
 
 /**
@@ -15,7 +15,7 @@ const UserController = function () {
  *
  * @return {ObjectId} interestId
  */
-UserController.prototype.add = async (newUser) => {
+userController.prototype.add = async (newUser) => {
     if (Array.isArray(newUser)) { //newUser instanceof Array
         return await User.insertMany(newUser)
             .then(room => {
@@ -29,7 +29,7 @@ UserController.prototype.add = async (newUser) => {
     } else {
         return await User.create(newUser)
             .then(room => {
-                console.log("***User save success room._id", room);
+                console.log("***User save success room", room);
                 return room;
             })
             .catch(err => {
@@ -43,10 +43,11 @@ UserController.prototype.add = async (newUser) => {
  * get User
  *
  * @param {Object || ObjectId} optFilter
+ * @param {String} type
  *
  * @return User
  */
-UserController.prototype.get = async (optFilter) => {
+userController.prototype.get = async (optFilter, type = 'email') => {
     if (!optFilter || optFilter instanceof Object) { //newUser instanceof Array
         return await User.getAll(optFilter)
             .then(result => {
@@ -58,15 +59,27 @@ UserController.prototype.get = async (optFilter) => {
                 return -1;
             })
     } else {
-        return await User.get(optFilter)
-            .then(result => {
-                console.log(`***User get by id ${optFilter} result: `, result);
-                return result;
-            })
-            .catch(err => {
-                console.log("!!!User get field: ", err);
-                return -1;
-            })
+        if (type === 'email') {
+            return await User.getByEmail(optFilter)
+                .then(result => {
+                    console.log(`***User getByEmail ${optFilter} result: `, result);
+                    return result;
+                })
+                .catch(err => {
+                    console.log("!!!User getByEmail field: ", err);
+                    return -1;
+                })
+        } else {
+            return await User.get(optFilter)
+                .then(result => {
+                    console.log(`***User get by id ${optFilter} result: `, result);
+                    return result;
+                })
+                .catch(err => {
+                    console.log("!!!User get field: ", err);
+                    return -1;
+                })
+        }
     }
 };
 
@@ -77,7 +90,7 @@ UserController.prototype.get = async (optFilter) => {
  *
  * @return Query
  */
-UserController.prototype.remove = async (optFilter) => {
+userController.prototype.remove = async (optFilter) => {
     if (optFilter) {
         if (optFilter instanceof Object) { //instanceof mongoose.Types.ObjectId
             //ToDo return Query?!
@@ -117,7 +130,7 @@ UserController.prototype.remove = async (optFilter) => {
  *
  * @return Query
  */
-UserController.prototype.update = async (optFilter, newValue) => {
+userController.prototype.update = async (optFilter, newValue) => {
     if (optFilter) {
         if (optFilter instanceof Object) { //instanceof mongoose.Types.ObjectId
             //ToDo return Query?!
@@ -149,4 +162,4 @@ UserController.prototype.update = async (optFilter, newValue) => {
 
 };
 
-module.exports = new UserController();
+module.exports = new userController();

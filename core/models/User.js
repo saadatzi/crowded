@@ -10,6 +10,7 @@ const UserSchema = new Schema({
     birthDate: Date,
     phone: String,
     nationality: String,
+    salt: String,
     password: String,
     IBAN: String,
     civilId: String,
@@ -18,8 +19,8 @@ const UserSchema = new Schema({
     lastIp: String,
     lastLogin: Date,
     lastInteract: Date,
-    createdAt: { type: Date, default: Date.now },
-    updateAt: { type: Date, default: Date.now }
+    createdAt: {type: Date, default: Date.now},
+    updateAt: {type: Date, default: Date.now}
 });
 
 /**
@@ -57,24 +58,9 @@ UserSchema.static({
      * @api private
      */
     getByEmail: async (email) => {
-
         return await User.findOne({email: email})
-            .then(device => {
-                console.log("########## getByIdentifier device: ", device)
-                return device
-            })
-            .catch(err => console.log("!!!!!!!! getByIdentifier catch err: ", err));
-        // console.log("########## getByIdentifier device: ", device)
-        // if (err) {
-        // }
-        // return (device)
-        // });
-        /*return new Promise(resolve => {
-            this.findOne({identifier: identifier}, (err, device) => {
-                if (err) {}
-                resolve(device)
-            })
-        });*/
+            .then(user => user)
+            .catch(err => console.log("!!!!!!!! getByEmail catch err: ", err));
     },
 
     /**

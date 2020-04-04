@@ -48,7 +48,8 @@ module.exports = {
                     let tokenObj = jwt.verify(token, publicKEY, tokenOption);
                     if (!tokenObj) throw {errCode: 401};
 
-                    req.sessionId = tokenObj.sessionId;
+                    req.deviceId = tokenObj.deviceId;
+                    if (tokenObj.userId) req.userId = tokenObj.userId;
                     next();
                 } catch (err) {
                     if (err.errCode === 401) {

@@ -50,10 +50,9 @@ app.post('/auth', async (req, res, next) => {
 		// 	response.user = NZ.outputUser(await userModel.get(device.user_id));
 
 	} else {
-		const newToken = sign({});
+
 		const deviceInfo = {
 			identifier: req.body.device.uid,
-			token: newToken,
 			osType: req.body.os.type,
 			osVersion: req.body.os.version,
 			title: req.body.device.platform,
@@ -61,9 +60,12 @@ app.post('/auth', async (req, res, next) => {
 			capacity: req.body.device.capacity
 		};
 		await deviceController.add(deviceInfo)
-			.then(result => {
+			.then(newDevice => {
+				const newToken = sign({deviceId: newDevice._id});
+				newDevice.token = newToken;
+				newDevice.save();
 				response = {
-					access_token: result.token,
+					access_token: newToken,
 					access_type: 'public'
 				};
 			})

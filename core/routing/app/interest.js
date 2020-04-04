@@ -6,7 +6,7 @@ const logger = require('../../utils/winstonLogger');
 const Joi = require('@hapi/joi');
 
 // Instantiate the Device Model
-const InterestController = require('../../controllers/interest');
+const interestController = require('../../controllers/interest');
 const NZ = require('../../utils/nz');
 const {uploader} = require('../../utils/fileManager');
 
@@ -47,7 +47,7 @@ router.put('/add', uploader, async (req, res) => {
     //     return new NZ.Response(result.error, 'input error.', 400).send(res);
 
     req.body.image = req._uploadPath+'/'+req._uploadFilename;
-    InterestController.add(req.body)
+    interestController.add(req.body)
         .then(interestId => {
             logger.info("*** interest added interest_id: %s", interestId);
         })
@@ -69,7 +69,7 @@ router.put('/add', uploader, async (req, res) => {
 router.get('/', function (req, res) {
     logger.info('API: Get interest/init');
 
-    InterestController.get({field: req.body.showField || `title_${req.headers['accept-language']} image`})
+    interestController.get({field: req.body.showField || `title_${req.headers['accept-language']} image`})
         .then(result => {
             logger.info("*** interest List : %j", result);
             new NZ.Response({

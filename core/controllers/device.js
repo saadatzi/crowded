@@ -4,7 +4,7 @@
 let Device = require('../models/Device');
 
 
-const DeviceController = function () {
+const deviceController = function () {
 };
 
 /**
@@ -14,7 +14,7 @@ const DeviceController = function () {
  *
  * @return {ObjectId} deviceId
  */
-DeviceController.prototype.add = async function (newDevice) {
+deviceController.prototype.add = async function (newDevice) {
     if (Array.isArray(newDevice)) { //newInterest instanceof Array
         return await Device.insertMany(newDevice)
             .then(device => {
@@ -46,7 +46,7 @@ DeviceController.prototype.add = async function (newDevice) {
  *
  * @return Interest
  */
-DeviceController.prototype.get = async (optFilter, type = 'identifier') => {
+deviceController.prototype.get = async (optFilter, type = 'identifier') => {
     if (!optFilter || optFilter instanceof Object) {
         return await Device.getAll(optFilter)
             .then(result => {
@@ -89,7 +89,7 @@ DeviceController.prototype.get = async (optFilter, type = 'identifier') => {
  *
  * @return Query
  */
-DeviceController.prototype.remove = async (optFilter) => {
+deviceController.prototype.remove = async (optFilter) => {
     if (optFilter) {
         if (optFilter instanceof Object) { //instanceof mongoose.Types.ObjectId
             //ToDo return Query?!
@@ -129,7 +129,7 @@ DeviceController.prototype.remove = async (optFilter) => {
  *
  * @return Query
  */
-DeviceController.prototype.update = async (optFilter, newValue) => {
+deviceController.prototype.update = async (optFilter, newValue) => {
     if (optFilter) {
         if (optFilter instanceof Object) { //instanceof mongoose.Types.ObjectId
             return await Device.updateMany(optFilter, newValue)
@@ -160,4 +160,4 @@ DeviceController.prototype.update = async (optFilter, newValue) => {
 
 };
 
-module.exports = new DeviceController();
+module.exports = new deviceController();
