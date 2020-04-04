@@ -98,7 +98,7 @@ app.use('/*', (req, res, next) => {
 		var k = req.rawBody.toString('utf8');
 		var _match = body_pattern.exec(k);
 		body_pattern.lastIndex = 0;
-		console.log(req.rawBody);
+
 		if (!_match){
 			if (req.get('x-dontcheckme') !== undefined) {
 				try {
