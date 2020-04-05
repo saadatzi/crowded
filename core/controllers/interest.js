@@ -1,7 +1,6 @@
 /**
  * Module dependencies.
  */
-const mongoose = require('mongoose');
 let Interest = require('../models/Interest');
 
 

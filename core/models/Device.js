@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const DeviceSchema = new Schema({
-    userId: {type: Schema.ObjectId, ref: 'User', index: true, default: null},
+    userId: {type: Schema.Types.ObjectId, ref: 'User', index: true, default: null},
     token: {type: String, index: true},
     identifier: {type: String, index: true},
     status: {type: Number, default: 1 },

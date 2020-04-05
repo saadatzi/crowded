@@ -2,9 +2,6 @@ const fs = require('fs');
 const jwt = require('jsonwebtoken');
 const API = require('./introduceEndpoint');
 const NZ = require('./nz');
-const logger = require('./winstonLogger');
-
-console.log('IM HEREEE');
 
 // use 'utf8' to get string instead of byte array  (512 bit key)
 const privateKEY = fs.readFileSync(__dirname + '/private.key', 'utf8');
@@ -17,7 +14,7 @@ const tokenOption = {
 };
 module.exports = {
     sign: (payload) => {
-        logger.info('API: JWT sign payload %j ', payload);
+        console.info('API: JWT sign payload %j ', payload);
         return jwt.sign(payload, privateKEY, tokenOption);
     },
     decode: (token) => {
@@ -27,7 +24,7 @@ module.exports = {
     verifyToken: (req, res, next) => {
         const strApi = req.method + (req.originalUrl).replace(new RegExp('/', 'g'), '_');
         const api = API[strApi];
-        logger.info('******* Verify Token req Start req.originalUrl: %s %j', req.originalUrl, api);
+        console.info('******* Verify Token req Start req.originalUrl: %s %j', req.originalUrl, api);
         if (!api) {
             return new NZ.Response({}, 'Endpoint not found!', 404).send(res);
         }
@@ -52,13 +49,13 @@ module.exports = {
                     next();
                 } catch (err) {
                     if (err.errCode === 401) {
-                        logger.error('!!!Verify Token not have Token: Authorization Failed!!! => API: %s', req.originalUrl);
+                        console.error('!!!Verify Token not have Token: Authorization Failed!!! => API: %s', req.originalUrl);
                         return new NZ.Response(null, 'Authorization Failed!!!', 401).send(res);
                     }
                     return new NZ.Response(null, 'invalid token', 403).send(res);
                 }
             } else {
-                logger.error('!!!Verify Token not have Token: Authorization Failed!!! => API: %s', req.originalUrl);
+                console.error('!!!Verify Token not have Token: Authorization Failed!!! => API: %s', req.originalUrl);
                 return new NZ.Response(null, 'invalid token', 403).send(res);
             }
         }

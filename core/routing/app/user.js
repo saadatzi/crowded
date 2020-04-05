@@ -2,7 +2,6 @@ const express = require('express')
     , router = express.Router();
 const jwtRun = require('../../utils/jwt')
 
-const logger = require('../../utils/winstonLogger');
 const Joi = require('@hapi/joi');
 const uuid = require('node-uuid');
 const userController = require('../../controllers/user');
@@ -18,7 +17,7 @@ const {sign} = require('../../utils/jwt');
  */
 //______________________Add User_____________________//
 router.post('/register', async (req, res) => {
-    logger.info('API: Register User/init %j', {body: req.body});
+    console.info('API: Register User/init %j', {body: req.body});
 
     req.body.email = (req.body.email).toString().toLowerCase();
 
@@ -56,7 +55,7 @@ router.post('/register', async (req, res) => {
                     }).send(res);
                 })
                 .catch(err => {
-                    logger.error("User register Catch err:", err);
+                    console.error("User register Catch err:", err);
                 })
         })
         .catch(err => {
@@ -70,7 +69,7 @@ router.post('/register', async (req, res) => {
  */
 //______________________Login_____________________//
 router.post('/login', async (req, res) => {
-    logger.info('API: Login User/init %j', {body: req.body});
+    console.info('API: Login User/init %j', {body: req.body});
 
     const loginSchema = Joi.object().keys({
         login:	Joi.object().keys({
@@ -113,7 +112,7 @@ router.post('/login', async (req, res) => {
  */
 //______________________Logout_____________________//
 router.get('/logout', async (req, res) => {
-    logger.info('API: logout User/init');
+    console.info('API: logout User/init');
     const newToken = sign({deviceId: req.deviceId});
     deviceController.update(req.deviceId, {userId: null, token: newToken, updateAt: Date.now()})
         .then(device => {
@@ -134,17 +133,17 @@ router.get('/logout', async (req, res) => {
  */
 //______________________Get User_____________________//
 router.get('/', function (req, res) {
-    logger.info('API: Get interest/init');
+    console.info('API: Get interest/init');
 
     userController.get({field: req.body.showField || `title_${req.headers['accept-language']} image`})
         .then(result => {
-            logger.info("*** interest List : %j", result);
+            console.info("*** interest List : %j", result);
             new NZ.Response({
                 items:  result,
             }).send(res);
         })
         .catch(err => {
-            logger.error("Interest Get Catch err:", err)
+            console.error("Interest Get Catch err:", err)
             // res.err(err)
         })
 });

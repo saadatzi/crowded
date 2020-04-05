@@ -4,7 +4,6 @@ const fs = require('fs');
 const uuid = require('node-uuid');
 const shortid = require('shortid');
 // var mime = require('mime-types');
-const logger = require('./winstonLogger');
 const settings = require('./settings');
 
 const NZ = require('./nz');
@@ -17,7 +16,7 @@ const storage = multer.diskStorage({
         const target = (req.originalUrl).slice(1).split('/');
         let folder = await NZ.generateRandomFolder(target[1]);
         folder = path.join(settings.media_path, folder);
-        logger.info('API: UploadFile destination %j', {folder: folder});
+        console.info('API: UploadFile destination %j', {folder: folder});
         req._uploadPath = folder;
         callback(null, folder)
     },
@@ -39,7 +38,7 @@ const uploader = async (req, res, next) => {
     const upload = await multer({storage}).single('fileUpload');
     upload(req, res, (err) => {
         if (err) {
-            logger.error('API: UploadFile Error uploading file. %s', err);
+            console.error('API: UploadFile Error uploading file. %s', err);
             return new NZ.Response(null, 'Nothing uploaded.', 400).send(res);
         }
         next();
@@ -48,11 +47,11 @@ const uploader = async (req, res, next) => {
 
 /*router.get('/:fileName', function (req, res) {
 
-    logger.info('API: DownloadFile/getFile %j', {params: req.params/!*, token_userId:token*!/});
+    console.info('API: DownloadFile/getFile %j', {params: req.params/!*, token_userId:token*!/});
 
     const file = uploadPath + path.sep + req.params.fileName;
     const filename = path.basename(file);
-    logger.info('API: DownloadFile/getFile: %j', {file: file, fileName: filename});
+    console.info('API: DownloadFile/getFile: %j', {file: file, fileName: filename});
     // var mimetype = mime.lookup(file);
 
     res.setHeader('Content-disposition', 'inline; filename=' + filename);
@@ -62,7 +61,7 @@ const uploader = async (req, res, next) => {
 
     const filestream = fs.createReadStream(file);
     filestream.on('error', function (err) {
-        logger.error('API: DownloadFile/getFile Error!!! %s', err);
+        console.error('API: DownloadFile/getFile Error!!! %s', err);
         res.status(404).send();
     });
     // This will wait until we know the readable stream is actually valid before piping

@@ -46,7 +46,6 @@ InterestSchema.static({
      */
 
     getAll: async (options) => {
-        console.log("***Interest get All Model options: ", options);
         const criteria = options.criteria || {};
         const page = options.page || 0;
         const limit = options.limit || 50;

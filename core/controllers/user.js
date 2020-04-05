@@ -1,10 +1,8 @@
 /**
  * Module dependencies.
  */
-const mongoose = require('mongoose');
 let User = require('../models/User');
 
-const _this = this;
 const userController = function () {
 };
 
@@ -61,10 +59,7 @@ userController.prototype.get = async (optFilter, type = 'email') => {
     } else {
         if (type === 'email') {
             return await User.getByEmail(optFilter)
-                .then(result => {
-                    console.log(`***User getByEmail ${optFilter} result: `, result);
-                    return result;
-                })
+                .then(result => result)
                 .catch(err => {
                     console.log("!!!User getByEmail field: ", err);
                     return -1;

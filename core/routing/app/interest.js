@@ -2,7 +2,6 @@ const express = require('express')
     , router = express.Router();
 const jwtRun = require('../../utils/jwt')
 
-const logger = require('../../utils/winstonLogger');
 const Joi = require('@hapi/joi');
 
 // Instantiate the Device Model
@@ -18,7 +17,7 @@ const {uploader} = require('../../utils/fileManager');
  */
 //______________________Add Interest_____________________//
 router.put('/add', uploader, async (req, res) => {
-    logger.info('API: Add interest/init %j', {body: req.body});
+    console.info('API: Add interest/init %j', {body: req.body});
     if (! req._uploadPath || !req._uploadFilename) {
         return new NZ.Response(null, 'fileUpload is Empty!', 400).send(res);
     }
@@ -48,11 +47,11 @@ router.put('/add', uploader, async (req, res) => {
 
     req.body.image = req._uploadPath+'/'+req._uploadFilename;
     interestController.add(req.body)
-        .then(interestId => {
-            logger.info("*** interest added interest_id: %s", interestId);
+        .then(interest => {
+            new NZ.Response({item:  interest}).send(res);
         })
         .catch(err => {
-            logger.error("Interest Add Catch err:", err)
+            console.error("Interest Add Catch err:", err)
             res.err(err)
         })
 });
@@ -66,18 +65,18 @@ router.put('/add', uploader, async (req, res) => {
  * @return list of interest
  */
 //______________________Get Interest_____________________//
-router.post('/list', function (req, res) {
-    logger.info('API: Get interest/init');
+router.get('/', function (req, res) {
+    console.info('API: Get interest/init');
 
-    interestController.get({field: req.body.showField || `title_${req.headers['accept-language']} image`})
+    interestController.get({field: `title_${req.headers['lang'] ? req.headers['lang'] : 'en'} image`})
         .then(result => {
-            logger.info("*** interest List : %j", result);
+            console.info("*** interest List : %j", result);
             new NZ.Response({
                 items:  result,
             }).send(res);
         })
         .catch(err => {
-            logger.error("Interest Get Catch err:", err)
+            console.error("Interest Get Catch err:", err)
             // res.err(err)
         })
 });
