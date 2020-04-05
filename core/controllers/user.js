@@ -128,7 +128,6 @@ userController.prototype.remove = async (optFilter) => {
 userController.prototype.update = async (optFilter, newValue) => {
     if (optFilter) {
         if (optFilter instanceof Object) { //instanceof mongoose.Types.ObjectId
-            //ToDo return Query?!
             return await User.updateMany(optFilter, newValue)
                 .then(result => {
                     console.log("***User  Update many result: ", result);
@@ -139,7 +138,6 @@ userController.prototype.update = async (optFilter, newValue) => {
                     return -1;
                 })
         } else {
-            //ToDo return Query?!
             return await User.findByIdAndUpdate(optFilter, newValue)
                 .then(result => {
                     console.log(`***User Update by id ${optFilter} result: `, result);

@@ -6,6 +6,7 @@ const Joi = require('@hapi/joi');
 
 // Instantiate the Device Model
 const interestController = require('../../controllers/interest');
+const userController = require('../../controllers/user');
 const NZ = require('../../utils/nz');
 const {uploader} = require('../../utils/fileManager');
 
@@ -58,10 +59,6 @@ router.put('/add', uploader, async (req, res) => {
 
 /**
  * Get Interest
- * @param showField
- * @param criteria
- * @param page
- * @param limit
  * @return list of interest
  */
 //______________________Get Interest_____________________//
@@ -81,5 +78,24 @@ router.get('/', function (req, res) {
         })
 });
 
+/**
+ * Set Interest
+ * @return list of interest
+ */
+//______________________Set Interest_____________________//
+router.post('/', function (req, res) {
+    console.info('API: Set interest/init body:', req.body);
+    console.info('API: Set interest/init userId:', req.userId);
+    userController.update(req.userId, req.body.selected)
+        .then(result => {
+            console.info("***User interest update List : %j", result);
+            new NZ.Response({items:  result}).send(res);
+        })
+        .catch(err => {
+            console.error("Set Interest Get Catch err:", err)
+            // res.err(err)
+        })
+
+});
 
 module.exports = router;

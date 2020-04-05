@@ -19,6 +19,10 @@ module.exports = {
 		token: 		true,
 		isSecure:	false,
 	},
+	POST_app_interest: {
+		token: 		true,
+		isSecure:	false,
+	},
 	PUT_app_interest_add: {
 		needToken: 	true,
 		isSecure:	true,
