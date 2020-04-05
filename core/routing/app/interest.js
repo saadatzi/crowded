@@ -66,7 +66,7 @@ router.put('/add', uploader, async (req, res) => {
  * @return list of interest
  */
 //______________________Get Interest_____________________//
-router.get('/', function (req, res) {
+router.post('/list', function (req, res) {
     logger.info('API: Get interest/init');
 
     interestController.get({field: req.body.showField || `title_${req.headers['accept-language']} image`})

@@ -27,8 +27,7 @@ module.exports = {
     verifyToken: (req, res, next) => {
         const strApi = req.method + (req.originalUrl).replace(new RegExp('/', 'g'), '_');
         const api = API[strApi];
-        logger.info('******* Verify Token req Start ********** %j', api);
-        logger.info('******* Verify Token req.originalUrl: %s', req.originalUrl);
+        logger.info('******* Verify Token req Start req.originalUrl: %s %j', req.originalUrl, api);
         if (!api) {
             return new NZ.Response({}, 'Endpoint not found!', 404).send(res);
         }

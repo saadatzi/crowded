@@ -20,12 +20,14 @@ const {sign} = require('../../utils/jwt');
 router.post('/register', async (req, res) => {
     logger.info('API: Register User/init %j', {body: req.body});
 
+    req.body.email = (req.body.email).toString().toLowerCase();
+
     const userSchema = Joi.object().keys({
         user:	Joi.object().keys({
             firstname:	    Joi.string().required(),
             lastname:	    Joi.string().required(),
             sex:	        Joi.number().required(),
-            email:          Joi.string().email({ minDomainSegments: 2, tlds: { allow: ['com', 'net', 'org'] } }),
+            email:          Joi.string().email({ minDomainSegments: 2, tlds: { allow: ['com', 'net', 'org'] } }).required(),
             password:       Joi.string().min(6).max(63).required(),
             nationality:    Joi.string().required(),
             birthDate:      Joi.date().required(),
@@ -58,7 +60,7 @@ router.post('/register', async (req, res) => {
                 })
         })
         .catch(err => {
-            console.log('!!!! user register catch ert: ', err);
+            console.log('!!!! user register catch err: ', err);
             new NZ.Response(null, err.message, 400).send(res);
         });
 });

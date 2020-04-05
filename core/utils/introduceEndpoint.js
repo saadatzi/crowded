@@ -3,7 +3,7 @@ module.exports = {
 		needToken: 	false,
 		isSecure:	false,
 	},
-	GET_app_interest: {
+	POST_app_interest_list: {
 		token: 		true,
 		isSecure:	false,
 	},

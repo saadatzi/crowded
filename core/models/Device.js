@@ -63,10 +63,7 @@ DeviceSchema.static({
      */
     getByIdentifier: (identifier) => {
         return Device.findOne({identifier: identifier})
-            .then(device => {
-                console.log("########## getByIdentifier device: ", device);
-                return device
-            })
+            .then(device => device)
             .catch(err => console.log("!!!!!!!! getByIdentifier catch err: ", err));
             // console.log("########## getByIdentifier device: ", device)
             // if (err) {

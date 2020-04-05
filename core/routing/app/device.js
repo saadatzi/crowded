@@ -15,13 +15,16 @@ app.post('/auth', async (req, res, next) => {
 			name:		Joi.string().required(),
 			capacity:	Joi.string().regex(/^[0-9.GB]{3,18}$/).required(),
 			uid:		Joi.string().regex(/^[A-F0-9-]{36}$/).required(),
-			platform:	Joi.string().required()
+			platform:	Joi.string().required(),
+			disk:		Joi.optional()
 		}).required(),
 
 		os: Joi.object().keys({
 			version:	Joi.string().required(),
 			type:		Joi.string().allow('iOS', 'Android').required()
-		}).required()
+		}).required(),
+
+		carriers: 		Joi.optional()
 	});
 
 	result = schema.validate({
