@@ -71,7 +71,7 @@ InterestSchema.static({
     list: async () => {
         return await Interest.find({status: 0})
             // .select({title_ar: 1, image: 1})
-            .sort({order: -1})
+            .sort({order: 1})
             .exec()
             .then(interests => interests)
             .catch(err => console.log("Interest getAll Catch", err));
