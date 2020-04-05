@@ -19,7 +19,7 @@ const {sign} = require('../../utils/jwt');
 router.post('/register', async (req, res) => {
     console.info('API: Register User/init %j', {body: req.body});
 
-    req.body.email = (req.body.email).toString().toLowerCase();
+    // req.body.email = (req.body.email).toString().toLowerCase();
 
     const userSchema = Joi.object().keys({
         user:	Joi.object().keys({
@@ -70,10 +70,10 @@ router.post('/register', async (req, res) => {
 //______________________Login_____________________//
 router.post('/login', async (req, res) => {
     console.info('API: Login User/init %j', {body: req.body});
-
+    // req.body.email = (req.body.email).toString().toLowerCase();
     const loginSchema = Joi.object().keys({
         login:	Joi.object().keys({
-            email:          Joi.string().email({ minDomainSegments: 2, tlds: { allow: ['com', 'net', 'org'] } }),
+            email:          Joi.string().email({ minDomainSegments: 2, tlds: { allow: ['com', 'net', 'org'] } }).required(),
             password:       Joi.string().min(6).max(63).required(),
         }).required(),
     });
@@ -102,7 +102,7 @@ router.post('/login', async (req, res) => {
 
         })
         .catch(err => {
-            console.log('!!!! user login catch ert: ', err);
+            console.log('!!!! user login catch err: ', err);
             new NZ.Response(null, err.message, 400).send(res);
         });
 });

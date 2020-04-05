@@ -47,8 +47,12 @@ interestController.prototype.add = async (newInterest) => {
  */
 interestController.prototype.get = async (optFilter) => {
     if (!optFilter || optFilter instanceof Object) { //newInterest instanceof Array
-        return await Interest.getAll(optFilter)
-            .then(result => result)
+        return await Interest.list()
+            .then(interests => {
+                let returnedInterests = [];
+                interests.map(interest => returnedInterests.push(interest.transform(optFilter.lang)));
+                return returnedInterests;
+            })
             .catch(err => {
                 console.log("!!!Interest getAll field: ", err);
             })

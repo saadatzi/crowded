@@ -2,7 +2,8 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const UserSchema = new Schema({
-    email: {type: String, index: true},
+    email: {type: String, index: true, set: v => v.toLowerCase(), lowercase: true, unique: true, required: [true, "can't be blank"]},
+    interests:  [{type: Schema.Types.ObjectId, ref: 'Interest'}],
     firstname: String,
     lastname: String,
     image: String,

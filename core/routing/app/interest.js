@@ -68,7 +68,7 @@ router.put('/add', uploader, async (req, res) => {
 router.get('/', function (req, res) {
     console.info('API: Get interest/init');
 
-    interestController.get({field: `title_${req.headers['lang'] ? req.headers['lang'] : 'en'} image`})
+    interestController.get({lang: req.headers['lang'] ? req.headers['lang'] : 'en'})
         .then(result => {
             console.info("*** interest List : %j", result);
             new NZ.Response({
