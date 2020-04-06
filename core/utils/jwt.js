@@ -49,6 +49,9 @@ module.exports = {
                     // if (tokenObj.userId) req.userId = tokenObj.userId;
                     deviceController.get(token, 'token')
                         .then(device => {
+                            //ToDo fix payam
+                            // device.lastInteract = moment().tz('Asia/Tehran').format(settings.db_date_format);
+                            // device.save();
                             req.deviceId = device._id;
                             if (!api.isSecure) next();
                             else if (api.isSecure && device.userId) {
@@ -57,8 +60,6 @@ module.exports = {
                             } else {
                                 return new NZ.Response(null, 'must be user', 401).send(res);
                             }
-                            device.lastInteract = moment().tz('Asia/Tehran').format(settings.db_date_format);
-                            device.save();
                         })
                         .catch(err => {
                             console.error('!!! Device getByToken Catch err ', err);
