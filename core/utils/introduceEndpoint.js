@@ -16,11 +16,11 @@ module.exports = {
 		isSecure:	true,
 	},
 	GET_app_interest: {
-		token: 		true,
+		needToken: 		true,
 		isSecure:	false,
 	},
 	POST_app_interest: {
-		token: 		true,
+		needToken: 		true,
 		isSecure:	false,
 	},
 	PUT_app_interest_add: {

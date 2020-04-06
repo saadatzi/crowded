@@ -5,19 +5,17 @@ const settings = require('../utils/settings')
 const InterestSchema = new Schema({
     title_ar: {type: String, default: '', index: true},
     title_en: {type: String, default: '', index: true},
+    deviceId: [{type: Schema.Types.ObjectId, ref: 'Device'}],
+    userId: [{type: Schema.Types.ObjectId, ref: 'User'}],
     image: {type: String, default: ''},
     order: {type: Number, default: 0},
-    status: {type: Number, default: 0}, // 0 active, 1 deActive, 2 softDelete, 3 hardDelete
+    status: {type: Number, default: 1}, // 1 active, 0 deActive, 2 softDelete, 3 hardDelete
     createdAt: {type: Date, default: Date.now},
     updateAt: {type: Date, default: Date.now}
-});
+}, { toJSON: { virtuals: false, getters: false}, toObject: {virtual: false} });
 
 // function imageClient(image) {
-//     return {
-//         image: {
-//             url: image
-//         }
-//     }
+//     return {url: settings.media_domain+image}
 // };
 //
 // InterestSchema.virtual('id').get(() => this._id);
@@ -70,9 +68,11 @@ InterestSchema.static({
      * Interest list
      */
     list: async () => {
-        return await Interest.find({status: 0})
-            // .select({title_ar: 1, image: 1})
+        return await Interest.find({status: 1})
+            // .select({id: 1, title: 1, image: 1})
             .sort({order: 1})
+            .populate("deviceId")
+            .populate("userId")
             .exec()
             .then(interests => interests)
             .catch(err => console.log("Interest getAll Catch", err));

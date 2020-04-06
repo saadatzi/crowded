@@ -7,6 +7,7 @@ const Joi = require('@hapi/joi');
 // Instantiate the Device Model
 const interestController = require('../../controllers/interest');
 const userController = require('../../controllers/user');
+const deviceController = require('../../controllers/device');
 const NZ = require('../../utils/nz');
 const {uploader} = require('../../utils/fileManager');
 
@@ -85,16 +86,31 @@ router.get('/', function (req, res) {
 //______________________Set Interest_____________________//
 router.post('/', function (req, res) {
     console.info('API: Set interest/init body:', req.body);
+    console.info('API: Set interest/init deviceId:', req.deviceId);
     console.info('API: Set interest/init userId:', req.userId);
-    userController.update(req.userId, req.body.selected)
-        .then(result => {
-            console.info("***User interest update List : %j", result);
-            new NZ.Response({items:  result}).send(res);
-        })
-        .catch(err => {
-            console.error("Set Interest Get Catch err:", err)
-            // res.err(err)
-        })
+    const updateValue = {interests: req.body.selected};
+    if (req.userId) {
+        userController.update(req.userId, updateValue)
+            .then(result => {
+                console.info("***User interest update List : %j", result);
+                new NZ.Response({items:  result}).send(res);
+            })
+            .catch(err => {
+                console.error("Set Interest Get Catch err:", err)
+                // res.err(err)
+            })
+    } else {
+        deviceController.update(req.deviceId, updateValue)
+            .then(result => {
+                console.info("***User interest update List : %j", result);
+                new NZ.Response({items:  result}).send(res);
+            })
+            .catch(err => {
+                console.error("Set Interest Get Catch err:", err)
+                // res.err(err)
+            })
+    }
+
 
 });
 

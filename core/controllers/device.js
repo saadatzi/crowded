@@ -92,7 +92,6 @@ deviceController.prototype.get = async (optFilter, type = 'identifier') => {
 deviceController.prototype.remove = async (optFilter) => {
     if (optFilter) {
         if (optFilter instanceof Object) { //instanceof mongoose.Types.ObjectId
-            //ToDo return Query?!
             return await Device.remove(optFilter)
                 .then(result => {
                     console.log("***Device  Remove many result: ", result);
@@ -103,7 +102,6 @@ deviceController.prototype.remove = async (optFilter) => {
                     return -1;
                 })
         } else {
-            //ToDo return Query?!
             return await Device.findByIdAndRemove(optFilter)
                 .then(result => {
                     console.log(`***Device Remove by id ${optFilter} result: `, result);
@@ -142,7 +140,6 @@ deviceController.prototype.update = async (optFilter, newValue) => {
                     return -1;
                 })
         } else {
-            //ToDo return Query?!
             return await Device.findByIdAndUpdate(optFilter, newValue)
                 .then(result => {
                     console.log(`***Device Update by id ${optFilter} result: `, result);

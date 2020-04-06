@@ -50,7 +50,7 @@ interestController.prototype.get = async (optFilter) => {
         return await Interest.list()
             .then(interests => {
                 let returnedInterests = [];
-                interests.map(interest => returnedInterests.push(interest.transform(optFilter.lang)));
+                interests.map(interest => returnedInterests.push(interest.transform(optFilter.lang.toLowerCase())));
                 return returnedInterests;
             })
             .catch(err => {
