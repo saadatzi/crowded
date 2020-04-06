@@ -49,7 +49,6 @@ module.exports = {
                     // if (tokenObj.userId) req.userId = tokenObj.userId;
                     deviceController.get(token, 'token')
                         .then(device => {
-                            console.error('>>>>>>>>> Device getByToken Device: ', device);
                             if (device) {
                                 device.lastInteract = moment().tz('Asia/Tehran').format(settings.db_date_format);
                                 device.save();
@@ -68,7 +67,7 @@ module.exports = {
                         })
                         .catch(err => {
                             console.error('!!! Device getByToken Catch err ', err);
-                            throw err;
+                            return new NZ.Response(null, 'invalid token err: '+err.message, 403).send(res);
                         });
 
 
