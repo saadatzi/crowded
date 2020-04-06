@@ -52,10 +52,10 @@ module.exports = {
                             if (device) {
                                 device.lastInteract = moment().tz('Asia/Tehran').format(settings.db_date_format);
                                 device.save();
-                                req.deviceId = device._id;
+                                req.deviceId = (device._id).toString();
                                 if (!api.isSecure) next();
                                 else if (api.isSecure && device.userId) {
-                                    req.userId = device.userId;
+                                    req.userId = (device.userId).toString();
                                     next();
                                 } else {
                                     return new NZ.Response(null, 'must be user', 401).send(res);

@@ -143,7 +143,7 @@ deviceController.prototype.update = async (optFilter, newValue) => {
                     return result;
                 })
                 .catch(err => {
-                    console.log("!!!Device Update field: ", err);
+                    console.log("!!!Device Update many field: ", err);
                     return -1;
                 })
         } else {
