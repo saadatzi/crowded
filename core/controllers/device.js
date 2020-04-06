@@ -79,6 +79,7 @@ deviceController.prototype.get = async (optFilter, type = 'identifier') => {
                     return -1;
                 })
         } else if (type === 'token') {
+            console.log(`>>>>>>>> 1 Device get by Token <<<<<<<<<<`);
             return await Device.getByToken(optFilter)
                 .then(result => result)
                 .catch(err => {
