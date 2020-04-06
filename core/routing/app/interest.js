@@ -85,9 +85,6 @@ router.get('/', function (req, res) {
  */
 //______________________Set Interest_____________________//
 router.post('/', function (req, res) {
-    console.info('API: Set interest/init body:', req.body);
-    console.info('API: Set interest/init deviceId:', req.deviceId);
-    console.info('API: Set interest/init userId:', req.userId);
     const updateValue = {interests: req.body.selected};
     if (req.userId) {
         userController.update(req.userId, updateValue)

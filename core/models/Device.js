@@ -80,6 +80,18 @@ DeviceSchema.static({
     },
 
     /**
+     * Find device by Token
+     *
+     * @param {String} token
+     * @api private
+     */
+    getByToken: (token) => {
+        return Device.findOne({token: token})
+            .then(device => device)
+            .catch(err => console.log("!!!!!!!! getByToken catch err: ", err));
+    },
+
+    /**
      * List all device
      *
      * @param {Object} options
