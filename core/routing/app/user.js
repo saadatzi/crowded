@@ -1,7 +1,6 @@
 const express = require('express')
     , router = express.Router();
-const jwtRun = require('../../utils/jwt')
-
+const moment = require('moment-timezone');
 const Joi = require('@hapi/joi');
 const uuid = require('node-uuid');
 const userController = require('../../controllers/user');
@@ -9,6 +8,7 @@ const deviceController = require('../../controllers/device');
 const NZ = require('../../utils/nz');
 const {uploader} = require('../../utils/fileManager');
 const {sign} = require('../../utils/jwt');
+const settings = require('../../utils/settings');
 
 /**
  *  Add User
@@ -47,11 +47,19 @@ router.post('/register', async (req, res) => {
             userController.add(req.body)
                 .then(user => {
                     const newToken = sign({deviceId: req.deviceId, userId: user.id});
-                    deviceController.update(req.deviceId, {userId: user.id, token: newToken, updateAt: Date.now()});
+                    deviceController.update(req.deviceId, {userId: user.id, token: newToken, updateAt: moment().tz('Asia/Tehran').format(settings.db_date_format)})
+                        .then(device => {
+                            //interest selected from device to user
+                            user.interests = device.interests;
+                            user.save();
+                            //remove selected interest from device
+                            device.interests = [];
+                            device.save();
+                        }).catch(err => console.error("User register update device Catch err:", err));
                     new NZ.Response({
                         access_token: newToken,
                         access_type: 'private',
-                        user: user
+                        user: userController.dto(user)
                     }).send(res);
                 })
                 .catch(err => {
@@ -85,15 +93,21 @@ router.post('/login', async (req, res) => {
         .then(user => {
             if (!user || (user.password !== NZ.sha512Hmac(req.body.password, user.salt)))
                 return new NZ.Response(null, 'Wrong email or password, Try again', 400).send(res);
-
-            //update user lastLogin
-            user.lastLogin = Date.now();
-            user.lastInteract = Date.now();
-            user.save();
-
-            const newToken = sign({deviceId: req.deviceId, userId: user.id});
+            console.error("User Login user:", user);
+            const newToken = sign({deviceId: req.deviceId, userId: user._id});
             //update device(toke,userId,updateAt)
-            deviceController.update(req.deviceId, {userId: user.id, token: newToken, updateAt: Date.now()});
+            deviceController.update(req.deviceId, {userId: user._id, token: newToken, updateAt: Date.now()})
+                .then(device => {
+                    //interest selected from device to user & merge & unique
+                    user.interests = Array.from(new Set([...user.interests, ...device.interests]));
+                    //update user lastLogin
+                    user.lastLogin = moment().tz('Asia/Tehran').format(settings.db_date_format);
+                    user.lastInteract = moment().tz('Asia/Tehran').format(settings.db_date_format);
+                    user.save();
+                    //remove selected interest from device
+                    device.interests = [];
+                    device.save();
+                }).catch(err => console.error("User Login update device Catch err:", err));
             new NZ.Response({
                 access_token: newToken,
                 access_type: 'private',
@@ -114,7 +128,7 @@ router.post('/login', async (req, res) => {
 router.get('/logout', async (req, res) => {
     console.info('API: logout User/init');
     const newToken = sign({deviceId: req.deviceId});
-    deviceController.update(req.deviceId, {userId: null, token: newToken, updateAt: Date.now()})
+    deviceController.update(req.deviceId, {userId: null, token: newToken, updateAt: moment().tz('Asia/Tehran').format(settings.db_date_format)})
         .then(device => {
             new NZ.Response({
                 access_token: newToken,

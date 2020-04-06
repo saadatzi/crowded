@@ -28,7 +28,7 @@ userController.prototype.add = async (newUser) => {
         return await User.create(newUser)
             .then(user => {
                 console.log("*** User save success user", user);
-                return dto(user);
+                return user;
             })
             .catch(err => {
                 console.log("!!!User save field: ", err);
