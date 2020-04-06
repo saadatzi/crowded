@@ -103,7 +103,7 @@ router.post('/', function (req, res) {
         deviceController.update(req.deviceId, updateValue)
             .then(result => {
                 console.info("***User interest update List : %j", result);
-                new NZ.Response({items:  result}).send(res);
+                new NZ.Response('', 'Interest has been successfully added!').send(res);
             })
             .catch(err => {
                 console.error("Set Interest Get Catch err:", err)
