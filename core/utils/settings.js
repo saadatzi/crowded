@@ -53,8 +53,8 @@ module.exports = {
 	project_name:	'Kids',
 
 	panel_route:	'',
-	api_base:		'https://panel.kids.dev.nizek.com/api',
-	media_domain:	'https://panel.kids.dev.nizek.com/_media',
+	api_base:		'https://api.crowded.dev.nizek.com/',
+	media_domain:	'https://media.crowded.dev.nizek.com/',
 
 
 

@@ -24,7 +24,7 @@ const storage = multer.diskStorage({
         if (!file.originalname.match(/\.(png|PNG|jpeg|JPEG|jpg|JPG)$/)) {
             return callback(new Error('fileType'))
         } else {
-            const fileName = `${uuid.v4()}_${shortid.generate()}.${path.extname(file.originalname)}`;
+            const fileName = `${uuid.v4()}_${shortid.generate()}${path.extname(file.originalname)}`;
             req._uploadFilename = fileName;
             callback(null, fileName)
         }
