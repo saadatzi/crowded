@@ -63,7 +63,10 @@ module.exports = {
 
 	propic_folder: 'pp13i74x/',
 	temp_folder:   '_temp/',
-	media_path:    path.join(require.main.path, '../../crowded-media/'),
+	media_folder:   'crowded-media/',
+	// media_path:    path.join(process.env.PWD, '../crowded-media/'),
+	media_path:    path.join(path.dirname(require.main.filename), '../../crowded-media/'),
+
 
 
 	email_logo:		'https://media.kids.dev.nizek.com/_email/Kidadvisor-white.png',

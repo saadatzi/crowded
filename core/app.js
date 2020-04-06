@@ -1,13 +1,14 @@
 /**
  * Module dependencies
  */
+const path = require('path');
+
 var os = require('os');
 const express = require('express');
 const app = express();
 const responseTime = require('response-time');
 // const proxy = require('http-proxy-middleware');
 const fs = require('fs');
-const path = require('path');
 // const mongoose = require('mongoose');
 const settings = require('./utils/settings');
 
@@ -50,6 +51,7 @@ app.use(function (req, res, next) {
 
     next();
 });
+
 
 const ncs_localization_options = {
     'NizekUtils.Localizations.Dump.Enabled':   settings['NizekUtils.Localizations.Dump.Enabled'],

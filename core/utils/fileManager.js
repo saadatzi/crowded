@@ -18,7 +18,8 @@ const storage = multer.diskStorage({
 		folder = path.join(settings.media_path, folder);
 		// console.log(folder, process.env.PWD, require.main, path.dirname(require.main.filename));
         console.info('API: UploadFile destination %j', {folder: folder});
-        req._uploadPath = folder;
+
+        req._uploadPath = (folder).substring((folder).indexOf(settings.media_folder)+(settings.media_folder).length);
         callback(null, folder)
     },
     filename: (req, file, callback) => {
