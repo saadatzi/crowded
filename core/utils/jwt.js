@@ -70,6 +70,7 @@ module.exports = {
                     //     console.error('!!!Verify Token not have Token: Authorization Failed!!! => API: %s', req.originalUrl);
                     //     return new NZ.Response(null, 'Authorization Failed!!!', 401).send(res);
                     // }
+                    console.error('!!!Verify Token not have Token: Authorization Failed!!! => API: %s', err);
                     return new NZ.Response(null, 'invalid token err: '+err.message, 403).send(res);
                 }
             } else {
