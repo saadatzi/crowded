@@ -16,7 +16,7 @@ const storage = multer.diskStorage({
         const target = (req.originalUrl).slice(1).split('/');
         let folder = await NZ.generateRandomFolder(target[1]);
 		folder = path.join(settings.media_path, folder);
-		console.log(folder, process.env.PWD);
+		console.log(folder, process.env.PWD, require.main.filename);
         console.info('API: UploadFile destination %j', {folder: folder});
         req._uploadPath = folder;
         callback(null, folder)
