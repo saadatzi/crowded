@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+const settings = require('../utils/settings')
 
 const InterestSchema = new Schema({
     title_ar: {type: String, default: '', index: true},
@@ -48,7 +49,7 @@ InterestSchema.method({
         return {
             id: this._id,
             title: this[`title_${lang}`],
-            image: {url: this.image}
+            image: {url: settings.media_domain+this.image}
         };
     }
 });
