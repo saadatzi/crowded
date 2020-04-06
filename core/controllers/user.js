@@ -65,7 +65,7 @@ userController.prototype.get = async (optFilter, type = 'email') => {
                     return -1;
                 })
         } else {
-            return await User.get(optFilter)
+            return await User.getById(optFilter)
                 .then(result => {
                     console.log(`***User get by id ${optFilter} result: `, result);
                     return result;

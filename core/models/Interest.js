@@ -40,13 +40,12 @@ InterestSchema.pre('remove', function (next) {
  * Methods
  */
 InterestSchema.method({
-    //ToDo method need... this.model('Interest')
-    transform: function(lang) {
+    transform: function(selected = [], lang) {
         return {
             id: this._id,
             title: this[`title_${lang}`],
             image: {url: settings.media_domain+this.image},
-            selected: true
+            selected: selected.includes(this._id)
         };
     }
 });

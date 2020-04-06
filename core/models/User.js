@@ -44,13 +44,17 @@ UserSchema.method({
  * Statics
  */
 UserSchema.static({
+
     /**
-     * Find User
+     * Find User by id
      *
      * @param {ObjectId} _id
      * @api private
      */
-    get: (_id) => this.findById({_id}).exec(),
+    getById: function(_id) {
+        return this.findById({_id})
+            .then(device =>  device)
+            .catch(err => console.log("!!!!!!!!User getById catch err: ", err))},
 
     /**
      * Find use by email

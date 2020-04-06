@@ -1,7 +1,9 @@
 /**
  * Module dependencies.
  */
-let Interest = require('../models/Interest');
+const Interest = require('../models/Interest');
+const deviceController = require('../controllers/device');
+const userController = require('../controllers/user');
 
 
 const interestController = function () {
@@ -50,7 +52,7 @@ interestController.prototype.get = async (optFilter) => {
         return await Interest.list()
             .then(interests => {
                 let returnedInterests = [];
-                interests.map(interest => returnedInterests.push(interest.transform(optFilter.lang)));
+                interests.map(interest => returnedInterests.push(interest.transform(optFilter.selected, optFilter.lang)));
                 return returnedInterests;
             })
             .catch(err => {

@@ -70,10 +70,7 @@ deviceController.prototype.get = async (optFilter, type = 'identifier') => {
                 });
         } else if (type === 'id') {
             return await Device.getById(optFilter)
-                .then(result => {
-                    console.log(`***Device get by id ${optFilter} result: `, result);
-                    return result;
-                })
+                .then(result => result)
                 .catch(err => {
                     console.log("!!!Device get field: ", err);
                     return -1;

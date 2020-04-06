@@ -63,9 +63,14 @@ router.put('/add', uploader, async (req, res) => {
  * @return list of interest
  */
 //______________________Get Interest_____________________//
-router.get('/', function (req, res) {
+router.get('/', async function (req, res) {
     console.info('API: Get interest/init');
-    interestController.get({lang: req.headers['lang'] ? (req.headers['lang']).toLowerCase() : 'en'})
+    let selected;
+    if (req.userId)
+        selected = await userController.get(req.userId, 'id');
+    else
+        selected = await deviceController.get(req.deviceId, 'id');
+    interestController.get({selected: selected.interests, lang: req.headers['lang'] ? (req.headers['lang']).toLowerCase() : 'en'})
         .then(result => {
             console.info("*** interest List : %j", result);
             new NZ.Response({items:  result,}).send(res);

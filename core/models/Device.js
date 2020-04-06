@@ -49,12 +49,10 @@ DeviceSchema.static({
      * @param {ObjectId} _id
      * @api private
      */
-    getById: (_id) => this.findById({_id})
-        .then(device => {
-            console.log("########## getById device: ", device);
-            return device
-        })
-        .catch(err => console.log("!!!!!!!! getById catch err: ", err)),
+    getById: function(_id) {
+        return this.findById({_id})
+        .then(device =>  device)
+        .catch(err => console.log("!!!!!!!! getById catch err: ", err))},
 
     /**
      * Find device by identifier
