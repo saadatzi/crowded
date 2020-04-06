@@ -1,8 +1,10 @@
 const fs = require('fs');
 const jwt = require('jsonwebtoken');
+const moment = require('moment-timezone');
 const API = require('./introduceEndpoint');
 const NZ = require('./nz');
 const deviceController = require('../controllers/device')
+const settings = require('./settings')
 
 // use 'utf8' to get string instead of byte array  (512 bit key)
 const privateKEY = fs.readFileSync(__dirname + '/private.key', 'utf8');
@@ -47,7 +49,7 @@ module.exports = {
                     // if (tokenObj.userId) req.userId = tokenObj.userId;
                     deviceController.get(token, 'token')
                         .then(device => {
-                            device.lastInteract = Date.now();
+                            device.lastInteract = moment().format(settings.db_date_format);
                             device.save();
                             req.deviceId = device._id;
                             if (!api.isSecure) next();
