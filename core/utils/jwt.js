@@ -49,17 +49,22 @@ module.exports = {
                     // if (tokenObj.userId) req.userId = tokenObj.userId;
                     deviceController.get(token, 'token')
                         .then(device => {
-                            //ToDo fix payam
-                            // device.lastInteract = moment().tz('Asia/Tehran').format(settings.db_date_format);
-                            // device.save();
-                            req.deviceId = device._id;
-                            if (!api.isSecure) next();
-                            else if (api.isSecure && device.userId) {
-                                req.userId = device.userId;
-                                next();
+                            console.error('>>>>>>>>> Device getByToken Device: ', device);
+                            if (device) {
+                                device.lastInteract = moment().tz('Asia/Tehran').format(settings.db_date_format);
+                                device.save();
+                                req.deviceId = device._id;
+                                if (!api.isSecure) next();
+                                else if (api.isSecure && device.userId) {
+                                    req.userId = device.userId;
+                                    next();
+                                } else {
+                                    return new NZ.Response(null, 'must be user', 401).send(res);
+                                }
                             } else {
-                                return new NZ.Response(null, 'must be user', 401).send(res);
+                                throw {message: 'token not valid!'}
                             }
+
                         })
                         .catch(err => {
                             console.error('!!! Device getByToken Catch err ', err);
