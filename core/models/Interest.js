@@ -5,8 +5,6 @@ const settings = require('../utils/settings')
 const InterestSchema = new Schema({
     title_ar: {type: String, default: '', index: true},
     title_en: {type: String, default: '', index: true},
-    deviceId: [{type: Schema.Types.ObjectId, ref: 'Device'}],
-    userId: [{type: Schema.Types.ObjectId, ref: 'User'}],
     image: {type: String, default: ''},
     order: {type: Number, default: 0},
     status: {type: Number, default: 1}, // 1 active, 0 deActive, 2 softDelete, 3 hardDelete
@@ -47,7 +45,8 @@ InterestSchema.method({
         return {
             id: this._id,
             title: this[`title_${lang}`],
-            image: {url: settings.media_domain+this.image}
+            image: {url: settings.media_domain+this.image},
+            selected: true
         };
     }
 });
@@ -62,17 +61,15 @@ InterestSchema.static({
      * @param {ObjectId} _id
      * @api private
      */
-    get: (_id) => this.findById({_id}).exec(),
+    get: function(_id){ return this.findById({_id}).exec()},
 
     /**
      * Interest list
      */
-    list: async () => {
-        return await Interest.find({status: 1})
+    list: async function() {
+        return await this.find({status: 1})
             // .select({id: 1, title: 1, image: 1})
             .sort({order: 1})
-            .populate("deviceId")
-            .populate("userId")
             .exec()
             .then(interests => interests)
             .catch(err => console.log("Interest getAll Catch", err));

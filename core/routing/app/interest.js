@@ -65,13 +65,10 @@ router.put('/add', uploader, async (req, res) => {
 //______________________Get Interest_____________________//
 router.get('/', function (req, res) {
     console.info('API: Get interest/init');
-
-    interestController.get({lang: req.headers['lang'] ? req.headers['lang'] : 'en'})
+    interestController.get({lang: req.headers['lang'] ? (req.headers['lang']).toLowerCase() : 'en'})
         .then(result => {
             console.info("*** interest List : %j", result);
-            new NZ.Response({
-                items:  result,
-            }).send(res);
+            new NZ.Response({items:  result,}).send(res);
         })
         .catch(err => {
             console.error("Interest Get Catch err:", err)
