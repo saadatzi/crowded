@@ -5,7 +5,7 @@ const DeviceSchema = new Schema({
     userId: {type: Schema.Types.ObjectId, ref: 'User', index: true, default: null},
     token: {type: String, index: true},
     identifier: {type: String, index: true},
-    status: {type: Number, default: 1 },
+    status: {type: Number, default: 1},
     interests: [{type: Schema.Types.ObjectId, ref: 'Interest'}],
     notificationToken: {type: String, index: true},
     notificationTokenDev: {type: String, index: true},
@@ -18,9 +18,9 @@ const DeviceSchema = new Schema({
     build: Number,
     env: String,
     debug: {type: Number, default: 0},
-    lastInteract: { type: Date, default: Date.now },
-    createAt: { type: Date, default: Date.now },
-    updateAt: { type: Date, default: Date.now },
+    lastInteract: Date,
+    createAt: {type: Date, default: Date.now},
+    updateAt: {type: Date, default: Date.now},
 });
 
 /**
@@ -66,10 +66,10 @@ DeviceSchema.static({
         return Device.findOne({identifier: identifier})
             .then(device => device)
             .catch(err => console.log("!!!!!!!! getByIdentifier catch err: ", err));
-            // console.log("########## getByIdentifier device: ", device)
-            // if (err) {
-            // }
-            // return (device)
+        // console.log("########## getByIdentifier device: ", device)
+        // if (err) {
+        // }
+        // return (device)
         // });
         /*return new Promise(resolve => {
             this.findOne({identifier: identifier}, (err, device) => {
