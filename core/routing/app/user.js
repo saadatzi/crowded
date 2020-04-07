@@ -47,7 +47,7 @@ router.post('/register', async (req, res) => {
             userController.add(req.body)
                 .then(user => {
                     const newToken = sign({deviceId: req.deviceId, userId: user.id});
-                    deviceController.update(req.deviceId, {userId: user.id, token: newToken, updateAt: moment().tz('Asia/Tehran').format(settings.db_date_format)})
+                    deviceController.update(req.deviceId, {userId: user.id, token: newToken, updateAt: Date.now()})
                         .then(device => {
                             //interest selected from device to user
                             user.interests = device.interests;
@@ -99,10 +99,15 @@ router.post('/login', async (req, res) => {
             deviceController.update(req.deviceId, {userId: user._id, token: newToken, updateAt: Date.now()})
                 .then(device => {
                     //interest selected from device to user & merge & unique
-                    user.interests = Array.from(new Set([...user.interests, ...device.interests]));
+                    const newUniqArray = Array.from(new Set([...user.interests, ...device.interests]));
+                    console.log(">>>>>>>>>>> ...user.interests: ", user.interests);
+                    console.log(">>>>>>>>>>> ...device.interests: ", device.interests);
+                    console.log(">>>>>>>>>>> newUniqArray: ", newUniqArray);
+                    user.interests = newUniqArray;
+                    // user.interests.push((device.interests).join());
                     //update user lastLogin
-                    user.lastLogin = moment().tz('Asia/Tehran').format(settings.db_date_format);
-                    user.lastInteract = moment().tz('Asia/Tehran').format(settings.db_date_format);
+                    user.lastLogin = Date.now();
+                    user.lastInteract = Date.now();
                     user.save();
                     //remove selected interest from device
                     device.interests = [];
@@ -128,7 +133,7 @@ router.post('/login', async (req, res) => {
 router.get('/logout', async (req, res) => {
     console.info('API: logout User/init');
     const newToken = sign({deviceId: req.deviceId});
-    deviceController.update(req.deviceId, {userId: null, token: newToken, updateAt: moment().tz('Asia/Tehran').format(settings.db_date_format)})
+    deviceController.update(req.deviceId, {userId: null, token: newToken, updateAt: Date.now()})
         .then(device => {
             new NZ.Response({
                 access_token: newToken,

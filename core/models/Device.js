@@ -6,7 +6,7 @@ const DeviceSchema = new Schema({
     token: {type: String, index: true},
     identifier: {type: String, index: true},
     status: {type: Number, default: 1},
-    interests: [{type: Schema.Types.ObjectId, ref: 'Interest'}],
+    interests: [{type: Schema.Types.ObjectId, ref: 'Interest', unique: true}],
     notificationToken: {type: String, index: true},
     notificationTokenDev: {type: String, index: true},
     osType: String,

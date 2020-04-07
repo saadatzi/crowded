@@ -50,16 +50,19 @@ module.exports = {
                     deviceController.get(token, 'token')
                         .then(device => {
                             if (device) {
-                                device.lastInteract = moment().tz('Asia/Tehran').format(settings.db_date_format);
+                                console.log('>>>>>>> JWT deviceId: %s ---- userId: %s ', device._id, device.userId | 'not Login');
+                                device.lastInteract = Date.now();
                                 device.save();
                                 req.deviceId = (device._id).toString();
-                                if (!api.isSecure) next();
-                                else if (api.isSecure && device.userId) {
+
+                                if (device.userId)
                                     req.userId = (device.userId).toString();
-                                    next();
-                                } else {
+
+                                if (api.isSecure && !device.userId)
                                     return new NZ.Response(null, 'must be user', 401).send(res);
-                                }
+
+                                return next();
+
                             } else {
                                 throw {message: 'token not valid!'}
                             }
@@ -67,9 +70,8 @@ module.exports = {
                         })
                         .catch(err => {
                             console.error('!!! Device getByToken Catch err ', err);
-                            return new NZ.Response(null, 'invalid token err: '+err.message, 403).send(res);
+                            return new NZ.Response(null, 'invalid token err: ' + err.message, 403).send(res);
                         });
-
 
 
                 } catch (err) {
@@ -78,7 +80,7 @@ module.exports = {
                     //     return new NZ.Response(null, 'Authorization Failed!!!', 401).send(res);
                     // }
                     console.error('!!!Verify Token not have Token: Authorization Failed!!! => API: %s', err);
-                    return new NZ.Response(null, 'invalid token err: '+err.message, 403).send(res);
+                    return new NZ.Response(null, 'invalid token err: ' + err.message, 403).send(res);
                 }
             } else {
                 console.error('!!!Verify Token not have Token: Authorization Failed!!! => API: %s', req.originalUrl);

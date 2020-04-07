@@ -66,11 +66,11 @@ router.put('/add', uploader, async (req, res) => {
 router.get('/', async function (req, res) {
     console.info('API: Get interest/init');
     let selected;
-    if (req.userId)
+    if (req.userId) {
         selected = await userController.get(req.userId, 'id');
-    else
+    } else {
         selected = await deviceController.get(req.deviceId, 'id');
-    console.error("Interest Get Selected: ", selected);
+    }
     interestController.get({selected: selected.interests || [], lang: req.headers['lang'] ? (req.headers['lang']).toLowerCase() : 'en'})
         .then(result => {
             console.info("*** interest List : %j", result);
@@ -78,7 +78,7 @@ router.get('/', async function (req, res) {
         })
         .catch(err => {
             console.error("Interest Get Catch err:", err)
-            // res.err(err)
+            new NZ.Response(null, err.message, 500).send(res);
         })
 });
 
@@ -88,7 +88,16 @@ router.get('/', async function (req, res) {
  */
 //______________________Set Interest_____________________//
 router.post('/', function (req, res) {
+
+    const setInterestSchema = Joi.object().keys({
+        selected: Joi.array().min(1).required()
+    });
+    let setInterestValidation = setInterestSchema.validate({selected: req.body.selected});
+    if (setInterestValidation.error)
+        return new NZ.Response(setInterestValidation.error, 'input error.', 400).send(res);
+
     const updateValue = {interests: req.body.selected};
+
     if (req.userId) {
         userController.update(req.userId, updateValue)
             .then(result => {
@@ -97,7 +106,7 @@ router.post('/', function (req, res) {
             })
             .catch(err => {
                 console.error("Set Interest Get Catch err:", err)
-                // res.err(err)
+                new NZ.Response(null, err.message, 500).send(res);
             })
     } else {
         deviceController.update(req.deviceId, updateValue)
@@ -107,7 +116,7 @@ router.post('/', function (req, res) {
             })
             .catch(err => {
                 console.error("Set Interest Get Catch err:", err)
-                // res.err(err)
+                new NZ.Response(null, err.message, 500).send(res);
             })
     }
 

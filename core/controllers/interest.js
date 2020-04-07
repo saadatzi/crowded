@@ -57,6 +57,7 @@ interestController.prototype.get = async (optFilter) => {
             })
             .catch(err => {
                 console.log("!!!Interest getAll field: ", err);
+                throw err;
             })
     } else {
         return await Interest.get(optFilter)

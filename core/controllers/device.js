@@ -23,7 +23,7 @@ deviceController.prototype.add = async function (newDevice) {
             })
             .catch(err => {
                 console.log("!!!device many save field: ", err);
-                return -1;
+                throw err;
             })
     } else {
         return await Device.create(newDevice)
@@ -33,7 +33,7 @@ deviceController.prototype.add = async function (newDevice) {
             })
             .catch(err => {
                 console.log("!!!device save field: ", err);
-                return -1;
+                throw err;
             })
     }
 };
@@ -55,7 +55,7 @@ deviceController.prototype.get = async (optFilter, type = 'identifier') => {
             })
             .catch(err => {
                 console.log("!!!Device getAll field: ", err);
-                return -1;
+                throw err;
             })
     } else {
         if (type === 'identifier') {
@@ -66,21 +66,21 @@ deviceController.prototype.get = async (optFilter, type = 'identifier') => {
                 })
                 .catch(err => {
                     console.log("!!!Device get field: ", err);
-                    return -1;
+                    throw err;
                 });
         } else if (type === 'id') {
             return await Device.getById(optFilter)
                 .then(result => result)
                 .catch(err => {
                     console.log("!!!Device get field: ", err);
-                    return -1;
+                    throw err;
                 })
         } else if (type === 'token') {
             return await Device.getByToken(optFilter)
                 .then(result => result)
                 .catch(err => {
                     console.log("!!!Device get byToken field: ", err);
-                    return -1;
+                    throw err;
                 })
         }
     }
@@ -103,7 +103,7 @@ deviceController.prototype.remove = async (optFilter) => {
                 })
                 .catch(err => {
                     console.log("!!!Device Remove field: ", err);
-                    return -1;
+                    throw err;
                 })
         } else {
             return await Device.findByIdAndRemove(optFilter)
@@ -113,7 +113,7 @@ deviceController.prototype.remove = async (optFilter) => {
                 })
                 .catch(err => {
                     console.log("!!!Device Remove field: ", err);
-                    return -1;
+                    throw err;
                 })
         }
     } else {
@@ -141,19 +141,17 @@ deviceController.prototype.update = async (optFilter, newValue) => {
                 })
                 .catch(err => {
                     console.log("!!!Device Update many field: ", err);
-                    return -1;
+                    throw err;
                 })
         } else {
             return await Device.findByIdAndUpdate(optFilter, newValue)
-                .then(result => {
-                    console.log(`***Device Update by id ${optFilter} result: `, result);
-                    return result;
-                })
+                .then(result => result)
                 .catch(err => {
                     console.log("!!!Device Update field: ", err);
-                    return -1;
+                    throw err;
                 })
         }
+
     } else {
         throw {errMessage: 'for Update Object conditions or Id is required!'}
     }

@@ -22,7 +22,7 @@ userController.prototype.add = async (newUser) => {
             })
             .catch(err => {
                 console.log("!!!User many save field: ", err);
-                return -1;
+                throw err;
             })
     } else {
         return await User.create(newUser)
@@ -32,7 +32,7 @@ userController.prototype.add = async (newUser) => {
             })
             .catch(err => {
                 console.log("!!!User save field: ", err);
-                return -1;
+                throw err;
             })
     }
 };
@@ -46,6 +46,7 @@ userController.prototype.add = async (newUser) => {
  * @return User
  */
 userController.prototype.get = async (optFilter, type = 'email') => {
+    console.log("***User get by Id optFilter 2: ", optFilter);
     if (!optFilter || optFilter instanceof Object) { //newUser instanceof Array
         return await User.getAll(optFilter)
             .then(result => {
@@ -54,7 +55,7 @@ userController.prototype.get = async (optFilter, type = 'email') => {
             })
             .catch(err => {
                 console.log("!!!User getAll field: ", err);
-                return -1;
+                throw err;
             })
     } else {
         if (type === 'email') {
@@ -62,9 +63,10 @@ userController.prototype.get = async (optFilter, type = 'email') => {
                 .then(result => result)
                 .catch(err => {
                     console.log("!!!User getByEmail field: ", err);
-                    return -1;
+                    throw err;
                 })
         } else {
+            console.log("***User get by Id optFilter 3: ", optFilter);
             return await User.getById(optFilter)
                 .then(result => {
                     console.log(`***User get by id ${optFilter} result: `, result);
@@ -72,7 +74,7 @@ userController.prototype.get = async (optFilter, type = 'email') => {
                 })
                 .catch(err => {
                     console.log("!!!User get field: ", err);
-                    return -1;
+                    throw err;
                 })
         }
     }
@@ -96,7 +98,7 @@ userController.prototype.remove = async (optFilter) => {
                 })
                 .catch(err => {
                     console.log("!!!User Remove field: ", err);
-                    return -1;
+                    throw err;
                 })
         } else {
             //ToDo return Query?!
@@ -107,7 +109,7 @@ userController.prototype.remove = async (optFilter) => {
                 })
                 .catch(err => {
                     console.log("!!!User Remove field: ", err);
-                    return -1;
+                    throw err;
                 })
         }
     } else {
@@ -135,7 +137,7 @@ userController.prototype.update = async (optFilter, newValue) => {
                 })
                 .catch(err => {
                     console.log("!!!User Update field: ", err);
-                    return -1;
+                    throw err;
                 })
         } else {
             return await User.findByIdAndUpdate(optFilter, newValue)
@@ -145,7 +147,7 @@ userController.prototype.update = async (optFilter, newValue) => {
                 })
                 .catch(err => {
                     console.log("!!!User Update field: ", err);
-                    return -1;
+                    throw err;
                 })
         }
     } else {
