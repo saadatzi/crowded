@@ -99,11 +99,7 @@ router.post('/login', async (req, res) => {
             deviceController.update(req.deviceId, {userId: user._id, token: newToken, updateAt: Date.now()})
                 .then(device => {
                     //interest selected from device to user & merge & unique
-                    const newUniqArray = Array.from(new Set([...user.interests.map(item => item.toString()), ...device.interests.map(item => item.toString())]));
-                    console.log(">>>>>>>>>>> ...user.interests: ", user.interests);
-                    console.log(">>>>>>>>>>> ...device.interests: ", device.interests);
-                    console.log(">>>>>>>>>>> newUniqArray: ", newUniqArray);
-                    user.interests = newUniqArray;
+                    user.interests = Array.from(new Set([...user.interests.map(item => item.toString()), ...device.interests.map(item => item.toString())]));
                     // user.interests.push((device.interests).join());
                     //update user lastLogin
                     user.lastLogin = Date.now();

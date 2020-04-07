@@ -87,7 +87,7 @@ router.get('/', async function (req, res) {
  * @return list of interest
  */
 //______________________Set Interest_____________________//
-router.post('/', function (req, res) {
+router.post('/', async function (req, res) {
 
     const setInterestSchema = Joi.object().keys({
         selected: Joi.array().min(1).required()
@@ -96,13 +96,21 @@ router.post('/', function (req, res) {
     if (setInterestValidation.error)
         return new NZ.Response(setInterestValidation.error, 'input error.', 400).send(res);
 
-    const updateValue = {interests: req.body.selected};
+    let lastInterests;
+    if (req.userId)
+        lastInterests = await userController.get(req.userId, 'id');
+    else
+        lastInterests = await deviceController.get(req.deviceId, 'id');
+    const uniqueInterests = Array.from(new Set([...lastInterests.interests.map(item => item.toString()), ...req.body.selected]));
+
+    const updateValue = {interests: uniqueInterests};
+
 
     if (req.userId) {
         userController.update(req.userId, updateValue)
             .then(result => {
                 console.info("***User interest update List : %j", result);
-                new NZ.Response({items:  result}).send(res);
+                new NZ.Response('', 'Interest has been successfully added!').send(res);
             })
             .catch(err => {
                 console.error("Set Interest Get Catch err:", err)
