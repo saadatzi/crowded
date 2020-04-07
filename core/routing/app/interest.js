@@ -71,7 +71,7 @@ router.get('/', async function (req, res) {
     else
         selected = await deviceController.get(req.deviceId, 'id');
     console.error("Interest Get Selected: ", selected);
-    interestController.get({selected: selected.interests, lang: req.headers['lang'] ? (req.headers['lang']).toLowerCase() : 'en'})
+    interestController.get({selected: selected.interests || [], lang: req.headers['lang'] ? (req.headers['lang']).toLowerCase() : 'en'})
         .then(result => {
             console.info("*** interest List : %j", result);
             new NZ.Response({items:  result,}).send(res);
