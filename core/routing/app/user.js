@@ -7,7 +7,7 @@ const userController = require('../../controllers/user');
 const deviceController = require('../../controllers/device');
 const NZ = require('../../utils/nz');
 const {uploader} = require('../../utils/fileManager');
-const {sign} = require('../../utils/jwt');
+const {sign, verifyToken} = require('../../utils/jwt');
 const settings = require('../../utils/settings');
 
 /**
@@ -16,7 +16,7 @@ const settings = require('../../utils/settings');
  * @return status
  */
 //______________________Add User_____________________//
-router.post('/register', async (req, res) => {
+router.post('/register', verifyToken(), async (req, res) => {
     console.info('API: Register User/init %j', {body: req.body});
 
     // req.body.email = (req.body.email).toString().toLowerCase();
@@ -76,7 +76,7 @@ router.post('/register', async (req, res) => {
  *  login
  */
 //______________________Login_____________________//
-router.post('/login', async (req, res) => {
+router.post('/login', verifyToken(), async (req, res) => {
     console.info('API: Login User/init %j', {body: req.body});
     // req.body.email = (req.body.email).toString().toLowerCase();
     const loginSchema = Joi.object().keys({
@@ -126,7 +126,7 @@ router.post('/login', async (req, res) => {
  *  logout
  */
 //______________________Logout_____________________//
-router.get('/logout', async (req, res) => {
+router.get('/logout', verifyToken(true), async (req, res) => {
     console.info('API: logout User/init');
     const newToken = sign({deviceId: req.deviceId});
     deviceController.update(req.deviceId, {userId: null, token: newToken, updateAt: Date.now()})
@@ -148,7 +148,7 @@ router.get('/logout', async (req, res) => {
  */
 //______________________Get User_____________________//
 router.get('/', function (req, res) {
-    console.info('API: Get interest/init');
+    console.info('API: Get User/init');
 
     userController.get({field: req.body.showField || `title_${req.headers['accept-language']} image`})
         .then(result => {

@@ -10,6 +10,7 @@ const userController = require('../../controllers/user');
 const deviceController = require('../../controllers/device');
 const NZ = require('../../utils/nz');
 const {uploader} = require('../../utils/fileManager');
+const {verifyToken} = require('../../utils/jwt');
 
 /**
  *  Add Interest
@@ -18,7 +19,7 @@ const {uploader} = require('../../utils/fileManager');
  * @return status
  */
 //______________________Add Interest_____________________//
-router.put('/add', uploader, async (req, res) => {
+router.put('/add', verifyToken(true), uploader, async (req, res) => {
     console.info('API: Add interest/init %j', {body: req.body});
     if (! req._uploadPath || !req._uploadFilename) {
         return new NZ.Response(null, 'fileUpload is Empty!', 400).send(res);
@@ -63,7 +64,7 @@ router.put('/add', uploader, async (req, res) => {
  * @return list of interest
  */
 //______________________Get Interest_____________________//
-router.get('/', async function (req, res) {
+router.get('/', verifyToken(), async function (req, res) {
     console.info('API: Get interest/init');
     let selected;
     if (req.userId) {
@@ -87,7 +88,7 @@ router.get('/', async function (req, res) {
  * @return list of interest
  */
 //______________________Set Interest_____________________//
-router.post('/', async function (req, res) {
+router.post('/', verifyToken(), async function (req, res) {
 
     const setInterestSchema = Joi.object().keys({
         selected: Joi.array().min(1).required()

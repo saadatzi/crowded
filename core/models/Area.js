@@ -1,26 +1,11 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const EventSchema = new Schema({
-    title_ar: String,
-    title_en: String,
-    desc_ar: String,
-    desc_en: String,
-    images: [{
-        url: String,
-        order: Number
-    }],
-    value: {type: Schema.Types.Decimal128, default: 0},
-    Attendance: {type: Number, default: 0},
-    from: Date,
-    to: Date,
-    address: String,
-    location: {
-        lat: String,
-        lon: String
-    },
+const AreaSchema = new Schema({
+    parentId: {type: String, default: null},
+    name_en: String,
+    name_ar: String,
     status: {type: Number, default: 1}, // 1 active, 0 deActive, 2 softDelete, 3 hardDelete
-    interests: [{type: Schema.Types.ObjectId, ref: 'Interest'}],
     createAt: {type: Date, default: Date.now},
     updateAt: {type: Date, default: Date.now},
 });
@@ -29,7 +14,7 @@ const EventSchema = new Schema({
  * Pre-remove hook
  */
 
-EventSchema.pre('remove', function (next) {
+AreaSchema.pre('remove', function (next) {
     //ToDo pre-remove required...
     next();
 });
@@ -37,51 +22,51 @@ EventSchema.pre('remove', function (next) {
 /**
  * Methods
  */
-EventSchema.method({
+AreaSchema.method({
     //ToDo method need... this.model('Animal')
 });
 
 /**
  * Statics
  */
-EventSchema.static({
+AreaSchema.static({
     /**
-     * Find event by id
+     * Find area by id
      *
      * @param {ObjectId} _id
      * @api private
      */
     getById: function(_id) {
         return this.findById({_id})
-        .then(event =>  event)
+        .then(area =>  area)
         .catch(err => console.log("!!!!!!!! Event getById catch err: ", err))},
 
     /**
-     * Find event by identifier
+     * Find area by identifier
      *
      * @param {String} identifier
      * @api private
      */
     getByIdentifier: (identifier) => {
-        return Device.findOne({identifier: identifier})
-            .then(event => event)
+        return Area.findOne({identifier: identifier})
+            .then(area => area)
             .catch(err => console.log("!!!!!!!! getByIdentifier catch err: ", err));
-        // console.log("########## getByIdentifier event: ", event)
+        // console.log("########## getByIdentifier area: ", area)
         // if (err) {
         // }
-        // return (event)
+        // return (area)
         // });
         /*return new Promise(resolve => {
-            this.findOne({identifier: identifier}, (err, event) => {
+            this.findOne({identifier: identifier}, (err, area) => {
                 if (err) {}
-                resolve(event)
+                resolve(area)
             })
         });*/
     },
 
 
     /**
-     * List all event
+     * List all area
      *
      * @param {Object} options
      * @api private
@@ -102,5 +87,5 @@ EventSchema.static({
     }
 });
 
-const Device = mongoose.model('Device', EventSchema);
-module.exports = Device;
+const Area = mongoose.model('Area', AreaSchema);
+module.exports = Area;

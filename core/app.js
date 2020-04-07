@@ -134,7 +134,7 @@ app.use(logger('PyLog', {
 /*
 * Authentication JWT
 * */
-app.use(verifyToken);
+// app.use(verifyToken);
 
 
 /*

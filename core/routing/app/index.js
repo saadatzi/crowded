@@ -140,6 +140,7 @@ app.get('/', async (req, res) => {
 app.use('/device', 		require('./device'));
 app.use('/interest', 	require('./interest'));
 app.use('/user', 		require('./user'));
+app.use('/event', 		require('./event'));
 
 
 module.exports = app;

@@ -39,6 +39,7 @@ app.post('/auth', async (req, res, next) => {
 	
 	const device = await deviceController.get(req.body.device.uid);
 
+
 	if (device) {
 		// maybe changed some value
 		device.osVersion = req.body.os.version;

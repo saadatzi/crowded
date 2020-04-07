@@ -8,6 +8,7 @@ const os = require('os');
 * start Routing
 * */
 app.use('/app', 			require('./app'));
+app.use('/panel', 			require('./panel'));
 
 
 app.get('/', function (reg, res) {

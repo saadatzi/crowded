@@ -16,16 +16,27 @@ module.exports = {
 		isSecure:	true,
 	},
 	GET_app_interest: {
-		needToken: 		true,
+		needToken: 	true,
 		isSecure:	false,
 	},
 	POST_app_interest: {
-		needToken: 		true,
+		needToken: 	true,
 		isSecure:	false,
 	},
-	PUT_app_interest_add: {
+	PUT_panel_interest_add: {
 		needToken: 	true,
 		isSecure:	true,
 	},
-
+	GET_app_event: {
+		needToken: 	true,
+		isSecure:	false,
+	},
+	GET_app_event_55: {
+		needToken: 	true,
+		isSecure:	false,
+	},
+	POST_app_event: {
+		needToken: 	true,
+		isSecure:	true,
+	},
 };

@@ -1,7 +1,6 @@
 const fs = require('fs');
 const jwt = require('jsonwebtoken');
 const moment = require('moment-timezone');
-const API = require('./introduceEndpoint');
 const NZ = require('./nz');
 const deviceController = require('../controllers/device')
 const settings = require('./settings')
@@ -24,16 +23,8 @@ module.exports = {
         return jwt.decode(token, {complete: true});
         //returns null if token is invalid
     },
-    verifyToken: (req, res, next) => {
-        const strApi = req.method + (req.originalUrl).replace(new RegExp('/', 'g'), '_');
-        const api = API[strApi];
-        console.info('******* Verify Token req Start req.originalUrl: %s -- %s %j', req.method, req.originalUrl, api);
-        if (!api) {
-            return new NZ.Response({}, 'Endpoint not found!', 404).send(res);
-        }
-        if (!api.needToken && !api.isSecure) {
-            next();
-        } else {
+    verifyToken: (isSecure = false) => {
+        return async (req, res, next) => {
             let token = req.headers['x-token']; // Express headers are auto converted to lowercase
             if (token && token.startsWith('Bearer ')) {
                 // Remove Bearer from string
@@ -51,6 +42,7 @@ module.exports = {
                         .then(device => {
                             if (device) {
                                 console.log('>>>>>>> JWT deviceId: %s ---- userId: %s ', device._id, device.userId | 'not Login');
+                                console.log('<<<<<<>>>>>>>>>>>>> JWT device:  ', device);
                                 device.lastInteract = Date.now();
                                 device.save();
                                 req.deviceId = (device._id).toString();
@@ -58,7 +50,7 @@ module.exports = {
                                 if (device.userId)
                                     req.userId = (device.userId).toString();
 
-                                if (api.isSecure && !device.userId)
+                                if (isSecure && !device.userId)
                                     return new NZ.Response(null, 'must be user', 401).send(res);
 
                                 return next();
@@ -75,10 +67,6 @@ module.exports = {
 
 
                 } catch (err) {
-                    // if (err.errCode === 401) {
-                    //     console.error('!!!Verify Token not have Token: Authorization Failed!!! => API: %s', req.originalUrl);
-                    //     return new NZ.Response(null, 'Authorization Failed!!!', 401).send(res);
-                    // }
                     console.error('!!!Verify Token not have Token: Authorization Failed!!! => API: %s', err);
                     return new NZ.Response(null, 'invalid token err: ' + err.message, 403).send(res);
                 }
@@ -86,6 +74,7 @@ module.exports = {
                 console.error('!!!Verify Token not have Token: Authorization Failed!!! => API: %s', req.originalUrl);
                 return new NZ.Response(null, 'invalid token', 403).send(res);
             }
+
         }
     }
 };
