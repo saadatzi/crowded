@@ -70,6 +70,7 @@ router.get('/', async function (req, res) {
         selected = await userController.get(req.userId, 'id');
     else
         selected = await deviceController.get(req.deviceId, 'id');
+    console.error("Interest Get Selected: ", selected);
     interestController.get({selected: selected.interests, lang: req.headers['lang'] ? (req.headers['lang']).toLowerCase() : 'en'})
         .then(result => {
             console.info("*** interest List : %j", result);
