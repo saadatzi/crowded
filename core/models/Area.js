@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const AreaSchema = new Schema({
-    parentId: {type: String, default: null},
+    parentId: {type: Schema.Types.ObjectId, default: null},
     name_en: String,
     name_ar: String,
     status: {type: Number, default: 1}, // 1 active, 0 deActive, 2 softDelete, 3 hardDelete

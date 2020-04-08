@@ -12,6 +12,7 @@ app.use('/*', (req, res, next) => {
 	req._lang = lang;
 	res._lang = lang;
 
+
 	return next();
 });
 

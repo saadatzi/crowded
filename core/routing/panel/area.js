@@ -24,7 +24,7 @@ router.post('/add', verifyToken(true), async (req, res) => {
     const areaSchema = Joi.object().keys({
         selected: Joi.array().min(1).required()
     });
-    let areaValidation = areaSchema.validate({selected: req.body.selected});
+    let areaValidation = areaSchema.validate({selected: req.body});
     if (areaValidation.error)
         return new NZ.Response(areaValidation.error, 'input error.', 400).send(res);
 

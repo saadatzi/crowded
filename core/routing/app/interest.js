@@ -97,6 +97,8 @@ router.post('/', verifyToken(), async function (req, res) {
     if (setInterestValidation.error)
         return new NZ.Response(setInterestValidation.error, 'input error.', 400).send(res);
 
+    //ToDo new value replace / Added
+    //Added
     let lastInterests;
     if (req.userId)
         lastInterests = await userController.get(req.userId, 'id');
@@ -104,6 +106,7 @@ router.post('/', verifyToken(), async function (req, res) {
         lastInterests = await deviceController.get(req.deviceId, 'id');
     const uniqueInterests = Array.from(new Set([...lastInterests.interests.map(item => item.toString()), ...req.body.selected]));
 
+    //Replace req.body.selected
     const updateValue = {interests: uniqueInterests};
 
 

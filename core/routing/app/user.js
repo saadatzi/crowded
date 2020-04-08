@@ -100,7 +100,7 @@ router.post('/login', verifyToken(), async (req, res) => {
                 .then(device => {
                     //interest selected from device to user & merge & unique
                     user.interests = Array.from(new Set([...user.interests.map(item => item.toString()), ...device.interests.map(item => item.toString())]));
-                    // user.interests.push((device.interests).join());
+                    // user.interests.addToSet(device.interests);
                     //update user lastLogin
                     user.lastLogin = Date.now();
                     user.lastInteract = Date.now();

@@ -14,6 +14,7 @@ const EventSchema = new Schema({
     Attendance: {type: Number, default: 0},
     from: Date,
     to: Date,
+    area: {type: Schema.Types.ObjectId, ref: 'Area'},
     address: String,
     location: {
         lat: String,
@@ -51,10 +52,11 @@ EventSchema.static({
      * @param {ObjectId} _id
      * @api private
      */
-    getById: function(_id) {
+    getById: function (_id) {
         return this.findById({_id})
-        .then(event =>  event)
-        .catch(err => console.log("!!!!!!!! Event getById catch err: ", err))},
+            .then(event => event)
+            .catch(err => console.log("!!!!!!!! Event getById catch err: ", err))
+    },
 
     /**
      * Find event by identifier
