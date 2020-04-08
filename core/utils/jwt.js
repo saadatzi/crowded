@@ -41,7 +41,7 @@ module.exports = {
                     deviceController.get(token, 'token')
                         .then(device => {
                             if (device) {
-                                console.log('>>>>>>> JWT deviceId: %s ---- userId: %s ', device._id, device.userId | 'not Login');
+                                console.log('>>>>>>> JWT userId: %s ---- deviceId: %s ', device.userId, device._id);
                                 console.log('<<<<<<>>>>>>>>>>>>> JWT device:  ', device);
                                 device.lastInteract = Date.now();
                                 device.save();

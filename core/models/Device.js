@@ -95,7 +95,7 @@ DeviceSchema.static({
      * @param {Object} options
      * @api private
      */
-    getAll: (options) => {
+    getAll: async (options) => {
         const criteria = options.criteria || {};
         const page = options.page || 0;
         const limit = options.limit || 30;

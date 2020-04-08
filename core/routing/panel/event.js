@@ -5,12 +5,28 @@ const jwtRun = require('../../utils/jwt')
 const Joi = require('@hapi/joi');
 
 // Instantiate the Device Model
-// const eventController = require('../../controllers/event');
+const eventController = require('../../controllers/event');
 const userController = require('../../controllers/user');
 const deviceController = require('../../controllers/device');
 const NZ = require('../../utils/nz');
-const {uploader} = require('../../utils/fileManager');
+const {uploader, multiUploader} = require('../../utils/fileManager');
 const {verifyToken} = require('../../utils/jwt');
+
+/**
+ *  Add Event Image
+ * -upload image callback path&name
+ * @return status
+ */
+//______________________Add Event_____________________//
+router.post('/upload', verifyToken(true), uploader, async (req, res) => {
+    console.info('API: Add event/init %j', {body: req.body});
+    if (!req._uploadPath || !req._uploadFilename) {
+        return new NZ.Response(null, 'fileUpload is Empty!', 400).send(res);
+    }
+
+    const image = req._uploadPath + '/' + req._uploadFilename;
+    new NZ.Response({item: image}).send(res);
+});
 
 /**
  *  Add Event
@@ -19,11 +35,9 @@ const {verifyToken} = require('../../utils/jwt');
  * @return status
  */
 //______________________Add Event_____________________//
-router.put('/add', verifyToken(true), uploader, async (req, res) => {
+router.post('/add', verifyToken(true), async (req, res) => {
     console.info('API: Add event/init %j', {body: req.body});
-    if (!req._uploadPath || !req._uploadFilename) {
-        return new NZ.Response(null, 'fileUpload is Empty!', 400).send(res);
-    }
+
     // const schema = Joi.object().keys({
     //     device:	Joi.object().keys({
     //         name:		Joi.string().required(),
@@ -48,15 +62,14 @@ router.put('/add', verifyToken(true), uploader, async (req, res) => {
     // if (result.error)
     //     return new NZ.Response(result.error, 'input error.', 400).send(res);
 
-    // req.body.image = req._uploadPath + '/' + req._uploadFilename;
-    // eventController.add(req.body)
-    //     .then(event => {
-    //         new NZ.Response({item: event}).send(res);
-    //     })
-    //     .catch(err => {
-    //         console.error("Event Add Catch err:", err)
-    //         res.err(err)
-    //     })
+    eventController.add(req.body)
+        .then(event => {
+            new NZ.Response({item: event}).send(res);
+        })
+        .catch(err => {
+            console.error("Event Add Catch err:", err)
+            res.err(err)
+        })
 });
 
 /**

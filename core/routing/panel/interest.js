@@ -20,6 +20,7 @@ const {uploader} = require('../../utils/fileManager');
 //______________________Add Interest_____________________//
 router.put('/add', uploader, async (req, res) => {
     console.info('API: Add interest/init %j', {body: req.body});
+
     if (! req._uploadPath || !req._uploadFilename) {
         return new NZ.Response(null, 'fileUpload is Empty!', 400).send(res);
     }

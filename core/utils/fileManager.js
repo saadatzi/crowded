@@ -47,6 +47,20 @@ const uploader = async (req, res, next) => {
     })
 };
 
+/*
+* multiple UploadImage and save in path
+* */
+const multiUploader = async (req, res, next) => {
+    const upload = await multer({storage}).array('fileUpload', settings.maxImageForEvent);
+    upload(req, res, (err) => {
+        if (err) {
+            console.error('API: UploadFile Error uploading file. %s', err);
+            return new NZ.Response(null, 'Nothing uploaded.', 400).send(res);
+        }
+        next();
+    })
+};
+
 /*router.get('/:fileName', function (req, res) {
 
     console.info('API: DownloadFile/getFile %j', {params: req.params/!*, token_userId:token*!/});
@@ -75,5 +89,6 @@ const uploader = async (req, res, next) => {
 });*/
 
 module.exports = {
-	uploader
+	uploader,
+    multiUploader
 };
