@@ -117,26 +117,26 @@ router.get('/:id', verifyToken(), async function (req, res) {
             console.error("Event Get Catch err:", err)
             new NZ.Response(null, err.message, 500).send(res);
         })
-    new NZ.Response({
-        items: [
-            {
-                id: '123',
-                title: "Ochello’s catwalk fiesta",
-                desc: "Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi.",
-                images: [
-                    {url: "https://media.crowded.dev.nizek.com/interest/96ToCv/36baa1d8-bf3e-4699-8fdd-ab4bd0933dd4_3SVd6wHgs1.jpg"},
-                    {url: "https://media.crowded.dev.nizek.com/interest/5wTRsy/9520fccd-a305-4c3b-9acb-620b315a6abc_aUzcRNTUn9.jpg"}
-                ],
-                value: 50.00,
-                Attendance: 60,
-                from: Date.now().toString(),
-                to: (Date.now() + 55).toString(),
-                address: "Kuwait City, Sample St, Famous Alley, NO 13",
-                area: "Kuwait City",
-            },
-
-        ]
-    }).send(res);
+    // new NZ.Response({
+    //     items: [
+    //         {
+    //             id: '123',
+    //             title: "Ochello’s catwalk fiesta",
+    //             desc: "Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi.",
+    //             images: [
+    //                 {url: "https://media.crowded.dev.nizek.com/interest/96ToCv/36baa1d8-bf3e-4699-8fdd-ab4bd0933dd4_3SVd6wHgs1.jpg"},
+    //                 {url: "https://media.crowded.dev.nizek.com/interest/5wTRsy/9520fccd-a305-4c3b-9acb-620b315a6abc_aUzcRNTUn9.jpg"}
+    //             ],
+    //             value: 50.00,
+    //             Attendance: 60,
+    //             from: Date.now().toString(),
+    //             to: (Date.now() + 55).toString(),
+    //             address: "Kuwait City, Sample St, Famous Alley, NO 13",
+    //             area: "Kuwait City",
+    //         },
+    //
+    //     ]
+    // }).send(res);
 });
 
 /**

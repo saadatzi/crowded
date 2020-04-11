@@ -109,29 +109,6 @@ EventSchema.static({
             .catch(err => console.log("!!!!!!!! Event getById catch err: ", err))
     },
 
-    /**
-     * Find event by identifier
-     *
-     * @param {String} identifier
-     * @api private
-     */
-    getByIdentifier: (identifier) => {
-        return Event.findOne({identifier: identifier})
-            .then(event => event)
-            .catch(err => console.log("!!!!!!!! getByIdentifier catch err: ", err));
-        // console.log("########## getByIdentifier event: ", event)
-        // if (err) {
-        // }
-        // return (event)
-        // });
-        /*return new Promise(resolve => {
-            this.findOne({identifier: identifier}, (err, event) => {
-                if (err) {}
-                resolve(event)
-            })
-        });*/
-    },
-
 
     /**
      * List all my event

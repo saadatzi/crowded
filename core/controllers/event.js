@@ -61,7 +61,7 @@ eventController.prototype.get = async (optFilter) => {
                 throw err;
             })
     } else {
-        return await Event.get(optFilter)
+        return await Event.getById(optFilter)
             .then(result => {
                 console.log(`***Event get by id ${optFilter} result: `, result);
                 return result;
