@@ -107,6 +107,16 @@ router.get('/', verifyToken(), async function (req, res) {
 //______________________Get Event_____________________//
 router.get('/:id', verifyToken(), async function (req, res) {
     console.info('API: Get detail event/init');
+    eventController.get(req.params.id)
+        .then(result => {
+            console.info("*** Event List : %j", result);
+            let nextPage = null;
+            new NZ.Response({items: result}).send(res);
+        })
+        .catch(err => {
+            console.error("Event Get Catch err:", err)
+            new NZ.Response(null, err.message, 500).send(res);
+        })
     new NZ.Response({
         items: [
             {
