@@ -46,7 +46,7 @@ module.exports = {
 
 	event: {
 		maxImageForEvent: 7,
-		limitPage: 10
+		limitPage: 4
 	},
 
 	hashids_seed:	"cc679a61iipahn2u4ged2df11",
