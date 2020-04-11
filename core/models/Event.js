@@ -174,7 +174,7 @@ EventSchema.static({
             {
                 $group: {
                     _id: "$_id",
-                    images: {$first: {url: {$concat: [settings.media_domain, "$images.url"]}}}, //$push
+                    image: {$first: {url: {$concat: [settings.media_domain, "$images.url"]}}}, //$push
                     title: {$first: `$title_${options.lang}`},
                     dec: {$first: `$desc_${options.lang}`},
                     value: {$first: {$toString: "$value"}},
@@ -193,7 +193,7 @@ EventSchema.static({
                     _id: 0,
                     id: "$_id",
                     title: 1,
-                    images: 1,
+                    image: 1,
                     dec: 1,
                     area: {$arrayElemAt: ['$getArea', 0]},
                     value: 1,
@@ -201,13 +201,13 @@ EventSchema.static({
                     // attendance: 1,
                     //{$dateToString: {date: `$to`, timezone: "Asia/Kuwait", format: "%m-%d"}}
                     date: {
-                        day: {$dayOfMonth: "$from", timezone: "Asia/Kuwait"},
+                        day: {$dayOfMonth: {date: "$from", timezone: "Asia/Kuwait"}},
                         month: {
                             $let: {
                                 vars: {
                                     monthsInString: [, 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
                                 },
-                                in: {$arrayElemAt: ['$$monthsInString', {$month: "$from", timezone: "Asia/Kuwait"}]}
+                                in: {$arrayElemAt: ['$$monthsInString', {$month: {date: "$from", timezone: "Asia/Kuwait"}}]}
                             }
                         },
                         from: {$dateToString: {date: `$from`, timezone: "Asia/Kuwait", format: "%H:%M"}},
