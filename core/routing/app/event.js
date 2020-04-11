@@ -111,7 +111,7 @@ router.get('/:id', verifyToken(), async function (req, res) {
         .then(result => {
             console.info("*** Event List : %j", result);
             let nextPage = null;
-            new NZ.Response({items: result}).send(res);
+            new NZ.Response({item: result}).send(res);
         })
         .catch(err => {
             console.error("Event Get Catch err:", err)
