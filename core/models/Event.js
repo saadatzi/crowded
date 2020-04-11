@@ -147,40 +147,25 @@ EventSchema.static({
 
         criteria.status = 1;
         criteria.allowedApplyTime = {$gt: new Date()};
-        /*.
-        db.orders.aggregate([
-   { $match: { status: "A" } },
-   { $group: { _id: "$cust_id", total: { $sum: "$amount" } } }
-])
 
-        aggregate([
-  {
-    "$unwind": "$addressBook"
-  },
-  {
-    "$sort": {
-      "addressBook.default": 1
-    }
-  },
-  {
-    "$group": {
-      "_id": "$_id",
-      "addressBook": {
-        "$push": "$addressBook"
-      }
-    }
-
-    value: {type: Schema.Types.Decimal128, default: 0},
-    attendance: {type: Number, default: 0},
-    from: Date,
-    to: Date,
-    area: {type: Schema.Types.ObjectId, ref: 'Area'},
-    address  ,
-])*/
         console.log("!!!!!!!! getMyEvents criteria: ", criteria)
         return await this.aggregate([
-            {$lookup: {from: 'areas', localField: 'area', foreignField: `_id`, as: 'area'}}, //from: collection Name  of mongoDB
+            // {$lookup: {from: 'areas', localField: 'area', foreignField: `childs._id`, as: 'getArea'}}, //from: collection Name  of mongoDB
+            {
+                $lookup: {
+                    from: 'areas',
+                    let: {'primaryArea': '$area'},
+                    pipeline: [
+                        {$match: {$expr: {$in: ["$$primaryArea", "$childs._id"]}}},
+                        {$unwind: "$childs"},
+                        {$match: {$expr: {$eq: ["$childs._id", "$$primaryArea"]}}}
+                    ],
+                    as: 'getArea'
+                }
+            },
             {$match: criteria},
+            // {$unwind: '$getArea'},
+            // {$match: {'getArea.childs._id': {$eq: '$area'}}},
             {$limit: limit + 1},
             {$skip: limit * page},
             {$unwind: "$images"},
@@ -199,10 +184,8 @@ EventSchema.static({
                     // allowedApplyTime: {$first: `$allowedApplyTime`},
                     // date: {$first: moment.tz("$from", 'Asia/Kuwait').format('YYYY-MM-DD HH:MM')},
                     // date: {$first: {$dateToString: {date: `$to`, timezone: "Asia/Kuwait", format: "%m-%d-%Y"}}},
-                    area: {$first: `$area.name_${options.lang}`}, //
+                    getArea: {$first: `$getArea.childs.name_${options.lang}`}, //
                     address: {$first: `$address_${options.lang}`},
-                    count: {$sum: 1}
-
                 }
             },
             {
@@ -212,21 +195,19 @@ EventSchema.static({
                     title: 1,
                     images: 1,
                     dec: 1,
-                    area: {$arrayElemAt: ['$area', 0]},
+                    area: {$arrayElemAt: ['$getArea', 0]},
                     value: 1,
                     count: 1,
                     // attendance: 1,
                     //{$dateToString: {date: `$to`, timezone: "Asia/Kuwait", format: "%m-%d"}}
                     date: {
-                        day: {$dayOfMonth: "$from"},
+                        day: {$dayOfMonth: "$from", timezone: "Asia/Kuwait"},
                         month: {
                             $let: {
                                 vars: {
                                     monthsInString: [, 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
                                 },
-                                in: {
-                                    $arrayElemAt: ['$$monthsInString', {$month: "$from"}]
-                                }
+                                in: {$arrayElemAt: ['$$monthsInString', {$month: "$from", timezone: "Asia/Kuwait"}]}
                             }
                         },
                         from: {$dateToString: {date: `$from`, timezone: "Asia/Kuwait", format: "%H:%M"}},
@@ -240,19 +221,10 @@ EventSchema.static({
                     // address: 1
                 }
             },
-            // {$count: "allEvents"},
         ])
             // .exec()
             .then(events => events)
             .catch(err => console.log("getMyEvents  Catch", err));
-        // return await this.find(criteria)
-        //     .sort({createAt: -1})
-        //     // .populate('interests')
-        //     .limit(limit)
-        //     .skip(limit * page)
-        //     .exec()
-        //     .then(events => events)
-        //     .catch(err => console.log("getMyEvents  Catch", err));
     },
 
     /**

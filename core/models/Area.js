@@ -2,9 +2,17 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const AreaSchema = new Schema({
-    parentId: {type: Schema.Types.ObjectId, default: null},
     name_en: String,
     name_ar: String,
+    childs: [
+        {
+            name_en: String,
+            name_ar: String,
+            status: {type: Number, default: 1},
+            createAt: {type: Date, default: Date.now},
+            updateAt: {type: Date, default: Date.now},
+        }
+    ],
     status: {type: Number, default: 1}, // 1 active, 0 deActive, 2 softDelete, 3 hardDelete
     createAt: {type: Date, default: Date.now},
     updateAt: {type: Date, default: Date.now},
