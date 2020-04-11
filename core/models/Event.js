@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-const settings = require('../utils/settings')
+const settings = require('../utils/settings');
+const moment = require('moment-timezone');
 
 const EventSchema = new Schema({
     title_ar: String,
@@ -24,6 +25,7 @@ const EventSchema = new Schema({
         coordinates: {type: [Number], default: [0, 0]}
     },
     status: {type: Number, default: 1}, // 1 active, 0 deActive, 2 softDelete, 3 hardDelete
+    allowedApplyTime: Date,
     createAt: {type: Date, default: Date.now},
     updateAt: {type: Date, default: Date.now},
 });
@@ -137,11 +139,14 @@ EventSchema.static({
      * @param {Object} options
      * @api private
      */
-    getMyEvents: async function (options) {
+    getAllMyEvents: async function (options) {
         console.log("!!!!!!!! getMyEvents options: ", options)
         const criteria = options.criteria || {};
         const page = options.page || 0;
-        const limit = options.limit || 30;
+        const limit = settings.event.limitPage;
+
+        criteria.status = 1;
+        criteria.allowedApplyTime = {$gt: new Date()};
         /*.
         db.orders.aggregate([
    { $match: { status: "A" } },
@@ -172,27 +177,31 @@ EventSchema.static({
     area: {type: Schema.Types.ObjectId, ref: 'Area'},
     address  ,
 ])*/
-
+        console.log("!!!!!!!! getMyEvents criteria: ", criteria)
         return await this.aggregate([
+            {$lookup: {from: 'areas', localField: 'area', foreignField: `_id`, as: 'area'}}, //from: collection Name  of mongoDB
             {$match: criteria},
-            {$limit: limit},
+            {$limit: limit + 1},
             {$skip: limit * page},
             {$unwind: "$images"},
             {$sort: {createAt: -1, 'images.order': 1}},
-            {$lookup: {from: 'areas', localField: 'area', foreignField: `_id`, as: 'area'}}, //from: collection Name  of mongoDB
             // {$replaceRoot: { newRoot: { $mergeObjects: [ { $arrayElemAt: [ "$area", 0 ] }, "$$ROOT" ] } }},
             {
                 $group: {
                     _id: "$_id",
-                    images: {$first: {url: {$concat: [settings.media_domain, "$images.url" ]}}}, //$push
+                    images: {$first: {url: {$concat: [settings.media_domain, "$images.url"]}}}, //$push
                     title: {$first: `$title_${options.lang}`},
                     dec: {$first: `$desc_${options.lang}`},
                     value: {$first: {$toString: "$value"}},
                     attendance: {$first: `$attendance`},
                     from: {$first: `$from`},
                     to: {$first: `$to`},
+                    // allowedApplyTime: {$first: `$allowedApplyTime`},
+                    // date: {$first: moment.tz("$from", 'Asia/Kuwait').format('YYYY-MM-DD HH:MM')},
+                    // date: {$first: {$dateToString: {date: `$to`, timezone: "Asia/Kuwait", format: "%m-%d-%Y"}}},
                     area: {$first: `$area.name_${options.lang}`}, //
                     address: {$first: `$address_${options.lang}`},
+                    count: {$sum: 1}
 
                 }
             },
@@ -203,15 +212,35 @@ EventSchema.static({
                     title: 1,
                     images: 1,
                     dec: 1,
-                    area: 1, //{$arrayElemAt: [ '$area', 1 ]},
+                    area: {$arrayElemAt: ['$area', 0]},
                     value: 1,
+                    count: 1,
                     // attendance: 1,
-                    from: 1,
-                    to: 1,
+                    //{$dateToString: {date: `$to`, timezone: "Asia/Kuwait", format: "%m-%d"}}
+                    date: {
+                        day: {$dayOfMonth: "$from"},
+                        month: {
+                            $let: {
+                                vars: {
+                                    monthsInString: [, 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+                                },
+                                in: {
+                                    $arrayElemAt: ['$$monthsInString', {$month: "$from"}]
+                                }
+                            }
+                        },
+                        from: {$dateToString: {date: `$from`, timezone: "Asia/Kuwait", format: "%H:%M"}},
+                        to: {$dateToString: {date: `$to`, timezone: "Asia/Kuwait", format: "%H:%M"}}
+                        // from: {$concat: [{$toString: {$hour: "$from"}}, ":", {$toString: {$minute: "$from"}}]},
+                        // to: {$concat: [{$toString: {$hour: {$dateToString: {date: `$to`, timezone: "Asia/Kuwait", format: "%H:%M"}}}}, ":", {$toString: {$minute: {$dateToString: {date: `$to`, timezone: "Asia/Kuwait", format: "%m-%d"}}}}]},
+                    },
+                    // date: 1,
+                    // from: 1,
+                    // to: 1,
                     // address: 1
                 }
             },
-
+            // {$count: "allEvents"},
         ])
             // .exec()
             .then(events => events)

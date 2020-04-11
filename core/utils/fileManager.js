@@ -51,7 +51,7 @@ const uploader = async (req, res, next) => {
 * multiple UploadImage and save in path
 * */
 const multiUploader = async (req, res, next) => {
-    const upload = await multer({storage}).array('fileUpload', settings.maxImageForEvent);
+    const upload = await multer({storage}).array('fileUpload', settings.event.maxImageForEvent);
     upload(req, res, (err) => {
         if (err) {
             console.error('API: UploadFile Error uploading file. %s', err);

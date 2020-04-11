@@ -49,7 +49,7 @@ eventController.prototype.add = async (newEvent) => {
  */
 eventController.prototype.get = async (optFilter) => {
     if (!optFilter || optFilter instanceof Object) { //newEvent instanceof Array
-        return await Event.getMyEvents(optFilter)
+        return await Event.getAllMyEvents(optFilter)
             .then(events => {
                 // let returnedEvents = [];
                 // events.map(event => returnedEvents.push(event.transform(optFilter.selected, optFilter.lang)));
