@@ -77,7 +77,7 @@ eventController.prototype.get = async (optFilter, type = 'id') => {
  */
 eventController.prototype.getById = async (id, lang) => {
         return await Event.getByIdAggregate({id,lang})
-            .then(event => event[0])
+            .then(event => event)
             .catch(err => {
                 console.error("!!!Event get field: ", err);
                 throw err;

@@ -42,8 +42,8 @@ module.exports = {
                         .then(device => {
                             if (device) {
                                 console.log('>>>>>>> JWT userId: %s ---- deviceId: %s ', device.userId, device._id);
-                                console.log('<<<<<<>>>>>>>>>>>>> JWT device:  ', device);
-                                device.lastInteract = Date.now();
+                                // console.log('<<<<<<>>>>>>>>>>>>> JWT device:  ', device);
+                                device.lastInteract = new Date();
                                 device.save();
                                 req.deviceId = (device._id).toString();
 

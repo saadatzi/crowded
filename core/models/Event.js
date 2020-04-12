@@ -217,7 +217,7 @@ EventSchema.static({
             },
         ])
             // .exec()
-            .then(event => event)
+            .then(event => event[0])
             .catch(err => console.error("getMyEvents  Catch", err));
     },
 
@@ -240,6 +240,12 @@ EventSchema.static({
         console.log("!!!!!!!! getMyEvents criteria: ", criteria)
         return await this.aggregate([
             // {$lookup: {from: 'areas', localField: 'area', foreignField: `childs._id`, as: 'getArea'}}, //from: collection Name  of mongoDB
+            {$match: criteria},
+            {$sort: {createAt: -1}},
+            {$skip: limit * page},
+            {$limit: limit + 1},
+            {$unwind: "$images"},
+            {$sort: {'images.order': 1}},
             {
                 $lookup: {
                     from: 'areas',
@@ -252,13 +258,6 @@ EventSchema.static({
                     as: 'getArea'
                 }
             },
-            {$match: criteria},
-            // {$unwind: '$getArea'},
-            // {$match: {'getArea.childs._id': {$eq: '$area'}}},
-            {$limit: limit + 1},
-            {$skip: limit * page},
-            {$unwind: "$images"},
-            {$sort: {'images.order': 1}},
             // {$replaceRoot: { newRoot: { $mergeObjects: [ { $arrayElemAt: [ "$area", 0 ] }, "$$ROOT" ] } }},
             {
                 $group: {
