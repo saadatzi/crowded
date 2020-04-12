@@ -18,7 +18,7 @@ const EventSchema = new Schema({
     attendance: {type: Number, default: 0},
     from: Date,
     to: Date,
-    area: {type: Schema.Types.ObjectId, required: true},
+    area: {type: Schema.Types.ObjectId, ref: 'Area', required: true},
     address_ar: String,
     address_en: String,
     location: {

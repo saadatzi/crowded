@@ -6,6 +6,7 @@ const Joi = require('@hapi/joi');
 
 // Instantiate the Device Model
 const eventController = require('../../controllers/event');
+const userEventController = require('../../controllers/userEvent');
 const userController = require('../../controllers/user');
 const deviceController = require('../../controllers/device');
 const NZ = require('../../utils/nz');
@@ -140,51 +141,26 @@ router.get('/:id', verifyToken(), async function (req, res) {
 });
 
 /**
- * Set Event
+ * Apply Event
  * @return list of event
  */
-//______________________Set Event_____________________//
-router.post('/', async function (req, res) {
-
-    const setEventSchema = Joi.object().keys({
-        selected: Joi.array().min(1).required()
+//______________________Apply Event_____________________//
+router.post('/', verifyToken(true),async function (req, res) {
+    const applyEventSchema = Joi.object().keys({
+        eventId: Joi.string().length(24).required(),
     });
-    let setEventValidation = setEventSchema.validate({selected: req.body.selected});
-    if (setEventValidation.error)
-        return new NZ.Response(setEventValidation.error, 'input error.', 400).send(res);
+    let applyEventValidation = applyEventSchema.validate({eventId: req.body.eventId});
+    if (applyEventValidation.error)
+        return new NZ.Response(applyEventValidation.error, 'input error.', 400).send(res);
 
-    let lastEvents;
-    if (req.userId)
-        lastEvents = await userController.get(req.userId, 'id');
-    else
-        lastEvents = await deviceController.get(req.deviceId, 'id');
-    const uniqueEvents = Array.from(new Set([...lastEvents.events.map(item => item.toString()), ...req.body.selected]));
-
-    const updateValue = {events: uniqueEvents};
-
-
-    if (req.userId) {
-        userController.update(req.userId, updateValue)
-            .then(result => {
-                console.info("***User event update List : %j", result);
-                new NZ.Response('', 'Event has been successfully added!').send(res);
-            })
-            .catch(err => {
-                console.error("Set Event Get Catch err:", err)
-                new NZ.Response(null, err.message, 500).send(res);
-            })
-    } else {
-        deviceController.update(req.deviceId, updateValue)
-            .then(result => {
-                console.info("***User event update List : %j", result);
-                new NZ.Response('', 'Event has been successfully added!').send(res);
-            })
-            .catch(err => {
-                console.error("Set Event Get Catch err:", err)
-                new NZ.Response(null, err.message, 500).send(res);
-            })
-    }
-
+    userEventController.add(req.body.eventId, req.userId)
+        .then(result => {
+            new NZ.Response({status: result.status}).send(res);
+        })
+        .catch(err => {
+            console.error("Event Get Catch err:", err)
+            new NZ.Response(null, err.message, 500).send(res);
+        })
 
 });
 
