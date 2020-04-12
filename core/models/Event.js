@@ -292,7 +292,7 @@ EventSchema.static({
                     // attendance: 1,
                     //{$dateToString: {date: `$to`, timezone: "Asia/Kuwait", format: "%m-%d"}}
                     date: {
-                        day: {$dayOfMonth: {date: "$from", timezone: "Asia/Kuwait"}},
+                        day: {$toString: {$dayOfMonth: {date: "$from", timezone: "Asia/Kuwait"}}},
                         month: {
                             $arrayElemAt: [settings.constant.monthNamesShort, {
                                 $month: {
