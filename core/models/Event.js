@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const settings = require('../utils/settings');
 const moment = require('moment-timezone');
+const areaController = require('../controllers/area');
 
 const EventSchema = new Schema({
     title_ar: String,
@@ -90,10 +91,30 @@ EventSchema.pre('remove', function (next) {
  * Methods
  */
 EventSchema.method({
-    toJSON: function () {
-        var obj = this.toObject();
-        delete obj.password;
-        return obj;
+    detailDto: async function (lang) {
+        const area = await areaController.get(this.area);
+        return {
+            id: this._id,
+            title: this[`title_${lang}`],
+            desc: this[`desc_${lang}`],
+            value: this.value.toString(),
+            attendance: this.attendance,
+            date: {
+                day: {$dayOfMonth: {date: "$from", timezone: "Asia/Kuwait"}},
+                month: {
+                    $arrayElemAt: [settings.constant.monthNamesShort, {
+                        $month: {
+                            date: "$from",
+                            timezone: "Asia/Kuwait"
+                        }
+                    }]
+                },
+                from: {$dateToString: {date: `$from`, timezone: "Asia/Kuwait", format: "%H:%M"}},
+                to: {$dateToString: {date: `$to`, timezone: "Asia/Kuwait", format: "%H:%M"}}
+            },
+            area: area,
+            address: this[`address_${lang}`],
+        }
     }
 });
 
@@ -111,6 +132,94 @@ EventSchema.static({
         return this.findById({_id})
             .then(event => event)
             .catch(err => console.log("!!!!!!!! Event getById catch err: ", err))
+    },
+
+
+    /**
+     * List all my event
+     *
+     * @param {Object} options
+     * @api private
+     */
+    getByIdAggregate: async function (options) {
+        console.log("!!!!!!!! getEvent options: ", options)
+        const criteria = {_id: mongoose.Types.ObjectId(options.id)};
+        console.log("!!!!!!!! getEvent criteria: ", criteria)
+        return await this.aggregate([
+            // {$lookup: {from: 'areas', localField: 'area', foreignField: `childs._id`, as: 'getArea'}}, //from: collection Name  of mongoDB
+            {
+                $lookup: {
+                    from: 'areas',
+                    let: {'primaryArea': '$area'},
+                    pipeline: [
+                        {$match: {$expr: {$in: ["$$primaryArea", "$childs._id"]}}},
+                        {$unwind: "$childs"},
+                        {$match: {$expr: {$eq: ["$childs._id", "$$primaryArea"]}}}
+                    ],
+                    as: 'getArea'
+                }
+            },
+            {$match: criteria},
+            {$unwind: "$images"},
+            {$sort: {'images.order': 1}},
+            // {$replaceRoot: { newRoot: { $mergeObjects: [ { $arrayElemAt: [ "$area", 0 ] }, "$$ROOT" ] } }},
+            {
+                $group: {
+                    _id: "$_id",
+                    images: {$push: {url: {$concat: [settings.media_domain, "$images.url"]}}}, //$push
+                    title: {$first: `$title_${options.lang}`},
+                    desc: {$first: `$desc_${options.lang}`},
+                    value: {$first: {$toString: "$value"}},
+                    attendance: {$first: `$attendance`},
+                    from: {$first: `$from`},
+                    to: {$first: `$to`},
+                    getArea: {$first: `$getArea.childs.name_${options.lang}`}, //
+                    address: {$first: `$address_${options.lang}`},
+
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    id: "$_id",
+                    title: 1,
+                    images: 1,
+                    desc: 1,
+                    area: {$arrayElemAt: ['$getArea', 0]},
+                    value: 1,
+                    attendance: 1,
+                    date: {
+                        day: {
+                            $concat: [
+                                {
+                                    $arrayElemAt: [settings.constant.dayOfWeek, {
+                                        $dayOfWeek: {
+                                            date: "$from",
+                                            timezone: "Asia/Kuwait"
+                                        }
+                                    }]
+                                }, ' ', {$toString: {$dayOfMonth: {date: "$from", timezone: "Asia/Kuwait"}}}
+                            ]
+                        },
+                        month: {
+                            $arrayElemAt: [settings.constant.monthNames, {
+                                $month: {
+                                    date: "$from",
+                                    timezone: "Asia/Kuwait"
+                                }
+                            }]
+                        },
+                        from: {$dateToString: {date: `$from`, timezone: "Asia/Kuwait", format: "%H:%M"}},
+                        to: {$dateToString: {date: `$to`, timezone: "Asia/Kuwait", format: "%H:%M"}}
+                    },
+                    address: 1
+                }
+            },
+            {$sort: {id: -1}},
+        ])
+            // .exec()
+            .then(events => events)
+            .catch(err => console.log("getMyEvents  Catch", err));
     },
 
 
@@ -157,9 +266,9 @@ EventSchema.static({
                     _id: "$_id",
                     image: {$first: {url: {$concat: [settings.media_domain, "$images.url"]}}}, //$push
                     title: {$first: `$title_${options.lang}`},
-                    dec: {$first: `$desc_${options.lang}`},
+                    // dec: {$first: `$desc_${options.lang}`},
                     value: {$first: {$toString: "$value"}},
-                    attendance: {$first: `$attendance`},
+                    // attendance: {$first: `$attendance`},
                     from: {$first: `$from`},
                     to: {$first: `$to`},
                     // createAt: {$first: `$createAt`},
@@ -177,7 +286,7 @@ EventSchema.static({
                     id: "$_id",
                     title: 1,
                     image: 1,
-                    dec: 1,
+                    // dec: 1,
                     area: {$arrayElemAt: ['$getArea', 0]},
                     value: 1,
                     count: 1,

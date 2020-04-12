@@ -47,7 +47,7 @@ eventController.prototype.add = async (newEvent) => {
  *
  * @return Event
  */
-eventController.prototype.get = async (optFilter) => {
+eventController.prototype.get = async (optFilter, type = 'id') => {
     if (!optFilter || optFilter instanceof Object) { //newEvent instanceof Array
         return await Event.getAllMyEvents(optFilter)
             .then(events => {
@@ -63,14 +63,31 @@ eventController.prototype.get = async (optFilter) => {
     } else {
         return await Event.getById(optFilter)
             .then(result => {
-                console.log(`***Event get by id ${optFilter} result: `, result);
-                return result;
+                return result.detailDto(optFilter.lang)
             })
             .catch(err => {
                 console.log("!!!Event get field: ", err);
                 throw err;
             })
     }
+};
+
+/**
+ * getById Event
+ *
+ * @param {ObjectId} id
+ * @param {String} optFilter
+ *
+ * @return Event
+ */
+eventController.prototype.getById = async (id, lang) => {
+        return await Event.getByIdAggregate({id,lang})
+            .then(result => result)
+            .catch(err => {
+                console.log("!!!Event get field: ", err);
+                throw err;
+            })
+
 };
 
 /**
