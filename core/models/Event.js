@@ -215,11 +215,10 @@ EventSchema.static({
                     address: 1
                 }
             },
-            {$sort: {id: -1}},
         ])
             // .exec()
-            .then(events => events)
-            .catch(err => console.log("getMyEvents  Catch", err));
+            .then(event => event)
+            .catch(err => console.error("getMyEvents  Catch", err));
     },
 
 
@@ -318,7 +317,7 @@ EventSchema.static({
         ])
             // .exec()
             .then(events => events)
-            .catch(err => console.log("getMyEvents  Catch", err));
+            .catch(err => console.error("getMyEvents  Catch", err));
     },
 
     /**

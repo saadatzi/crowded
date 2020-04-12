@@ -108,10 +108,9 @@ router.get('/', verifyToken(), async function (req, res) {
 router.get('/:id', verifyToken(), async function (req, res) {
     console.info('API: Get detail event/init');
     eventController.getById(req.params.id, req.headers['lang'] ? (req.headers['lang']).toLowerCase() : 'en')
-        .then(result => {
-            console.info("*** Event By Id : %j", result);
-            let nextPage = null;
-            new NZ.Response({item: result}).send(res);
+        .then(event => {
+            console.info("*** Event By Id : %j", event);
+            new NZ.Response(event).send(res);
         })
         .catch(err => {
             console.error("Event Get Catch err:", err)
