@@ -49,6 +49,12 @@ module.exports = {
 		limitPage: 4
 	},
 
+	constant: {
+		monthNames: [, 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+		monthNamesShort: [, 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+
+	},
+
 	hashids_seed:	"cc679a61iipahn2u4ged2df11",
 	hashids_max:	3,
 

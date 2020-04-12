@@ -10,7 +10,7 @@ const InterestSchema = new Schema({
     status: {type: Number, default: 1}, // 1 active, 0 deActive, 2 softDelete, 3 hardDelete
     createdAt: {type: Date, default: Date.now},
     updateAt: {type: Date, default: Date.now}
-}, { toJSON: { virtuals: false, getters: false}, toObject: {virtual: false} });
+}, { toJSON: { virtuals: false, getters: false}, toObject: {virtuals: false} });
 
 // function imageClient(image) {
 //     return {url: settings.media_domain+image}

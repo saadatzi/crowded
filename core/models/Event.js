@@ -90,7 +90,7 @@ EventSchema.pre('remove', function (next) {
  * Methods
  */
 EventSchema.method({
-    //ToDo method need... this.model('Animal')
+
 });
 
 /**
@@ -146,7 +146,8 @@ EventSchema.static({
             {$limit: limit + 1},
             {$skip: limit * page},
             {$unwind: "$images"},
-            {$sort: {createAt: -1, 'images.order': 1}},
+            {$sort: {'images.order': 1}},
+            {$sort: {createAt: -1}},
             // {$replaceRoot: { newRoot: { $mergeObjects: [ { $arrayElemAt: [ "$area", 0 ] }, "$$ROOT" ] } }},
             {
                 $group: {
@@ -179,14 +180,7 @@ EventSchema.static({
                     //{$dateToString: {date: `$to`, timezone: "Asia/Kuwait", format: "%m-%d"}}
                     date: {
                         day: {$dayOfMonth: {date: "$from", timezone: "Asia/Kuwait"}},
-                        month: {
-                            $let: {
-                                vars: {
-                                    monthsInString: [, 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-                                },
-                                in: {$arrayElemAt: ['$$monthsInString', {$month: {date: "$from", timezone: "Asia/Kuwait"}}]}
-                            }
-                        },
+                        month: {$arrayElemAt: [settings.constant.monthNamesShort, {$month: {date: "$from", timezone: "Asia/Kuwait"}}]},
                         from: {$dateToString: {date: `$from`, timezone: "Asia/Kuwait", format: "%H:%M"}},
                         to: {$dateToString: {date: `$to`, timezone: "Asia/Kuwait", format: "%H:%M"}}
                         // from: {$concat: [{$toString: {$hour: "$from"}}, ":", {$toString: {$minute: "$from"}}]},
