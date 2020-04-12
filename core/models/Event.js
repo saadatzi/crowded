@@ -147,7 +147,6 @@ EventSchema.static({
             {$skip: limit * page},
             {$unwind: "$images"},
             {$sort: {'images.order': 1}},
-            {$sort: {createAt: -1}},
             // {$replaceRoot: { newRoot: { $mergeObjects: [ { $arrayElemAt: [ "$area", 0 ] }, "$$ROOT" ] } }},
             {
                 $group: {
@@ -192,6 +191,7 @@ EventSchema.static({
                     // address: 1
                 }
             },
+            {$sort: {createAt: -1}},
         ])
             // .exec()
             .then(events => events)
