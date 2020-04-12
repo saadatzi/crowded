@@ -50,14 +50,9 @@ eventController.prototype.add = async (newEvent) => {
 eventController.prototype.get = async (optFilter, type = 'id') => {
     if (!optFilter || optFilter instanceof Object) { //newEvent instanceof Array
         return await Event.getAllMyEvents(optFilter)
-            .then(events => {
-                // let returnedEvents = [];
-                // events.map(event => returnedEvents.push(event.transform(optFilter.selected, optFilter.lang)));
-                // return returnedEvents;
-                return events;
-            })
+            .then(events => events)
             .catch(err => {
-                console.log("!!!Event getAll field: ", err);
+                console.error("!!!Event getAll field: ", err);
                 throw err;
             })
     } else {

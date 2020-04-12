@@ -17,7 +17,6 @@ const settings = require('../../utils/settings');
 /**
  * Get Event
  * @param @optional page
- * @param @optional limit
  * @param @optional lat
  * @param @optional lon
  * @return list of event
@@ -43,7 +42,7 @@ router.get('/', verifyToken(), async function (req, res) {
     };
     eventController.get(optionFilter)
         .then(result => {
-            console.info("*** Event List : %j", result);
+            console.info("*** Event List.length :", result.length);
             let nextPage = null;
             if (result.length > settings.event.limitPage) {
                 nextPage = page + 1;
