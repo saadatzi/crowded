@@ -90,7 +90,11 @@ EventSchema.pre('remove', function (next) {
  * Methods
  */
 EventSchema.method({
-
+    toJSON: function () {
+        var obj = this.toObject();
+        delete obj.password;
+        return obj;
+    }
 });
 
 /**
@@ -158,11 +162,13 @@ EventSchema.static({
                     attendance: {$first: `$attendance`},
                     from: {$first: `$from`},
                     to: {$first: `$to`},
+                    // createAt: {$first: `$createAt`},
                     // allowedApplyTime: {$first: `$allowedApplyTime`},
                     // date: {$first: moment.tz("$from", 'Asia/Kuwait').format('YYYY-MM-DD HH:MM')},
                     // date: {$first: {$dateToString: {date: `$to`, timezone: "Asia/Kuwait", format: "%m-%d-%Y"}}},
                     getArea: {$first: `$getArea.childs.name_${options.lang}`}, //
                     address: {$first: `$address_${options.lang}`},
+
                 }
             },
             {
@@ -179,19 +185,27 @@ EventSchema.static({
                     //{$dateToString: {date: `$to`, timezone: "Asia/Kuwait", format: "%m-%d"}}
                     date: {
                         day: {$dayOfMonth: {date: "$from", timezone: "Asia/Kuwait"}},
-                        month: {$arrayElemAt: [settings.constant.monthNamesShort, {$month: {date: "$from", timezone: "Asia/Kuwait"}}]},
+                        month: {
+                            $arrayElemAt: [settings.constant.monthNamesShort, {
+                                $month: {
+                                    date: "$from",
+                                    timezone: "Asia/Kuwait"
+                                }
+                            }]
+                        },
                         from: {$dateToString: {date: `$from`, timezone: "Asia/Kuwait", format: "%H:%M"}},
                         to: {$dateToString: {date: `$to`, timezone: "Asia/Kuwait", format: "%H:%M"}}
                         // from: {$concat: [{$toString: {$hour: "$from"}}, ":", {$toString: {$minute: "$from"}}]},
                         // to: {$concat: [{$toString: {$hour: {$dateToString: {date: `$to`, timezone: "Asia/Kuwait", format: "%H:%M"}}}}, ":", {$toString: {$minute: {$dateToString: {date: `$to`, timezone: "Asia/Kuwait", format: "%m-%d"}}}}]},
                     },
+                    // createAt: 0
                     // date: 1,
                     // from: 1,
                     // to: 1,
                     // address: 1
                 }
             },
-            {$sort: {createAt: -1}},
+            {$sort: {id: -1}},
         ])
             // .exec()
             .then(events => events)
