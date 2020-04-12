@@ -46,7 +46,7 @@ module.exports = {
 
 	event: {
 		maxImageForEvent: 7,
-		limitPage: 40
+		limitPage: 4
 	},
 
 	constant: {
