@@ -103,7 +103,6 @@ router.get('/current', verifyToken(true), async function (req, res) {
 
 /**
  * set status event
- * @return Detail of event
  */
 //______________________Set Status Event_____________________//
 router.post('/status', verifyToken(true), async function (req, res) {
@@ -124,7 +123,7 @@ router.post('/status', verifyToken(true), async function (req, res) {
  * @return Detail of event
  */
 //______________________Get Leaved Options Event_____________________//
-router.get('/leavedOption', verifyToken(true), async function (req, res) {
+router.get('/leftOption', verifyToken(true), async function (req, res) {
     console.info('API: Get Leaved Options event/init');
     new NZ.Response(['The event was different from what was described','I did not like the event','I had an emergency and had to leave', 'I had an emergency and had to leave']).send(res);
 });

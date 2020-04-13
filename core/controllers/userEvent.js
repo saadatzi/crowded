@@ -80,6 +80,22 @@ userEventController.prototype.getByUserEvent = async (userId, eventId) => {
 };
 
 /**
+ * set Status UserEvent
+ *
+ * @param {ObjectId} userId
+ * @param {ObjectId} eventId
+ * @return UserEvent
+ */
+userEventController.prototype.setStatus = async (userId, eventId) => {
+    return await UserEvent.getOne({userId, eventId})
+        .then(async result => result)
+        .catch(err => {
+            console.log("!!!UserEvent getByUserEvent failed: ", err);
+            throw err;
+        })
+};
+
+/**
  * getById UserEvent
  *
  * @param {ObjectId} id
