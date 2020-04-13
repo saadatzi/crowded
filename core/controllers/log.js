@@ -16,7 +16,7 @@ logController.prototype.add = async (newLog) => {
     return await Log.create(newLog)
         .then(log => log)
         .catch(err => {
-            console.log("!!!Log save field: ", err);
+            console.log("!!!Log save failed: ", err);
             return -1;
         })
 };
@@ -37,7 +37,7 @@ logController.prototype.get = async (optFilter, type = 'email') => {
                 return result;
             })
             .catch(err => {
-                console.log("!!!Log getAll field: ", err);
+                console.log("!!!Log getAll failed: ", err);
                 return -1;
             })
     } else {
@@ -48,7 +48,7 @@ logController.prototype.get = async (optFilter, type = 'email') => {
                     return result;
                 })
                 .catch(err => {
-                    console.log("!!!Log getByEmail field: ", err);
+                    console.log("!!!Log getByEmail failed: ", err);
                     return -1;
                 })
         } else {
@@ -58,7 +58,7 @@ logController.prototype.get = async (optFilter, type = 'email') => {
                     return result;
                 })
                 .catch(err => {
-                    console.log("!!!Log get field: ", err);
+                    console.log("!!!Log get failed: ", err);
                     return -1;
                 })
         }
@@ -82,7 +82,7 @@ logController.prototype.remove = async (optFilter) => {
                     return result;
                 })
                 .catch(err => {
-                    console.log("!!!Log Remove field: ", err);
+                    console.log("!!!Log Remove failed: ", err);
                     return -1;
                 })
         } else {
@@ -93,7 +93,7 @@ logController.prototype.remove = async (optFilter) => {
                     return result;
                 })
                 .catch(err => {
-                    console.log("!!!Log Remove field: ", err);
+                    console.log("!!!Log Remove failed: ", err);
                     return -1;
                 })
         }
@@ -122,7 +122,7 @@ logController.prototype.update = async (optFilter, newValue) => {
                     return result;
                 })
                 .catch(err => {
-                    console.log("!!!Log Update field: ", err);
+                    console.log("!!!Log Update failed: ", err);
                     return -1;
                 })
         } else {
@@ -133,7 +133,7 @@ logController.prototype.update = async (optFilter, newValue) => {
                     return result;
                 })
                 .catch(err => {
-                    console.log("!!!Log Update field: ", err);
+                    console.log("!!!Log Update failed: ", err);
                     return -1;
                 })
         }

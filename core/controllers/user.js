@@ -21,7 +21,7 @@ userController.prototype.add = async (newUser) => {
                 return room;
             })
             .catch(err => {
-                console.log("!!!User many save field: ", err);
+                console.log("!!!User many save failed: ", err);
                 throw err;
             })
     } else {
@@ -31,7 +31,7 @@ userController.prototype.add = async (newUser) => {
                 return user;
             })
             .catch(err => {
-                console.log("!!!User save field: ", err);
+                console.log("!!!User save failed: ", err);
                 throw err;
             })
     }
@@ -54,7 +54,7 @@ userController.prototype.get = async (optFilter, type = 'email') => {
                 return result;
             })
             .catch(err => {
-                console.log("!!!User getAll field: ", err);
+                console.log("!!!User getAll failed: ", err);
                 throw err;
             })
     } else {
@@ -62,7 +62,7 @@ userController.prototype.get = async (optFilter, type = 'email') => {
             return await User.getByEmail(optFilter)
                 .then(result => result)
                 .catch(err => {
-                    console.log("!!!User getByEmail field: ", err);
+                    console.log("!!!User getByEmail failed: ", err);
                     throw err;
                 })
         } else {
@@ -73,7 +73,7 @@ userController.prototype.get = async (optFilter, type = 'email') => {
                     return result;
                 })
                 .catch(err => {
-                    console.log("!!!User get field: ", err);
+                    console.log("!!!User get failed: ", err);
                     throw err;
                 })
         }
@@ -97,7 +97,7 @@ userController.prototype.remove = async (optFilter) => {
                     return result;
                 })
                 .catch(err => {
-                    console.log("!!!User Remove field: ", err);
+                    console.log("!!!User Remove failed: ", err);
                     throw err;
                 })
         } else {
@@ -108,7 +108,7 @@ userController.prototype.remove = async (optFilter) => {
                     return result;
                 })
                 .catch(err => {
-                    console.log("!!!User Remove field: ", err);
+                    console.log("!!!User Remove failed: ", err);
                     throw err;
                 })
         }
@@ -136,7 +136,7 @@ userController.prototype.update = async (optFilter, newValue) => {
                     return result;
                 })
                 .catch(err => {
-                    console.log("!!!User Update field: ", err);
+                    console.log("!!!User Update failed: ", err);
                     throw err;
                 })
         } else {
@@ -146,7 +146,7 @@ userController.prototype.update = async (optFilter, newValue) => {
                     return result;
                 })
                 .catch(err => {
-                    console.log("!!!User Update field: ", err);
+                    console.log("!!!User Update failed: ", err);
                     throw err;
                 })
         }

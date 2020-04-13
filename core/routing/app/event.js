@@ -57,87 +57,6 @@ router.get('/', verifyToken(), async function (req, res) {
             console.error("Event Get Catch err:", err)
             new NZ.Response(null, err.message, 500).send(res);
         })
-    // new NZ.Response({
-    //     items: [
-    //         {
-    //             id: "123",
-    //             title: "Ochello’s catwalk fiesta",
-    //             // desc: "Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi.",
-    //             image: {url: "https://media.crowded.dev.nizek.com/interest/96ToCv/36baa1d8-bf3e-4699-8fdd-ab4bd0933dd4_3SVd6wHgs1.jpg"},
-    //                 // {url: "https://media.crowded.dev.nizek.com/interest/5wTRsy/9520fccd-a305-4c3b-9acb-620b315a6abc_aUzcRNTUn9.jpg"},
-    //             value: 50.00,
-    //             // Attendance: 60,
-    //             from: Date.now().toString(),
-    //             to: (Date.now()+55).toString(),
-    //             // address: "Kuwait City, Sample St, Famous Alley, NO 13",
-    //             area: "Kuwait City",
-    //         },
-    //         {
-    //             id: "1234",
-    //             title: "Fashion Event",
-    //             // desc: "Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi.",
-    //             image: {url: "https://media.crowded.dev.nizek.com/interest/GosLsv/8329a57a-1ed7-406a-961f-926c5d0aa955_ovR5bMFxFB.jpg"},
-    //                 // {url: "https://media.crowded.dev.nizek.com/interest/6pT5Tn/e7a7f4ea-c4fa-49ca-9538-8b1ed7da2267__RDeeJG1YQ.jpg"}
-    //             value: 77.00,
-    //             // Attendance: 95,
-    //             from: Date.now().toString(),
-    //             to: (Date.now()+55).toString(),
-    //             area: "Kuwait City",
-    //             // address: "Kuwait City, Sample St, Famous Alley, NO 13",
-    //         },
-    //         {
-    //             id: "1237",
-    //             title: "Sport Event",
-    //             // desc: "Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi.",
-    //             image: {url: "https://media.crowded.dev.nizek.com/interest/6pT5Tn/e7a7f4ea-c4fa-49ca-9538-8b1ed7da2267__RDeeJG1YQ.jpg"},
-    //             // {url: "https://media.crowded.dev.nizek.com/interest/6pT5Tn/e7a7f4ea-c4fa-49ca-9538-8b1ed7da2267__RDeeJG1YQ.jpg"}
-    //             value: 145.50,
-    //             // Attendance: 95,
-    //             from: Date.now().toString(),
-    //             to: (Date.now()+55).toString(),
-    //             area: "Kuwait City",
-    //             // address: "Kuwait City, Sample St, Famous Alley, NO 13",
-    //         },
-    //     ]
-    // }).send(res);
-});
-
-/**
- * Get Event
- * @return Detail of event
- */
-//______________________Get Event_____________________//
-router.get('/:id', verifyToken(), async function (req, res) {
-    console.info('API: Get detail event/init');
-    eventController.getById(req.params.id, req.headers['lang'] ? (req.headers['lang']).toLowerCase() : 'en')
-        .then(event => {
-            console.info("*** Event By Id : %j", event);
-            new NZ.Response(event).send(res);
-        })
-        .catch(err => {
-            console.error("Event Get Catch err:", err)
-            new NZ.Response(null, err.message, 500).send(res);
-        })
-    // new NZ.Response({
-    //     items: [
-    //         {
-    //             id: '123',
-    //             title: "Ochello’s catwalk fiesta",
-    //             desc: "Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi.",
-    //             images: [
-    //                 {url: "https://media.crowded.dev.nizek.com/interest/96ToCv/36baa1d8-bf3e-4699-8fdd-ab4bd0933dd4_3SVd6wHgs1.jpg"},
-    //                 {url: "https://media.crowded.dev.nizek.com/interest/5wTRsy/9520fccd-a305-4c3b-9acb-620b315a6abc_aUzcRNTUn9.jpg"}
-    //             ],
-    //             value: 50.00,
-    //             Attendance: 60,
-    //             from: Date.now().toString(),
-    //             to: (Date.now() + 55).toString(),
-    //             address: "Kuwait City, Sample St, Famous Alley, NO 13",
-    //             area: "Kuwait City",
-    //         },
-    //
-    //     ]
-    // }).send(res);
 });
 
 /**
@@ -163,5 +82,42 @@ router.post('/', verifyToken(true),async function (req, res) {
         })
 
 });
+
+/**
+ * Get current Event
+ * @return Detail of event
+ */
+//______________________Get current Event_____________________//
+router.get('/current', verifyToken(true), async function (req, res) {
+    console.info('API: Get current event/init');
+    userEventController.getCurrent(req.userId, req.headers['lang'] ? (req.headers['lang']).toLowerCase() : 'en')
+        .then(event => {
+            console.info("*** UserEvent current : %j", event);
+            new NZ.Response(event, event ? null : 'There is no active event!').send(res);
+        })
+        .catch(err => {
+            console.error("Event current Catch err:", err)
+            new NZ.Response(null, err.message, 500).send(res);
+        })
+});
+
+/**
+ * Get Event
+ * @return Detail of event
+ */
+//______________________Get Event_____________________//
+router.get('/:id', verifyToken(), async function (req, res) {
+    console.info('API: Get detail event/init');
+    eventController.getByIdAggregate(req.params.id, req.headers['lang'] ? (req.headers['lang']).toLowerCase() : 'en')
+        .then(event => {
+            console.info("*** Event By Id : %j", event);
+            new NZ.Response(event).send(res);
+        })
+        .catch(err => {
+            console.error("Event Get Catch err:", err)
+            new NZ.Response(null, err.message, 500).send(res);
+        })
+});
+
 
 module.exports = router;

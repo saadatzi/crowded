@@ -24,7 +24,7 @@ interestController.prototype.add = async (newInterest) => {
                 return room;
             })
             .catch(err => {
-                console.log("!!!Interest many save field: ", err);
+                console.log("!!!Interest many save failed: ", err);
                 return -1;
             })
     } else {
@@ -34,7 +34,7 @@ interestController.prototype.add = async (newInterest) => {
                 return room;
             })
             .catch(err => {
-                console.log("!!!Interest save field: ", err);
+                console.log("!!!Interest save failed: ", err);
                 return -1;
             })
     }
@@ -56,7 +56,7 @@ interestController.prototype.get = async (optFilter) => {
                 return returnedInterests;
             })
             .catch(err => {
-                console.log("!!!Interest getAll field: ", err);
+                console.log("!!!Interest getAll failed: ", err);
                 throw err;
             })
     } else {
@@ -66,7 +66,7 @@ interestController.prototype.get = async (optFilter) => {
                 return result;
             })
             .catch(err => {
-                console.log("!!!Interest get field: ", err);
+                console.log("!!!Interest get failed: ", err);
                 return -1;
             })
     }
@@ -89,7 +89,7 @@ interestController.prototype.remove = async (optFilter) => {
                     return result;
                 })
                 .catch(err => {
-                    console.log("!!!Interest Remove field: ", err);
+                    console.log("!!!Interest Remove failed: ", err);
                     return -1;
                 })
         } else {
@@ -100,7 +100,7 @@ interestController.prototype.remove = async (optFilter) => {
                     return result;
                 })
                 .catch(err => {
-                    console.log("!!!Interest Remove field: ", err);
+                    console.log("!!!Interest Remove failed: ", err);
                     return -1;
                 })
         }
@@ -129,7 +129,7 @@ interestController.prototype.update = async (optFilter, newValue) => {
                     return result;
                 })
                 .catch(err => {
-                    console.log("!!!Interest Update field: ", err);
+                    console.log("!!!Interest Update failed: ", err);
                     return -1;
                 })
         } else {
@@ -140,7 +140,7 @@ interestController.prototype.update = async (optFilter, newValue) => {
                     return result;
                 })
                 .catch(err => {
-                    console.log("!!!Interest Update field: ", err);
+                    console.log("!!!Interest Update failed: ", err);
                     return -1;
                 })
         }

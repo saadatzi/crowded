@@ -24,7 +24,7 @@ areaController.prototype.add = async (newArea) => {
                 return room;
             })
             .catch(err => {
-                console.log("!!!Area many save field: ", err);
+                console.log("!!!Area many save failed: ", err);
                 return -1;
             })
     } else {
@@ -34,7 +34,7 @@ areaController.prototype.add = async (newArea) => {
                 return room;
             })
             .catch(err => {
-                console.log("!!!Area save field: ", err);
+                console.log("!!!Area save failed: ", err);
                 return -1;
             })
     }
@@ -56,7 +56,7 @@ areaController.prototype.get = async (optFilter) => {
                 return returnedAreas;
             })
             .catch(err => {
-                console.log("!!!Area getAll field: ", err);
+                console.log("!!!Area getAll failed: ", err);
                 throw err;
             })
     } else {
@@ -66,7 +66,7 @@ areaController.prototype.get = async (optFilter) => {
                 return result;
             })
             .catch(err => {
-                console.log("!!!Area get field: ", err);
+                console.log("!!!Area get failed: ", err);
                 return -1;
             })
     }
@@ -89,7 +89,7 @@ areaController.prototype.remove = async (optFilter) => {
                     return result;
                 })
                 .catch(err => {
-                    console.log("!!!Area Remove field: ", err);
+                    console.log("!!!Area Remove failed: ", err);
                     return -1;
                 })
         } else {
@@ -100,7 +100,7 @@ areaController.prototype.remove = async (optFilter) => {
                     return result;
                 })
                 .catch(err => {
-                    console.log("!!!Area Remove field: ", err);
+                    console.log("!!!Area Remove failed: ", err);
                     return -1;
                 })
         }
@@ -129,7 +129,7 @@ areaController.prototype.update = async (optFilter, newValue) => {
                     return result;
                 })
                 .catch(err => {
-                    console.log("!!!Area Update field: ", err);
+                    console.log("!!!Area Update failed: ", err);
                     return -1;
                 })
         } else {
@@ -140,7 +140,7 @@ areaController.prototype.update = async (optFilter, newValue) => {
                     return result;
                 })
                 .catch(err => {
-                    console.log("!!!Area Update field: ", err);
+                    console.log("!!!Area Update failed: ", err);
                     return -1;
                 })
         }

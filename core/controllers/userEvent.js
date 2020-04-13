@@ -1,9 +1,9 @@
 /**
  * Module dependencies.
  */
+
 const UserEvent = require('../models/UserEvent');
-const deviceController = require('../controllers/device');
-const userController = require('../controllers/user');
+const eventController = require('./event');
 
 
 const userEventController = function () {
@@ -29,7 +29,39 @@ userEventController.prototype.add = async (eventId, userId) => {
             return event;
         })
         .catch(err => {
-            console.log("!!!UserEvent save field: ", err);
+            console.log("!!!UserEvent save failed: ", err);
+            throw err;
+        })
+};
+
+/**
+ * get current UserEvent
+ *
+ * @param {ObjectId} userId
+ * @param {String} lang
+ *
+ * @return UserEvent
+ */
+userEventController.prototype.getCurrent = async (userId, lang) => {
+    return await UserEvent.getOne({userId, status: {$in: ['ACTIVE', 'PAUSED']}})
+        .then(async result => {
+            console.log(">>>>>>>>>>>>>> 2 UserEvent current result: ", result);
+            console.log(">>>>>>>>>>>>>> 3 UserEvent eventController: ", eventController);
+            if (result) {
+                //get from Event Aggregate
+                return await eventController.getByIdAggregate(result.eventId, lang, userId)
+                    .then(result => result)
+                    .catch(err => {
+                        console.log("!!!UserEvent current then getByIdAggregate failed: ", err);
+                        throw err;
+                    })
+            } else {
+                return  null;
+            }
+
+        })
+        .catch(err => {
+            console.log("!!!UserEvent current failed: ", err);
             throw err;
         })
 };
@@ -37,43 +69,31 @@ userEventController.prototype.add = async (eventId, userId) => {
 /**
  * get UserEvent
  *
- * @param {Object || ObjectId} optFilter
- *
+ * @param {ObjectId} userId
+ * @param {ObjectId} eventId
  * @return UserEvent
  */
-userEventController.prototype.get = async (optFilter, type = 'id') => {
-    if (!optFilter || optFilter instanceof Object) { //newUserEvent instanceof Array
-        return await UserEvent.getAllMyUserEvents(optFilter)
-            .then(events => events)
-            .catch(err => {
-                console.error("!!!UserEvent getAll field: ", err);
-                throw err;
-            })
-    } else {
-        return await UserEvent.getById(optFilter)
-            .then(result => {
-                return result.detailDto(optFilter.lang)
-            })
-            .catch(err => {
-                console.log("!!!UserEvent get field: ", err);
-                throw err;
-            })
-    }
+userEventController.prototype.getByUserEvent = async (userId, eventId) => {
+    return await UserEvent.getOne({userId, eventId})
+        .then(async result => result)
+        .catch(err => {
+            console.log("!!!UserEvent getByUserEvent failed: ", err);
+            throw err;
+        })
 };
 
 /**
  * getById UserEvent
  *
  * @param {ObjectId} id
- * @param {String} optFilter
  *
  * @return UserEvent
  */
-userEventController.prototype.getById = async (id, lang) => {
-    return await UserEvent.getByIdAggregate({id, lang})
+userEventController.prototype.getById = async (id) => {
+    return await UserEvent.getById({id, lang})
         .then(event => event)
         .catch(err => {
-            console.error("!!!UserEvent get field: ", err);
+            console.error("!!!UserEvent get failed: ", err);
             throw err;
         })
 
@@ -96,7 +116,7 @@ userEventController.prototype.remove = async (optFilter) => {
                     return result;
                 })
                 .catch(err => {
-                    console.log("!!!UserEvent Remove field: ", err);
+                    console.log("!!!UserEvent Remove failed: ", err);
                     throw err;
                 })
         } else {
@@ -107,7 +127,7 @@ userEventController.prototype.remove = async (optFilter) => {
                     return result;
                 })
                 .catch(err => {
-                    console.log("!!!UserEvent Remove field: ", err);
+                    console.log("!!!UserEvent Remove failed: ", err);
                     throw err;
                 })
         }
@@ -136,7 +156,7 @@ userEventController.prototype.update = async (optFilter, newValue) => {
                     return result;
                 })
                 .catch(err => {
-                    console.log("!!!UserEvent Update field: ", err);
+                    console.log("!!!UserEvent Update failed: ", err);
                     throw err;
                 })
         } else {
@@ -147,7 +167,7 @@ userEventController.prototype.update = async (optFilter, newValue) => {
                     return result;
                 })
                 .catch(err => {
-                    console.log("!!!UserEvent Update field: ", err);
+                    console.log("!!!UserEvent Update failed: ", err);
                     throw err;
                 })
         }

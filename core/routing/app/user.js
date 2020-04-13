@@ -150,7 +150,7 @@ router.get('/logout', verifyToken(true), async (req, res) => {
 router.get('/', function (req, res) {
     console.info('API: Get User/init');
 
-    userController.get({field: req.body.showField || `title_${req.headers['accept-language']} image`})
+    userController.get({failed: req.body.showField || `title_${req.headers['accept-language']} image`})
         .then(result => {
             console.info("*** interest List : %j", result);
             new NZ.Response({

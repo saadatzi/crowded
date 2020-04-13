@@ -46,6 +46,21 @@ UserEventSchema.static({
 
 
     /**
+     * Find userEvent current
+     *
+     * @param {Object} criteria
+     * @api private
+     */
+    getOne: function (criteria) {
+        return this.findOne(criteria)
+            .then(userEvent => {
+                console.log(">>>>>>>>>>>>>1 Event getCurrent userEvent: ", userEvent)
+                return userEvent})
+            .catch(err => console.log("!!!!!!!! Event getCurrent catch err: ", err))
+    },
+
+
+    /**
      * List all userEvent
      *
      * @param {Object} options

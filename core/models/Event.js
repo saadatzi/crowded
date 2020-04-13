@@ -138,12 +138,14 @@ EventSchema.static({
     /**
      * List all my event
      *
-     * @param {Object} options
+     * @param {ObjectId} id
+     * @param {String} lang
+     * @param {String} userEventState
      * @api private
      */
-    getByIdAggregate: async function (options) {
-        console.log("!!!!!!!! getEvent options: ", options)
-        const criteria = {_id: mongoose.Types.ObjectId(options.id)};
+    getByIdAggregate: async function (id, lang, userEventState = null) {
+        const isApproved = ['APPROVED', 'ACTIVE', 'LEFT', 'PAUSED', 'SUCCESS'].includes(userEventState);
+        const criteria = {_id: mongoose.Types.ObjectId(id)};
         console.log("!!!!!!!! getEvent criteria: ", criteria)
         return await this.aggregate([
             // {$lookup: {from: 'areas', localField: 'area', foreignField: `childs._id`, as: 'getArea'}}, //from: collection Name  of mongoDB
@@ -167,14 +169,15 @@ EventSchema.static({
                 $group: {
                     _id: "$_id",
                     images: {$push: {url: {$concat: [settings.media_domain, "$images.url"]}}}, //$push
-                    title: {$first: `$title_${options.lang}`},
-                    desc: {$first: `$desc_${options.lang}`},
+                    title: {$first: `$title_${lang}`},
+                    desc: {$first: `$desc_${lang}`},
                     value: {$first: {$toString: "$value"}},
                     attendance: {$first: `$attendance`},
                     from: {$first: `$from`},
                     to: {$first: `$to`},
-                    getArea: {$first: `$getArea.childs.name_${options.lang}`}, //
-                    address: {$first: `$address_${options.lang}`},
+                    getArea: {$first: `$getArea.childs.name_${lang}`}, //
+                    _address: {$first: `$address_${lang}`},
+                    coordinates: {$first: `$location.coordinates`}
 
                 }
             },
@@ -185,9 +188,10 @@ EventSchema.static({
                     title: 1,
                     images: 1,
                     desc: 1,
-                    area: {$arrayElemAt: ['$getArea', 0]},
+                    // area: {$arrayElemAt: ['$getArea', 0]},
                     value: 1,
                     attendance: 1,
+                    status: userEventState,
                     date: {
                         day: {
                             $concat: [
@@ -212,7 +216,9 @@ EventSchema.static({
                         from: {$dateToString: {date: `$from`, timezone: "Asia/Kuwait", format: "%H:%M"}},
                         to: {$dateToString: {date: `$to`, timezone: "Asia/Kuwait", format: "%H:%M"}}
                     },
-                    address: 1
+                    address: isApproved ? {$concat: [{$arrayElemAt: ['$getArea', 0]}, ' ', "$_address"]} : {$arrayElemAt: ['$getArea', 0]} ,
+                    coordinates: isApproved  ? 1 : null,
+                    map: {url: ''}
                 }
             },
         ])

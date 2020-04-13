@@ -4,6 +4,7 @@
 const Event = require('../models/Event');
 const deviceController = require('../controllers/device');
 const userController = require('../controllers/user');
+const userEventController = require('../controllers/userEvent');
 
 
 const eventController = function () {
@@ -24,7 +25,7 @@ eventController.prototype.add = async (newEvent) => {
                 return room;
             })
             .catch(err => {
-                console.log("!!!Event many save field: ", err);
+                console.log("!!!Event many save failed: ", err);
                 throw err;
             })
     } else {
@@ -34,7 +35,7 @@ eventController.prototype.add = async (newEvent) => {
                 return event;
             })
             .catch(err => {
-                console.log("!!!Event save field: ", err);
+                console.log("!!!Event save failed: ", err);
                 throw err;
             })
     }
@@ -52,7 +53,7 @@ eventController.prototype.get = async (optFilter, type = 'id') => {
         return await Event.getAllMyEvents(optFilter)
             .then(events => events)
             .catch(err => {
-                console.error("!!!Event getAll field: ", err);
+                console.error("!!!Event getAll failed: ", err);
                 throw err;
             })
     } else {
@@ -61,7 +62,7 @@ eventController.prototype.get = async (optFilter, type = 'id') => {
                 return result.detailDto(optFilter.lang)
             })
             .catch(err => {
-                console.log("!!!Event get field: ", err);
+                console.log("!!!Event get failed: ", err);
                 throw err;
             })
     }
@@ -71,17 +72,30 @@ eventController.prototype.get = async (optFilter, type = 'id') => {
  * getById Event
  *
  * @param {ObjectId} id
- * @param {String} optFilter
+ * @param {String} lang
+ * @param {ObjectId} userId
  *
  * @return Event
  */
-eventController.prototype.getById = async (id, lang) => {
-        return await Event.getByIdAggregate({id,lang})
-            .then(event => event)
+eventController.prototype.getByIdAggregate = async (id, lang, userId = null) => {
+    console.info(">>>>>>>>>>>>>>>> 2 Event getByIdAggregate failed: ", err);
+    let userEventStatus = null;
+    if (userId) {
+        await userEventController.getByUserEvent(userId, id)
+            .then(userEvent => {
+                if (userEvent) userEventStatus = userEvent.status;
+            })
             .catch(err => {
-                console.error("!!!Event get field: ", err);
+                console.error("!!!Event getByUserEvent failed: ", err);
                 throw err;
             })
+    }
+    return await Event.getByIdAggregate(id, lang, userEventStatus)
+        .then(event => event)
+        .catch(err => {
+            console.error("!!!Event get failed: ", err);
+            throw err;
+        })
 
 };
 
@@ -102,7 +116,7 @@ eventController.prototype.remove = async (optFilter) => {
                     return result;
                 })
                 .catch(err => {
-                    console.log("!!!Event Remove field: ", err);
+                    console.log("!!!Event Remove failed: ", err);
                     throw err;
                 })
         } else {
@@ -113,7 +127,7 @@ eventController.prototype.remove = async (optFilter) => {
                     return result;
                 })
                 .catch(err => {
-                    console.log("!!!Event Remove field: ", err);
+                    console.log("!!!Event Remove failed: ", err);
                     throw err;
                 })
         }
@@ -142,7 +156,7 @@ eventController.prototype.update = async (optFilter, newValue) => {
                     return result;
                 })
                 .catch(err => {
-                    console.log("!!!Event Update field: ", err);
+                    console.log("!!!Event Update failed: ", err);
                     throw err;
                 })
         } else {
@@ -153,7 +167,7 @@ eventController.prototype.update = async (optFilter, newValue) => {
                     return result;
                 })
                 .catch(err => {
-                    console.log("!!!Event Update field: ", err);
+                    console.log("!!!Event Update failed: ", err);
                     throw err;
                 })
         }
