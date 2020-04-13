@@ -107,10 +107,19 @@ router.get('/current', verifyToken(true), async function (req, res) {
 //______________________Set Status Event_____________________//
 router.post('/status', verifyToken(true), async function (req, res) {
     console.info('API: Set Status event/init');
-    userEventController.getCurrent(req.userId, req.headers['lang'] ? (req.headers['lang']).toLowerCase() : 'en')
+    //ToDo JOE validation
+    const setStatusJoi = Joi.object().keys({
+        eventId: Joi.string().length(24).required(),
+        status: Joi.string().valid('APPROVED', 'REJECTED', 'ACTIVE', 'LEFT', 'PAUSED', 'SUCCESS').required()
+    });
+    let setStatusValidation = setStatusJoi.validate({eventId: req.body.eventId, status: req.body.status});
+    if (setStatusValidation.error)
+        return new NZ.Response(setStatusValidation.error, 'input error.', 400).send(res);
+
+    userEventController.setStatus(req.userId, req.body.eventId, req.body.status)
         .then(event => {
             console.info("*** Set Status : %j", event);
-            new NZ.Response(event, event ? null : 'There is no active event!').send(res);
+            new NZ.Response(null, event ? req.body.status : 'Not found!').send(res);
         })
         .catch(err => {
             console.error("Event Set Status Catch err:", err)
