@@ -108,7 +108,7 @@ router.get('/current', verifyToken(true), async function (req, res) {
 //______________________Get Event_____________________//
 router.get('/:id', verifyToken(), async function (req, res) {
     console.info('API: Get detail event/init');
-    eventController.getByIdAggregate(req.params.id, req.headers['lang'] ? (req.headers['lang']).toLowerCase() : 'en')
+    eventController.getByIdAggregate(req.params.id, req.headers['lang'] ? (req.headers['lang']).toLowerCase() : 'en', req.userId)
         .then(event => {
             console.info("*** Event By Id : %j", event);
             new NZ.Response(event).send(res);

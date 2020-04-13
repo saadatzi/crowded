@@ -140,13 +140,15 @@ EventSchema.static({
      *
      * @param {ObjectId} id
      * @param {String} lang
+     * @param {Boolean} isApproved
      * @param {String} userEventState
      * @api private
      */
-    getByIdAggregate: async function (id, lang, userEventState = null) {
-        const isApproved = ['APPROVED', 'ACTIVE', 'LEFT', 'PAUSED', 'SUCCESS'].includes(userEventState);
+    getByIdAggregate: async function (id, lang, isApproved,  userEventState = null) {
+        console.log(">>>>>>>>>>>>>>>>>>>> 4 Event getByIdAggregate userEventState: ", userEventState);
+
         const criteria = {_id: mongoose.Types.ObjectId(id)};
-        console.log("!!!!!!!! getEvent criteria: ", criteria)
+        console.log("!!!!!!!! getEvent criteria: ", criteria);
         return await this.aggregate([
             // {$lookup: {from: 'areas', localField: 'area', foreignField: `childs._id`, as: 'getArea'}}, //from: collection Name  of mongoDB
             {
@@ -177,7 +179,7 @@ EventSchema.static({
                     to: {$first: `$to`},
                     getArea: {$first: `$getArea.childs.name_${lang}`}, //
                     _address: {$first: `$address_${lang}`},
-                    coordinates: {$first: `$location.coordinates`}
+                    coordinates: {$first: `$location.coordinates`},
 
                 }
             },
@@ -216,9 +218,8 @@ EventSchema.static({
                         from: {$dateToString: {date: `$from`, timezone: "Asia/Kuwait", format: "%H:%M"}},
                         to: {$dateToString: {date: `$to`, timezone: "Asia/Kuwait", format: "%H:%M"}}
                     },
-                    address: isApproved ? {$concat: [{$arrayElemAt: ['$getArea', 0]}, ' ', "$_address"]} : {$arrayElemAt: ['$getArea', 0]} ,
-                    coordinates: isApproved  ? 1 : null,
-                    map: {url: ''}
+                    address: isApproved ? {$concat: [{$arrayElemAt: ['$getArea', 0]}, ', ', "$_address"]} : {$arrayElemAt: ['$getArea', 0]},
+                    coordinates: isApproved ? 1 : null,
                 }
             },
         ])

@@ -103,7 +103,8 @@ module.exports = {
 		client_id:	'408352710035595',
 	},
 
-	tap_secret: 'sk_test_XKokBfNWv6FIYuTMg5sLPjhJ',
+	tap_secret: 			'sk_test_XKokBfNWv6FIYuTMg5sLPjhJ',
+	googlemapsstaticsign:	'maWdC6VBmrEbnpGnVUozn0dZYwA=',
 
 	pagination: {
 		class: 2,

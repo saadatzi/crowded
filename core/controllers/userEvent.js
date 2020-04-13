@@ -3,7 +3,7 @@
  */
 
 const UserEvent = require('../models/UserEvent');
-const {eventController} = require('./controller');
+const eventController = require('./event');
 
 
 const userEventController = function () {
@@ -45,8 +45,6 @@ userEventController.prototype.add = async (eventId, userId) => {
 userEventController.prototype.getCurrent = async (userId, lang) => {
     return await UserEvent.getOne({userId, status: {$in: ['ACTIVE', 'PAUSED']}})
         .then(async result => {
-            console.log(">>>>>>>>>>>>>> 2 UserEvent current result: ", result);
-            console.log(">>>>>>>>>>>>>> 3 UserEvent eventController: ", eventController);
             if (result) {
                 //get from Event Aggregate
                 return await eventController.getByIdAggregate(result.eventId, lang, userId)

@@ -162,6 +162,7 @@ function sign(path, secret) {
 }
 
  const googleMapsStaticUrl = (lat, lng) => {
+    console.log(">>>>>>>>>>>>> lat: %j, long: %j", lat, lng)
 	const url = `https://maps.googleapis.com/maps/api/staticmap?style=${get_static_style(style1)}&key=AIzaSyDpjwTyUmC9yKpctL5dZdj9nzE3j2ykgyU&center=${lat},${lng}&zoom=17&scale=false&size=625x300&maptype=roadmap&format=png&visual_refresh=true&markers=icon:https://mactehran.com/assets/images/-map-marker-2.png%7Cshadow:true%7C${lat},${lng}`;
 
 	return sign(url, settings.googlemapsstaticsign);
@@ -196,18 +197,18 @@ const googleStaticImage = (lat, lng) => {
 
 		const filename = NZ.sha256Hmac(url, 'myMAPKEY_SECUR3') + '.png';
 
-		fs.exists(`/root/nizek/kids-media/_map/${filename}`, exists => {
+		fs.exists(`${settings.media_path}_map/${filename}`, exists => {
 			if(exists)
-				return resolve(`${settings.cdn_domain}_map/${filename}`);
+				return resolve(`${settings.media_domain}_map/${filename}`);
 
 			options = {
 				url: 	url,
-				dest: 	`/root/nizek/kids-media/_map/${filename}`
+				dest: 	`${settings.media_path}_map/${filename}`
 			};
 	
 			download.image(options).then(({ mfilename, image }) => {
 				console.log('map downloaded');
-				resolve(`${settings.cdn_domain}_map/${filename}`);
+				resolve(`${settings.media_domain}_map/${filename}`);
 			})
 			.catch((err) => {
 				console.error(err);
@@ -220,4 +221,4 @@ const googleStaticImage = (lat, lng) => {
 
 module.exports = {
 	googleStaticImage
-}
+};

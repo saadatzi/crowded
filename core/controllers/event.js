@@ -2,7 +2,7 @@
  * Module dependencies.
  */
 const Event = require('../models/Event');
-const {userEventController} = require('./controller');
+const {googleStaticImage} = require('../utils/map');
 
 
 const eventController = function () {
@@ -76,7 +76,6 @@ eventController.prototype.get = async (optFilter, type = 'id') => {
  * @return Event
  */
 eventController.prototype.getByIdAggregate = async (id, lang, userId = null) => {
-    console.info(">>>>>>>>>>>>>>>> 2 Event getByIdAggregate failed: ", err);
     let userEventStatus = null;
     if (userId) {
         await userEventController.getByUserEvent(userId, id)
@@ -88,8 +87,12 @@ eventController.prototype.getByIdAggregate = async (id, lang, userId = null) => 
                 throw err;
             })
     }
-    return await Event.getByIdAggregate(id, lang, userEventStatus)
-        .then(event => event)
+    const isApproved = ['APPROVED', 'ACTIVE', 'LEFT', 'PAUSED', 'SUCCESS'].includes(userEventStatus);
+    return await Event.getByIdAggregate(id, lang, isApproved, userEventStatus)
+        .then(async event => {
+            if (isApproved) event = Object.assign(event, {map: isApproved ? {url: await googleStaticImage(event.coordinates[0], event.coordinates[1])} : null});
+            return event
+        })
         .catch(err => {
             console.error("!!!Event get failed: ", err);
             throw err;
@@ -177,3 +180,4 @@ eventController.prototype.update = async (optFilter, newValue) => {
 };
 
 module.exports = new eventController();
+const userEventController = require('./userEvent');

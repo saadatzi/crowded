@@ -38,6 +38,8 @@ module.exports = {
                     //
                     // req.deviceId = tokenObj.deviceId;
                     // if (tokenObj.userId) req.userId = tokenObj.userId;
+                    req.deviceId = null;
+                    req.userId = null;
                     deviceController.get(token, 'token')
                         .then(device => {
                             if (device) {
@@ -47,6 +49,7 @@ module.exports = {
                                 device.save();
                                 req.deviceId = (device._id).toString();
 
+                                req.userId = null;
                                 if (device.userId)
                                     req.userId = (device.userId).toString();
 
