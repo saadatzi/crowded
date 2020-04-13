@@ -46,7 +46,8 @@ module.exports = {
 
 	event: {
 		maxImageForEvent: 7,
-		limitPage: 4
+		limitPage: 4,
+		leftOption: ['The event was different from what was described','I did not like the event','I had an emergency and had to leave', 'I had an emergency and had to leave']
 	},
 
 	constant: {

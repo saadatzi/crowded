@@ -144,7 +144,7 @@ EventSchema.static({
      * @param {String} userEventState
      * @api private
      */
-    getByIdAggregate: async function (id, lang, isApproved,  userEventState = null) {
+    getByIdAggregate: async function (id, lang, isApproved, userEventState = null) {
         console.log(">>>>>>>>>>>>>>>>>>>> 4 Event getByIdAggregate userEventState: ", userEventState);
 
         const criteria = {_id: mongoose.Types.ObjectId(id)};
@@ -244,11 +244,24 @@ EventSchema.static({
         criteria.status = 1;
         criteria.allowedApplyTime = {$gt: new Date()};
 
+        const sortNearDate = options.lat ?  {
+            $geoNear: {
+                near: {
+                    type: "Point",
+                    coordinates: [options.lat, options.lng]
+                },
+                distanceField: "dist",
+                // maxDistance: 100000,
+                // spherical: true
+            }
+        } : {$sort: {createAt: -1}};
+
+
         console.log("!!!!!!!! getMyEvents criteria: ", criteria)
         return await this.aggregate([
             // {$lookup: {from: 'areas', localField: 'area', foreignField: `childs._id`, as: 'getArea'}}, //from: collection Name  of mongoDB
+            sortNearDate,
             {$match: criteria},
-            {$sort: {createAt: -1}},
             {$skip: limit * page},
             {$limit: limit + 1},
             {$unwind: "$images"},

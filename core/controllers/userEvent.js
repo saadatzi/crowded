@@ -87,8 +87,29 @@ userEventController.prototype.getByUserEvent = async (userId, eventId) => {
  * @param {String} status
  * @return UserEvent
  */
-userEventController.prototype.setStatus = async (userId, eventId, status) => {
+userEventController.prototype.findUpdate = async (userId, eventId, status) => {
     return await UserEvent.findOneAndUpdate({userId, eventId}, {status, updateAt: new Date()})
+        .then(async result => result)
+        .catch(err => {
+            console.log("!!!UserEvent getByUserEvent failed: ", err);
+            throw err;
+        })
+};
+
+/**
+ * set Status UserEvent
+ *
+ * @param {ObjectId} userId
+ * @param {ObjectId} eventId
+ * @param {String} status
+ * @param {Object} newValue
+ * @return UserEvent
+ */
+userEventController.prototype.setStatus = async (userId, eventId, status, newValue = null) => {
+    let updateValue = {status, updateAt: new Date()};
+    if (newValue) Object.assign(updateValue, newValue)
+    console.log(">>>>>>>>>> updateValue: ", updateValue);
+    return await UserEvent.findOneAndUpdate({userId, eventId}, updateValue)
         .then(async result => result)
         .catch(err => {
             console.log("!!!UserEvent getByUserEvent failed: ", err);

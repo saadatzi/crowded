@@ -41,6 +41,10 @@ router.get('/', verifyToken(), async function (req, res) {
         page,
         lang: req.headers['lang'] ? (req.headers['lang']).toLowerCase() : 'en'
     };
+    if (req.query.lat && req.query.lng) {
+        optionFilter.lat = Number(req.query.lat);
+        optionFilter.lng = Number(req.query.lng);
+    }
     eventController.get(optionFilter)
         .then(result => {
             console.info("*** Event List.length :", result.length);
@@ -112,7 +116,7 @@ router.post('/status', verifyToken(true), async function (req, res) {
         eventId: Joi.string().length(24).required(),
         status: Joi.string().valid('APPROVED', 'REJECTED', 'ACTIVE', 'LEFT', 'PAUSED', 'SUCCESS').required()
     });
-    let setStatusValidation = setStatusJoi.validate({eventId: req.body.eventId, status: req.body.status});
+    let setStatusValidation = setStatusJoi.validate(req.body);
     if (setStatusValidation.error)
         return new NZ.Response(setStatusValidation.error, 'input error.', 400).send(res);
 
@@ -128,13 +132,102 @@ router.post('/status', verifyToken(true), async function (req, res) {
 });
 
 /**
+ * set status event
+ */
+//______________________Set Status Event_____________________//
+router.post('/approved', verifyToken(true), async function (req, res) {
+    console.info('API: Set approved event/init', req.body);
+    //ToDo JOE validation
+    const setStatusJoi = Joi.object().keys({
+        eventId: Joi.string().length(24).required(),
+    });
+    let setStatusValidation = setStatusJoi.validate(req.body);
+    if (setStatusValidation.error)
+        return new NZ.Response(setStatusValidation.error, 'input error.', 400).send(res);
+
+    userEventController.setStatus(req.userId, req.body.eventId, 'APPROVED')
+        .then(event => {
+            console.info("*** Set Status : %j", event);
+            new NZ.Response(null, event ? 'APPROVED' : 'Not found!').send(res);
+        })
+        .catch(err => {
+            console.error("Event Set approved Catch err:", err)
+            new NZ.Response(null, err.message, 500).send(res);
+        })
+});
+
+/**
+ * set left feedback
+ */
+//______________________Set leftFeedback Event_____________________//
+router.post('/leftFeedback', verifyToken(true), async function (req, res) {
+    // const validOption = settings.event.leftOption.join().toString();
+    console.info('API: Set leftFeedback event/init');
+    //ToDo JOE validation
+    const setStatusJoi = Joi.object().keys({
+        eventId: Joi.string().length(24).required(),
+        title: Joi.string().required(),
+        desc: Joi.string().optional(),
+    });
+    let setStatusValidation = setStatusJoi.validate(req.body);
+    if (setStatusValidation.error)
+        return new NZ.Response(setStatusValidation.error, 'input error.', 400).send(res);
+
+    const updateLeftValue = {
+        feedbackDesc: req.body.desc,
+        feedbackTitle: req.body.title,
+    }
+
+    userEventController.setStatus(req.userId, req.body.eventId, 'LEFT', updateLeftValue)
+        .then(event => {
+            console.info("*** Set leftFeedback  : %j", event);
+            new NZ.Response(null, event ? 'LEFT' : 'Not found!').send(res);
+        })
+        .catch(err => {
+            console.error("Event Set leftFeedback Catch err:", err)
+            new NZ.Response(null, err.message, 500).send(res);
+        })
+});
+
+/**
+ * set success feedback
+ */
+//______________________Set successFeedback Event_____________________//
+router.post('/feedback', verifyToken(true), async function (req, res) {
+    console.info('API: Set successFeedback event/init');
+    //ToDo JOE validation
+    const setStatusJoi = Joi.object().keys({
+        eventId: Joi.string().length(24).required(),
+        star: Joi.number().optional(),
+        desc: Joi.string().optional(),
+    });
+    let setStatusValidation = setStatusJoi.validate(req.body);
+    if (setStatusValidation.error)
+        return new NZ.Response(setStatusValidation.error, 'input error.', 400).send(res);
+
+    const updateSuccessValue = {
+        feedbackDesc: req.body.desc,
+        star: Number(req.body.star),
+    }
+    userEventController.setStatus(req.userId, req.body.eventId, 'SUCCESS', updateSuccessValue)
+        .then(event => {
+            console.info("*** Set successFeedback  : %j", event);
+            new NZ.Response(null, event ? 'SUCCESS' : 'Not found!').send(res);
+        })
+        .catch(err => {
+            console.error("Event Set successFeedback Catch err:", err)
+            new NZ.Response(null, err.message, 500).send(res);
+        })
+});
+
+/**
  * Get Leaved options
  * @return Detail of event
  */
 //______________________Get Leaved Options Event_____________________//
 router.get('/leftOption', verifyToken(true), async function (req, res) {
     console.info('API: Get Leaved Options event/init');
-    new NZ.Response(['The event was different from what was described','I did not like the event','I had an emergency and had to leave', 'I had an emergency and had to leave']).send(res);
+    new NZ.Response(settings.event.leftOption).send(res);
 });
 
 /**

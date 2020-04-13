@@ -12,7 +12,6 @@ const UserEventSchema = new Schema({
     feedbackDesc: String,
     feedbackTitle: String,
     star: Number,
-
     createAt: {type: Date, default: Date.now},
     updateAt: {type: Date, default: Date.now},
 });
