@@ -21,7 +21,6 @@ userEventController.prototype.add = async (eventId, userId) => {
         userId: userId,
         eventId: eventId,
         status: 'APPLIED',
-        ApplyTime: new Date(),
     };
     return await UserEvent.create(applyUserEvent)
         .then(event => {
@@ -147,7 +146,6 @@ userEventController.prototype.remove = async (optFilter) => {
 userEventController.prototype.update = async (optFilter, newValue) => {
     if (optFilter) {
         if (optFilter instanceof Object) { //instanceof mongoose.Types.ObjectId
-            //ToDo return Query?!
             return await UserEvent.updateMany(optFilter, newValue)
                 .then(result => {
                     console.log("***UserEvent  Update many result: ", result);
@@ -158,7 +156,6 @@ userEventController.prototype.update = async (optFilter, newValue) => {
                     throw err;
                 })
         } else {
-            //ToDo return Query?!
             return await UserEvent.findByIdAndUpdate(optFilter, newValue)
                 .then(result => {
                     console.log(`***UserEvent Update by id ${optFilter} result: `, result);

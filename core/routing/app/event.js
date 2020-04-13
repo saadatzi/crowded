@@ -102,6 +102,34 @@ router.get('/current', verifyToken(true), async function (req, res) {
 });
 
 /**
+ * set status event
+ * @return Detail of event
+ */
+//______________________Set Status Event_____________________//
+router.post('/status', verifyToken(true), async function (req, res) {
+    console.info('API: Set Status event/init');
+    userEventController.getCurrent(req.userId, req.headers['lang'] ? (req.headers['lang']).toLowerCase() : 'en')
+        .then(event => {
+            console.info("*** Set Status : %j", event);
+            new NZ.Response(event, event ? null : 'There is no active event!').send(res);
+        })
+        .catch(err => {
+            console.error("Event Set Status Catch err:", err)
+            new NZ.Response(null, err.message, 500).send(res);
+        })
+});
+
+/**
+ * Get Leaved options
+ * @return Detail of event
+ */
+//______________________Get Leaved Options Event_____________________//
+router.get('/leavedOption', verifyToken(true), async function (req, res) {
+    console.info('API: Get Leaved Options event/init');
+    new NZ.Response(['The event was different from what was described','I did not like the event','I had an emergency and had to leave', 'I had an emergency and had to leave']).send(res);
+});
+
+/**
  * Get Event
  * @return Detail of event
  */

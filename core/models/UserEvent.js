@@ -9,6 +9,10 @@ const UserEventSchema = new Schema({
     },
     userId: {type: Schema.ObjectId, ref: 'User'},
     eventId: {type: Schema.ObjectId, ref: 'Event'},
+    feedbackDesc: String,
+    feedbackTitle: String,
+    star: Number,
+
     createAt: {type: Date, default: Date.now},
     updateAt: {type: Date, default: Date.now},
 });
