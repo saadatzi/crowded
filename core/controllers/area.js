@@ -2,8 +2,6 @@
  * Module dependencies.
  */
 const Area = require('../models/Area');
-const deviceController = require('../controllers/device');
-const userController = require('../controllers/user');
 
 
 const areaController = function () {

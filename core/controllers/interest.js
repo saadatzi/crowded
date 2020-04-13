@@ -2,8 +2,6 @@
  * Module dependencies.
  */
 const Interest = require('../models/Interest');
-const deviceController = require('../controllers/device');
-const userController = require('../controllers/user');
 
 
 const interestController = function () {

@@ -3,7 +3,7 @@
  */
 
 const UserEvent = require('../models/UserEvent');
-const eventController = require('./event');
+const {eventController} = require('./controller');
 
 
 const userEventController = function () {

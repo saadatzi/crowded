@@ -2,9 +2,7 @@
  * Module dependencies.
  */
 const Event = require('../models/Event');
-const deviceController = require('../controllers/device');
-const userController = require('../controllers/user');
-const userEventController = require('../controllers/userEvent');
+const {userEventController} = require('./controller');
 
 
 const eventController = function () {
