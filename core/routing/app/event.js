@@ -1,7 +1,7 @@
 const express = require('express')
     , router = express.Router();
 const jwtRun = require('../../utils/jwt')
-
+const mongoose = require('mongoose');
 const Joi = require('@hapi/joi');
 
 // Instantiate the Device Model
@@ -132,26 +132,89 @@ router.post('/status', verifyToken(true), async function (req, res) {
 });
 
 /**
- * set status event
+ * set Active event
  */
-//______________________Set Status Event_____________________//
-router.post('/approved', verifyToken(true), async function (req, res) {
-    console.info('API: Set approved event/init', req.body);
-    //ToDo JOE validation
-    const setStatusJoi = Joi.object().keys({
-        eventId: Joi.string().length(24).required(),
-    });
-    let setStatusValidation = setStatusJoi.validate(req.body);
-    if (setStatusValidation.error)
-        return new NZ.Response(setStatusValidation.error, 'input error.', 400).send(res);
+//______________________Set Active Event_____________________//
+router.post('/active', verifyToken(true), async function (req, res) {
+    console.info('API: Set Active event/init', req.body);
+    if (!mongoose.Types.ObjectId.isValid(req.body.eventId)) {
+        return new NZ.Response({title: 'input error', message: 'eventId must be a valid id'}, 'input error.', 400).send(res);
+    }
 
-    userEventController.setStatus(req.userId, req.body.eventId, 'APPROVED')
+    userEventController.setStatus(req.userId, req.body.eventId, 'ACTIVE')
         .then(event => {
             console.info("*** Set Status : %j", event);
-            new NZ.Response(null, event ? 'APPROVED' : 'Not found!').send(res);
+            new NZ.Response(null, event ? 'Active' : 'Not found!').send(res);
         })
         .catch(err => {
-            console.error("Event Set approved Catch err:", err)
+            console.error("Event Set Active Catch err:", err)
+            new NZ.Response(null, err.message, 500).send(res);
+        })
+});
+
+/**
+ * set PAUSED event
+ */
+//______________________Set PAUSED Event_____________________//
+router.post('/pause', verifyToken(true), async function (req, res) {
+    console.info('API: Set PAUSED event/init', req.body);
+    if (!mongoose.Types.ObjectId.isValid(req.body.eventId)) {
+        return new NZ.Response({title: 'input error', message: 'eventId must be a valid id'}, 'input error.', 400).send(res);
+    }
+
+    userEventController.setStatus(req.userId, req.body.eventId, 'PAUSED')
+        .then(event => {
+            console.info("*** Set Status : %j", event);
+            new NZ.Response(null, event ? 'PAUSED' : 'Not found!').send(res);
+        })
+        .catch(err => {
+            console.error("Event Set PAUSED Catch err:", err)
+            new NZ.Response(null, err.message, 500).send(res);
+        })
+});
+
+
+/**
+ * set LEFT event
+ */
+//______________________Set LEFT Event_____________________//
+router.post('/left', verifyToken(true), async function (req, res) {
+    console.info('API: Set LEFT event/init', req.body);
+    if (!mongoose.Types.ObjectId.isValid(req.body.eventId)) {
+        return new NZ.Response({title: 'input error', message: 'eventId must be a valid id'}, 'input error.', 400).send(res);
+    }
+
+    userEventController.setStatus(req.userId, req.body.eventId, 'LEFT')
+        .then(event => {
+            console.info("*** Set Status : %j", event);
+            new NZ.Response(null, event ? 'LEFT' : 'Not found!').send(res);
+        })
+        .catch(err => {
+            console.error("Event Set LEFT Catch err:", err)
+            new NZ.Response(null, err.message, 500).send(res);
+        })
+});
+
+/**
+ * set Elapsed event
+ */
+//______________________Set Elapsed Event_____________________//
+router.post('/elapsed', verifyToken(true), async function (req, res) {
+    console.info('API: Set Elapsed event/init', req.body);
+    if (!mongoose.Types.ObjectId.isValid(req.body.eventId)) {
+        return new NZ.Response({title: 'input error', message: 'eventId must be a valid id'}, 'input error.', 400).send(res);
+    }
+    const updateElapsedValue = {
+        feedbackDesc: req.body.desc,
+        feedbackTitle: req.body.title,
+    }
+    userEventController.setStatus(req.userId, req.body.eventId, 'LEFT', updateElapsedValue)
+        .then(event => {
+            console.info("*** Set Status : %j", event);
+            new NZ.Response(null, event ? 'LEFT' : 'Not found!').send(res);
+        })
+        .catch(err => {
+            console.error("Event Set Elapsed Catch err:", err)
             new NZ.Response(null, err.message, 500).send(res);
         })
 });

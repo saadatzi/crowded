@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 const settings = require('../utils/settings');
 const moment = require('moment-timezone');
 const areaController = require('../controllers/area');
-
+// mongoose.Types.ObjectId.isValid()
 const EventSchema = new Schema({
     title_ar: String,
     title_en: String,

@@ -85,23 +85,6 @@ userEventController.prototype.getByUserEvent = async (userId, eventId) => {
  * @param {ObjectId} userId
  * @param {ObjectId} eventId
  * @param {String} status
- * @return UserEvent
- */
-userEventController.prototype.findUpdate = async (userId, eventId, status) => {
-    return await UserEvent.findOneAndUpdate({userId, eventId}, {status, updateAt: new Date()})
-        .then(async result => result)
-        .catch(err => {
-            console.log("!!!UserEvent getByUserEvent failed: ", err);
-            throw err;
-        })
-};
-
-/**
- * set Status UserEvent
- *
- * @param {ObjectId} userId
- * @param {ObjectId} eventId
- * @param {String} status
  * @param {Object} newValue
  * @return UserEvent
  */
@@ -111,6 +94,31 @@ userEventController.prototype.setStatus = async (userId, eventId, status, newVal
     console.log(">>>>>>>>>> updateValue: ", updateValue);
     return await UserEvent.findOneAndUpdate({userId, eventId}, updateValue)
         .then(async result => result)
+        .catch(err => {
+            console.log("!!!UserEvent getByUserEvent failed: ", err);
+            throw err;
+        })
+};
+
+/**
+ * add Attendance elapsed UserEvent
+ *
+ * @param {ObjectId} userId
+ * @param {ObjectId} eventId
+ * @param {Object} newValue
+ * @return UserEvent
+ */
+userEventController.prototype.setStatus = async (userId, eventId, newValue) => {
+    let newAttendanceElapsed = {
+        elapsed: newValue.elapsed,
+        location: {coordinates: newValue.coordinates}
+    };
+    return await UserEvent.getOne({userId, eventId})
+        .then(async userEvent => {
+            userEvent.attendance.push(newAttendanceElapsed);
+            userEvent.save();
+            return true
+        })
         .catch(err => {
             console.log("!!!UserEvent getByUserEvent failed: ", err);
             throw err;

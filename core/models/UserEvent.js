@@ -9,6 +9,16 @@ const UserEventSchema = new Schema({
     },
     userId: {type: Schema.ObjectId, ref: 'User'},
     eventId: {type: Schema.ObjectId, ref: 'Event'},
+    attendance: [
+        {
+            elapsed: {type: Number, required: [true, "elapsed can't be blank!"]},
+            location: {
+                type: {type: String, enum: ['Point'], default: 'Point'},
+                coordinates: {type: [Number], default: [0, 0]}
+            },
+            createAt: {type: Date, default: Date.now},
+        }
+    ],
     feedbackDesc: String,
     feedbackTitle: String,
     star: Number,
@@ -56,9 +66,7 @@ UserEventSchema.static({
      */
     getOne: function (criteria) {
         return this.findOne(criteria)
-            .then(userEvent => {
-                console.log(">>>>>>>>>>>>>1 Event getCurrent userEvent: ", userEvent)
-                return userEvent})
+            .then(userEvent => userEvent)
             .catch(err => console.log("!!!!!!!! Event getCurrent catch err: ", err))
     },
 
