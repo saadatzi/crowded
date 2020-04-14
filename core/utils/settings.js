@@ -1,9 +1,10 @@
 const path = require('path');
 module.exports = {
+	initDataDB: false,
 	contact:		{
 		email:		'info@kidsapp.com',
 		phone:		'+965 9744 8984',
-		address:	'KIDS Technologies CO. <br> MSSS Alddd Complex, <br> Kuwait City',
+		address:	'Crowder Technologies CO. <br> MSSS Alddd Complex, <br> Kuwait City',
 		copyright:	'Kids Inc.',
 		privacy:	'https://google.com',
 		terms:		'https://google.com',
@@ -106,6 +107,16 @@ module.exports = {
 
 	tap_secret: 			'sk_test_XKokBfNWv6FIYuTMg5sLPjhJ',
 	googlemapsstaticsign:	'maWdC6VBmrEbnpGnVUozn0dZYwA=',
+
+	mapImage: {
+		url: 'https://maps.googleapis.com/maps/api/',
+		key: 'AIzaSyDpjwTyUmC9yKpctL5dZdj9nzE3j2ykgyU',
+		zoom: 17,
+		sizeW: 625,
+		sizeH: 300,
+		mapType: 'roadmap',
+		marker: 'https://mactehran.com/assets/images/-map-marker-2.png'
+	},
 
 	pagination: {
 		class: 2,

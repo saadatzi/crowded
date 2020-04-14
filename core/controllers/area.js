@@ -17,10 +17,7 @@ const areaController = function () {
 areaController.prototype.add = async (newArea) => {
     if (Array.isArray(newArea)) { //newArea instanceof Array
         return await Area.insertMany(newArea)
-            .then(room => {
-                console.log("***Area many save success room", room);
-                return room;
-            })
+            .then(room => room)
             .catch(err => {
                 console.log("!!!Area many save failed: ", err);
                 return -1;
@@ -80,7 +77,6 @@ areaController.prototype.get = async (optFilter) => {
 areaController.prototype.remove = async (optFilter) => {
     if (optFilter) {
         if (optFilter instanceof Object) { //instanceof mongoose.Types.ObjectId
-            //ToDo return Query?!
             return await Area.remove(optFilter)
                 .then(result => {
                     console.log("***Area  Remove many result: ", result);
@@ -91,7 +87,6 @@ areaController.prototype.remove = async (optFilter) => {
                     return -1;
                 })
         } else {
-            //ToDo return Query?!
             return await Area.findByIdAndRemove(optFilter)
                 .then(result => {
                     console.log(`***Area Remove by id ${optFilter} result: `, result);
