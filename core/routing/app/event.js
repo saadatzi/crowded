@@ -302,7 +302,7 @@ router.get('/leftOption', verifyToken(true), async function (req, res) {
  * @return list of event
  */
 //______________________Get Event_____________________//
-router.get('/', verifyToken(true), async function (req, res) {
+router.get('/myEvent', verifyToken(true), async function (req, res) {
     console.info('API: Get myEvent event/init req.query', req.query);
 
     // eventController.get(optionFilter)
