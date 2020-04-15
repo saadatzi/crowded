@@ -136,7 +136,7 @@ EventSchema.static({
 
 
     /**
-     * List all my event
+     * Event Detail
      *
      * @param {ObjectId} id
      * @param {String} lang
@@ -145,8 +145,6 @@ EventSchema.static({
      * @api private
      */
     getByIdAggregate: async function (id, lang, isApproved, userEventState = null) {
-        console.log(">>>>>>>>>>>>>>>>>>>> 4 Event getByIdAggregate userEventState: ", userEventState);
-
         const criteria = {_id: mongoose.Types.ObjectId(id)};
         console.log("!!!!!!!! getEvent criteria: ", criteria);
         return await this.aggregate([
@@ -225,18 +223,18 @@ EventSchema.static({
         ])
             // .exec()
             .then(event => event[0])
-            .catch(err => console.error("getMyEvents  Catch", err));
+            .catch(err => console.error("getByIdAggregate(Event Detail)  Catch", err));
     },
 
 
     /**
-     * List all my event
+     * List all my Interest Event
      *
      * @param {Object} options
      * @api private
      */
-    getAllMyEvents: async function (options) {
-        console.log("!!!!!!!! getMyEvents options: ", options)
+    getAllMyInterestEvent: async function (options) {
+        console.log("!!!!!!!! getAllMyInterestEvent options: ", options)
         const criteria = options.criteria || {};
         const page = options.page || 0;
         const limit = settings.event.limitPage;
@@ -257,7 +255,7 @@ EventSchema.static({
         } : {$sort: {createAt: -1}};
 
 
-        console.log("!!!!!!!! getMyEvents criteria: ", criteria)
+        console.log("!!!!!!!! getAllMyInterestEvent criteria: ", criteria)
         return await this.aggregate([
             // {$lookup: {from: 'areas', localField: 'area', foreignField: `childs._id`, as: 'getArea'}}, //from: collection Name  of mongoDB
             sortNearDate,
@@ -336,7 +334,118 @@ EventSchema.static({
         ])
             // .exec()
             .then(events => events)
-            .catch(err => console.error("getMyEvents  Catch", err));
+            .catch(err => console.error("getAllMyInterestEvent  Catch", err));
+    },
+
+
+    /**
+     * List my Event
+     *
+     * @param {Object} options
+     * @api private
+     */
+    getAllMyEvent: async function (options) {
+        console.log("!!!!!!!! getAllMyEvent options: ", options)
+        const criteria = options.criteria || {};
+        const page = options.page || 0;
+        const limit = settings.event.limitPage;
+
+        criteria.status = 1;
+        criteria.allowedApplyTime = {$gt: new Date()};
+
+        const sortNearDate = options.lat ?  {
+            $geoNear: {
+                near: {
+                    type: "Point",
+                    coordinates: [options.lat, options.lng]
+                },
+                distanceField: "dist",
+                // maxDistance: 100000,
+                // spherical: true
+            }
+        } : {$sort: {createAt: -1}};
+
+
+        console.log("!!!!!!!! getAllMyEvent criteria: ", criteria)
+        return await this.aggregate([
+            // {$lookup: {from: 'areas', localField: 'area', foreignField: `childs._id`, as: 'getArea'}}, //from: collection Name  of mongoDB
+            sortNearDate,
+            {$match: criteria},
+            {$skip: limit * page},
+            {$limit: limit + 1},
+            {$unwind: "$images"},
+            {$sort: {'images.order': 1}},
+            {
+                $lookup: {
+                    from: 'areas',
+                    let: {'primaryArea': '$area'},
+                    pipeline: [
+                        {$match: {$expr: {$in: ["$$primaryArea", "$childs._id"]}}},
+                        {$unwind: "$childs"},
+                        {$match: {$expr: {$eq: ["$childs._id", "$$primaryArea"]}}}
+                    ],
+                    as: 'getArea'
+                }
+            },
+            // {$replaceRoot: { newRoot: { $mergeObjects: [ { $arrayElemAt: [ "$area", 0 ] }, "$$ROOT" ] } }},
+            {
+                $group: {
+                    _id: "$_id",
+                    image: {$first: {url: {$concat: [settings.media_domain, "$images.url"]}}}, //$push
+                    title: {$first: `$title_${options.lang}`},
+                    // dec: {$first: `$desc_${options.lang}`},
+                    value: {$first: {$toString: "$value"}},
+                    // attendance: {$first: `$attendance`},
+                    from: {$first: `$from`},
+                    to: {$first: `$to`},
+                    // createAt: {$first: `$createAt`},
+                    // allowedApplyTime: {$first: `$allowedApplyTime`},
+                    // date: {$first: moment.tz("$from", 'Asia/Kuwait').format('YYYY-MM-DD HH:MM')},
+                    // date: {$first: {$dateToString: {date: `$to`, timezone: "Asia/Kuwait", format: "%m-%d-%Y"}}},
+                    getArea: {$first: `$getArea.childs.name_${options.lang}`}, //
+                    address: {$first: `$address_${options.lang}`},
+
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    id: "$_id",
+                    title: 1,
+                    image: 1,
+                    // dec: 1,
+                    area: {$arrayElemAt: ['$getArea', 0]},
+                    value: 1,
+                    count: 1,
+                    // attendance: 1,
+                    //{$dateToString: {date: `$to`, timezone: "Asia/Kuwait", format: "%m-%d"}}
+                    date: {
+                        day: {$toString: {$dayOfMonth: {date: "$from", timezone: "Asia/Kuwait"}}},
+                        month: {
+                            $arrayElemAt: [settings.constant.monthNamesShort, {
+                                $month: {
+                                    date: "$from",
+                                    timezone: "Asia/Kuwait"
+                                }
+                            }]
+                        },
+                        from: {$dateToString: {date: `$from`, timezone: "Asia/Kuwait", format: "%H:%M"}},
+                        to: {$dateToString: {date: `$to`, timezone: "Asia/Kuwait", format: "%H:%M"}}
+                        // from: {$concat: [{$toString: {$hour: "$from"}}, ":", {$toString: {$minute: "$from"}}]},
+                        // to: {$concat: [{$toString: {$hour: {$dateToString: {date: `$to`, timezone: "Asia/Kuwait", format: "%H:%M"}}}}, ":", {$toString: {$minute: {$dateToString: {date: `$to`, timezone: "Asia/Kuwait", format: "%m-%d"}}}}]},
+                    },
+                    // createAt: 0
+                    // date: 1,
+                    // from: 1,
+                    // to: 1,
+                    // address: 1
+                }
+            },
+            {$sort: {id: -1}},
+        ])
+            // .exec()
+            .then(events => events)
+            .catch(err => console.error("getAllMyEvent  Catch", err));
     },
 
     /**

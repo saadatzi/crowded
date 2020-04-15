@@ -48,7 +48,7 @@ eventController.prototype.add = async (newEvent) => {
  */
 eventController.prototype.get = async (optFilter, type = 'id') => {
     if (!optFilter || optFilter instanceof Object) { //newEvent instanceof Array
-        return await Event.getAllMyEvents(optFilter)
+        return await Event.getAllMyInterestEvent(optFilter)
             .then(events => events)
             .catch(err => {
                 console.error("!!!Event getAll failed: ", err);

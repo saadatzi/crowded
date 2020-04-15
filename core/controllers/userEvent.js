@@ -22,6 +22,7 @@ userEventController.prototype.add = async (eventId, userId) => {
         eventId: eventId,
         status: 'APPLIED',
     };
+    //ToDo if other Applied in same time //now skipped
     return await UserEvent.create(applyUserEvent)
         .then(event => {
             console.log("***UserEvent save success event", event);
@@ -108,7 +109,7 @@ userEventController.prototype.setStatus = async (userId, eventId, status, newVal
  * @param {Object} newValue
  * @return UserEvent
  */
-userEventController.prototype.setStatus = async (userId, eventId, newValue) => {
+userEventController.prototype.addElapsed = async (userId, eventId, newValue) => {
     let newAttendanceElapsed = {
         elapsed: newValue.elapsed,
         location: {coordinates: newValue.coordinates}

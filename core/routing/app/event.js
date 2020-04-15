@@ -208,10 +208,10 @@ router.post('/elapsed', verifyToken(true), async function (req, res) {
         feedbackDesc: req.body.desc,
         feedbackTitle: req.body.title,
     }
-    userEventController.setStatus(req.userId, req.body.eventId, 'LEFT', updateElapsedValue)
+    userEventController.addElapsed(req.userId, req.body.eventId, 'LEFT', updateElapsedValue)
         .then(event => {
             console.info("*** Set Status : %j", event);
-            new NZ.Response(null, event ? 'LEFT' : 'Not found!').send(res);
+            new NZ.Response(null, event ? 'Add attendance' : 'Not found!').send(res);
         })
         .catch(err => {
             console.error("Event Set Elapsed Catch err:", err)
@@ -291,6 +291,102 @@ router.post('/feedback', verifyToken(true), async function (req, res) {
 router.get('/leftOption', verifyToken(true), async function (req, res) {
     console.info('API: Get Leaved Options event/init');
     new NZ.Response(settings.event.leftOption).send(res);
+});
+
+
+/**
+ * Get myEvent
+ * @param @optional page
+ * @param @optional lat
+ * @param @optional lon
+ * @return list of event
+ */
+//______________________Get Event_____________________//
+router.get('/', verifyToken(true), async function (req, res) {
+    console.info('API: Get myEvent event/init req.query', req.query);
+
+    // eventController.get(optionFilter)
+    //     .then(result => {
+    //         console.info("*** Event List.length :", result.length);
+    //         // console.info("*** Event List: ", result);
+    //         let nextPage = null;
+    //         if (result.length > settings.event.limitPage) {
+    //             nextPage = page + 1;
+    //             const x = result.pop();
+    //             // console.log(">>>>>>>>>>>>>>> x.pop:", x);
+    //         }
+    //         new NZ.Response({items: result, nextPage,}).send(res);
+    //     })
+    //     .catch(err => {
+    //         console.error("Event Get myEvent Catch err:", err)
+    //         new NZ.Response(null, err.message, 500).send(res);
+    //     })
+    new NZ.Response({items: [
+            {
+                "image": {
+                    "url": "https://media.crowded.dev.nizek.com/event/qgCJT9/10e695e9-95a3-4d31-a0d3-a9e26b4a93a4_IB26-ShNcO.jpg"
+                },
+                status: 'SUCCESS',
+                "title": "۳حدث الرياضة",
+                "value": "50.55",
+                "id": "5e91f2342518a066c7e93d2c",
+                "attendance": 90,
+                "date": {
+                    dateTime: '1589955110100',
+                    "day": "Monday 20 April",
+                    "from": "04:31",
+                    "to": "10:11"
+                }
+            },
+            {
+                "image": {
+                    "url": "https://media.crowded.dev.nizek.com/event/qgCJT9/10e695e9-95a3-4d31-a0d3-a9e26b4a93a4_IB26-ShNcO.jpg"
+                },
+                status: 'ACTIVE',
+                "title": "۳حدث الرياضة",
+                "value": "50.55",
+                "id": "5e91f2342518a066c7e93d2c",
+                "attendance": 60,
+                "date": {
+                    dateTime: '1589955110100',
+                    "day": "Monday 20 April",
+                    "from": "04:31",
+                    "to": "10:11"
+                }
+            },
+            {
+                "image": {
+                    "url": "https://media.crowded.dev.nizek.com/event/qgCJT9/10e695e9-95a3-4d31-a0d3-a9e26b4a93a4_IB26-ShNcO.jpg"
+                },
+                status: 'SUCCESS',
+                "title": "۳حدث الرياضة",
+                "value": "50.55",
+                "id": "5e91f2342518a066c7e93d2c",
+                "attendance": 90,
+                "date": {
+                    dateTime: '1589955110100',
+                    "day": "Monday 20 April",
+                    "from": "04:31",
+                    "to": "10:11"
+                }
+            },
+            {
+                "image": {
+                    "url": "https://media.crowded.dev.nizek.com/event/qgCJT9/10e695e9-95a3-4d31-a0d3-a9e26b4a93a4_IB26-ShNcO.jpg"
+                },
+                status: 'REJECTED',
+                "title": "۳حدث الرياضة",
+                "value": "50.55",
+                "id": "5e91f2342518a066c7e93d2c",
+                "attendance": 60,
+                "date": {
+                    dateTime: '1589955110100',
+                    "day": "Monday 20 April",
+                    "from": "04:31",
+                    "to": "10:11"
+                }
+            },
+        ]}).send(res);
 });
 
 /**
