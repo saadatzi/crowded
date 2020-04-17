@@ -100,6 +100,29 @@ eventController.prototype.getByIdAggregate = async (id, lang, userId = null) => 
 
 };
 
+
+/**
+ * get myEvent
+ *
+ * @param {ObjectId} userId
+ * @param {String} lang
+ * @param {Number} page
+ * @param {Boolean | Number} isPrevious
+ * @param {Date} date
+ *
+ * @return Event
+ */
+eventController.prototype.getMyEvent = async (userId, lang,page, isPrevious, date) => {
+    const showPrevEvent = isPrevious == 'true' || isPrevious == 1;
+    return await Event.getAllMyEvent(userId, lang, page, showPrevEvent, date)
+        .then(async event => event)
+        .catch(err => {
+            console.error("!!!Event getMyEvent failed: ", err);
+            throw err;
+        })
+
+};
+
 /**
  * remove Event
  *

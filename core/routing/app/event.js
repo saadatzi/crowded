@@ -33,7 +33,7 @@ router.get('/', verifyToken(), async function (req, res) {
     }
     const criteria = {};
     //if empty interests select all Event
-    if (selected.interests.length > 0) criteria.interests = {$in: selected.interests};
+    if (selected.interests && selected.interests.length > 0) criteria.interests = {$in: selected.interests};
 
     const page = req.query.page ? Number(req.query.page) : 0;
     const optionFilter = {
@@ -305,88 +305,82 @@ router.get('/leftOption', verifyToken(true), async function (req, res) {
 router.get('/myEvent', verifyToken(true), async function (req, res) {
     console.info('API: Get myEvent event/init req.query', req.query);
 
-    // eventController.get(optionFilter)
-    //     .then(result => {
-    //         console.info("*** Event List.length :", result.length);
-    //         // console.info("*** Event List: ", result);
-    //         let nextPage = null;
-    //         if (result.length > settings.event.limitPage) {
-    //             nextPage = page + 1;
-    //             const x = result.pop();
-    //             // console.log(">>>>>>>>>>>>>>> x.pop:", x);
-    //         }
-    //         new NZ.Response({items: result, nextPage,}).send(res);
-    //     })
-    //     .catch(err => {
-    //         console.error("Event Get myEvent Catch err:", err)
-    //         new NZ.Response(null, err.message, 500).send(res);
-    //     })
-    new NZ.Response({items: [
-            {
-                "image": {
-                    "url": "https://media.crowded.dev.nizek.com/event/qgCJT9/10e695e9-95a3-4d31-a0d3-a9e26b4a93a4_IB26-ShNcO.jpg"
-                },
-                status: 'SUCCESS',
-                "title": "۳حدث الرياضة",
-                "value": "50.55",
-                "id": "5e91f2342518a066c7e93d2c",
-                "attendance": 90,
-                "date": {
-                    dateTime: '1589955110100',
-                    "day": "Monday 20 April",
-                    "from": "04:31",
-                    "to": "10:11"
-                }
-            },
-            {
-                "image": {
-                    "url": "https://media.crowded.dev.nizek.com/event/qgCJT9/10e695e9-95a3-4d31-a0d3-a9e26b4a93a4_IB26-ShNcO.jpg"
-                },
-                status: 'ACTIVE',
-                "title": "۳حدث الرياضة",
-                "value": "50.55",
-                "id": "5e91f2342518a066c7e93d2c",
-                "attendance": 60,
-                "date": {
-                    dateTime: '1589955110100',
-                    "day": "Monday 20 April",
-                    "from": "04:31",
-                    "to": "10:11"
-                }
-            },
-            {
-                "image": {
-                    "url": "https://media.crowded.dev.nizek.com/event/qgCJT9/10e695e9-95a3-4d31-a0d3-a9e26b4a93a4_IB26-ShNcO.jpg"
-                },
-                status: 'SUCCESS',
-                "title": "۳حدث الرياضة",
-                "value": "50.55",
-                "id": "5e91f2342518a066c7e93d2c",
-                "attendance": 90,
-                "date": {
-                    dateTime: '1589955110100',
-                    "day": "Monday 20 April",
-                    "from": "04:31",
-                    "to": "10:11"
-                }
-            },
-            {
-                "image": {
-                    "url": "https://media.crowded.dev.nizek.com/event/qgCJT9/10e695e9-95a3-4d31-a0d3-a9e26b4a93a4_IB26-ShNcO.jpg"
-                },
-                status: 'REJECTED',
-                "title": "۳حدث الرياضة",
-                "value": "50.55",
-                "id": "5e91f2342518a066c7e93d2c",
-                "attendance": 60,
-                "date": {
-                    dateTime: '1589955110100',
-                    "day": "Monday 20 April",
-                    "from": "04:31",
-                    "to": "10:11"
-                }
-            },
-        ]}).send(res);
+    eventController.getMyEvent(req.userId, req.headers['lang'] ? (req.headers['lang']).toLowerCase() : 'en', req.query.page, req.query.previous, req.query.date)
+        .then(result => {
+            console.info("*** myEvent List :", result);
+            // console.info("*** Event List: ", result);
+            new NZ.Response({items: result}).send(res);
+        })
+        .catch(err => {
+            console.error("Event Get myEvent Catch err:", err)
+            new NZ.Response(null, err.message, 500).send(res);
+        })
+    // new NZ.Response({items: [
+    //         {
+    //             "image": {
+    //                 "url": "https://media.crowded.dev.nizek.com/event/qgCJT9/10e695e9-95a3-4d31-a0d3-a9e26b4a93a4_IB26-ShNcO.jpg"
+    //             },
+    //             status: 'SUCCESS',
+    //             "title": "۳حدث الرياضة",
+    //             "value": "50.55",
+    //             "id": "5e91f2342518a066c7e93d2c",
+    //             "attendance": 90,
+    //             "date": {
+    //                 dateTime: '1589955110100',
+    //                 "day": "Monday 20 April",
+    //                 "from": "04:31",
+    //                 "to": "10:11"
+    //             }
+    //         },
+    //         {
+    //             "image": {
+    //                 "url": "https://media.crowded.dev.nizek.com/event/qgCJT9/10e695e9-95a3-4d31-a0d3-a9e26b4a93a4_IB26-ShNcO.jpg"
+    //             },
+    //             status: 'ACTIVE',
+    //             "title": "۳حدث الرياضة",
+    //             "value": "50.55",
+    //             "id": "5e91f2342518a066c7e93d2c",
+    //             "attendance": 60,
+    //             "date": {
+    //                 dateTime: '1589955110100',
+    //                 "day": "Monday 20 April",
+    //                 "from": "04:31",
+    //                 "to": "10:11"
+    //             }
+    //         },
+    //         {
+    //             "image": {
+    //                 "url": "https://media.crowded.dev.nizek.com/event/qgCJT9/10e695e9-95a3-4d31-a0d3-a9e26b4a93a4_IB26-ShNcO.jpg"
+    //             },
+    //             status: 'SUCCESS',
+    //             "title": "۳حدث الرياضة",
+    //             "value": "50.55",
+    //             "id": "5e91f2342518a066c7e93d2c",
+    //             "attendance": 90,
+    //             "date": {
+    //                 dateTime: '1589955110100',
+    //                 "day": "Monday 20 April",
+    //                 "from": "04:31",
+    //                 "to": "10:11"
+    //             }
+    //         },
+    //         {
+    //             "image": {
+    //                 "url": "https://media.crowded.dev.nizek.com/event/qgCJT9/10e695e9-95a3-4d31-a0d3-a9e26b4a93a4_IB26-ShNcO.jpg"
+    //             },
+    //             status: 'REJECTED',
+    //             "title": "۳حدث الرياضة",
+    //             "value": "50.55",
+    //             "id": "5e91f2342518a066c7e93d2c",
+    //             "attendance": 60,
+    //             "date": {
+    //                 dateTime: '1589955110100',
+    //                 "day": "Monday 20 April",
+    //                 "from": "04:31",
+    //                 "to": "10:11"
+    //             }
+    //         },
+    //     ]}).send(res);
 });
 
 /**

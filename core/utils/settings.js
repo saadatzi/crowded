@@ -54,7 +54,8 @@ module.exports = {
 	constant: {
 		monthNames: [, 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
 		monthNamesShort: [, 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-		dayOfWeek: [, 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+		dayOfWeek: [, 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+		dayOfWeekShort: [, "Sun","Mon","Tue","Wed","Thu","Fri","Sat"]
 	},
 
 	hashids_seed:	"cc679a61iipahn2u4ged2df11",
