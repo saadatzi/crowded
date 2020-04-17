@@ -347,13 +347,23 @@ EventSchema.static({
      * @param {Number} page
      * @param {Boolean} isPrevious
      */
-    getAllMyEvent: async function (userId, lang, page = 0, isPrevious = false, dateFilter= null) {
+    getAllMyEvent: async function (userId, lang, page, isPrevious, dateFilter) {
         const criteria = {
             status: 1,
             from: isPrevious ? {$lt: new Date()} : {$gte: new Date()} // after now & before now
         };
 
-        if (isPrevious && dateFilter) criteria.from = dateFilter;
+        if (dateFilter) criteria.from = {$gte: dateFilter.startMonth, $lt: dateFilter.endMonth};
+
+        //ToDo .find date range
+        /*criteria.from = {
+        $expr: {
+            $and: [
+                {$eq: [{$month: "$dob"}, {$month: dateFilter}]},
+                {$eq: [{$year: "$dob"}, {$year: dateFilter}]}
+            ]
+        }
+    };*/
 
 
         const limit = settings.event.limitPage;
@@ -365,7 +375,7 @@ EventSchema.static({
             {
                 $lookup: {
                     from: 'userevents',
-                    let: {primaryEventId: "$_id", /*title: "$events.title_ar"*/},
+                    let: {primaryEventId: "$_id"},
                     pipeline: [
                         {$match: {userId: mongoose.Types.ObjectId(userId)}},
                         {$match: {$expr: {$eq: ["$$primaryEventId", "$eventId"]}}},
@@ -402,7 +412,14 @@ EventSchema.static({
                     value: 1,
                     attendance: 1,
                     date: {
-                        dayShortName:{$arrayElemAt: [settings.constant.dayOfWeekShort, {$dayOfWeek: {date: "$from", timezone: "Asia/Kuwait"}}]},
+                        dayShortName: {
+                            $arrayElemAt: [settings.constant.dayOfWeekShort, {
+                                $dayOfWeek: {
+                                    date: "$from",
+                                    timezone: "Asia/Kuwait"
+                                }
+                            }]
+                        },
                         day: {$dayOfMonth: {date: "$from", timezone: "Asia/Kuwait"}},
                         dayMonth: {
                             $concat: [
@@ -415,7 +432,7 @@ EventSchema.static({
                                     }]
                                 },
                                 ' ',
-                                 {$toString: {$dayOfMonth: {date: "$from", timezone: "Asia/Kuwait"}}},
+                                {$toString: {$dayOfMonth: {date: "$from", timezone: "Asia/Kuwait"}}},
                                 ' ',
                                 {
                                     $arrayElemAt: [settings.constant.monthNames, {

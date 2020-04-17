@@ -3,7 +3,7 @@
  */
 const Event = require('../models/Event');
 const {googleStaticImage} = require('../utils/map');
-
+const moment = require('moment-timezone');
 
 const eventController = function () {
 };
@@ -112,9 +112,15 @@ eventController.prototype.getByIdAggregate = async (id, lang, userId = null) => 
  *
  * @return Event
  */
-eventController.prototype.getMyEvent = async (userId, lang,page, isPrevious, date) => {
+eventController.prototype.getMyEvent = async (userId, lang, page = 0, isPrevious = false, date = null) => {
     const showPrevEvent = isPrevious == 'true' || isPrevious == 1;
-    return await Event.getAllMyEvent(userId, lang, page, showPrevEvent, date)
+    const dateFilter = {
+        startMonth: moment.unix(date).startOf('month').toDate(),
+        endMonth: moment.unix(date).endOf('month').toDate()
+    };
+    console.info(">>>>>>>>>>>>>>>>>>>>>>Event getMyEvent newDate: ", new Date());
+    console.info(">>>>>>>>>>>>>>>>>>>>>>Event getMyEvent dateFilter: ", dateFilter);
+    return await Event.getAllMyEvent(userId, lang, page, showPrevEvent, dateFilter)
         .then(async event => event)
         .catch(err => {
             console.error("!!!Event getMyEvent failed: ", err);
