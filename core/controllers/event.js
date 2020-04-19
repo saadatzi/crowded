@@ -56,9 +56,7 @@ eventController.prototype.get = async (optFilter, type = 'id') => {
             })
     } else {
         return await Event.getById(optFilter)
-            .then(result => {
-                return result.detailDto(optFilter.lang)
-            })
+            .then(result => result)
             .catch(err => {
                 console.log("!!!Event get failed: ", err);
                 throw err;
@@ -114,12 +112,11 @@ eventController.prototype.getByIdAggregate = async (id, lang, userId = null) => 
  */
 eventController.prototype.getMyEvent = async (userId, lang, page = 0, isPrevious = false, date = null) => {
     const showPrevEvent = isPrevious == 'true' || isPrevious == 1;
-    const dateFilter = {
+    const dateFilter = date ? {
         startMonth: moment.unix(date).startOf('month').toDate(),
         endMonth: moment.unix(date).endOf('month').toDate()
-    };
-    console.info(">>>>>>>>>>>>>>>>>>>>>>Event getMyEvent newDate: ", new Date());
-    console.info(">>>>>>>>>>>>>>>>>>>>>>Event getMyEvent dateFilter: ", dateFilter);
+    } : null;
+
     return await Event.getAllMyEvent(userId, lang, page, showPrevEvent, dateFilter)
         .then(async event => event)
         .catch(err => {

@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 const Joi = require('@hapi/joi');
 
 // Instantiate the Device Model
-// const walletController = require('../../controllers/wallet');
+const transactionController = require('../../controllers/transaction');
 const userEventController = require('../../controllers/userEvent');
 const userController = require('../../controllers/user');
 const deviceController = require('../../controllers/device');
@@ -27,24 +27,24 @@ router.get('/myWallet', verifyToken(true), async function (req, res) {
     console.info('API: Get wallet/init req.query', req.query);
     let selected;
 
-    // walletController.get(optionFilter)
-    //     .then(result => {
-    //         console.info("*** Wallet List.length :", result.length);
-    //         // console.info("*** Wallet List: ", result);
-    //         let nextPage = null;
-    //         if (result.length > settings.wallet.limitPage) {
-    //             nextPage = page + 1;
-    //             const x = result.pop();
-    //             // console.log(">>>>>>>>>>>>>>> x.pop:", x);
-    //         }
-    //         new NZ.Response({items: result, nextPage,}).send(res);
-    //     })
-    //     .catch(err => {
-    //         console.error("Wallet Get Catch err:", err)
-    //         new NZ.Response(null, err.message, 500).send(res);
-    //     })
+    transactionController.myTransaction(req.userId, req.headers['lang'] ? (req.headers['lang']).toLowerCase() : 'en', req.query.page, req.query.date)
+        .then(result => {
+            console.info("*** Wallet List.length :", result.length);
+            // console.info("*** Wallet List: ", result);
+            let nextPage = null;
+            if (result.length > settings.wallet.limitPage) {
+                nextPage = page + 1;
+                const x = result.pop();
+                // console.log(">>>>>>>>>>>>>>> x.pop:", x);
+            }
+            new NZ.Response({items: result, nextPage,}).send(res);
+        })
+        .catch(err => {
+            console.error("Wallet Get Catch err:", err)
+            new NZ.Response(null, err.message, 500).send(res);
+        })
 
-    new NZ.Response({items: [
+    /*new NZ.Response({items: [
             {
                 id: '321a123',
                 value: '50.00',
@@ -93,7 +93,7 @@ router.get('/myWallet', verifyToken(true), async function (req, res) {
         totalEarned: '2050.00',
         thisWeek: '150.00',
         nextPage: null
-    }).send(res);
+    }).send(res);*/
 });
 
 /**

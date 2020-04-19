@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 const UserEventSchema = new Schema({
     status: {
         type: String,
-        enum: ['APPLIED', 'APPROVED', 'REJECTED', 'ACTIVE', 'LEFT', 'PAUSED', 'SUCCESS'],
+        enum: ['APPLIED', 'APPROVED', 'REJECTED', 'ACTIVE', 'LEFT', 'PAUSED', 'CONTINUE', 'SUCCESS'],
         default: 'APPLIED'
     },
     userId: {type: Schema.ObjectId, ref: 'User'},

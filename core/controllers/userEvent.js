@@ -4,6 +4,7 @@
 
 const UserEvent = require('../models/UserEvent');
 const eventController = require('./event');
+const transactionController = require('./transaction');
 
 
 const userEventController = function () {
@@ -54,7 +55,7 @@ userEventController.prototype.getCurrent = async (userId, lang) => {
                         throw err;
                     })
             } else {
-                return  null;
+                return null;
             }
 
         })
@@ -93,8 +94,25 @@ userEventController.prototype.setStatus = async (userId, eventId, status, newVal
     let updateValue = {status, updateAt: new Date()};
     if (newValue) Object.assign(updateValue, newValue)
     console.log(">>>>>>>>>> updateValue: ", updateValue);
+    if (status === 'ACTIVE' || status === 'PAUSED' || status === 'CONTINUE') {
+        await UserEvent.getOne({userId, eventId})
+            .then(async userEvent => {
+                if (!userEvent) throw {code: 404, message: 'Not found!'}//Continue
+                if (status === 'ACTIVE'  && userEvent.status !== 'APPROVED') throw {code: 406, message: 'Status mismatch!'};
+                if (status === 'PAUSED'  && userEvent.status !== 'ACTIVE') throw {code: 406, message: 'Status mismatch!'};
+                if (status === 'CONTINUE'  && userEvent.status !== 'PAUSED') throw {code: 406, message: 'Status mismatch!'}
+            })
+            .catch(err => {
+
+                console.log("!!!UserEvent getOne check Approved failed: ", err);
+                throw err;
+            })
+    }
     return await UserEvent.findOneAndUpdate({userId, eventId}, updateValue)
-        .then(async result => result)
+        .then(async result => {
+            if (!result) throw {code: 404, message: 'Not found!'}
+            return result
+        })
         .catch(err => {
             console.log("!!!UserEvent getByUserEvent failed: ", err);
             throw err;
@@ -106,19 +124,56 @@ userEventController.prototype.setStatus = async (userId, eventId, status, newVal
  *
  * @param {ObjectId} userId
  * @param {ObjectId} eventId
- * @param {Object} newValue
+ * @param {Number} elapsed,
+ * @param {Array} coordinates,
+ * @param {Boolean} isFinished,
  * @return UserEvent
  */
-userEventController.prototype.addElapsed = async (userId, eventId, newValue) => {
+userEventController.prototype.addElapsed = async (userId, eventId, elapsed, coordinates, isFinished = false) => {
+    console.log(">>>>>>>>>>>>>>>> addElapsed: elapsed: %s -- coordinates: %s -- isFinished: %s", elapsed, coordinates, isFinished);
     let newAttendanceElapsed = {
-        elapsed: newValue.elapsed,
-        location: {coordinates: newValue.coordinates}
+        elapsed: elapsed,
+        location: {coordinates: coordinates}
     };
     return await UserEvent.getOne({userId, eventId})
         .then(async userEvent => {
-            userEvent.attendance.push(newAttendanceElapsed);
-            userEvent.save();
-            return true
+            if (userEvent && userEvent.status === 'ACTIVE') {
+                userEvent.attendance.push(newAttendanceElapsed);
+                userEvent.save();
+                if (isFinished) {
+                    return eventController.get(eventId)
+                        .then(async event => {
+                            if (elapsed >= event.attendance) {
+                                return newUserEventController.setStatus(userId, eventId, 'SUCCESS')
+                                    .then(result => {
+                                        transactionController.add(userId, eventId)
+                                            .then(result => {
+                                                return true
+                                            })
+                                            .catch(err => {
+                                                console.log("!!!UserEvent transactionController Add failed: ", err);
+                                                throw err;
+                                            })
+                                    })
+                                    .catch(err => {
+                                        console.log("!!!UserEvent setStatus SUCCESS failed: ", err);
+                                        throw err;
+                                    })
+                            } else {
+                                throw {code: 406, message: 'Elapsed time mismatch!'}
+                            }
+                        })
+                        .catch(err => {
+                            console.log("!!!UserEvent get Event failed: ", err);
+                            throw err;
+                        })
+                } else {
+                    return true
+                }
+            } else {
+                throw {code: 406, message: userEvent ? 'Status mismatch!' : 'not found!'}
+            }
+
         })
         .catch(err => {
             console.log("!!!UserEvent getByUserEvent failed: ", err);
@@ -219,5 +274,5 @@ userEventController.prototype.update = async (optFilter, newValue) => {
 
 
 };
-
-module.exports = new userEventController();
+const newUserEventController = new userEventController();
+module.exports = newUserEventController;

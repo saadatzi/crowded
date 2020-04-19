@@ -51,6 +51,10 @@ module.exports = {
 		leftOption: ['The event was different from what was described','I did not like the event','I had an emergency and had to leave', 'I had an emergency and had to leave']
 	},
 
+	wallet: {
+		limitPage: 4,
+	},
+
 	constant: {
 		monthNames: [, 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
 		monthNamesShort: [, 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],

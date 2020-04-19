@@ -15,7 +15,7 @@ const EventSchema = new Schema({
     }],
     interests: [{type: Schema.Types.ObjectId, ref: 'Interest'}],
     value: {type: Schema.Types.Decimal128, default: 0},
-    attendance: {type: Number, default: 0},
+    attendance: {type: Number, default: 0}, //Minute
     from: Date,
     to: Date,
     area: {type: Schema.Types.ObjectId, ref: 'Area', required: true},
