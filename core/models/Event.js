@@ -412,6 +412,15 @@ EventSchema.static({
                     value: 1,
                     attendance: 1,
                     date: {
+                        day: {$toString: {$dayOfMonth: {date: "$from", timezone: "Asia/Kuwait"}}},
+                        month: {
+                            $arrayElemAt: [settings.constant.monthNamesShort, {
+                                $month: {
+                                    date: "$from",
+                                    timezone: "Asia/Kuwait"
+                                }
+                            }]
+                        },
                         dayShortName: {
                             $arrayElemAt: [settings.constant.dayOfWeekShort, {
                                 $dayOfWeek: {
@@ -420,7 +429,6 @@ EventSchema.static({
                                 }
                             }]
                         },
-                        day: {$dayOfMonth: {date: "$from", timezone: "Asia/Kuwait"}},
                         dayMonth: {
                             $concat: [
                                 {
