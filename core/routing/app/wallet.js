@@ -29,87 +29,12 @@ router.get('/myWallet', verifyToken(true), async function (req, res) {
 
     transactionController.myTransaction(req.userId, req.headers['lang'] ? (req.headers['lang']).toLowerCase() : 'en', req.query.page, req.query.date)
         .then(result => {
-            new NZ.Response(result).send(res);
+            new NZ.Response(Object.assign(result, {chart: {url: 'https://nizek.com'}})).send(res);
         })
         .catch(err => {
             console.error("Wallet Get Catch err:", err)
             new NZ.Response(null, err.message, 500).send(res);
         })
-
-    /*new NZ.Response({items: [
-            {
-                id: '321a123',
-                value: '50.00',
-                title: 'Ochello`s catwalk fiesta 1',
-                date: new Date(),
-                isDebtor: false,
-            },
-            {
-                id: '321a1234',
-                value: '70.00',
-                title: 'Ochello`s catwalk fiesta 2',
-                date: new Date(),
-                isDebtor: false,
-            },
-            {
-                id: '321a1235',
-                value: '120.00',
-                title: 'withdrawn the wallet',
-                date: new Date(),
-                isDebtor: true,
-            },
-            {
-                id: '321a126',
-                value: '150.00',
-                title: 'Ochello`s catwalk fiesta 3',
-                date: new Date(),
-                isDebtor: false,
-            },
-            {
-                id: '321a1237',
-                value: '90.00',
-                title: 'Ochello`s catwalk fiesta 4',
-                date: new Date(),
-                isDebtor: false,
-            },
-            {
-                id: '321a128',
-                value: '30.00',
-                title: 'Ochello`s catwalk fiesta 5',
-                date: new Date(),
-                isDebtor: false,
-            },
-
-        ],
-        withdraw: '270.00',
-        totalEarned: '2050.00',
-        thisWeek: '150.00',
-        nextPage: null
-    }).send(res);*/
-});
-
-/**
- * Apply Wallet
- * @return list of wallet
- */
-//______________________Apply Wallet_____________________//
-router.post('/', verifyToken(true),async function (req, res) {
-    const applyWalletSchema = Joi.object().keys({
-        walletId: Joi.string().length(24).required(),
-    });
-    let applyWalletValidation = applyWalletSchema.validate({walletId: req.body.walletId});
-    if (applyWalletValidation.error)
-        return new NZ.Response(applyWalletValidation.error, 'input error.', 400).send(res);
-
-    userEventController.add(req.body.walletId, req.userId)
-        .then(result => {
-            new NZ.Response({status: result.status}).send(res);
-        })
-        .catch(err => {
-            console.error("Wallet Get Catch err:", err)
-            new NZ.Response(null, err.message, 500).send(res);
-        })
-
 });
 
 
