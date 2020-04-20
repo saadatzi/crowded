@@ -106,6 +106,19 @@ TransactionSchema.static({
                     items: {$push: '$$ROOT'},
                 }
             },
+            //Get All UNPAID for withdraw
+            {
+                $lookup: {
+                    from: 'transactions',
+                    pipeline: [
+                        {$match: criteria},
+                        {$match: {situation: "UNPAID"}},
+                        {$group: {_id: null, total: {$sum: "$price"}, count: {$sum: 1}}},
+                        {$project: {_id: 0, total: {$toString: "$total"}, count: 1}},
+                    ],
+                    as: 'getUnpaid'
+                }
+            },
             //Get All Earned
             {
                 $lookup: {
@@ -136,6 +149,7 @@ TransactionSchema.static({
                     _id: 0,
                     nextPage: {$cond: {if: {$gt: [{$size: "$items"}, limit]}, then: page + 1, else: null}},
                     items: {$slice: ["$items", limit]},
+                    withdraw: {$arrayElemAt: ["$getUnpaid", 0]},
                     totalEarned: {$arrayElemAt: ["$getTotal", 0]},
                     thisWeek: {$arrayElemAt: ["$getWeek", 0]}
 
@@ -144,6 +158,7 @@ TransactionSchema.static({
             {
                 $project: {
                     items: 1,
+                    withdraw: 1,
                     totalEarned: 1,
                     thisWeek: 1,
                     nextPage: 1,
