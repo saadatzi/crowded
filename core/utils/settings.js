@@ -53,6 +53,8 @@ module.exports = {
 
 	wallet: {
 		limitPage: 4,
+		withdrawTitle_en: 'Withdraw the wallet',
+		withdrawTitle_ar: 'سحب من المحفظة',
 	},
 
 	constant: {

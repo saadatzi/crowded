@@ -112,7 +112,7 @@ TransactionSchema.static({
                     from: 'transactions',
                     pipeline: [
                         {$match: criteria},
-                        {$match: {situation: "UNPAID"}},
+                        {$match: {situation: "UNPAID", isDebtor: false}},
                         {$group: {_id: null, total: {$sum: "$price"}, count: {$sum: 1}}},
                         {$project: {_id: 0, total: {$toString: "$total"}, count: 1}},
                     ],
@@ -125,6 +125,7 @@ TransactionSchema.static({
                     from: 'transactions',
                     pipeline: [
                         {$match: criteria},
+                        {$match: {isDebtor: false}},
                         {$group: {_id: null, total: {$sum: "$price"}, count: {$sum: 1}}},
                         {$project: {_id: 0, total: {$toString: "$total"}, count: 1}},
                     ],
@@ -137,7 +138,7 @@ TransactionSchema.static({
                     from: 'transactions',
                     pipeline: [
                         {$match: criteria},
-                        {$match: {$expr: {$and: [{$eq: [{$week: new Date()}, {$week: "$createdAt"}]}, {$eq: [{$year: new Date()}, {$year: "$createdAt"}]}]}}},
+                        {$match: {isDebtor: false, $expr: {$and: [{$eq: [{$week: new Date()}, {$week: "$createdAt"}]}, {$eq: [{$year: new Date()}, {$year: "$createdAt"}]}]}}},
                         {$group: {_id: null, total: {$sum: "$price"}, count: {$sum: 1}}},
                         {$project: {_id: 0, total: {$toString: "$total"}, count: 1}},
                     ],
@@ -164,6 +165,23 @@ TransactionSchema.static({
                     nextPage: 1,
                 }
             }
+        ])
+            // .exec()
+            .then(async transactions => transactions[0])
+            .catch(err => console.error("getMyTransaction  Catch", err));
+    },
+
+    /**
+     * List my Transaction unpaid
+     *
+     * @param {Object} userId
+     */
+    getTotalUnpaid: async function (userId) {
+        const criteria = {status: 1, userId: mongoose.Types.ObjectId(userId), situation: "UNPAID", isDebtor: false};
+        return await this.aggregate([
+            {$match: criteria},
+            {$group: {_id: null, total: {$sum: "$price"}, count: {$sum: 1}}},
+            {$project: {_id: 0, total: {$toString: "$total"}, count: 1}},
         ])
             // .exec()
             .then(async transactions => transactions[0])

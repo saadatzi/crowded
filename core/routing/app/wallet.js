@@ -6,7 +6,6 @@ const Joi = require('@hapi/joi');
 
 // Instantiate the Device Model
 const transactionController = require('../../controllers/transaction');
-const userEventController = require('../../controllers/userEvent');
 const userController = require('../../controllers/user');
 const deviceController = require('../../controllers/device');
 const NZ = require('../../utils/nz');
@@ -37,5 +36,30 @@ router.get('/myWallet', verifyToken(true), async function (req, res) {
         })
 });
 
+
+/**
+ * Request withdraw
+ */
+//______________________Set Withdraw Event_____________________//
+router.post('/withdraw', verifyToken(true), async function (req, res) {
+    console.info('API: Wallet Withdraw wallet/init', req.body);
+    if (!mongoose.Types.ObjectId.isValid(req.body.bankId)) {
+        return new NZ.Response({
+            title: 'input error',
+            message: 'bankId must be a valid id'
+        }, 'input error.', 400).send(res);
+    }
+    //ToDo Joi fo Total
+
+    transactionController.requestWithdraw(req.userId, req.body.bankId, req.body.total)
+        .then(withdrawn => {
+            console.info("*** requestWithdraw Status : %j", withdrawn);
+            new NZ.Response(null, 'Submit request withdraw has been successfully').send(res);
+        })
+        .catch(err => {
+            console.error("Wallet Set Withdraw Catch err:", err)
+            new NZ.Response(null, err.message, err.code || 500).send(res);
+        })
+});
 
 module.exports = router;
