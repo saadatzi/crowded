@@ -82,8 +82,8 @@ TransactionSchema.static({
 
         const limit = settings.wallet.limitPage;
 
-        console.log("!!!!!!!! getAllMyEvent userId: ", userId)
-        console.log("!!!!!!!! getAllMyEvent criteria: ", criteria)
+        console.log("!!!!!!!! getMyTransaction userId: ", userId)
+        console.log("!!!!!!!! getMyTransaction criteria: ", criteria)
         return await this.aggregate([
             {$match: criteria},
             {$sort: {createAt: -1}},

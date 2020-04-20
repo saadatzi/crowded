@@ -28,7 +28,7 @@ router.get('/myWallet', verifyToken(true), async function (req, res) {
 
     transactionController.myTransaction(req.userId, req.headers['lang'] ? (req.headers['lang']).toLowerCase() : 'en', req.query.page, req.query.date)
         .then(result => {
-            new NZ.Response(Object.assign(result, {chart: {url: 'https://nizek.com'}})).send(res);
+            new NZ.Response(result ? Object.assign(result, {chart: {url: 'https://nizek.com'}}) : null).send(res);
         })
         .catch(err => {
             console.error("Wallet Get Catch err:", err)
