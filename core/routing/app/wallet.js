@@ -29,15 +29,7 @@ router.get('/myWallet', verifyToken(true), async function (req, res) {
 
     transactionController.myTransaction(req.userId, req.headers['lang'] ? (req.headers['lang']).toLowerCase() : 'en', req.query.page, req.query.date)
         .then(result => {
-            console.info("*** Wallet List.length :", result.length);
-            // console.info("*** Wallet List: ", result);
-            let nextPage = null;
-            if (result.length > settings.wallet.limitPage) {
-                nextPage = page + 1;
-                const x = result.pop();
-                // console.log(">>>>>>>>>>>>>>> x.pop:", x);
-            }
-            new NZ.Response({items: result, nextPage,}).send(res);
+            new NZ.Response(result).send(res);
         })
         .catch(err => {
             console.error("Wallet Get Catch err:", err)

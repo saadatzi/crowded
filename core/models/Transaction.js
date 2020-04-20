@@ -80,7 +80,7 @@ TransactionSchema.static({
         if (dateFilter) criteria.createdAt = {$gte: dateFilter.start, $lt: dateFilter.end};
 
 
-        const limit = settings.event.limitPage;
+        const limit = settings.wallet.limitPage;
 
         console.log("!!!!!!!! getAllMyEvent userId: ", userId)
         console.log("!!!!!!!! getAllMyEvent criteria: ", criteria)
@@ -90,43 +90,68 @@ TransactionSchema.static({
             {$skip: limit * page},
             {$limit: limit + 1},
             {
+                $project: {
+                    _id: 0,
+                    id: "$_id",
+                    title: {$toString: `$title_${lang}`},
+                    price: {$toString: "$price"},
+                    eventDate: {$dateToString: {format: "%Y/%m/%d", date: "$eventDate", timezone: "Asia/Kuwait"}},
+                    isDebtor: 1,
+                    transactionId: 1
+                },
+            },
+            {
                 $group: {
                     _id: null,
                     items: {$push: '$$ROOT'},
-                    totalAmount: {$sum: "$price"},
-                    totalAmountWeek: {$sum: "$price"},
-                    count: {$sum: 1}
-                    // title: {$first: `$title_${lang}`},
-                    // value: {$first: {$toString: "$value"}},
-                    // attendance: {$first: `$attendance`},
-                    // from: {$first: `$from`},
-                    // to: {$first: `$to`},
-                    // userEventStatus: {$first: `$getUserEvents.status`}
                 }
             },
-            // {
-            //     $project: {
-            //         _id: 0,
-            //         items: 1,
-            //         id: "$_id",
-            //         title: {$toString: `$title_${lang}`},
-            //         price: {$toString: "$price"},
-            //         eventDate: {$dateToString: {format: "%Y/%m/%d", date: "$eventDate", timezone: "Asia/Kuwait"}},
-            //         isDebtor: 1,
-            //         transactionId: 1,
-            //         count: 1
-            //     },
-            //     // getUserEvents: 1,
-            //     // userEventStatus: 1
-            //     // _eventIds: 1,
-            // },
-            // {
-            //     $count: "passing_scores"
-            // }
-// {$sort: {id: -1}},
+            //Get All Earned
+            {
+                $lookup: {
+                    from: 'transactions',
+                    pipeline: [
+                        {$match: criteria},
+                        {$group: {_id: null, total: {$sum: "$price"}, count: {$sum: 1}}},
+                        {$project: {_id: 0, total: {$toString: "$total"}, count: 1}},
+                    ],
+                    as: 'getTotal'
+                }
+            },
+            //Get total Earned in current Week
+            {
+                $lookup: {
+                    from: 'transactions',
+                    pipeline: [
+                        {$match: criteria},
+                        {$match: {$expr: {$and: [{$eq: [{$week: new Date()}, {$week: "$createdAt"}]}, {$eq: [{$year: new Date()}, {$year: "$createdAt"}]}]}}},
+                        {$group: {_id: null, total: {$sum: "$price"}, count: {$sum: 1}}},
+                        {$project: {_id: 0, total: {$toString: "$total"}, count: 1}},
+                    ],
+                    as: 'getWeek'
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    nextPage: {$cond: {if: {$gt: [{$size: "$items"}, limit]}, then: page + 1, else: null}},
+                    items: {$slice: ["$items", limit]},
+                    totalEarned: {$arrayElemAt: ["$getTotal", 0]},
+                    thisWeek: {$arrayElemAt: ["$getWeek", 0]}
+
+                }
+            },
+            {
+                $project: {
+                    items: 1,
+                    totalEarned: 1,
+                    thisWeek: 1,
+                    nextPage: 1,
+                }
+            }
         ])
             // .exec()
-            .then(transactions => transactions)
+            .then(async transactions => transactions[0])
             .catch(err => console.error("getMyTransaction  Catch", err));
     },
 
