@@ -14,13 +14,18 @@ const AgentSchema = new Schema({
     status: {type: Number, default: 1},
     role: [{type: Schema.ObjectId, ref: 'Role'}],
     lastIp: String,
+    phone: [
+        {
+            type: String,
+            number: String
+        }
+    ],
     lastLogin: Date,
     lastInteract: Date,
     loginAttempts: {type: Number, required: true, default: 0},
     lockUntil: {type: Number},
     createdAt: {type: Date, default: Date.now},
     updateAt: {type: Date, default: Date.now}
-
 });
 
 AgentSchema.virtual('isLocked').get(function () {

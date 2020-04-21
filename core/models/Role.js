@@ -2,13 +2,14 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const RoleSchema = new Schema({
-    name: String,
+    name: {type: String, unique: true, lowercase: true, required: [true, "can't be blank"]},
     weight: {type: Number, default: 0},
     status: {type: Number, default: 1},
     permissions: [
         {
-            name: {type: String, default: 'all',lowercase: true},// Collection name / Model or ToDo routing
+            name: {type: String, unique: true, default: 'all',lowercase: true, required: [true, "can't be blank"]},// Collection name / Model or ToDo routing
             permission: {type: String, enum: ['CREATE', 'READ', 'UPDATE', 'DELETE', 'ALL'], default: 'READ'},
+            isRout: {type: Boolean, default: false},
         }
     ],
     createdAt: {type: Date, default: Date.now},
