@@ -259,7 +259,7 @@ router.post('/elapsed', verifyToken(true), async function (req, res) {
     if (elapsedJoiValidation.error)
         return new NZ.Response(elapsedJoiValidation.error, 'input error.', 400).send(res);
 
-    userEventController.addElapsed(req.userId, req.body.eventId, req.body.elapsed, req.body.coordinates, req.body.isFinished)
+    userEventController.addElapsed(req.userId, req.body.eventId, req.body.elapsed, req.body.coordinates, req.body.isFinished.toBoolean())
         .then(event => {
             console.info("*** Set Status : %j", event);
             new NZ.Response(null, 'Add attendance').send(res);

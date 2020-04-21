@@ -125,6 +125,12 @@ const ResponsePage = function (items, paginate, total) {
     return new Response(obj);
 };
 
+function strToBool(s) {
+    regex="/^\s*(true|1)\s*$/i"
+    return regex.test(s);
+}
+String.prototype.toBoolean = function() {return strToBool(this)};
+
 module.exports = {
     // generateRandomFolder,
     randomIntInc: (low, high) => {
