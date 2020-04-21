@@ -79,7 +79,7 @@ router.post('/', verifyToken(true), async function (req, res) {
     userEventController.add(req.body.eventId, req.userId)
         .then(result => {
             //ToDo set automatic Approved for Test
-            console.info(">>>>>>>>>>>>>>>>>>>>>***30sec Set Status APPROVED : %j", userEvent);
+            console.info(">>>>>>>>>>>>>>>>>>>>>***30sec Set Status APPROVED : %j", result);
             result.status = "APPROVED";
             result.save();
             new NZ.Response({status: result.status}).send(res);
