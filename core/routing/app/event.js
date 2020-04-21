@@ -151,11 +151,9 @@ router.post('/active', verifyToken(true), async function (req, res) {
         .then(userEvent => {
             console.info("*** Set Status : %j", userEvent);
             //ToDo set automatic Approved for Test
-            setTimeout(() => {
-                console.info(">>>>>>>>>>>>>>>>>>>>>***30sec Set Status APPROVED : %j", userEvent);
-                userEvent.status = "APPROVED";
-                userEvent.save();
-            }, 10000);
+            console.info(">>>>>>>>>>>>>>>>>>>>>***30sec Set Status APPROVED : %j", userEvent);
+            userEvent.status = "APPROVED";
+            userEvent.save();
             new NZ.Response(null, 'Active').send(res);
         })
         .catch(err => {
