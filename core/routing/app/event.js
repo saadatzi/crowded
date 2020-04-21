@@ -78,6 +78,10 @@ router.post('/', verifyToken(true), async function (req, res) {
 
     userEventController.add(req.body.eventId, req.userId)
         .then(result => {
+            //ToDo set automatic Approved for Test
+            console.info(">>>>>>>>>>>>>>>>>>>>>***30sec Set Status APPROVED : %j", userEvent);
+            result.status = "APPROVED";
+            result.save();
             new NZ.Response({status: result.status}).send(res);
         })
         .catch(err => {
@@ -150,10 +154,6 @@ router.post('/active', verifyToken(true), async function (req, res) {
     userEventController.setStatus(req.userId, req.body.eventId, 'ACTIVE')
         .then(userEvent => {
             console.info("*** Set Status : %j", userEvent);
-            //ToDo set automatic Approved for Test
-            console.info(">>>>>>>>>>>>>>>>>>>>>***30sec Set Status APPROVED : %j", userEvent);
-            userEvent.status = "APPROVED";
-            userEvent.save();
             new NZ.Response(null, 'Active').send(res);
         })
         .catch(err => {
