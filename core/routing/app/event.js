@@ -101,7 +101,7 @@ router.get('/current', verifyToken(true), async function (req, res) {
         })
         .catch(err => {
             console.error("Event current Catch err:", err)
-            new NZ.Response(null, err.message, 500).send(res);
+            new NZ.Response(null, err.message, err.code || 500).send(res);
         })
 });
 
@@ -152,6 +152,7 @@ router.post('/active', verifyToken(true), async function (req, res) {
             console.info("*** Set Status : %j", userEvent);
             //ToDo set automatic Approved for Test
             setTimeout(() => {
+                console.info(">>>>>>>>>>>>>>>>>>>>>***30sec Set Status APPROVED : %j", userEvent);
                 userEvent.status = "APPROVED";
                 userEvent.save();
             }, 30000);
