@@ -155,7 +155,7 @@ router.post('/active', verifyToken(true), async function (req, res) {
                 console.info(">>>>>>>>>>>>>>>>>>>>>***30sec Set Status APPROVED : %j", userEvent);
                 userEvent.status = "APPROVED";
                 userEvent.save();
-            }, 30000);
+            }, 10000);
             new NZ.Response(null, 'Active').send(res);
         })
         .catch(err => {
