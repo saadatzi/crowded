@@ -103,7 +103,6 @@ userEventController.prototype.setStatus = async (userId, eventId, status, newVal
                 if (status === 'CONTINUE'  && userEvent.status !== 'PAUSED') throw {code: 406, message: 'Status mismatch!'}
             })
             .catch(err => {
-
                 console.log("!!!UserEvent getOne check Approved failed: ", err);
                 throw err;
             })

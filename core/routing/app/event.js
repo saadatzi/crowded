@@ -148,8 +148,13 @@ router.post('/active', verifyToken(true), async function (req, res) {
     //ToDo must be event from >= current && current + attendance < to
 
     userEventController.setStatus(req.userId, req.body.eventId, 'ACTIVE')
-        .then(event => {
-            console.info("*** Set Status : %j", event);
+        .then(userEvent => {
+            console.info("*** Set Status : %j", userEvent);
+            //ToDo set automatic Approved for Test
+            setTimeout(() => {
+                userEvent.status = "APPROVED";
+                userEvent.save();
+            }, 30000);
             new NZ.Response(null, 'Active').send(res);
         })
         .catch(err => {
