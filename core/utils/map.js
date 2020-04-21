@@ -190,6 +190,10 @@ function get_static_style(styles) {
   
 
 const download = require('image-downloader');
+if (!fs.existsSync(`${settings.media_path}_map`)) {
+    fs.mkdirSync(`${settings.media_path}_map`);
+}
+
 
 const googleStaticImage = (lat, lng) => {
 	return new Promise(resolve => {
