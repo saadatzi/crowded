@@ -20,6 +20,7 @@ const AgentSchema = new Schema({
             number: String
         }
     ],
+    organizationId: {type: Schema.ObjectId, ref: 'Organization', required: [true, "Organization can't be blank"]},
     lastLogin: Date,
     lastInteract: Date,
     loginAttempts: {type: Number, required: true, default: 0},
@@ -208,5 +209,5 @@ AgentSchema.static({
     }
 });
 
-const Organization = mongoose.model('Organization', AgentSchema);
-module.exports = Organization;
+const Agent = mongoose.model('Agent', AgentSchema);
+module.exports = Agent;

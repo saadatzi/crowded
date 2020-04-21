@@ -67,7 +67,6 @@ RoleSchema.static({
      * @param {Object} options
      * @api private
      */
-
     getAll: (options) => {
         const criteria = options.criteria || {};
         const page = options.page || 0;
@@ -84,5 +83,5 @@ RoleSchema.static({
     }
 });
 
-const Role = mongoose.model('Organization', RoleSchema);
+const Role = mongoose.model('Role', RoleSchema);
 module.exports = Role;

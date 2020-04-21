@@ -20,9 +20,9 @@ const roleController = require('./controllers/role');
         }
         roleController.remove({})
             .then(() => {
-                roleController.add(AREA)
+                roleController.add(superAdminRole)
                     .then(role => {
-                        console.log("initDataDB Role>>>>>>>>>>>>>>>>> ", role.length + ' Role has been successfully added!')
+                        console.log("initDataDB Role>>>>>>>>>>>>>>>>> ", role + ' Role has been successfully added!')
                     })
                     .catch(err => {
                         console.error("Role Add Catch err:", err)

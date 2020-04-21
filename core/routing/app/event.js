@@ -145,6 +145,8 @@ router.post('/active', verifyToken(true), async function (req, res) {
         }, 'input error.', 400).send(res);
     }
 
+    //ToDo must be event from >= current && current + attendance < to
+
     userEventController.setStatus(req.userId, req.body.eventId, 'ACTIVE')
         .then(event => {
             console.info("*** Set Status : %j", event);

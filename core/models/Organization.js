@@ -3,7 +3,6 @@ const Schema = mongoose.Schema;
 
 const OrganizationSchema = new Schema({
     name: {type: String, index: true, lowercase: true, unique: true, required: [true, "can't be blank"]},
-    agent: [{type: Schema.ObjectId, ref: 'Agent'}],
     status: {type: Number, default: 1},
     createdAt: {type: Date, default: Date.now},
     updateAt: {type: Date, default: Date.now}

@@ -363,8 +363,6 @@ EventSchema.static({
         }
     };*/
 
-        console.log("!!!!!!!! getAllMyEvent criteria: ", criteria)
-        console.log("!!!!!!!! getAllMyEvent dateFilter: ", dateFilter)
         const limit = settings.event.limitPage;
 
         return await this.aggregate([

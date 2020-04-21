@@ -20,6 +20,7 @@ app.use('/*', (req, res, next) => {
 app.use('/interest', 	require('./interest'));
 app.use('/area', 		require('./area'));
 app.use('/event', 		require('./event'));
+app.use('/role', 		require('./role'));
 
 
 module.exports = app;
