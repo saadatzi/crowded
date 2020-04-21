@@ -19,10 +19,15 @@ const addSchema = Joi.object().keys({
     permissions:    JoiConfigs.array(false),
 });
 
+const permissionSchema = Joi.object().keys({
+    name:       	JoiConfigs.title,
+    permission:    JoiConfigs.title,
+});
 const updateSchema = Joi.object().keys({
     roleId:       	JoiConfigs.isMongoId,
-    permissions:    JoiConfigs.arrayLength(1, 50),
+    permissions:    JoiConfigs.arrayLength(1, 50, permissionSchema),
 });
+
 
 // const updateSchema = Joi.object().keys({
 //     id: JoiConfigs.idInt,
@@ -45,15 +50,15 @@ const updateSchema = Joi.object().keys({
  */
 //______________________Add Role_____________________//
 router.post('/add', joiValidate(addSchema, 0), verifyToken(true), async (req, res) => {
-    console.info('API: Add Area/init %j', {body: req.body});
+    console.info('API: Add Role/init %j', {body: req.body});
 
     roleController.add(req.body)
         .then(role => {
-            new NZ.Response('Role has been successfully added!').send(res);
+            new NZ.Response(null, 'Role has been successfully added!').send(res);
         })
         .catch(err => {
             console.error("Role Add Catch err:", err)
-            res.err(err)
+            res.status(err.code || 500).send(err)
         })
 });
 
@@ -62,17 +67,17 @@ router.post('/add', joiValidate(addSchema, 0), verifyToken(true), async (req, re
  * -update Role in db
  * @return status
  */
-//Role Area_____________________//
+//______________________Update Role_____________________//
 router.post('/update', joiValidate(updateSchema, 0), verifyToken(true), async (req, res) => {
-    console.info('API: Add Area/init %j', {body: req.body});
+    console.info('API: update Role/init %j', {body: req.body});
 
     roleController.update(req.body.roleId, req.body.permissions)
         .then(role => {
-            new NZ.Response('Role has been successfully added!').send(res);
+            new NZ.Response(null, 'Role has been successfully update!').send(res);
         })
         .catch(err => {
             console.error("Role Add Catch err:", err)
-            res.err(err)
+            res.status(err.code || 500).send(err)
         })
 });
 

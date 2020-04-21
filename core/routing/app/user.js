@@ -159,7 +159,7 @@ router.get('/', function (req, res) {
         })
         .catch(err => {
             console.error("Interest Get Catch err:", err)
-            // res.err(err)
+            // res.status(err.code || 500).send(err)
         })
 });
 

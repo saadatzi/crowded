@@ -239,12 +239,12 @@ const roleController = require('./controllers/role');
     //             })
     //             .catch(err => {
     //                 console.error("session Add Catch err:", err)
-    //                 res.err(err)
+    //                 res.status(err.code || 500).send(err)
     //             })*/
     //     })
     //     .catch(err => {
     //         console.error("Interest Add Catch err:", err)
-    //         res.err(err)
+    //         res.status(err.code || 500).send(err)
     //     })
 })();
 

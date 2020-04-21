@@ -126,7 +126,7 @@ const ResponsePage = function (items, paginate, total) {
 };
 
 function strToBool(s) {
-    regex="/^\s*(true|1)\s*$/i"
+    regex=/^\s*(true|1)\s*$/i
     return regex.test(s);
 }
 String.prototype.toBoolean = function() {return strToBool(this)};

@@ -17,9 +17,10 @@ module.exports = {
     timeStamp: 			Joi.date().timestamp().required(),
     percent: 			Joi.number().min(0).max(100).required(),
     html: 				Joi.string().min(1).required(),
-	email: 		 (irRequired = true) => irRequired ?	Joi.string().email().required() : Joi.string().email().allow('').optional(),
+    isMongoId: 			Joi.string().regex(/^[0-9a-fA-F]{24}$/, 'ID is invalid').required(),
+
+    email: 		 (irRequired = true) => irRequired ? Joi.string().email().required() : Joi.string().email().allow('').optional(),
 	description: (irRequired = true) => irRequired ? Joi.string().min(3).max(1023).required() : Joi.string().min(3).max(1023).optional(),
-	array: 		 (irRequired = true) => irRequired ?  Joi.array().required() : Joi.array().optional(),
-	arrayLength: (min, max) => Joi.array().min(min).max(max).required(),
-	isMongoId: 			Joi.string().regex(/^[0-9a-fA-F]{24}$/, 'ID is invalid').required()
+	array: 		 (irRequired = true, items = Joi.any()) => irRequired ? Joi.array().items(items).required() : Joi.array().items(items).optional(),
+	arrayLength: (min, max, items = Joi.any()) => Joi.array().min(min).max(max).items(items).required(),
 };

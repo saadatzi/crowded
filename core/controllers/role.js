@@ -135,7 +135,7 @@ roleController.prototype.update = async (optFilter, newValue) => {
                     return result;
                 })
                 .catch(err => {
-                    console.log("!!!Role Update failed: ", err);
+                    console.log("!!!Role updateMany failed: ", err);
                     throw err;
                 })
         } else {
@@ -145,7 +145,7 @@ roleController.prototype.update = async (optFilter, newValue) => {
                     return result;
                 })
                 .catch(err => {
-                    console.log("!!!Role Update failed: ", err);
+                    console.log("!!!Role Update by id failed: ", err);
                     throw err;
                 })
         }

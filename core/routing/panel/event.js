@@ -68,7 +68,7 @@ router.post('/add', verifyToken(true), async (req, res) => {
         })
         .catch(err => {
             console.error("Event Add Catch err:", err)
-            res.err(err)
+            res.status(err.code || 500).send(err)
         })
 });
 
