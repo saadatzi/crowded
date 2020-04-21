@@ -234,7 +234,6 @@ EventSchema.static({
      * @api private
      */
     getAllMyInterestEvent: async function (options) {
-        console.log("!!!!!!!! getAllMyInterestEvent options: ", options)
         const criteria = options.criteria || {};
         const page = options.page || 0;
         const limit = settings.event.limitPage;
@@ -255,7 +254,6 @@ EventSchema.static({
         } : {$sort: {createAt: -1}};
 
 
-        console.log("!!!!!!!! getAllMyInterestEvent criteria: ", criteria)
         return await this.aggregate([
             // {$lookup: {from: 'areas', localField: 'area', foreignField: `childs._id`, as: 'getArea'}}, //from: collection Name  of mongoDB
             sortNearDate,
@@ -368,8 +366,6 @@ EventSchema.static({
 
         const limit = settings.event.limitPage;
 
-        console.log("!!!!!!!! getAllMyEvent userId: ", userId)
-        console.log("!!!!!!!! getAllMyEvent criteria: ", criteria)
         return await this.aggregate([
             {$match: criteria},
             {

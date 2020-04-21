@@ -2,13 +2,36 @@ const {googleStaticImage} = require('./utils/map')
 const settings = require('./utils/settings');
 const interestController = require('./controllers/interest');
 const areaController = require('./controllers/area');
+const roleController = require('./controllers/role');
 
 
 (async () => {
     console.log("******* single run **********");
     googleStaticImage(35.7485728,51.4080562);
     if (settings.initDataDB) {
-        const AREA = [
+        const superAdminRole = {
+            name: 'superAdmin',
+            permissions: [
+                {
+                    name: 'all',
+                    permission: 'ALL'
+                }
+            ],
+        }
+        roleController.remove({})
+            .then(() => {
+                roleController.add(AREA)
+                    .then(role => {
+                        console.log("initDataDB Role>>>>>>>>>>>>>>>>> ", role.length + ' Role has been successfully added!')
+                    })
+                    .catch(err => {
+                        console.error("Role Add Catch err:", err)
+                    })
+            })
+            .catch(err => {
+                console.error("Role Remove Catch err:", err)
+            })
+        /*const AREA = [
             {
                 name_en: "Hawally",
                 name_ar: "حولي",
@@ -200,7 +223,7 @@ const areaController = require('./controllers/area');
             })
             .catch(err => {
                 console.error("Area Remove Catch err:", err)
-            })
+            })*/
 
 
     }

@@ -1,25 +1,16 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const UserSchema = new Schema({
-    email: {type: String, index: true, lowercase: true, unique: true, required: [true, "can't be blank"]},
-    interests:  [{type: Schema.Types.ObjectId, ref: 'Interest'}],
-    firstname: String,
-    lastname: String,
-    image: String,
-    sex: Number,
-    birthDate: Date,
-    phone: String,
-    nationality: String,
-    salt: String,
-    password: String,
-    IBAN: String,
-    civilId: String,
-    profilePicture: String,
+const RoleSchema = new Schema({
+    name: String,
+    weight: {type: Number, default: 0},
     status: {type: Number, default: 1},
-    lastIp: String,
-    lastLogin: Date,
-    lastInteract: Date,
+    permissions: [
+        {
+            name: {type: String, default: 'all',lowercase: true},// Collection name / Model or ToDo routing
+            permission: {type: String, enum: ['CREATE', 'READ', 'UPDATE', 'DELETE', 'ALL'], default: 'READ'},
+        }
+    ],
     createdAt: {type: Date, default: Date.now},
     updateAt: {type: Date, default: Date.now}
 });
@@ -28,7 +19,7 @@ const UserSchema = new Schema({
  * Pre-remove hook
  */
 
-UserSchema.pre('remove', function (next) {
+RoleSchema.pre('remove', function (next) {
     //ToDo pre-remove required...
     next();
 });
@@ -36,14 +27,14 @@ UserSchema.pre('remove', function (next) {
 /**
  * Methods
  */
-UserSchema.method({
+RoleSchema.method({
     //ToDo method need... this.model('Interest')
 });
 
 /**
  * Statics
  */
-UserSchema.static({
+RoleSchema.static({
 
     /**
      * Find User by id
@@ -51,10 +42,11 @@ UserSchema.static({
      * @param {ObjectId} _id
      * @api private
      */
-    getById: function(_id) {
+    getById: function (_id) {
         return this.findById({_id})
-            .then(device =>  device)
-            .catch(err => console.log("!!!!!!!!User getById catch err: ", err))},
+            .then(device => device)
+            .catch(err => console.log("!!!!!!!!User getById catch err: ", err))
+    },
 
     /**
      * Find use by email
@@ -91,5 +83,5 @@ UserSchema.static({
     }
 });
 
-const User = mongoose.model('User', UserSchema);
-module.exports = User;
+const Role = mongoose.model('Organization', RoleSchema);
+module.exports = Role;

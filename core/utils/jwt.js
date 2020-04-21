@@ -10,7 +10,7 @@ const privateKEY = fs.readFileSync(__dirname + '/private.key', 'utf8');
 const publicKEY = fs.readFileSync(__dirname + '/public.key', 'utf8');
 const tokenOption = {
     issuer: "Authorization/Resource/Nizek server",
-    subject: "m.hejazi@nizek.com",
+    subject: "crowded",
     algorithm: "RS256"
     // expiresIn: "30d",
 };

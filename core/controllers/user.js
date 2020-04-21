@@ -46,7 +46,6 @@ userController.prototype.add = async (newUser) => {
  * @return User
  */
 userController.prototype.get = async (optFilter, type = 'email') => {
-    console.log("***User get by Id optFilter 2: ", optFilter);
     if (!optFilter || optFilter instanceof Object) { //newUser instanceof Array
         return await User.getAll(optFilter)
             .then(result => {
@@ -66,12 +65,8 @@ userController.prototype.get = async (optFilter, type = 'email') => {
                     throw err;
                 })
         } else {
-            console.log("***User get by Id optFilter 3: ", optFilter);
             return await User.getById(optFilter)
-                .then(result => {
-                    console.log(`***User get by id ${optFilter} result: `, result);
-                    return result;
-                })
+                .then(result => result)
                 .catch(err => {
                     console.log("!!!User get failed: ", err);
                     throw err;

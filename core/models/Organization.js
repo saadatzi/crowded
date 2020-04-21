@@ -1,25 +1,10 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const UserSchema = new Schema({
-    email: {type: String, index: true, lowercase: true, unique: true, required: [true, "can't be blank"]},
-    interests:  [{type: Schema.Types.ObjectId, ref: 'Interest'}],
-    firstname: String,
-    lastname: String,
-    image: String,
-    sex: Number,
-    birthDate: Date,
-    phone: String,
-    nationality: String,
-    salt: String,
-    password: String,
-    IBAN: String,
-    civilId: String,
-    profilePicture: String,
+const OrganizationSchema = new Schema({
+    name: {type: String, index: true, lowercase: true, unique: true, required: [true, "can't be blank"]},
+    agent: [{type: Schema.ObjectId, ref: 'Agent'}],
     status: {type: Number, default: 1},
-    lastIp: String,
-    lastLogin: Date,
-    lastInteract: Date,
     createdAt: {type: Date, default: Date.now},
     updateAt: {type: Date, default: Date.now}
 });
@@ -28,7 +13,7 @@ const UserSchema = new Schema({
  * Pre-remove hook
  */
 
-UserSchema.pre('remove', function (next) {
+OrganizationSchema.pre('remove', function (next) {
     //ToDo pre-remove required...
     next();
 });
@@ -36,14 +21,14 @@ UserSchema.pre('remove', function (next) {
 /**
  * Methods
  */
-UserSchema.method({
+OrganizationSchema.method({
     //ToDo method need... this.model('Interest')
 });
 
 /**
  * Statics
  */
-UserSchema.static({
+OrganizationSchema.static({
 
     /**
      * Find User by id
@@ -91,5 +76,5 @@ UserSchema.static({
     }
 });
 
-const User = mongoose.model('User', UserSchema);
-module.exports = User;
+const Organization = mongoose.model('Organization', OrganizationSchema);
+module.exports = Organization;
