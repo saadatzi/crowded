@@ -5,7 +5,7 @@ const jwtRun = require('../../utils/jwt')
 // Instantiate the Device Model
 const agentController = require('../../controllers/agent');
 const NZ = require('../../utils/nz');
-const {verifyToken} = require('../../utils/jwt');
+const {sign, verifyToken} = require('../../utils/jwt');
 
 const Joi = require('@hapi/joi');
 const JoiConfigs = require('./../joiConfigs');
@@ -35,6 +35,51 @@ const updateSchema = Joi.object().keys({
     lastIp:         JoiConfigs.strOptional,
     call:           JoiConfigs.array(false, callSchema),
     organizationId: JoiConfigs.isMongoId
+});
+
+const loginSchema = Joi.object().keys({
+    email:          JoiConfigs.email(),
+    password:       JoiConfigs.password,
+});
+
+/**
+ *  login Panel
+ */
+//______________________Login Panel_____________________//
+router.post('/login', joiValidate(loginSchema, 0), async (req, res) => {
+    console.info('API: Login Panel User/init %j', {body: req.body});
+
+    agentController.auth(req.body.email, req.body.password)
+        .then(user => {
+            console.error("User Login Panel user:", user);
+            // const newToken = sign({deviceId: req.deviceId, userId: user._id});
+            new NZ.Response(user).send(res);
+
+        })
+        .catch(err => {
+            console.log('!!!! user login Panel catch err: ', err);
+            new NZ.Response(null, err.message, err.code || 500).send(res);
+        });
+});
+
+/**
+ *  logout Panel
+ */
+//______________________Logout_____________________//
+router.get('/logout', verifyToken(true), async (req, res) => {
+    console.info('API: logout Panel User/init');
+    const newToken = sign({deviceId: req.deviceId});
+    deviceController.update(req.deviceId, {userId: null, token: newToken, updateAt: Date.now()})
+        .then(device => {
+            new NZ.Response({
+                access_token: newToken,
+                access_type: 'public'
+            }).send(res);
+        })
+        .catch(err => {
+            console.log('!!!! user logout Panel catch ert: ', err);
+            new NZ.Response(null, err.message, 400).send(res);
+        });
 });
 
 

@@ -60,5 +60,5 @@ router.put('/update', joiValidate(updateSchema, 0), verifyToken(true), async (re
             new NZ.Response(null, err.message, err.code || 500).send(res);
         })
 });
-router.use('/agent', 		require('./agent'));
+
 module.exports = router;

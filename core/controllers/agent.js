@@ -4,7 +4,30 @@
 
 let Agent = require('../models/Agent');
 
-const agentController = function () {};
+const agentController = function () {
+};
+
+/**
+ * Login User Panel
+ *
+ * @param {String} email
+ * @param {String} pass
+ *
+ * @return {Agent} agent
+ */
+agentController.prototype.auth = async (email, pass) => {
+
+    return await Agent.getAuthenticated(email, pass)
+        .then(agent => {
+            console.log("***Login Agent success agent", agent);
+            return agent;
+        })
+        .catch(err => {
+            console.log("!!!Login Agent failed: ", err);
+            throw err;
+        })
+};
+
 
 /**
  * Add new Agent

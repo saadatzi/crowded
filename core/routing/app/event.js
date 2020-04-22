@@ -203,7 +203,7 @@ router.post('/continue', verifyToken(true), async function (req, res) {
     userEventController.setStatus(req.userId, req.body.eventId, 'CONTINUE')
         .then(event => {
             console.info("*** Set Status : %j", event);
-            new NZ.Response(null, 'PAUSED').send(res);
+            new NZ.Response(null, 'CONTINUE').send(res);
         })
         .catch(err => {
             console.error("Event Set CONTINUE Catch err:", err)

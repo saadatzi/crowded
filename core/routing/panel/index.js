@@ -12,7 +12,7 @@ app.use('/area', 		require('./area'));
 app.use('/event', 		require('./event'));
 app.use('/role', 		require('./role'));
 app.use('/org', 		require('./organization'));
-// app.use('/agent', 		require('./agent'));
+app.use('/agent', 		require('./agent'));
 
 
 module.exports = app;

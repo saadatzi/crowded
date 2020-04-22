@@ -25,6 +25,7 @@ const UserEventSchema = new Schema({
 }, {timestamps: true});
 UserEventSchema.index({userId: 1, eventId: 1}, {unique: true});
 
+
 /**
  * Pre-remove hook
  */
