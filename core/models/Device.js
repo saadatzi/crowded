@@ -19,9 +19,7 @@ const DeviceSchema = new Schema({
     env: String,
     debug: {type: Number, default: 0},
     lastInteract: Date,
-    createAt: {type: Date, default: Date.now},
-    updateAt: {type: Date, default: Date.now},
-});
+}, {timestamps: true});
 
 /**
  * Pre-remove hook

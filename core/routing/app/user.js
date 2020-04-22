@@ -159,7 +159,7 @@ router.get('/', function (req, res) {
         })
         .catch(err => {
             console.error("Interest Get Catch err:", err)
-            // res.status(err.code || 500).send(err)
+            // new NZ.Response(null, res.message, err.code || 500).send(res);
         })
 });
 

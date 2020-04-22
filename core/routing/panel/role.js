@@ -29,20 +29,6 @@ const updateSchema = Joi.object().keys({
 });
 
 
-// const updateSchema = Joi.object().keys({
-//     id: JoiConfigs.idInt,
-//     name_en:       	JoiConfigs.title,
-//     name_ar:       	JoiConfigs.title,
-//     about_en: 	   	JoiConfigs.description,
-//     about_ar:      	JoiConfigs.description,
-//     categories:		JoiConfigs.idArray,
-//     area_id:  		JoiConfigs.idInt,
-//     address_en:		JoiConfigs.description,
-//     address_ar:		JoiConfigs.description,
-//     map_lat:		JoiConfigs.location,
-//     map_lng:		JoiConfigs.location
-// });
-
 /**
  *  Add Role
  * -add Role in db
@@ -58,7 +44,7 @@ router.post('/add', joiValidate(addSchema, 0), verifyToken(true), async (req, re
         })
         .catch(err => {
             console.error("Role Add Catch err:", err)
-            res.status(err.code || 500).send(err)
+            new NZ.Response(null, err.message, err.code || 500).send(res);
         })
 });
 
@@ -68,16 +54,16 @@ router.post('/add', joiValidate(addSchema, 0), verifyToken(true), async (req, re
  * @return status
  */
 //______________________Update Role_____________________//
-router.post('/update', joiValidate(updateSchema, 0), verifyToken(true), async (req, res) => {
+router.put('/update', joiValidate(updateSchema, 0), verifyToken(true), async (req, res) => {
     console.info('API: update Role/init %j', {body: req.body});
 
     roleController.update(req.body.roleId, req.body.permissions)
         .then(role => {
-            new NZ.Response(null, 'Role has been successfully update!').send(res);
+            new NZ.Response(null, role ? 'Role has been successfully update!' : 'Not found!', role ? 200 : 404 ).send(res);
         })
         .catch(err => {
-            console.error("Role Add Catch err:", err)
-            res.status(err.code || 500).send(err)
+            console.error("Role update Catch err:", err)
+            new NZ.Response(null, err.message, err.code || 500).send(res);
         })
 });
 

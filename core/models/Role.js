@@ -11,10 +11,8 @@ const RoleSchema = new Schema({
             permission: {type: String, enum: ['CREATE', 'READ', 'UPDATE', 'DELETE', 'ALL'], default: 'READ'},
             isRout: {type: Boolean, default: false},
         }
-    ],
-    createdAt: {type: Date, default: Date.now},
-    updateAt: {type: Date, default: Date.now}
-});
+    ]
+}, {timestamps: true});
 
 /**
  * Pre-remove hook

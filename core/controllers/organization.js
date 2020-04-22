@@ -31,6 +31,7 @@ organizationController.prototype.add = async (newOrganization) => {
             })
             .catch(err => {
                 console.log("!!!Organization save failed: ", err);
+                if (err.code === 11000) throw {message: "The entered title is duplicate!", code: 424};
                 throw err;
             })
     }

@@ -11,7 +11,7 @@ const userEventController = function () {
 };
 
 /**
- * Add new UserEvent
+ * Add new UserEvent => Apply
  *
  * @param {ObjectId} eventId
  * @param {ObjectId} userId
@@ -31,6 +31,7 @@ userEventController.prototype.add = async (eventId, userId) => {
         })
         .catch(err => {
             console.log("!!!UserEvent save failed: ", err);
+            if (err.code === 11000) throw {message: "You have already registered for this event", code: 424};
             throw err;
         })
 };

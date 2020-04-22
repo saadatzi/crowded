@@ -14,10 +14,10 @@ const AgentSchema = new Schema({
     status: {type: Number, default: 1},
     role: [{type: Schema.ObjectId, ref: 'Role'}],
     lastIp: String,
-    phone: [
+    call: [
         {
             type: String,
-            number: String
+            value: String
         }
     ],
     organizationId: {type: Schema.ObjectId, ref: 'Organization', required: [true, "Organization can't be blank"]},
@@ -25,9 +25,7 @@ const AgentSchema = new Schema({
     lastInteract: Date,
     loginAttempts: {type: Number, required: true, default: 0},
     lockUntil: {type: Number},
-    createdAt: {type: Date, default: Date.now},
-    updateAt: {type: Date, default: Date.now}
-});
+}, {timestamps: true});
 
 AgentSchema.virtual('isLocked').get(function () {
     // check for a future lockUntil timestamp

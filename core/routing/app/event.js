@@ -86,7 +86,7 @@ router.post('/', verifyToken(true), async function (req, res) {
         })
         .catch(err => {
             console.error("Event Get Catch err:", err)
-            new NZ.Response(null, err.message, 500).send(res);
+            new NZ.Response(null, err.message, err.code || 500).send(res);
         })
 
 });

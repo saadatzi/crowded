@@ -2,11 +2,9 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const OrganizationSchema = new Schema({
-    name: {type: String, index: true, lowercase: true, unique: true, required: [true, "can't be blank"]},
+    name: {type: String, lowercase: true, unique: true, required: [true, "can't be blank"]},
     status: {type: Number, default: 1},
-    createdAt: {type: Date, default: Date.now},
-    updateAt: {type: Date, default: Date.now}
-});
+}, {timestamps: true});
 
 /**
  * Pre-remove hook

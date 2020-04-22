@@ -3,8 +3,9 @@ const Joi = require('@hapi/joi');
 
 module.exports = {
     title: 				Joi.string().min(3).max(255).required(),
+    strOptional: 		Joi.string().optional(),
     resource_icon: 		Joi.string().max(255).required(),
-    password: 			Joi.string().min(6).max(63).required(),
+    password: 			Joi.string().regex(/^[a-zA-Z0-9(<!@#$%&*^`~'"|+=\-\\_/?.,>)]{4,63}$/).required(),
     boolInt: 			Joi.number().integer().min(0).max(1).required(),
     booleanVal: 		Joi.boolean().required(),
     datetime: 			Joi.date().required(),
