@@ -79,5 +79,29 @@ module.exports = {
             }
 
         }
+    },
+    verifyTokenPanel: () => {
+        return async (req, res, next) => {
+            let token = req.headers['authorization']; // Express headers are auto converted to lowercase
+            if (token && token.startsWith('Bearer ')) {
+                // Remove Bearer from string
+                token = token.slice(7, token.length);
+            }
+            if (token) {
+                try {
+                    let tokenObj = jwt.verify(token, publicKEY, tokenOption);
+                    if (!tokenObj) return new NZ.Response(null, 'invalid token ', 401).send(res);
+                    req.userId = tokenObj.userId;
+                    return next();
+                } catch (err) {
+                    console.error('!!!Verify Token not have Token: Authorization Failed!!! => API: %s', err);
+                    return new NZ.Response(null, 'invalid token err: ' + err.message, 403).send(res);
+                }
+            } else {
+                console.error('!!!Verify Token not have Token: Authorization Failed!!! => API: %s', req.originalUrl);
+                return new NZ.Response(null, 'invalid token', 403).send(res);
+            }
+
+        }
     }
 };

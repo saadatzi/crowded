@@ -7,7 +7,7 @@ const roleController = require('../../controllers/role');
 const userController = require('../../controllers/user');
 const deviceController = require('../../controllers/device');
 const NZ = require('../../utils/nz');
-const {verifyToken} = require('../../utils/jwt');
+const {verifyTokenPanel} = require('../../utils/jwt');
 
 const Joi = require('@hapi/joi');
 const JoiConfigs = require('./../joiConfigs');
@@ -35,7 +35,7 @@ const updateSchema = Joi.object().keys({
  * @return status
  */
 //______________________Add Role_____________________//
-router.post('/add', joiValidate(addSchema, 0), verifyToken(true), async (req, res) => {
+router.post('/add', joiValidate(addSchema, 0), verifyTokenPanel(), async (req, res) => {
     console.info('API: Add Role/init %j', {body: req.body});
 
     roleController.add(req.body)
@@ -54,7 +54,7 @@ router.post('/add', joiValidate(addSchema, 0), verifyToken(true), async (req, re
  * @return status
  */
 //______________________Update Role_____________________//
-router.put('/update', joiValidate(updateSchema, 0), verifyToken(true), async (req, res) => {
+router.put('/update', joiValidate(updateSchema, 0), verifyTokenPanel(), async (req, res) => {
     console.info('API: update Role/init %j', {body: req.body});
 
     roleController.update(req.body.roleId, req.body.permissions)

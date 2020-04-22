@@ -24,7 +24,7 @@ const AgentSchema = new Schema({
     lastLogin: Date,
     lastInteract: Date,
     loginAttempts: {type: Number, required: true, default: 0},
-    lockUntil: {type: Number},
+    lockUntil: Number,
 }, {timestamps: true});
 
 AgentSchema.virtual('isLocked').get(function () {
@@ -70,19 +70,24 @@ AgentSchema.pre('save', function (next) {
  * Methods
  */
 AgentSchema.method({
-    comparePassword: function (candidatePassword, cb) {
-        bcrypt.compare(candidatePassword, this.password, function (err, isMatch) {
-            if (err) return cb(err);
-            cb(null, isMatch);
-        });
+    comparePassword: async function (candidatePassword) {
+        console.log("!!!!!!!!Agent comparePassword candidatePassword: ", candidatePassword);
+        return await bcrypt.compare(candidatePassword, this.password)
+            .then(isMatch => isMatch)
+            .catch(err => console.log("!!!!!!!!Agent getById catch err: ", err));
     },
-    incLoginAttempts: function (cb) {
-        // if we have a previous lock that has expired, restart at 1
+    incLoginAttempts: async function () {
+        //ToDo add log Attempts to Array{ip, time, ...}
+        //// if we have a previous lock that has expired, restart at 1
         if (this.lockUntil && this.lockUntil < Date.now()) {
-            return this.update({
+            return this.updateOne({
                 $set: {loginAttempts: 1},
                 $unset: {lockUntil: 1}
-            }, cb);
+            })
+                .catch(err => {
+                    console.error("!!!!!!!!Agent incLoginAttempts lock expired catch err: ", err);
+                    throw err;
+                });
         }
         // otherwise we're incrementing
         var updates = {$inc: {loginAttempts: 1}};
@@ -90,16 +95,14 @@ AgentSchema.method({
         if (this.loginAttempts + 1 >= MAX_LOGIN_ATTEMPTS && !this.isLocked) {
             updates.$set = {lockUntil: Date.now() + LOCK_TIME};
         }
-        return this.update(updates, cb);
+        return this.updateOne(updates)
+            .catch(err => {
+                console.error("!!!!!!!!Agent incLoginAttempts catch err: ", err);
+                throw err;
+            });
     }
 });
 
-// expose enum on the model, and provide an internal convenience reference
-const reasons = AgentSchema.statics.failedLogin = {
-    NOT_FOUND: 0,
-    PASSWORD_INCORRECT: 1,
-    MAX_ATTEMPTS: 2
-};
 
 /**
  * Statics
@@ -123,52 +126,79 @@ AgentSchema.static({
      *
      * @param {String} email
      * @param {String} password
-     * @param {function} cb
      * @api private
      */
-    getAuthenticated: function (email, password, cb) {
+
+    getAuthenticated: async function(email, password) {
+        return await this.findOne({email: email})
+            .then(async user => {
+                // make sure the user exists
+                if (!user) {
+                    throw {code: 404, message: "User not found!"}
+                }
+
+                // check if the account is currently locked
+                if (user.isLocked) {
+                    // just increment login attempts if account is already locked
+                    return await user.incLoginAttempts()
+                        .then(inc => {
+                            throw {code: 401, message: "Max Attempts!"}
+                        })
+                        .catch(err => {
+                            console.log("!!!!!!!!Agent getById catch err: ", err);
+                            throw err;
+                        })
+                }
+
+                // test for a matching password
+                return await user.comparePassword(password)
+                    .then(async isMatch => {
+                        // check if the password was a match
+                        if (isMatch) {
+                            // if there's no lock or failed attempts, just return the user
+                            if (!user.loginAttempts && !user.lockUntil) return user;
+                            // reset attempts and lock info
+                            return await user.updateOne({$set: {loginAttempts: 0}, $unset: {lockUntil: 1}})
+                                .then(resUpdate => {
+                                    return user;
+                                })
+                                .catch(err => {
+                                    console.error("!!!!!!!!Agent getById catch err: ", err);
+                                    throw err;
+                                })
+
+                        }
+
+                        // password is incorrect, so increment login attempts before responding
+                        await user.incLoginAttempts()
+                            .then(inc => {
+                                throw {code: 401, message: "Password is incorrect!"}
+                            })
+                            .catch(err => {
+                                console.log("!!!!!!!!Agent getById catch err: ", err);
+                                throw err;
+                            })
+
+                        })
+                    .catch(err => {
+                        console.log("!!!!!!!!Agent getById catch err: ", err);
+                        throw err;
+                    })
+
+            })
+            .catch(err => {
+                console.log("!!!!!!!! getAuthenticated catch err: ", err)
+                throw err;
+            });
+    },
+
+
+
+        function (email, password, cb) {
         this.findOne({email: email}, function (err, user) {
             if (err) return cb(err);
 
-            // make sure the user exists
-            if (!user) {
-                return cb(null, null, reasons.NOT_FOUND);
-            }
 
-            // check if the account is currently locked
-            if (user.isLocked) {
-                // just increment login attempts if account is already locked
-                return user.incLoginAttempts(function (err) {
-                    if (err) return cb(err);
-                    return cb(null, null, reasons.MAX_ATTEMPTS);
-                });
-            }
-
-            // test for a matching password
-            user.comparePassword(password, function (err, isMatch) {
-                if (err) return cb(err);
-
-                // check if the password was a match
-                if (isMatch) {
-                    // if there's no lock or failed attempts, just return the user
-                    if (!user.loginAttempts && !user.lockUntil) return cb(null, user);
-                    // reset attempts and lock info
-                    var updates = {
-                        $set: {loginAttempts: 0},
-                        $unset: {lockUntil: 1}
-                    };
-                    return user.update(updates, function (err) {
-                        if (err) return cb(err);
-                        return cb(null, user);
-                    });
-                }
-
-                // password is incorrect, so increment login attempts before responding
-                user.incLoginAttempts(function (err) {
-                    if (err) return cb(err);
-                    return cb(null, null, reasons.PASSWORD_INCORRECT);
-                });
-            });
         });
     },
 

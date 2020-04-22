@@ -10,6 +10,7 @@ const userController = require('../../controllers/user');
 const deviceController = require('../../controllers/device');
 const NZ = require('../../utils/nz');
 const {uploader} = require('../../utils/fileManager');
+const {verifyTokenPanel} = require('../../utils/jwt');
 
 /**
  *  Add Interest
@@ -18,7 +19,7 @@ const {uploader} = require('../../utils/fileManager');
  * @return status
  */
 //______________________Add Interest_____________________//
-router.put('/add', uploader, async (req, res) => {
+router.put('/add', verifyTokenPanel(), uploader, async (req, res) => {
     console.info('API: Add interest/init %j', {body: req.body});
 
     if (! req._uploadPath || !req._uploadFilename) {
@@ -59,4 +60,23 @@ router.put('/add', uploader, async (req, res) => {
         })
 });
 
+
+/**
+ * Get Interest
+ * @return list of interest
+ */
+//______________________Get Interest_____________________//
+router.get('/', verifyTokenPanel(), async function (req, res) {
+    console.info('API: Get interest/init');
+
+    interestController.get({selected: [], lang: req.headers['lang'] ? (req.headers['lang']).toLowerCase() : 'en'})
+        .then(result => {
+            console.info("*** interest List : %j", result);
+            new NZ.Response({items:  result,}).send(res);
+        })
+        .catch(err => {
+            console.error("Interest Get Catch err:", err)
+            new NZ.Response(null, err.message, 500).send(res);
+        })
+});
 module.exports = router;
