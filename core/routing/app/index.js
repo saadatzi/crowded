@@ -142,7 +142,8 @@ app.use('/interest', 	    require('./interest'));
 app.use('/user', 		    require('./user'));
 app.use('/event', 		    require('./event'));
 app.use('/wallet', 		    require('./wallet'));
-app.use('/bank-account', 	require('./bankAccount'));
+app.use('/bankAccount', 	require('./bankAccount'));
+app.use('/bankName', 	    require('./bankName'));
 
 
 
