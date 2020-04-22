@@ -70,19 +70,24 @@ AgentSchema.pre('save', function (next) {
  * Methods
  */
 AgentSchema.method({
-    comparePassword: async function (candidatePassword, cb) {
-        bcrypt.compare(candidatePassword, this.password, function (err, isMatch) {
-            if (err) return cb(err);
-            cb(null, isMatch);
-        });
+    comparePassword: async function (candidatePassword) {
+        console.log("!!!!!!!!Agent comparePassword candidatePassword: ", candidatePassword);
+        return await bcrypt.compare(candidatePassword, this.password)
+            .then(isMatch => isMatch)
+            .catch(err => console.log("!!!!!!!!Agent getById catch err: ", err));
     },
-    incLoginAttempts: async function (cb) {
-        // if we have a previous lock that has expired, restart at 1
+    incLoginAttempts: async function () {
+        //ToDo add log Attempts to Array{ip, time, ...}
+        //// if we have a previous lock that has expired, restart at 1
         if (this.lockUntil && this.lockUntil < Date.now()) {
             return this.updateOne({
                 $set: {loginAttempts: 1},
                 $unset: {lockUntil: 1}
-            }, cb);
+            })
+                .catch(err => {
+                    console.error("!!!!!!!!Agent incLoginAttempts lock expired catch err: ", err);
+                    throw err;
+                });
         }
         // otherwise we're incrementing
         var updates = {$inc: {loginAttempts: 1}};
@@ -90,16 +95,14 @@ AgentSchema.method({
         if (this.loginAttempts + 1 >= MAX_LOGIN_ATTEMPTS && !this.isLocked) {
             updates.$set = {lockUntil: Date.now() + LOCK_TIME};
         }
-        return this.updateOne(updates, cb);
+        return this.updateOne(updates)
+            .catch(err => {
+                console.error("!!!!!!!!Agent incLoginAttempts catch err: ", err);
+                throw err;
+            });
     }
 });
 
-// expose enum on the model, and provide an internal convenience reference
-const reasons = AgentSchema.statics.failedLogin = {
-    NOT_FOUND: "User not found!",
-    PASSWORD_INCORRECT: "Password is incorrect!",
-    MAX_ATTEMPTS: "Max Attempts!"
-};
 
 /**
  * Statics
@@ -126,50 +129,58 @@ AgentSchema.static({
      * @api private
      */
 
-    getAuthenticated: async function(email, password,) {
+    getAuthenticated: async function(email, password) {
         return await this.findOne({email: email})
             .then(async user => {
-                console.log(">>>>>>>>>>>>1 Agent Auth user", user);
                 // make sure the user exists
                 if (!user) {
-                    throw {code: 404, message: reasons.NOT_FOUND}
+                    throw {code: 404, message: "User not found!"}
                 }
 
                 // check if the account is currently locked
-                console.log(">>>>>>>>>>>>2 Agent Auth user.isLocked", user.isLocked);
                 if (user.isLocked) {
                     // just increment login attempts if account is already locked
-                    return user.incLoginAttempts(function (err) {
-                        if (err) throw err;
-                        throw {code: 401, message: reasons.MAX_ATTEMPTS}
-                    });
+                    return await user.incLoginAttempts()
+                        .then(inc => {
+                            throw {code: 401, message: "Max Attempts!"}
+                        })
+                        .catch(err => {
+                            console.log("!!!!!!!!Agent getById catch err: ", err);
+                            throw err;
+                        })
                 }
 
                 // test for a matching password
-                await user.comparePassword(password, async function (err, isMatch) {
-                    if (err) throw err;
-                    console.log(">>>>>>>>>>>>3 Agent Auth isMatch", isMatch);
-                    // check if the password was a match
-                    if (isMatch) {
-                        // if there's no lock or failed attempts, just return the user
-                        if (!user.loginAttempts && !user.lockUntil) return user;
-                        // reset attempts and lock info
-                        var updates = {
-                            $set: {loginAttempts: 0},
-                            $unset: {lockUntil: 1}
-                        };
-                        return user.updateOne(updates, function (err) {
-                            if (err) throw err;
-                            return user
-                        });
-                    }
+                return await user.comparePassword(password)
+                    .then(async isMatch => {
+                        // check if the password was a match
+                        if (isMatch) {
+                            // if there's no lock or failed attempts, just return the user
+                            if (!user.loginAttempts && !user.lockUntil) return user;
+                            // reset attempts and lock info
+                            return await user.updateOne({$set: {loginAttempts: 0}, $unset: {lockUntil: 1}})
+                                .catch(err => {
+                                    console.error("!!!!!!!!Agent getById catch err: ", err);
+                                    throw err;
+                                })
+                            return user;
+                        }
 
-                    // password is incorrect, so increment login attempts before responding
-                    await user.incLoginAttempts(function (err) {
-                        if (err) throw err;
-                        throw {code: 401, message: reasons.PASSWORD_INCORRECT}
-                    });
-                });
+                        // password is incorrect, so increment login attempts before responding
+                        await user.incLoginAttempts()
+                            .then(inc => {
+                                throw {code: 401, message: "Password is incorrect!"}
+                            })
+                            .catch(err => {
+                                console.log("!!!!!!!!Agent getById catch err: ", err);
+                                throw err;
+                            })
+
+                        })
+                    .catch(err => {
+                        console.log("!!!!!!!!Agent getById catch err: ", err);
+                        throw err;
+                    })
 
             })
             .catch(err => {

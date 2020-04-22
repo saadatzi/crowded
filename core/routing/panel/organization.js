@@ -5,7 +5,7 @@ const jwtRun = require('../../utils/jwt')
 // Instantiate the Device Model
 const organizationController = require('../../controllers/organization');
 const NZ = require('../../utils/nz');
-const {verifyToken} = require('../../utils/jwt');
+const {verifyTokenPanel} = require('../../utils/jwt');
 
 const Joi = require('@hapi/joi');
 const JoiConfigs = require('./../joiConfigs');
@@ -29,7 +29,7 @@ const updateSchema = Joi.object().keys({
  * @return status
  */
 //______________________Add Organization_____________________//
-router.post('/add', joiValidate(addSchema, 0), verifyToken(true), async (req, res) => {
+router.post('/add', joiValidate(addSchema, 0), verifyTokenPanel(), async (req, res) => {
     console.info('API: Add Organization/init %j', {body: req.body});
 
     organizationController.add(req.body)
@@ -48,7 +48,7 @@ router.post('/add', joiValidate(addSchema, 0), verifyToken(true), async (req, re
  * @return status
  */
 //______________________Update Organization_____________________//
-router.put('/update', joiValidate(updateSchema, 0), verifyToken(true), async (req, res) => {
+router.put('/update', joiValidate(updateSchema, 0), verifyTokenPanel(), async (req, res) => {
     console.info('API: update Organization/init %j', {body: req.body});
 
     organizationController.update(req.body.organizationId, req.body.permissions)

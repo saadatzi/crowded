@@ -9,7 +9,7 @@ const areaController = require('../../controllers/area');
 const userController = require('../../controllers/user');
 const deviceController = require('../../controllers/device');
 const NZ = require('../../utils/nz');
-const {verifyToken} = require('../../utils/jwt');
+const {verifyTokenPanel} = require('../../utils/jwt');
 
 /**
  *  Add Area
@@ -17,7 +17,7 @@ const {verifyToken} = require('../../utils/jwt');
  * @return status
  */
 //______________________Add Area_____________________//
-router.post('/add', verifyToken(true), async (req, res) => {
+router.post('/add', verifyTokenPanel(), async (req, res) => {
     console.info('API: Add Area/init %j', {body: req.body});
 
     //ToDo array only tmp
