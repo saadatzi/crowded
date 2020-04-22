@@ -1,44 +1,34 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-// const settings = require('../utils/settings');
-// const moment = require('moment-timezone');
-// mongoose.Types.ObjectId.isValid()
 const BankAccountSchema = new Schema({
-    firstname: String,
-    lastname: String,
-    // bankNameId: {type: Schema.ObjectId, ref: 'BankName'},
-    IBAN: String,
-    civilId: String,
+    userId: { type: Schema.ObjectId, ref: 'User', required: true },
+    firstname: { type: String, required: true },
+    lastname: { type: String, required: true },
+    bankNameId: { type: Schema.ObjectId, ref: 'BankName', required: true },
+    IBAN: { type: String, required: true },
+    civilId: { type: String, required: true },
+    status: {type: Number, default: 1}, // 1 active, 0 deActive, 2 softDelete, 3 hardDelete
 },
-{timestamps: true});
+{
+    timestamps: true
+});
+
+
 
 
 
 /**
  * Methods
  */
-EventSchema.method({
+BankAccountSchema.method({
 });
 
 /**
  * Statics
  */
-EventSchema.static({
+BankAccountSchema.static({
 });
 
-const BankAccount = mongoose.model('BankAccount', EventSchema);
+const BankAccount = mongoose.model('BankAccount', BankAccountSchema);
 
-
-// test
-let test = new BankAccount({
-    firstname: 'John',
-    lastname: 'Doe',
-    IBAN: '29347234029375203957235',
-    civilId: '1'
-});
-test.save().then(t=>{
-    console.log('------');
-    console.log(t);
-    console.log('------');
-});
 module.exports = BankAccount;
