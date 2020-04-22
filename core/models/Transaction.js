@@ -84,7 +84,7 @@ TransactionSchema.static({
         console.log("!!!!!!!! getMyTransaction criteria: ", criteria)
         return await this.aggregate([
             {$match: criteria},
-            {$sort: {createAt: -1}},
+            {$sort: {createdAt: -1}},
             {$skip: limit * page},
             {$limit: limit + 1},
             {
