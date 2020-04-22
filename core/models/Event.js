@@ -27,9 +27,7 @@ const EventSchema = new Schema({
     },
     status: {type: Number, default: 1}, // 1 active, 0 deActive, 2 softDelete, 3 hardDelete
     allowedApplyTime: Date,
-    createAt: {type: Date, default: Date.now},
-    updateAt: {type: Date, default: Date.now},
-});
+}, {timestamps: true});
 
 //index for geo location
 EventSchema.index({location: '2dsphere'});
@@ -363,8 +361,6 @@ EventSchema.static({
         }
     };*/
 
-        console.log("!!!!!!!! getAllMyEvent criteria: ", criteria)
-        console.log("!!!!!!!! getAllMyEvent dateFilter: ", dateFilter)
         const limit = settings.event.limitPage;
 
         return await this.aggregate([

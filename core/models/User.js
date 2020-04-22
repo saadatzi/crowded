@@ -20,9 +20,7 @@ const UserSchema = new Schema({
     lastIp: String,
     lastLogin: Date,
     lastInteract: Date,
-    createdAt: {type: Date, default: Date.now},
-    updateAt: {type: Date, default: Date.now}
-});
+}, {timestamps: true});
 
 /**
  * Pre-remove hook

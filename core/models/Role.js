@@ -11,10 +11,8 @@ const RoleSchema = new Schema({
             permission: {type: String, enum: ['CREATE', 'READ', 'UPDATE', 'DELETE', 'ALL'], default: 'READ'},
             isRout: {type: Boolean, default: false},
         }
-    ],
-    createdAt: {type: Date, default: Date.now},
-    updateAt: {type: Date, default: Date.now}
-});
+    ]
+}, {timestamps: true});
 
 /**
  * Pre-remove hook
@@ -67,7 +65,6 @@ RoleSchema.static({
      * @param {Object} options
      * @api private
      */
-
     getAll: (options) => {
         const criteria = options.criteria || {};
         const page = options.page || 0;
@@ -84,5 +81,5 @@ RoleSchema.static({
     }
 });
 
-const Role = mongoose.model('Organization', RoleSchema);
+const Role = mongoose.model('Role', RoleSchema);
 module.exports = Role;

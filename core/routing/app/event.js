@@ -78,11 +78,15 @@ router.post('/', verifyToken(true), async function (req, res) {
 
     userEventController.add(req.body.eventId, req.userId)
         .then(result => {
+            //ToDo set automatic Approved for Test
+            console.info(">>>>>>>>>>>>>>>>>>>>>***30sec Set Status APPROVED : %j", result);
+            result.status = "APPROVED";
+            result.save();
             new NZ.Response({status: result.status}).send(res);
         })
         .catch(err => {
             console.error("Event Get Catch err:", err)
-            new NZ.Response(null, err.message, 500).send(res);
+            new NZ.Response(null, err.message, err.code || 500).send(res);
         })
 
 });
@@ -101,7 +105,7 @@ router.get('/current', verifyToken(true), async function (req, res) {
         })
         .catch(err => {
             console.error("Event current Catch err:", err)
-            new NZ.Response(null, err.message, 500).send(res);
+            new NZ.Response(null, err.message, err.code || 500).send(res);
         })
 });
 
@@ -145,9 +149,11 @@ router.post('/active', verifyToken(true), async function (req, res) {
         }, 'input error.', 400).send(res);
     }
 
+    //ToDo must be event from >= current && current + attendance < to
+
     userEventController.setStatus(req.userId, req.body.eventId, 'ACTIVE')
-        .then(event => {
-            console.info("*** Set Status : %j", event);
+        .then(userEvent => {
+            console.info("*** Set Status : %j", userEvent);
             new NZ.Response(null, 'Active').send(res);
         })
         .catch(err => {
@@ -253,7 +259,7 @@ router.post('/elapsed', verifyToken(true), async function (req, res) {
     if (elapsedJoiValidation.error)
         return new NZ.Response(elapsedJoiValidation.error, 'input error.', 400).send(res);
 
-    userEventController.addElapsed(req.userId, req.body.eventId, req.body.elapsed, req.body.coordinates, req.body.isFinished)
+    userEventController.addElapsed(req.userId, req.body.eventId, req.body.elapsed, req.body.coordinates, String(req.body.isFinished).toBoolean())
         .then(event => {
             console.info("*** Set Status : %j", event);
             new NZ.Response(null, 'Add attendance').send(res);

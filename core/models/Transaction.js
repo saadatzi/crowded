@@ -17,9 +17,7 @@ const TransactionSchema = new Schema({
     },
     status: {type: Number, default: 1}, // 1 active, 0 deActive, 2 softDelete, 3 hardDelete
     eventDate: Date,
-    createdAt: {type: Date, default: Date.now},
-    updateAt: {type: Date, default: Date.now}
-});
+}, {timestamps: true});
 TransactionSchema.index({userId: 1, eventId: 1}, {unique: true});
 TransactionSchema.plugin(AutoIncrement, {inc_field: 'transactionId'});
 

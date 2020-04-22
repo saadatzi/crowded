@@ -31,6 +31,7 @@ roleController.prototype.add = async (newRole) => {
             })
             .catch(err => {
                 console.log("!!!Role save failed: ", err);
+                if (err.code === 11000) throw {message: "The entered title is duplicate!", code: 424};
                 throw err;
             })
     }
@@ -135,17 +136,18 @@ roleController.prototype.update = async (optFilter, newValue) => {
                     return result;
                 })
                 .catch(err => {
-                    console.log("!!!Role Update failed: ", err);
+                    console.log("!!!Role updateMany failed: ", err);
                     throw err;
                 })
         } else {
-            return await Role.findByIdAndUpdate(optFilter, newValue)
+            const updateValue = {permissions: newValue}
+            return await Role.findByIdAndUpdate(optFilter, updateValue)
                 .then(result => {
                     console.log(`***Role Update by id ${optFilter} result: `, result);
                     return result;
                 })
                 .catch(err => {
-                    console.log("!!!Role Update failed: ", err);
+                    console.log("!!!Role Update by id failed: ", err);
                     throw err;
                 })
         }

@@ -14,9 +14,7 @@ const AreaSchema = new Schema({
         }
     ],
     status: {type: Number, default: 1}, // 1 active, 0 deActive, 2 softDelete, 3 hardDelete
-    createAt: {type: Date, default: Date.now},
-    updateAt: {type: Date, default: Date.now},
-});
+}, {timestamps: true});
 
 /**
  * Pre-remove hook

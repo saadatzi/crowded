@@ -34,7 +34,7 @@ router.post('/add', verifyToken(true), async (req, res) => {
         })
         .catch(err => {
             console.error("Area Add Catch err:", err)
-            res.err(err)
+            new NZ.Response(null, res.message, err.code || 500).send(res);
         })
 });
 

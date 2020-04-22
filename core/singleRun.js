@@ -20,9 +20,9 @@ const roleController = require('./controllers/role');
         }
         roleController.remove({})
             .then(() => {
-                roleController.add(AREA)
+                roleController.add(superAdminRole)
                     .then(role => {
-                        console.log("initDataDB Role>>>>>>>>>>>>>>>>> ", role.length + ' Role has been successfully added!')
+                        console.log("initDataDB Role>>>>>>>>>>>>>>>>> ", role + ' Role has been successfully added!')
                     })
                     .catch(err => {
                         console.error("Role Add Catch err:", err)
@@ -239,12 +239,12 @@ const roleController = require('./controllers/role');
     //             })
     //             .catch(err => {
     //                 console.error("session Add Catch err:", err)
-    //                 res.err(err)
+    //                 new NZ.Response(null, res.message, err.code || 500).send(res);
     //             })*/
     //     })
     //     .catch(err => {
     //         console.error("Interest Add Catch err:", err)
-    //         res.err(err)
+    //         new NZ.Response(null, res.message, err.code || 500).send(res);
     //     })
 })();
 
