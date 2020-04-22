@@ -159,11 +159,14 @@ AgentSchema.static({
                             if (!user.loginAttempts && !user.lockUntil) return user;
                             // reset attempts and lock info
                             return await user.updateOne({$set: {loginAttempts: 0}, $unset: {lockUntil: 1}})
+                                .then(resUpdate => {
+                                    return user;
+                                })
                                 .catch(err => {
                                     console.error("!!!!!!!!Agent getById catch err: ", err);
                                     throw err;
                                 })
-                            return user;
+
                         }
 
                         // password is incorrect, so increment login attempts before responding
