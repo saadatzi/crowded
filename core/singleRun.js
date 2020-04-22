@@ -1,13 +1,18 @@
-const {googleStaticImage} = require('./utils/map')
+const { googleStaticImage } = require('./utils/map');
 const settings = require('./utils/settings');
 const interestController = require('./controllers/interest');
 const areaController = require('./controllers/area');
 const roleController = require('./controllers/role');
 
 
+// DEV-TEMPORARY
+const bankNameController = require('./controllers/bankName');
+const BankName = require('./models/BankName');
+
+
 (async () => {
     console.log("******* single run **********");
-    googleStaticImage(35.7485728,51.4080562);
+    googleStaticImage(35.7485728, 51.4080562);
     if (settings.initDataDB) {
         const superAdminRole = {
             name: 'superAdmin',
@@ -246,6 +251,54 @@ const roleController = require('./controllers/role');
     //         console.error("Interest Add Catch err:", err)
     //         new NZ.Response(null, res.message, err.code || 500).send(res);
     //     })
+
+
+    /* !-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-! */
+    /* !-!-!Seed BankName model with fade data-!-!-! */
+    /* !-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-! */
+    BankName.find({})
+        .then(bankNames => {
+            if (bankNames.length === 0) {
+                console.log('...Attempting to seed BankName Model.');
+                return bankNameController.add([
+                    {
+                        "name_en": "Alpha Bank",
+                        "name_ar": "بنك ألفا"
+                    },
+                    {
+                        "name_en": "Beta Bank",
+                        "name_ar": "بنك بيتا"
+                    },
+                    {
+                        "name_en": "Gamma Bank",
+                        "name_ar": "بنك جاما"
+                    },
+                    {
+                        "name_en": "Delta Bank",
+                        "name_ar": "بنك الدلتا"
+                    }
+                ])
+            } else {
+                return false;
+            }
+        })
+        .then(insertReport => {
+            if (insertReport === false) {
+                console.log('*** BankName model is already feed.');
+            } else {
+                console.log('*** BankName model seed done.');
+            }
+        })
+        .catch(err=>{
+            console.error('Oops!',err);
+        });
+    /* !-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-! */
+    /* !-!-!-!-!-!-!-DEV-TEMPORARY-!-!-!-!-!-!-!-!-! */
+    /* !-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-! */
+
+
+
+
 })();
 
 console.log('SINGLE RUN');
