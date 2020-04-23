@@ -11,6 +11,8 @@ const { joiValidate } = require('./../utils');
 
 // Grab controller
 const bankAccountController = require('../../controllers/bankAccount');
+const bankNameController = require('../../controllers/bankName');
+
 
 // Instantiate the Device Model
 const { verifyToken } = require('../../utils/jwt');
@@ -28,9 +30,18 @@ const addSchema = Joi.object().keys({
 });
 
 /**
+ Get Bank Names
+ */
+router.get('/name', verifyToken(true), async function (req, res) {
+    let bankNames = await bankNameController.get({lang:req._lang});
+    new NZ.Response(bankNames).send(res);
+    // bankNameController.add(prepared);
+});
+
+/**
  Add Bank Account
  */
-router.post('/add', joiValidate(addSchema, 0), verifyToken(true), async function (req, res) {
+router.post('/account/add', joiValidate(addSchema, 0), verifyToken(true), async function (req, res) {
     bankAccountController.add(req.userId, req.body)
         .then(result => {
             console.info("***User BankAccount inserted : %j", result);
@@ -46,7 +57,7 @@ router.post('/add', joiValidate(addSchema, 0), verifyToken(true), async function
 /**
  Get Bank Accounts
  */
-router.get('/', verifyToken(true), async function (req, res) {
+router.get('/account', verifyToken(true), async function (req, res) {
     bankAccountController.get({ criteria: { userId: req.userId }, lang: req._lang })
         .then(result => {
             new NZ.Response(result).send(res);
