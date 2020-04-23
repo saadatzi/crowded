@@ -40,7 +40,7 @@ BankNameSchema.static({
     getMany(options) {
 
         let lang = options.lang;
-        let modifiedCriteria = {};
+        let modifiedCriteria = {status: 1};
 
         return this.aggregate([
             {

@@ -8,10 +8,7 @@ const BankAccountSchema = new Schema({
     IBAN: { type: String, required: true },
     civilId: { type: String, required: true },
     status: { type: Number, default: 1 }, // 1 active, 0 deActive, 2 softDelete, 3 hardDelete
-},
-    {
-        timestamps: true
-    });
+}, {timestamps: true});
 
 
 
