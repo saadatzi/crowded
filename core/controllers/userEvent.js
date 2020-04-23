@@ -208,7 +208,7 @@ userEventController.prototype.getById = async (id) => {
 userEventController.prototype.remove = async (optFilter) => {
     if (optFilter) {
         if (optFilter instanceof Object) { //instanceof mongoose.Types.ObjectId
-            //ToDo return Query?!
+
             return await UserEvent.remove(optFilter)
                 .then(result => {
                     console.log("***UserEvent  Remove many result: ", result);
@@ -219,7 +219,7 @@ userEventController.prototype.remove = async (optFilter) => {
                     throw err;
                 })
         } else {
-            //ToDo return Query?!
+
             return await UserEvent.findByIdAndRemove(optFilter)
                 .then(result => {
                     console.log(`***UserEvent Remove by id ${optFilter} result: `, result);

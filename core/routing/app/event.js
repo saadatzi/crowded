@@ -200,6 +200,7 @@ router.post('/continue', verifyToken(true), async function (req, res) {
         }, 'input error.', 400).send(res);
     }
 
+    //ToDo like Active..... can Pause
     userEventController.setStatus(req.userId, req.body.eventId, 'CONTINUE')
         .then(event => {
             console.info("*** Set Status : %j", event);

@@ -56,7 +56,7 @@ bankAccountController.prototype.get = async (optFilter) => {
             })
             .catch(err => {
                 console.log("!!!BankAccount getById failed: ", err);
-                return -1;
+                throw err;
             })
     }
 };

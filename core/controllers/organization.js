@@ -90,7 +90,7 @@ organizationController.prototype.get = async (optFilter, type = 'email') => {
 organizationController.prototype.remove = async (optFilter) => {
     if (optFilter) {
         if (optFilter instanceof Object) { //instanceof mongoose.Types.ObjectId
-            //ToDo return Query?!
+
             return await Organization.remove(optFilter)
                 .then(result => {
                     console.log("***Organization  Remove many result: ", result);
@@ -101,7 +101,7 @@ organizationController.prototype.remove = async (optFilter) => {
                     throw err;
                 })
         } else {
-            //ToDo return Query?!
+
             return await Organization.findByIdAndRemove(optFilter)
                 .then(result => {
                     console.log(`***Organization Remove by id ${optFilter} result: `, result);

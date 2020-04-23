@@ -4,7 +4,7 @@ const jwtRun = require('../../utils/jwt')
 
 // Instantiate the Device Model
 const roleController = require('../../controllers/role');
-const userController = require('../../controllers/user');
+const permissionController = require('../../controllers/permission');
 const deviceController = require('../../controllers/device');
 const NZ = require('../../utils/nz');
 const {verifyTokenPanel} = require('../../utils/jwt');
@@ -14,15 +14,16 @@ const JoiConfigs = require('./../joiConfigs');
 const {joiValidate} = require('./../utils');
 
 
+const permissionSchema = Joi.object().keys({
+    permissionId: JoiConfigs.isMongoId,
+    accessLevel: JoiConfigs.number
+});
 const addSchema = Joi.object().keys({
     name:           JoiConfigs.title,
-    permissions:    JoiConfigs.array(false),
+    permissions:    JoiConfigs.array(false, permissionSchema),
 });
 
-const permissionSchema = Joi.object().keys({
-    name:       	JoiConfigs.title,
-    permission:    JoiConfigs.title,
-});
+
 const updateSchema = Joi.object().keys({
     roleId:       	JoiConfigs.isMongoId,
     permissions:    JoiConfigs.arrayLength(1, 50, permissionSchema),
@@ -63,6 +64,25 @@ router.put('/update', joiValidate(updateSchema, 0), verifyTokenPanel(), async (r
         })
         .catch(err => {
             console.error("Role update Catch err:", err)
+            new NZ.Response(null, err.message, err.code || 500).send(res);
+        })
+});
+
+
+/**
+ *  Get Permission List
+ * @return status
+ */
+//______________________Update Role_____________________//
+router.get('/permissions', verifyTokenPanel(), async (req, res) => {
+    console.info('API: Permission List/init %j', {body: req.body});
+
+    permissionController.get({})
+        .then(permissions => {
+            new NZ.Response(permissions).send(res);
+        })
+        .catch(err => {
+            console.error("Permission List Catch err:", err)
             new NZ.Response(null, err.message, err.code || 500).send(res);
         })
 });

@@ -136,7 +136,7 @@ eventController.prototype.getMyEvent = async (userId, lang, page = 0, isPrevious
 eventController.prototype.remove = async (optFilter) => {
     if (optFilter) {
         if (optFilter instanceof Object) { //instanceof mongoose.Types.ObjectId
-            //ToDo return Query?!
+
             return await Event.remove(optFilter)
                 .then(result => {
                     console.log("***Event  Remove many result: ", result);
@@ -147,7 +147,7 @@ eventController.prototype.remove = async (optFilter) => {
                     throw err;
                 })
         } else {
-            //ToDo return Query?!
+
             return await Event.findByIdAndRemove(optFilter)
                 .then(result => {
                     console.log(`***Event Remove by id ${optFilter} result: `, result);
@@ -176,7 +176,7 @@ eventController.prototype.remove = async (optFilter) => {
 eventController.prototype.update = async (optFilter, newValue) => {
     if (optFilter) {
         if (optFilter instanceof Object) { //instanceof mongoose.Types.ObjectId
-            //ToDo return Query?!
+
             return await Event.updateMany(optFilter, newValue)
                 .then(result => {
                     console.log("***Event  Update many result: ", result);
@@ -187,7 +187,7 @@ eventController.prototype.update = async (optFilter, newValue) => {
                     throw err;
                 })
         } else {
-            //ToDo return Query?!
+
             return await Event.findByIdAndUpdate(optFilter, newValue)
                 .then(result => {
                     console.log(`***Event Update by id ${optFilter} result: `, result);

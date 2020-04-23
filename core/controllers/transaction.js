@@ -162,7 +162,7 @@ transactionController.prototype.get = async (optFilter, type = 'id') => {
 transactionController.prototype.remove = async (optFilter) => {
     if (optFilter) {
         if (optFilter instanceof Object) { //instanceof mongoose.Types.ObjectId
-            //ToDo return Query?!
+
             return await Transaction.remove(optFilter)
                 .then(result => {
                     console.log("***Transaction  Remove many result: ", result);
@@ -173,7 +173,7 @@ transactionController.prototype.remove = async (optFilter) => {
                     throw err;
                 })
         } else {
-            //ToDo return Query?!
+
             return await Transaction.findByIdAndRemove(optFilter)
                 .then(result => {
                     console.log(`***Transaction Remove by id ${optFilter} result: `, result);

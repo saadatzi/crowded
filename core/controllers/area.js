@@ -20,7 +20,7 @@ areaController.prototype.add = async (newArea) => {
             .then(room => room)
             .catch(err => {
                 console.log("!!!Area many save failed: ", err);
-                return -1;
+                throw err;
             })
     } else {
         return await Area.create(newArea)
@@ -30,7 +30,7 @@ areaController.prototype.add = async (newArea) => {
             })
             .catch(err => {
                 console.log("!!!Area save failed: ", err);
-                return -1;
+                throw err;
             })
     }
 };
@@ -62,7 +62,7 @@ areaController.prototype.get = async (optFilter) => {
             })
             .catch(err => {
                 console.log("!!!Area get failed: ", err);
-                return -1;
+                throw err;
             })
     }
 };
@@ -84,7 +84,7 @@ areaController.prototype.remove = async (optFilter) => {
                 })
                 .catch(err => {
                     console.log("!!!Area Remove failed: ", err);
-                    return -1;
+                    throw err;
                 })
         } else {
             return await Area.findByIdAndRemove(optFilter)
@@ -94,7 +94,7 @@ areaController.prototype.remove = async (optFilter) => {
                 })
                 .catch(err => {
                     console.log("!!!Area Remove failed: ", err);
-                    return -1;
+                    throw err;
                 })
         }
     } else {
@@ -115,7 +115,7 @@ areaController.prototype.remove = async (optFilter) => {
 areaController.prototype.update = async (optFilter, newValue) => {
     if (optFilter) {
         if (optFilter instanceof Object) { //instanceof mongoose.Types.ObjectId
-            //ToDo return Query?!
+
             return await Area.updateMany(optFilter, newValue)
                 .then(result => {
                     console.log("***Area  Update many result: ", result);
@@ -123,10 +123,10 @@ areaController.prototype.update = async (optFilter, newValue) => {
                 })
                 .catch(err => {
                     console.log("!!!Area Update failed: ", err);
-                    return -1;
+                    throw err;
                 })
         } else {
-            //ToDo return Query?!
+
             return await Area.findByIdAndUpdate(optFilter, newValue)
                 .then(result => {
                     console.log(`***Area Update by id ${optFilter} result: `, result);
@@ -134,7 +134,7 @@ areaController.prototype.update = async (optFilter, newValue) => {
                 })
                 .catch(err => {
                     console.log("!!!Area Update failed: ", err);
-                    return -1;
+                    throw err;
                 })
         }
     } else {

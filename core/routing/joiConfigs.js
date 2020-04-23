@@ -10,7 +10,7 @@ module.exports = {
     booleanVal: 		Joi.boolean().required(),
     datetime: 			Joi.date().required(),
     link: 				Joi.string().min(1).max(1000).required(),
-    count: 				Joi.number().integer().min(1).required(),
+    number: 				Joi.number().integer().min(1).required(),
     price: 				Joi.number().min(1).required(),
     numberOptional: 	Joi.number().min(0).optional(),
     phone: 				Joi.number().integer().required(),

@@ -113,7 +113,7 @@ agentController.prototype.get = async (optFilter, type = 'email') => {
 agentController.prototype.remove = async (optFilter) => {
     if (optFilter) {
         if (optFilter instanceof Object) { //instanceof mongoose.Types.ObjectId
-            //ToDo return Query?!
+
             return await Agent.remove(optFilter)
                 .then(result => {
                     console.log("***Agent  Remove many result: ", result);
@@ -124,7 +124,7 @@ agentController.prototype.remove = async (optFilter) => {
                     throw err;
                 })
         } else {
-            //ToDo return Query?!
+
             return await Agent.findByIdAndRemove(optFilter)
                 .then(result => {
                     console.log(`***Agent Remove by id ${optFilter} result: `, result);

@@ -9,33 +9,15 @@ const roleController = require('./controllers/role');
 const bankNameController = require('./controllers/bankName');
 const BankName = require('./models/BankName');
 
+const permissionController = require('./controllers/permission');
+
+
 
 (async () => {
     console.log("******* single run **********");
     googleStaticImage(35.7485728, 51.4080562);
     if (settings.initDataDB) {
-        const superAdminRole = {
-            name: 'superAdmin',
-            permissions: [
-                {
-                    name: 'all',
-                    permission: 'ALL'
-                }
-            ],
-        }
-        roleController.remove({})
-            .then(() => {
-                roleController.add(superAdminRole)
-                    .then(role => {
-                        console.log("initDataDB Role>>>>>>>>>>>>>>>>> ", role + ' Role has been successfully added!')
-                    })
-                    .catch(err => {
-                        console.error("Role Add Catch err:", err)
-                    })
-            })
-            .catch(err => {
-                console.error("Role Remove Catch err:", err)
-            })
+
         /*const AREA = [
             {
                 name_en: "Hawally",
@@ -287,6 +269,45 @@ const BankName = require('./models/BankName');
                 console.log('*** BankName model is already feed.');
             } else {
                 console.log('*** BankName model seed done.');
+            }
+        })
+        .catch(err=>{
+            console.error('Oops!',err);
+        });
+
+    /*Init Permissions*/
+    permissionController.get({})
+        .then(permissions => {
+            if (permissions.length === 0) {
+                console.log('...Attempting to seed Permission Model.');
+                const initPermission = [
+                    {title: "ALL",          access: 15},
+                    {title: "Agent",        access: 15},
+                    {title: "Area",         access: 15},
+                    {title: "User account", access: 15},
+                    {title: "Bank name",    access: 15},
+                    {title: "Device app",   access: 15},
+                    {title: "Event",        access: 15},
+                    {title: "Interest",     access: 15},
+                    {title: "Organization", access: 15},
+                    {title: "Transaction",  access: 15},
+                    {title: "User Event(Approve-Reject)",   access: 6},
+                    {title: "User",  access: 15},
+                ];
+                return permissionController.add(initPermission)
+                    .catch(err => {
+                        console.log("!!!Permission many save failed: ", err);
+                        throw err
+                    })
+            } else {
+                return false;
+            }
+        })
+        .then(permissionReport => {
+            if (permissionReport === false) {
+                console.log('*** Permission model is already feed.');
+            } else {
+                console.log('*** Permission model seed done.');
             }
         })
         .catch(err=>{

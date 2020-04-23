@@ -23,7 +23,7 @@ interestController.prototype.add = async (newInterest) => {
             })
             .catch(err => {
                 console.log("!!!Interest many save failed: ", err);
-                return -1;
+                throw err;
             })
     } else {
         return await Interest.create(newInterest)
@@ -33,7 +33,7 @@ interestController.prototype.add = async (newInterest) => {
             })
             .catch(err => {
                 console.log("!!!Interest save failed: ", err);
-                return -1;
+                throw err;
             })
     }
 };
@@ -65,7 +65,7 @@ interestController.prototype.get = async (optFilter) => {
             })
             .catch(err => {
                 console.log("!!!Interest get failed: ", err);
-                return -1;
+                throw err;
             })
     }
 };
@@ -80,7 +80,7 @@ interestController.prototype.get = async (optFilter) => {
 interestController.prototype.remove = async (optFilter) => {
     if (optFilter) {
         if (optFilter instanceof Object) { //instanceof mongoose.Types.ObjectId
-            //ToDo return Query?!
+
             return await Interest.remove(optFilter)
                 .then(result => {
                     console.log("***Interest  Remove many result: ", result);
@@ -88,10 +88,10 @@ interestController.prototype.remove = async (optFilter) => {
                 })
                 .catch(err => {
                     console.log("!!!Interest Remove failed: ", err);
-                    return -1;
+                    throw err;
                 })
         } else {
-            //ToDo return Query?!
+
             return await Interest.findByIdAndRemove(optFilter)
                 .then(result => {
                     console.log(`***Interest Remove by id ${optFilter} result: `, result);
@@ -99,7 +99,7 @@ interestController.prototype.remove = async (optFilter) => {
                 })
                 .catch(err => {
                     console.log("!!!Interest Remove failed: ", err);
-                    return -1;
+                    throw err;
                 })
         }
     } else {
@@ -120,7 +120,7 @@ interestController.prototype.remove = async (optFilter) => {
 interestController.prototype.update = async (optFilter, newValue) => {
     if (optFilter) {
         if (optFilter instanceof Object) { //instanceof mongoose.Types.ObjectId
-            //ToDo return Query?!
+
             return await Interest.updateMany(optFilter, newValue)
                 .then(result => {
                     console.log("***Interest  Update many result: ", result);
@@ -128,10 +128,10 @@ interestController.prototype.update = async (optFilter, newValue) => {
                 })
                 .catch(err => {
                     console.log("!!!Interest Update failed: ", err);
-                    return -1;
+                    throw err;
                 })
         } else {
-            //ToDo return Query?!
+
             return await Interest.findByIdAndUpdate(optFilter, newValue)
                 .then(result => {
                     console.log(`***Interest Update by id ${optFilter} result: `, result);
@@ -139,7 +139,7 @@ interestController.prototype.update = async (optFilter, newValue) => {
                 })
                 .catch(err => {
                     console.log("!!!Interest Update failed: ", err);
-                    return -1;
+                    throw err;
                 })
         }
     } else {

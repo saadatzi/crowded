@@ -1,23 +1,24 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const RoleSchema = new Schema({
-    name: {type: String, unique: true, lowercase: true, required: [true, "can't be blank"]},
-    permissions: [
-        {
-            permissionId: {type: Schema.ObjectId, ref: 'Permission'},
-            accessLevel: {type: Number, default: 0}
-        }
-    ],
-    weight: {type: Number, default: 0},
-    status: {type: Number, default: 1},
-}, {timestamps: true});
+const PermissionSchema = new Schema({
+    title: {type: String, unique: true, required: [true, "can't be blank"]},
+    access: {type: Number, default: 0}
+});
 
+// 11..toString(2)
+// schema.set('toJSON', {
+//     transform: function (doc, ret, options) {
+//         ret.id = ret._id;
+//         delete ret._id;
+//         delete ret.__v;
+//     }
+// });
 /**
  * Pre-remove hook
  */
 
-RoleSchema.pre('remove', function (next) {
+PermissionSchema.pre('remove', function (next) {
     //ToDo pre-remove required...
     next();
 });
@@ -25,14 +26,21 @@ RoleSchema.pre('remove', function (next) {
 /**
  * Methods
  */
-RoleSchema.method({
+PermissionSchema.method({
     //ToDo method need... this.model('Interest')
+    toJSON() {
+        return {
+            id: this._id,
+            title: this.title,
+            access: {create: true, read: true, update: false, delete: false}
+        }
+    }
 });
 
 /**
  * Statics
  */
-RoleSchema.static({
+PermissionSchema.static({
 
     /**
      * Find User by id
@@ -47,15 +55,12 @@ RoleSchema.static({
     },
 
     /**
-     * Find use by email
-     *
-     * @param {String} email
-     * @api private
+     * Permission list
      */
-    getByEmail: async (email) => {
-        return await User.findOne({email: email})
-            .then(user => user)
-            .catch(err => console.log("!!!!!!!! getByEmail catch err: ", err));
+    list: async function() {
+        return await this.find({})
+            .then(permissions => permissions)
+            .catch(err => console.log("permissions getAll Catch", err));
     },
 
     /**
@@ -80,5 +85,5 @@ RoleSchema.static({
     }
 });
 
-const Role = mongoose.model('Role', RoleSchema);
-module.exports = Role;
+const Permission = mongoose.model('Permission', PermissionSchema);
+module.exports = Permission;

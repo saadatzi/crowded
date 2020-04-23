@@ -85,7 +85,7 @@ userController.prototype.get = async (optFilter, type = 'email') => {
 userController.prototype.remove = async (optFilter) => {
     if (optFilter) {
         if (optFilter instanceof Object) { //instanceof mongoose.Types.ObjectId
-            //ToDo return Query?!
+
             return await User.remove(optFilter)
                 .then(result => {
                     console.log("***User  Remove many result: ", result);
@@ -96,7 +96,7 @@ userController.prototype.remove = async (optFilter) => {
                     throw err;
                 })
         } else {
-            //ToDo return Query?!
+
             return await User.findByIdAndRemove(optFilter)
                 .then(result => {
                     console.log(`***User Remove by id ${optFilter} result: `, result);

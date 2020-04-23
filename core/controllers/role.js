@@ -90,7 +90,7 @@ roleController.prototype.get = async (optFilter, type = 'email') => {
 roleController.prototype.remove = async (optFilter) => {
     if (optFilter) {
         if (optFilter instanceof Object) { //instanceof mongoose.Types.ObjectId
-            //ToDo return Query?!
+
             return await Role.remove(optFilter)
                 .then(result => {
                     console.log("***Role  Remove many result: ", result);
@@ -101,7 +101,7 @@ roleController.prototype.remove = async (optFilter) => {
                     throw err;
                 })
         } else {
-            //ToDo return Query?!
+
             return await Role.findByIdAndRemove(optFilter)
                 .then(result => {
                     console.log(`***Role Remove by id ${optFilter} result: `, result);
