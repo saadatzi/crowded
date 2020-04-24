@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+const settings = require('../utils/settings');
 
 const UserSchema = new Schema({
     email: {type: String, index: true, lowercase: true, unique: true, required: [true, "can't be blank"]},
@@ -13,9 +14,7 @@ const UserSchema = new Schema({
     nationality: String,
     salt: String,
     password: String,
-    IBAN: String,
     civilId: String,
-    profilePicture: String,
     status: {type: Number, default: 1},
     lastIp: String,
     lastLogin: Date,
@@ -35,7 +34,20 @@ UserSchema.pre('remove', function (next) {
  * Methods
  */
 UserSchema.method({
-    //TODO method need... this.model('Interest')
+    toJSON() {
+        return {
+            id: this._id,
+            email: this.email,
+            firstname: this.firstname,
+            lastname: this.lastname,
+            image: {url: settings.media_domain+this.image},
+            sex: this.sex,
+            birthDate: this.birthDate,
+            phone: this.phone,
+            nationality: this.nationality,
+            civilId: this.civilId,
+        }
+    }
 });
 
 /**
@@ -49,9 +61,9 @@ UserSchema.static({
      * @param {ObjectId} _id
      * @api private
      */
-    getById: function(_id) {
-        return this.findById({_id})
-            .then(device =>  device)
+    async getById(_id) {
+        return await this.findById({_id})
+            .then(user =>  user)
             .catch(err => console.log("!!!!!!!!User getById catch err: ", err))},
 
     /**

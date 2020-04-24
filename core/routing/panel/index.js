@@ -3,7 +3,8 @@ const app = express.Router();
 const bodyParser = require('body-parser');
 const NZ = require('../../utils/nz');
 const {getForgotHash} = require('../../utils/cacheLayer');
-
+const userController = require('../../controllers/user');
+const agentController = require('../../controllers/agent');
 app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
 app.use(bodyParser.json({limit: '5mb'}));
 
@@ -28,6 +29,34 @@ app.get('/reset-password-app/:token', async (req, res) => {
     const userId = await getForgotHash(req.params.token);
 
     userController.get(userId, 'id')
+        .then(user => {
+            if (!user) return res.send('Link expired.'); //TODO: MAKE BETTER
+
+            res.render('pages/components/reset-form', {
+                bodyClass: 'jumbo-page',
+                link:      req.params.token,
+                email:     user.email
+            });
+
+        })
+        .catch(err => {
+            console.log('!!!! user reset-password catch err: ', err);
+            new NZ.Response(null, err.message, 400).send(res);
+        });
+});
+
+app.get('/reset-password', (req, res) => {
+    NZ.setDomainOnLocals(res);
+    res.render('pages/components/reset', {
+        bodyClass: 'jumbo-page'
+    });
+});
+
+app.get('/reset-password/:token', async (req, res) => {
+    NZ.setDomainOnLocals(res);
+    const userId = await getForgotHash(req.params.token);
+
+    agentController.get(userId, 'id')
         .then(user => {
             if (!user) return res.send('Link expired.'); //TODO: MAKE BETTER
 

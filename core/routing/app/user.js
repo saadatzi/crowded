@@ -13,13 +13,36 @@ const {uploader} = require('../../utils/fileManager');
 const {sign, verifyToken} = require('../../utils/jwt');
 const settings = require('../../utils/settings');
 
+
+const userRegisterSchema = Joi.object().keys({
+    firstname:	    JoiConfigs.title,
+    lastname:	    JoiConfigs.title,
+    sex:	        JoiConfigs.gender,
+    email:          JoiConfigs.email(),
+    password:       JoiConfigs.password,
+    nationality:    JoiConfigs.title,
+    birthDate:      JoiConfigs.datetime,
+    });
+
+const userUpdateSchema = Joi.object().keys({
+    image:          JoiConfigs.strOptional,
+    firstname:	    JoiConfigs.title,
+    lastname:	    JoiConfigs.title,
+    sex:	        JoiConfigs.gender,
+    // email:          JoiConfigs.email(),
+    nationality:    JoiConfigs.title,
+    birthDate:      JoiConfigs.datetime(false),
+    civilId:        JoiConfigs.strOptional,
+    phone:          JoiConfigs.phone
+});
+
 /**
  *  Add User
  * -add User in db
  * @return status
  */
 //______________________Add User_____________________//
-router.post('/register', verifyToken(), async (req, res) => {
+router.post('/register', joiValidate(userRegisterSchema), verifyToken(), async (req, res) => {
     console.info('API: Register User/init %j', {body: req.body});
 
     // req.body.email = (req.body.email).toString().toLowerCase();
@@ -73,6 +96,40 @@ router.post('/register', verifyToken(), async (req, res) => {
             console.log('!!!! user register catch err: ', err);
             new NZ.Response(null, err.message, 400).send(res);
         });
+});
+
+/**
+ *  Update User
+ * -Update User in db
+ * @return status
+ */
+//______________________Update User_____________________//
+router.post('/edit', joiValidate(userUpdateSchema), verifyToken(true), async (req, res) => {
+    console.info('API: Update User/init %j', {body: req.body});
+    userController.update(req.userId, req.body)
+        .then(user => {
+            new NZ.Response().send(res);
+        })
+        .catch(err => {
+            console.error("User Update Catch err:", err);
+            new NZ.Response(null, err.message, err.code || 500).send(res);
+        });
+});
+
+/**
+ *  Add Profile Pic
+ * -upload image callback path&name
+ * @return status
+ */
+//______________________Add Profile Pic_____________________//
+router.put('/upload', verifyToken(true), uploader, async (req, res) => {
+    console.info('API: Add Profile Pic/init');
+    if (!req._uploadPath || !req._uploadFilename) {
+        return new NZ.Response(null, 'fileUpload is Empty!', 400).send(res);
+    }
+
+    const image = req._uploadPath + '/' + req._uploadFilename;
+    new NZ.Response({item: image}).send(res);
 });
 
 /**
@@ -173,7 +230,7 @@ const forgotSchema = Joi.object().keys({
     email: JoiConfigs.email(),
 });
 //______________________Forgot Password_____________________//
-router.post('/forgot',joiValidate(forgotSchema, 0), verifyToken(), async (req, res) => {
+router.post('/forgotPassword',joiValidate(forgotSchema, 0), verifyToken(), async (req, res) => {
     console.info('API: Forgot Password User/init %j', {body: req.body});
 
 
@@ -209,6 +266,27 @@ router.post('/forgot',joiValidate(forgotSchema, 0), verifyToken(), async (req, r
             console.log('!!!! user forgot catch err: ', err);
             new NZ.Response(null, err.message, 400).send(res);
         });
+});
+
+/**
+ * Get User Profile
+ * @return User
+ */
+//______________________Get User_____________________//
+router.get('/profile', verifyToken(true), function (req, res) {
+    console.info('API: Get profile User/init');
+
+    userController.get(req.userId, 'id')
+        .then(result => {
+            console.info("*** profile List : %j", result);
+            new NZ.Response({
+                items:  result,
+            }).send(res);
+        })
+        .catch(err => {
+            console.error("profile Get Catch err:", err)
+            // new NZ.Response(null, res.message, err.code || 500).send(res);
+        })
 });
 
 

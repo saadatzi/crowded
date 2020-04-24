@@ -131,7 +131,7 @@ router.put('/update', joiValidate(updateSchema, 0), verifyTokenPanel(), async (r
  *  Forgot Password
  */
 //______________________Forgot Password_____________________//
-router.post('/forgot',joiValidate(forgotSchema, 0), async (req, res) => {
+router.post('/forgotPassword',joiValidate(forgotSchema, 0), async (req, res) => {
     console.info('API: Forgot Password Admin/init %j', {body: req.body});
 
 
@@ -174,6 +174,7 @@ router.post('/forgot',joiValidate(forgotSchema, 0), async (req, res) => {
  *  reset Password link
  * -get user from hash
  * -remove hash
+ * -update Password
  * @return template reset password
  */
 //______________________Update Agent_____________________//

@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-const settings = require('../utils/settings')
+const settings = require('../utils/settings');
 
 const InterestSchema = new Schema({
     title_ar: {type: String, default: '', index: true},

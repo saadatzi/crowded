@@ -27,7 +27,7 @@ const getForgotHash = async (hash) => {
                 throw err
             }
             if (result) {
-                hashForgotPassCache.del(hash, function(err) {console.error("!!!! remove hash forgot Password catch err:", err)});
+                // hashForgotPassCache.del(hash, function(err) {console.error("!!!! remove hash forgot Password catch err:", err)});
                 resolve(result);
             }
             throw {code: 400, message: 'The link has expired or invalid request!'}

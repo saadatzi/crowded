@@ -70,7 +70,7 @@ userController.prototype.get = async (optFilter, type = 'email') => {
             return await User.getById(optFilter)
                 .then(result => result)
                 .catch(err => {
-                    console.log("!!!User get failed: ", err);
+                    console.log("!!!User getById failed: ", err);
                     throw err;
                 })
         }
