@@ -21,7 +21,7 @@ const AreaSchema = new Schema({
  */
 
 AreaSchema.pre('remove', function (next) {
-    //ToDo pre-remove required...
+    //TODO pre-remove required...
     next();
 });
 
@@ -29,7 +29,7 @@ AreaSchema.pre('remove', function (next) {
  * Methods
  */
 AreaSchema.method({
-    //ToDo method need... this.model('Animal')
+    //TODO method need... this.model('Animal')
 });
 
 /**
@@ -86,7 +86,7 @@ AreaSchema.static({
             .limit(limit)
             .skip(limit * page)
             .exec(function (err, res) {
-                if (err) return {}; //ToDo logger
+                if (err) return {}; //TODO logger
                 console.log(res);
                 return res;
             });

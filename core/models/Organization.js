@@ -11,7 +11,7 @@ const OrganizationSchema = new Schema({
  */
 
 OrganizationSchema.pre('remove', function (next) {
-    //ToDo pre-remove required...
+    //TODO pre-remove required...
     next();
 });
 
@@ -19,7 +19,7 @@ OrganizationSchema.pre('remove', function (next) {
  * Methods
  */
 OrganizationSchema.method({
-    //ToDo method need... this.model('Interest')
+    //TODO method need... this.model('Interest')
 });
 
 /**
@@ -66,7 +66,7 @@ OrganizationSchema.static({
             .limit(limit)
             .skip(limit * page)
             .exec(function (err, res) {
-                if (err) return {}; //ToDo logger
+                if (err) return {}; //TODO logger
                 console.log(res);
                 return res;
             });

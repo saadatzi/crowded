@@ -1,3 +1,4 @@
+_rootDir = __dirname;
 /**
  * Module dependencies
  */
@@ -13,7 +14,7 @@ const fs = require('fs');
 const settings = require('./utils/settings');
 
 const helmet = require('helmet');
-
+const engine = require('express-dot-engine');
 const {logger, isAPIChecker} = require('./utils/logger');
 
 const {verifyToken} = require('./utils/jwt');
@@ -131,10 +132,10 @@ app.use(logger('PyLog', {
     }
 }));
 
-/*
-* Authentication JWT
-* */
-// app.use(verifyToken);
+
+app.engine('dot', engine.__express);
+app.set('views', path.join(_rootDir, './templates/default/dot'));
+app.set('view engine', 'dot');
 
 
 /*

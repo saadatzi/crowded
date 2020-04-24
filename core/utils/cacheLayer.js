@@ -1,110 +1,42 @@
-const mediaModel = require('../models/mediaModel');
 const cacheManager = require('cache-manager');
 const redisStore = require('cache-manager-redis');
-const memoryLocalCache = require('./memoryLocalCache');
 const settings = require('./settings');
 
 
-const multiCache = cacheManager.multiCaching([
+const hashForgotPassCache = cacheManager.caching(
     cacheManager.caching({
-        ttl: 100,
-        store: memoryLocalCache,
-        maxSize: settings.memoryLocalCache.maxSize,
-    }),
-    cacheManager.caching({
-        ttl: 300,
+        ttl: 1800,
         store: redisStore,
         host: settings.redis.host,
         port: settings.redis.port,
         auth_pass: settings.redis.password,
         db: 0,
     })
-]);
+);
 
 
-const insert = async (path, target, target_id) => {
-    return await mediaModel.insert(path, target, target_id)
-        .then(result => {
-            const cacheKey = `${target}:${target_id}`;
-            multiCache.del(cacheKey);
-            return result
-        })
-        .catch(err => {
-            console.error(err)
-            throw err
-            // return []
-        })
+const insertForgotHash = async (hash, userId) => {
+    hashForgotPassCache.set(hash, userId)
 };
 
-const deleteBefore = async (id, target, target_id) => {
-    return await mediaModel.deleteBefore(id, target, target_id)
-        .then(result => {
-            const cacheKey = `${target}:${target_id}`;
-            multiCache.del(cacheKey);
-            return result
-        })
-        .catch(err => {
-            console.error(err)
-            throw err
-        })
-};
 
-const get = async (target, target_id) => {
-    const cacheKey = `${target}:${target_id}`;
-    /*return await multiCache.wrap(cacheKey, function () {
-        return mediaModel.get(target, target_id)
-    }, async function () {
-        return await multiCache.wrap(cacheKey, function () {
-            return mediaModel.get(target, target_id);
-        })
-    });*/
-
-    //return from cache else from DB
+const getForgotHash = async (hash) => {
     return new Promise(resolve => {
-        multiCache.get(cacheKey, async function (err, result) {
+        hashForgotPassCache.get(hash, async function (err, result) {
             if (err) {
                 throw err
             }
             if (result) {
-                console.info("******* getMedia from cache ********", result)
-                resolve(JSON.parse(result));
+                hashForgotPassCache.del(hash, function(err) {console.error("!!!! remove hash forgot Password catch err:", err)});
+                resolve(result);
             }
-            // Get from DB
-            return await mediaModel.get(target, target_id)
-                .then(result => {
-                    if (result) {
-                        multiCache.set(cacheKey, JSON.stringify(result))
-                    }
-                    console.info("~~~~~~~~~~~~ getMedia from DB ~~~~~~~~~~~~", result)
-                    resolve(result)
-                })
-                .catch(err => {
-                    console.error(err)
-                    resolve([])
-                })
+            throw {code: 400, message: 'The link has expired or invalid request!'}
         });
     });
 };
 
-const displayOrder = async (imageIds, target, target_id) => {
-    console.info("@@@@@@@@@@@@ displayOrder Start: ", target);
-    return await mediaModel.displayOrder(imageIds)
-        .then(result => {
-            console.info("******** displayOrder result: ", result);
-            const cacheKey = `${target}:${target_id}`;
-            multiCache.del(cacheKey);
-            return result
-        })
-        .catch(err => {
-            console.error("!!!!!!! displayOrder err: ", err)
-            throw err
-            // return []
-        })
-};
 
 module.exports = {
-    insert,
-    deleteBefore,
-    get,
-    displayOrder
+    insertForgotHash,
+    getForgotHash,
 };

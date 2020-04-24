@@ -19,7 +19,7 @@ const PermissionSchema = new Schema({
  */
 
 PermissionSchema.pre('remove', function (next) {
-    //ToDo pre-remove required...
+    //TODO pre-remove required...
     next();
 });
 
@@ -27,12 +27,13 @@ PermissionSchema.pre('remove', function (next) {
  * Methods
  */
 PermissionSchema.method({
-    //ToDo method need... this.model('Interest')
     toJSON() {
+        console.log(">>>>>>>>>>>>>> toJson this: ", this);
+        const arrayAccess = Array.from(String((this.access ? this.access : 0).toString(2)), Number);
         return {
             id: this._id,
             title: this.title,
-            access: {create: true, read: true, update: false, delete: false}
+            access: {create: !!arrayAccess[1], read: !!arrayAccess[2], update: !!arrayAccess[3], delete: !!arrayAccess[4]}
         }
     }
 });
@@ -78,7 +79,7 @@ PermissionSchema.static({
             .limit(limit)
             .skip(limit * page)
             .exec(function (err, res) {
-                if (err) return {}; //ToDo logger
+                if (err) return {}; //TODO logger
                 console.log(res);
                 return res;
             });

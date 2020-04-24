@@ -37,7 +37,7 @@ AgentSchema.virtual('isLocked').get(function () {
  */
 
 AgentSchema.pre('remove', function (next) {
-    //ToDo pre-remove required...
+    //TODO pre-remove required...
     next();
 });
 
@@ -77,7 +77,7 @@ AgentSchema.method({
             .catch(err => console.log("!!!!!!!!Agent getById catch err: ", err));
     },
     incLoginAttempts: async function () {
-        //ToDo add log Attempts to Array{ip, time, ...}
+        //TODO add log Attempts to Array{ip, time, ...}
         //// if we have a previous lock that has expired, restart at 1
         if (this.lockUntil && this.lockUntil < Date.now()) {
             return this.updateOne({
@@ -208,8 +208,8 @@ AgentSchema.static({
      * @param {String} email
      * @api private
      */
-    getByEmail: async (email) => {
-        return await Agent.findOne({email: email})
+    getByEmail: async function(email) {
+        return await this.findOne({email: email})
             .then(user => user)
             .catch(err => console.log("!!!!!!!! getByEmail catch err: ", err));
     },
@@ -230,7 +230,7 @@ AgentSchema.static({
             .limit(limit)
             .skip(limit * page)
             .exec(function (err, res) {
-                if (err) return {}; //ToDo logger
+                if (err) return {}; //TODO logger
                 console.log(res);
                 return res;
             });

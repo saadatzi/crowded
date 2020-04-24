@@ -46,9 +46,8 @@ roleController.prototype.add = async (newRole) => {
  * @return Role
  */
 roleController.prototype.get = async (optFilter, type = 'email') => {
-    console.log("***Role get by Id optFilter 2: ", optFilter);
     if (!optFilter || optFilter instanceof Object) { //newRole instanceof Array
-        return await Role.getAll(optFilter)
+        return await Role.list(optFilter)
             .then(result => {
                 console.log("***Role get All result: ", result);
                 return result;

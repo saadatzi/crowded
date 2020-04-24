@@ -18,7 +18,7 @@ const RoleSchema = new Schema({
  */
 
 RoleSchema.pre('remove', function (next) {
-    //ToDo pre-remove required...
+    //TODO pre-remove required...
     next();
 });
 
@@ -26,7 +26,7 @@ RoleSchema.pre('remove', function (next) {
  * Methods
  */
 RoleSchema.method({
-    //ToDo method need... this.model('Interest')
+    //TODO method need... this.model('Interest')
 });
 
 /**
@@ -47,15 +47,46 @@ RoleSchema.static({
     },
 
     /**
-     * Find use by email
+     * Get All
      *
-     * @param {String} email
+     * @param {String} token
      * @api private
      */
-    getByEmail: async (email) => {
-        return await User.findOne({email: email})
-            .then(user => user)
-            .catch(err => console.log("!!!!!!!! getByEmail catch err: ", err));
+    async list() {
+        return await this.aggregate([
+            {
+                $lookup: {
+                    from: 'permissions',
+                    localField: 'permissions.permissionId',
+                    foreignField: '_id',
+                    as: 'perName'
+                }
+            },
+            {$unwind: "$permissions"},
+            {
+                $group: {
+                    _id: "$_id",
+                    permissions: {
+                        $push: {
+                            title: {$arrayElemAt: ['$perName.title', 0]},
+                            accessLevel: binLevel2Bool('permissions.accessLevel')
+                        }
+                    },
+                    name: {$first: `$name`},
+                    status: {$first: `$status`},
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    id: '$_id',
+                    name: 1,
+                    permissions: 1,
+                    status: 1,
+                }
+            },
+        ])
+            .catch(err => console.error("Role List  Catch", err));
     },
 
     /**
@@ -73,12 +104,19 @@ RoleSchema.static({
             .limit(limit)
             .skip(limit * page)
             .exec(function (err, res) {
-                if (err) return {}; //ToDo logger
+                if (err) return {}; //TODO logger
                 console.log(res);
                 return res;
             });
     }
 });
+
+function binLevel2Bool(number) {
+    console.warn(">>>>>>>>>>>>>>> binLevel2Bool number: ", number);
+    const arrayAccess = Array.from(String((Number(number)).toString(2)), Number);
+    console.warn(">>>>>>>>>>>>>>> binLevel2Bool arrayAccess: ", arrayAccess);
+    return {create: !!arrayAccess[1], read: !!arrayAccess[2], update: !!arrayAccess[3], delete: !!arrayAccess[4]}
+}
 
 const Role = mongoose.model('Role', RoleSchema);
 module.exports = Role;

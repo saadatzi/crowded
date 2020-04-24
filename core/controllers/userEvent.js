@@ -23,7 +23,7 @@ userEventController.prototype.add = async (eventId, userId) => {
         eventId: eventId,
         status: 'APPLIED',
     };
-    //ToDo if other Applied in same time //now skipped
+    //TODO if other Applied in same time //now skipped
     return await UserEvent.create(applyUserEvent)
         .then(event => {
             console.log("***UserEvent save success event", event);

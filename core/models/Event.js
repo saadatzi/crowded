@@ -81,7 +81,7 @@ console.log(use.schema.path('salutation').enumValues);
  */
 
 EventSchema.pre('remove', function (next) {
-    //ToDo pre-remove required...
+    //TODO pre-remove required...
     next();
 });
 
@@ -351,7 +351,7 @@ EventSchema.static({
 
         if (dateFilter) criteria.from = {$gte: dateFilter.startMonth, $lt: dateFilter.endMonth};
 
-        //ToDo .find date range
+        //TODO .find date range
         /*criteria.from = {
         $expr: {
             $and: [

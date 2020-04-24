@@ -21,7 +21,7 @@ const LogSchema = new Schema({
  */
 
 LogSchema.pre('remove', function (next) {
-    //ToDo pre-remove required...
+    //TODO pre-remove required...
     next();
 });
 
@@ -29,7 +29,7 @@ LogSchema.pre('remove', function (next) {
  * Methods
  */
 LogSchema.method({
-    //ToDo method need... this.model('Interest')
+    //TODO method need... this.model('Interest')
 });
 
 /**
@@ -68,7 +68,7 @@ LogSchema.static({
             .limit(limit)
             .skip(limit * page)
             .exec(function (err, res) {
-                if (err) return {}; //ToDo logger
+                if (err) return {}; //TODO logger
                 console.log(res);
                 return res;
             });

@@ -27,7 +27,7 @@ TransactionSchema.plugin(AutoIncrement, {inc_field: 'transactionId'});
  */
 
 TransactionSchema.pre('remove', function (next) {
-    //ToDo pre-remove required...
+    //TODO pre-remove required...
     next();
 });
 

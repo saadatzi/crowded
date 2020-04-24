@@ -49,7 +49,7 @@ router.post('/withdraw', verifyToken(true), async function (req, res) {
             message: 'bankId must be a valid id'
         }, 'input error.', 400).send(res);
     }
-    //ToDo Joi fo Total
+    //TODO Joi fo Total
 
     transactionController.requestWithdraw(req.userId, req.body.bankId, req.body.total)
         .then(withdrawn => {

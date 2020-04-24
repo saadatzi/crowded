@@ -32,7 +32,7 @@ module.exports = {
             }
             if (token) {
                 try {
-                    //ToDo from jwt
+                    //TODO from jwt
                     //// let tokenObj = jwt.verify(token, publicKEY, tokenOption);
                     // if (!tokenObj) throw {errCode: 401};
                     //
@@ -70,7 +70,7 @@ module.exports = {
 
 
                 } catch (err) {
-                    console.error('!!!Verify Token not have Token: Authorization Failed!!! => API: %s', err);
+                    console.error('!!!Verify Token Catch! Token: Authorization Failed!!! => API: %s', err);
                     return new NZ.Response(null, 'invalid token err: ' + err.message, 403).send(res);
                 }
             } else {
@@ -94,11 +94,11 @@ module.exports = {
                     req.userId = tokenObj.userId;
                     return next();
                 } catch (err) {
-                    console.error('!!!Verify Token not have Token: Authorization Failed!!! => API: %s', err);
+                    console.error('!!!Panel Verify Token Catch! Token: Authorization Failed!!! => API: %s', err);
                     return new NZ.Response(null, 'invalid token err: ' + err.message, 403).send(res);
                 }
             } else {
-                console.error('!!!Verify Token not have Token: Authorization Failed!!! => API: %s', req.originalUrl);
+                console.error('!!!Panel Verify Token not have Token: Authorization Failed!!! => API: %s', req.originalUrl);
                 return new NZ.Response(null, 'invalid token', 403).send(res);
             }
 

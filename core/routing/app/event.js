@@ -78,7 +78,7 @@ router.post('/', verifyToken(true), async function (req, res) {
 
     userEventController.add(req.body.eventId, req.userId)
         .then(result => {
-            //ToDo set automatic Approved for Test
+            //TODO set automatic Approved for Test
             console.info(">>>>>>>>>>>>>>>>>>>>>***30sec Set Status APPROVED : %j", result);
             result.status = "APPROVED";
             result.save();
@@ -116,7 +116,7 @@ router.get('/current', verifyToken(true), async function (req, res) {
 router.post('/status', verifyToken(true), async function (req, res) {
     console.info('API: Set Status event/init');
     new NZ.Response(null, 'Disable method!', 405).send(res);
-    //ToDo JOE validation
+    //TODO JOE validation
     /*const setStatusJoi = Joi.object().keys({
         eventId: Joi.string().length(24).required(),
         status: Joi.string().valid('APPROVED', 'REJECTED', 'ACTIVE', 'LEFT', 'PAUSED', 'SUCCESS').required()
@@ -149,7 +149,7 @@ router.post('/active', verifyToken(true), async function (req, res) {
         }, 'input error.', 400).send(res);
     }
 
-    //ToDo must be event from >= current && current + attendance < to
+    //TODO must be event from >= current && current + attendance < to
 
     userEventController.setStatus(req.userId, req.body.eventId, 'ACTIVE')
         .then(userEvent => {
@@ -200,7 +200,7 @@ router.post('/continue', verifyToken(true), async function (req, res) {
         }, 'input error.', 400).send(res);
     }
 
-    //ToDo like Active..... can Pause
+    //TODO like Active..... can Pause
     userEventController.setStatus(req.userId, req.body.eventId, 'CONTINUE')
         .then(event => {
             console.info("*** Set Status : %j", event);
@@ -249,7 +249,7 @@ router.post('/elapsed', verifyToken(true), async function (req, res) {
         }, 'input error.', 400).send(res);
     }
 
-    //ToDo JOE validation
+    //TODO JOE validation
     const elapsedJoi = Joi.object().keys({
         eventId: Joi.string().length(24).required(),
         elapsed: Joi.number().required(),
@@ -278,7 +278,7 @@ router.post('/elapsed', verifyToken(true), async function (req, res) {
 router.post('/leftFeedback', verifyToken(true), async function (req, res) {
     // const validOption = settings.event.leftOption.join().toString();
     console.info('API: Set leftFeedback event/init');
-    //ToDo JOE validation
+    //TODO JOE validation
     const setStatusJoi = Joi.object().keys({
         eventId: Joi.string().length(24).required(),
         title: Joi.string().required(),
@@ -310,7 +310,7 @@ router.post('/leftFeedback', verifyToken(true), async function (req, res) {
 //______________________Set successFeedback Event_____________________//
 router.post('/feedback', verifyToken(true), async function (req, res) {
     console.info('API: Set successFeedback event/init');
-    //ToDo JOE validation
+    //TODO JOE validation
     const setStatusJoi = Joi.object().keys({
         eventId: Joi.string().length(24).required(),
         star: Joi.number().optional(),
@@ -359,7 +359,6 @@ router.get('/myEvent', verifyToken(true), async function (req, res) {
 
     eventController.getMyEvent(req.userId, req.headers['lang'] ? (req.headers['lang']).toLowerCase() : 'en', req.query.page, req.query.previous, req.query.date)
         .then(result => {
-            console.info("*** myEvent List :", result);
             let nextPage = null;
             if (result.length > settings.event.limitPage) {
                 nextPage = Number(req.query.page) + 1;

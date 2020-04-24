@@ -15,7 +15,7 @@ module.exports = {
         })
             .then(poolResult => {
                 console.log('*** Mongoose Server Connection Success ***');
-                // CheckException.getException(); //ToDo get init from DB
+                // CheckException.getException(); //TODO get init from DB
             })
             .catch(err => {
                 console.error("!!! Mongoose Server Connection catch Failed !!! %j", err);

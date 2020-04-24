@@ -26,7 +26,7 @@ const DeviceSchema = new Schema({
  */
 
 DeviceSchema.pre('remove', function (next) {
-    //ToDo pre-remove required...
+    //TODO pre-remove required...
     next();
 });
 
@@ -34,7 +34,7 @@ DeviceSchema.pre('remove', function (next) {
  * Methods
  */
 DeviceSchema.method({
-    //ToDo method need... this.model('Animal')
+    //TODO method need... this.model('Animal')
 });
 
 /**
@@ -102,7 +102,7 @@ DeviceSchema.static({
             .limit(limit)
             .skip(limit * page)
             .exec(function (err, res) {
-                if (err) return {}; //ToDo logger
+                if (err) return {}; //TODO logger
                 console.log(res);
                 return res;
             });

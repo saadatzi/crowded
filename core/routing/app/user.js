@@ -2,8 +2,11 @@ const express = require('express')
     , router = express.Router();
 const moment = require('moment-timezone');
 const Joi = require('@hapi/joi');
+const JoiConfigs = require('./../joiConfigs');
+const {joiValidate} = require('./../utils');
 const uuid = require('node-uuid');
 const userController = require('../../controllers/user');
+const controllerUtils = require('../../controllers/utils');
 const deviceController = require('../../controllers/device');
 const NZ = require('../../utils/nz');
 const {uploader} = require('../../utils/fileManager');
@@ -161,6 +164,51 @@ router.get('/', function (req, res) {
             console.error("Interest Get Catch err:", err)
             // new NZ.Response(null, res.message, err.code || 500).send(res);
         })
+});
+
+/**
+ *  Forgot Password
+ */
+const forgotSchema = Joi.object().keys({
+    email: JoiConfigs.email(),
+});
+//______________________Forgot Password_____________________//
+router.post('/forgot',joiValidate(forgotSchema, 0), verifyToken(), async (req, res) => {
+    console.info('API: Forgot Password User/init %j', {body: req.body});
+
+
+    userController.get(req.body.email)
+        .then(async user => {
+            let email = '';
+            if (user) {
+                const hash = await controllerUtils.createResetPasswordHash( user.id);
+
+                await controllerUtils.sendEmail(user.email, 'Reset Password', 'reset-password', {
+                    name: 			user.name,
+                    logo:			settings.email_logo,
+                    cdn_domain:		settings.cdn_domain,
+                    primary_domain:	settings.primary_domain,
+                    contact_email:	settings.contact.email,
+                    contact_phone:	settings.contact.phone,
+                    contact_address:settings.contact.address,
+                    contact_copy:	settings.contact.copyright,
+                    contact_project:settings.project_name,
+                    contact_privacy:settings.contact.privacy,
+                    contact_terms:	settings.contact.terms,
+                    link: 			`${settings.panel_route}panel/reset-password-app/${hash}`
+                });
+                email = 'Email has been sent.';
+                return new NZ.Response(true, `Password has been reset! ${email}`).send(res);
+            } else {
+                return new NZ.Response(false, `${req.body.email} is not valid email!`).send(res);
+            }
+
+
+        })
+        .catch(err => {
+            console.log('!!!! user forgot catch err: ', err);
+            new NZ.Response(null, err.message, 400).send(res);
+        });
 });
 
 

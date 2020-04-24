@@ -71,7 +71,7 @@ const multiUploader = async (req, res, next) => {
     // var mimetype = mime.lookup(file);
 
     res.setHeader('Content-disposition', 'inline; filename=' + filename);
-    // ToDo For Show in Browser
+    // TODO For Show in Browser
     // res.setHeader('Content-type', mimetype);
 
 

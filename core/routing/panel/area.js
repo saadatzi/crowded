@@ -20,7 +20,7 @@ const {verifyTokenPanel} = require('../../utils/jwt');
 router.post('/add', verifyTokenPanel(), async (req, res) => {
     console.info('API: Add Area/init %j', {body: req.body});
 
-    //ToDo array only tmp
+    //TODO array only tmp
     const areaSchema = Joi.object().keys({
         selected: Joi.array().min(1).required()
     });

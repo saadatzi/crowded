@@ -97,7 +97,7 @@ router.post('/', verifyToken(), async function (req, res) {
     if (setInterestValidation.error)
         return new NZ.Response(setInterestValidation.error, 'input error.', 400).send(res);
 
-    //ToDo new value replace / Added
+    //TODO new value replace / Added
     //Added
     let lastInterests;
     if (req.userId)

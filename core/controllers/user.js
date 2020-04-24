@@ -59,7 +59,9 @@ userController.prototype.get = async (optFilter, type = 'email') => {
     } else {
         if (type === 'email') {
             return await User.getByEmail(optFilter)
-                .then(result => result)
+                .then(result => {
+
+                    return result})
                 .catch(err => {
                     console.log("!!!User getByEmail failed: ", err);
                     throw err;

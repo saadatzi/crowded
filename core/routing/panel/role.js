@@ -75,14 +75,32 @@ router.put('/update', joiValidate(updateSchema, 0), verifyTokenPanel(), async (r
  */
 //______________________Update Role_____________________//
 router.get('/permissions', verifyTokenPanel(), async (req, res) => {
-    console.info('API: Permission List/init %j', {body: req.body});
+    console.info('API: Permission List/init');
 
     permissionController.get({})
         .then(permissions => {
-            new NZ.Response(permissions).send(res);
+            new NZ.Response({items: permissions}).send(res);
         })
         .catch(err => {
             console.error("Permission List Catch err:", err)
+            new NZ.Response(null, err.message, err.code || 500).send(res);
+        })
+});
+
+/**
+ * Get Role List
+ * @return status
+ */
+//______________________Update Role_____________________//
+router.get('/', verifyTokenPanel(), async (req, res) => {
+    console.info('API: Role List/init');
+
+    roleController.get({})
+        .then(roles => {
+            new NZ.Response({items: roles}).send(res);
+        })
+        .catch(err => {
+            console.error("Role List Catch err:", err)
             new NZ.Response(null, err.message, err.code || 500).send(res);
         })
 });

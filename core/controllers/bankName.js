@@ -36,34 +36,13 @@ bankNameController.prototype.add = async (newBankName) => {
 };
 
 /**
- * Add new BankName
+ * Get BankName
  *
  * @param {Object || Array} optFilter
  *
  * @return {ObjectId} bankNameId
  */
 bankNameController.prototype.get = async (optFilter) => {
-    // let fakeBanks = [
-    //     {
-    //         _id: "5ea00dd5d7cdb00f1c45bf7d",
-    //         name: "Bank No.1"
-    //     },
-    //     {
-    //         _id: "5ea00df96ed92bb2db24b1c4",
-    //         name: "Bank No.2"
-    //     },
-    //     {
-    //         _id: "5ea00dfec4c008a48a34db3b",
-    //         name: "Bank No.3"
-    //     }
-    // ]
-    // return fakeBanks;
-    console.log('2309482309482903840923')
-    console.log('2309482309482903840923')
-    console.log(optFilter);
-    console.log('2309482309482903840923')
-    console.log('2309482309482903840923')
-
     if (!optFilter || optFilter instanceof Object) { //newBankName instanceof Array
         return await BankName.getMany(optFilter)
             .catch(err => {
