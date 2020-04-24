@@ -2,7 +2,7 @@
  * Module dependencies.
  */
 let User = require('../models/User');
-
+const settings = require('../utils/settings')
 const userController = function () {
 };
 

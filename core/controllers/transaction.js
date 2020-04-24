@@ -4,7 +4,7 @@
 const mongoose = require('mongoose');
 const Transaction = require('../models/Transaction');
 const eventController = require('./event');
-const settings = require('../utils/settings')
+const settings = require('../utils/settings');
 
 
 const transactionController = function () {

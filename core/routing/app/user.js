@@ -44,24 +44,6 @@ const userUpdateSchema = Joi.object().keys({
 //______________________Add User_____________________//
 router.post('/register', joiValidate(userRegisterSchema), verifyToken(), async (req, res) => {
     console.info('API: Register User/init %j', {body: req.body});
-
-    // req.body.email = (req.body.email).toString().toLowerCase();
-
-    const userSchema = Joi.object().keys({
-        user:	Joi.object().keys({
-            firstname:	    Joi.string().required(),
-            lastname:	    Joi.string().required(),
-            sex:	        Joi.number().required(),
-            email:          Joi.string().email({ minDomainSegments: 2, tlds: { allow: ['com', 'net', 'org'] } }).required(),
-            password:       Joi.string().min(6).max(63).required(),
-            nationality:    Joi.string().required(),
-            birthDate:      Joi.date().required(),
-        }).required(),
-    });
-
-    let userValidation = userSchema.validate({user: req.body});
-    if (userValidation.error)
-        return new NZ.Response(userValidation.error, 'input error.', 400).send(res);
     userController.get(req.body.email)
         .then(oldUser => {
             if (oldUser) return new NZ.Response(null, 'A user with this email already exists', 400).send(res);
@@ -153,10 +135,9 @@ router.post('/login', verifyToken(), async (req, res) => {
         .then(user => {
             if (!user || (user.password !== NZ.sha512Hmac(req.body.password, user.salt)))
                 return new NZ.Response(null, 'Wrong email or password, Try again', 400).send(res);
-            console.error("User Login user:", user);
             const newToken = sign({deviceId: req.deviceId, userId: user._id});
             //update device(toke,userId,updateAt)
-            deviceController.update(req.deviceId, {userId: user._id, token: newToken, updateAt: Date.now()})
+            deviceController.update(req.deviceId, {userId: user._id, token: newToken})
                 .then(device => {
                     //interest selected from device to user & merge & unique
                     user.interests = Array.from(new Set([...user.interests.map(item => item.toString()), ...device.interests.map(item => item.toString())]));
@@ -287,6 +268,31 @@ router.get('/profile', verifyToken(true), function (req, res) {
             console.error("profile Get Catch err:", err)
             // new NZ.Response(null, res.message, err.code || 500).send(res);
         })
+});
+
+/**
+ *  Change Password
+ */
+const changePassSchema = Joi.object().keys({
+    oldPassword:    JoiConfigs.password,
+    password:       JoiConfigs.password,
+});
+//______________________Forgot Password_____________________//
+router.post('/changePassword',joiValidate(changePassSchema), verifyToken(true), async (req, res) => {
+    console.info('API: Change Password User/init %j', {body: req.body});
+    userController.get(req.userId, 'id')
+        .then(user => {
+            if (!user || (user.password !== NZ.sha512Hmac(req.body.oldPassword, user.salt)))
+                return new NZ.Response(null, 'Wrong old password, Try again', 400).send(res);
+            user.password = NZ.sha512Hmac(req.body.password, user.salt);
+            user.save();
+            new NZ.Response(null, 'change password success!').send(res);
+
+        })
+        .catch(err => {
+            console.log('!!!! user login catch err: ', err);
+            new NZ.Response(null, err.message, 400).send(res);
+        });
 });
 
 
