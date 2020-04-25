@@ -12,6 +12,7 @@ const NZ = require('../../utils/nz');
 const {uploader} = require('../../utils/fileManager');
 const {sign, verifyToken} = require('../../utils/validation');
 const settings = require('../../utils/settings');
+const nationalities = require('../../utils/nationalities');
 
 
 const userRegisterSchema = Joi.object().keys({
@@ -25,15 +26,13 @@ const userRegisterSchema = Joi.object().keys({
     });
 
 const userUpdateSchema = Joi.object().keys({
-    image:          JoiConfigs.strOptional,
     firstname:	    JoiConfigs.title,
     lastname:	    JoiConfigs.title,
     sex:	        JoiConfigs.gender,
-    // email:          JoiConfigs.email(),
     nationality:    JoiConfigs.title,
     birthDate:      JoiConfigs.datetime(false),
     civilId:        JoiConfigs.strOptional,
-    phone:          JoiConfigs.phone
+    phone:          JoiConfigs.phone(false)
 });
 const forgotSchema = Joi.object().keys({
     email: JoiConfigs.email(),
@@ -112,13 +111,20 @@ router.post('/edit', joiValidate(userUpdateSchema), verifyToken(true), async (re
  */
 //______________________Add Profile Pic_____________________//
 router.put('/upload', verifyToken(true), uploader, async (req, res) => {
-    console.info('API: Add Profile Pic/init');
+    console.info('API: Add Profile Pic/init req._uploadPath', req._uploadPath);
     if (!req._uploadPath || !req._uploadFilename) {
         return new NZ.Response(null, 'fileUpload is Empty!', 400).send(res);
     }
-
     const image = req._uploadPath + '/' + req._uploadFilename;
-    new NZ.Response({item: image}).send(res);
+    userController.update(req.userId, {image: image})
+        .then(user => {
+            new NZ.Response(true, 'Profile picture uploaded successful!').send(res);
+        })
+        .catch(err => {
+            console.log('!!!! user Update picture profile Failed catch: ', err);
+            new NZ.Response(null, err.message, 400).send(res);
+        });
+
 });
 
 /**
@@ -290,6 +296,17 @@ router.post('/changePassword',joiValidate(changePassSchema), verifyToken(true), 
             console.log('!!!! user login catch err: ', err);
             new NZ.Response(null, err.message, 400).send(res);
         });
+});
+
+/**
+ * Get Nationalities
+ * @return Nationalities
+ */
+//______________________Get Nationalities_____________________//
+router.get('/nationalities', verifyToken(true), function (req, res) {
+    console.info('API: Get Nationalities User/init');
+    const lang = req.headers['lang'] ? (req.headers['lang']).toLowerCase() : 'en';
+    new NZ.Response({items: nationalities[`title_${lang}`]}).send(res);
 });
 
 
