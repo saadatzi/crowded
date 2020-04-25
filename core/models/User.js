@@ -3,8 +3,8 @@ const Schema = mongoose.Schema;
 const settings = require('../utils/settings');
 
 const UserSchema = new Schema({
-    email: {type: String, index: true, lowercase: true, unique: true, required: [true, "can't be blank"]},
-    interests:  [{type: Schema.Types.ObjectId, ref: 'Interest'}],
+    email: { type: String, index: true, lowercase: true, unique: true, required: [true, "can't be blank"] },
+    interests: [{ type: Schema.Types.ObjectId, ref: 'Interest' }],
     firstname: String,
     lastname: String,
     image: String,
@@ -15,11 +15,11 @@ const UserSchema = new Schema({
     salt: String,
     password: String,
     civilId: String,
-    status: {type: Number, default: 1},
+    status: { type: Number, default: 1 },
     lastIp: String,
     lastLogin: Date,
     lastInteract: Date,
-}, {timestamps: true});
+}, { timestamps: true });
 
 /**
  * Pre-remove hook
@@ -40,7 +40,7 @@ UserSchema.method({
             email: this.email,
             firstname: this.firstname,
             lastname: this.lastname,
-            image: {url: settings.media_domain+this.image},
+            image: { url: settings.media_domain + this.image },
             sex: this.sex,
             birthDate: this.birthDate,
             phone: this.phone,
@@ -62,9 +62,10 @@ UserSchema.static({
      * @api private
      */
     async getById(_id) {
-        return await this.findById({_id})
-            .then(user =>  user)
-            .catch(err => console.log("!!!!!!!!User getById catch err: ", err))},
+        return await this.findById({ _id })
+            .then(user => user)
+            .catch(err => console.log("!!!!!!!!User getById catch err: ", err))
+    },
 
     /**
      * Find use by email
@@ -73,7 +74,7 @@ UserSchema.static({
      * @api private
      */
     getByEmail: async (email) => {
-        return await User.findOne({email: email})
+        return await User.findOne({ email: email })
             .then(user => user)
             .catch(err => console.log("!!!!!!!! getByEmail catch err: ", err));
     },
@@ -90,7 +91,7 @@ UserSchema.static({
         const page = options.page || 0;
         const limit = options.limit || 50;
         return this.find(criteria)
-            .sort({createdAt: -1})
+            .sort({ createdAt: -1 })
             .limit(limit)
             .skip(limit * page)
             .exec(function (err, res) {
@@ -98,6 +99,25 @@ UserSchema.static({
                 console.log(res);
                 return res;
             });
+    },
+
+
+    /**
+     * Checks to see if given interest is related to any user
+     *
+     * @param {String} id
+     * @api private
+     */
+    interestIsRelated: async function (id) {
+        let result = await this.aggregate([
+            { $match: { interests: mongoose.Types.ObjectId(id) } }
+        ])
+            .catch(err => {
+                console.error(`User interestIsRelated check failed with criteria id:${id}`, err);
+                throw err;
+            });
+        return result.length != 0;
+
     }
 });
 

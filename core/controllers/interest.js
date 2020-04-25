@@ -71,42 +71,22 @@ interestController.prototype.get = async (optFilter) => {
 };
 
 /**
- * remove Interest
+ * Remove Interest
  *
- * @param {Object || ObjectId} optFilter
+ * @param {String} id
+ * @returns {Promise}
  *
- * @return Query
  */
-interestController.prototype.remove = async (optFilter) => {
-    if (optFilter) {
-        if (optFilter instanceof Object) { //instanceof mongoose.Types.ObjectId
-
-            return await Interest.remove(optFilter)
-                .then(result => {
-                    console.log("***Interest  Remove many result: ", result);
-                    return result;
-                })
-                .catch(err => {
-                    console.log("!!!Interest Remove failed: ", err);
-                    throw err;
-                })
-        } else {
-
-            return await Interest.findByIdAndRemove(optFilter)
-                .then(result => {
-                    console.log(`***Interest Remove by id ${optFilter} result: `, result);
-                    return result;
-                })
-                .catch(err => {
-                    console.log("!!!Interest Remove failed: ", err);
-                    throw err;
-                })
-        }
-    } else {
-        throw { errMessage: 'for remove Object conditions or Id is required!' }
-    }
-
-
+interestController.prototype.remove = async (id) => {
+    return await Interest.findByIdAndRemove(id)
+        .then(result => {
+            console.log(`***Interest Removed by id ${id} result: `, result);
+            return result;
+        })
+        .catch(err => {
+            console.log(`!!!Interest Remove failed for id ${id}: `, err);
+            throw err;
+        });
 };
 
 /**
@@ -118,7 +98,7 @@ interestController.prototype.remove = async (optFilter) => {
  * @return Query
  */
 interestController.prototype.update = async (payload) => {
-    let toUpdate= {}
+    let toUpdate = {}
     payload.title_en ? toUpdate.title_en = payload.title_en : null;
     payload.title_fa ? toUpdate.title_fa = payload.title_fa : null;
     payload.order ? toUpdate.order = payload.order : null;
