@@ -8,7 +8,7 @@ const BankAccountSchema = new Schema({
     IBAN: { type: String, required: true },
     civilId: { type: String, required: true },
     status: { type: Number, default: 1 }, // 1 active, 0 deActive, 2 softDelete, 3 hardDelete
-}, {timestamps: true});
+}, { timestamps: true });
 
 
 
@@ -44,12 +44,13 @@ BankAccountSchema.static({
     * @param {Object} options
     * @api private
     */
-    getAll(options) {
+    getMany(options) {
         const originalCriteria = options.criteria || {};
         const lang = options.lang;
         const modifiedCriteria = {};
 
         originalCriteria.userId ? modifiedCriteria.userId = mongoose.Types.ObjectId(originalCriteria.userId) : null;
+        modifiedCriteria.status = options.criteria.status || 1;
 
         // const page = options.page || 0;
         // const limit = options.limit || 30;
@@ -60,12 +61,12 @@ BankAccountSchema.static({
             // {$skip: limit * page},
             // {$limit: limit + 1},
             {
-                $lookup: {from: 'banknames', localField: 'bankNameId', foreignField: '_id', as: 'bankNameObject'}
+                $lookup: { from: 'banknames', localField: 'bankNameId', foreignField: '_id', as: 'bankNameObject' }
             },
             {
                 $project: {
                     _id: 0,
-                    id:'$_id',
+                    id: '$_id',
                     firstname: 1,
                     lastname: 1,
                     IBAN: 1,
@@ -73,14 +74,34 @@ BankAccountSchema.static({
                 }
             },
             {
-                $unwind:"$bankName"
+                $unwind: "$bankName"
             }
         ])
             .catch(err => {
-                console.error(`BankAccount get all failed with criteria ${JSON.stringify(criteria)}`,err);
+                console.error(`BankAccount get all failed with criteria ${JSON.stringify(criteria)}`, err);
                 throw err;
             });
 
+    },
+
+    /**
+     * Change status and SAVE
+     *
+     * @param {ObjectId} id
+     * @param {Number} newStatus
+     * @api private
+     * @returns {Promise} .save().catch()
+     */
+    changeStatus(id, newStatus) {
+        return this.getById(id)
+            .then(bankAccount => {
+                if(newStatus == bankAccount.status) throw {message: 'Not permitted to fixstate on a status.'};
+                bankAccount.status = newStatus;
+                return bankAccount.save();
+            })
+            .catch(err => {
+                throw err;
+            });
     }
 });
 

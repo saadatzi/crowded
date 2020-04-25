@@ -32,14 +32,14 @@ bankAccountController.prototype.add = async (userId, newBankAccount) => {
 
 
 /**
- * Get bank Accounts
+ * Get bank Account(s)
  *
  * @return {Array} bankAccountId
  */
 bankAccountController.prototype.get = async (optFilter) => {
     // TODO: figure out how to pass lang for single fetch
     if (!optFilter || optFilter instanceof Object) {
-        return await BankAccount.getAll(optFilter)
+        return await BankAccount.getMany(optFilter)
             .then(result => {
                 console.log(`*** Fetched ${result.length} Accounts  by filter %j`, optFilter);
                 return result;
@@ -59,6 +59,23 @@ bankAccountController.prototype.get = async (optFilter) => {
                 throw err;
             })
     }
+};
+
+/**
+ * Change bank Account status
+ * @param {ObjectId} id desired account's _id
+ * @param {Number} newStatus desired status to set
+ * @return {Array} bankAccountId
+ */
+bankAccountController.prototype.changeStatus = async (id, newStatus) => {
+    return await BankAccount.changeStatus(id, newStatus)
+        .then(result => {
+            return result;
+        })
+        .catch(err => {
+            console.log("!!!BankAccount delete failed: ", err);
+            throw err;
+        })
 };
 
 

@@ -33,7 +33,7 @@ const addSchema = Joi.object().keys({
  Get Bank Names
  */
 router.get('/name', verifyToken(true), async function (req, res) {
-    let bankNames = await bankNameController.get({lang:req._lang});
+    let bankNames = await bankNameController.get({ lang: req._lang });
     new NZ.Response(bankNames).send(res);
     // bankNameController.add(prepared);
 });
@@ -59,7 +59,21 @@ router.post('/account/add', joiValidate(addSchema, 0), verifyToken(true), async 
  */
 router.get('/account', verifyToken(true), async function (req, res) {
     bankAccountController.get({ criteria: { userId: req.userId }, lang: req._lang })
-        .then(result => {new NZ.Response({items: result}).send(res);})
+        .then(result => { new NZ.Response({ items: result }).send(res); })
+        .catch(err => {
+            console.error("Get bank accounts catch err:", err)
+            new NZ.Response(null, err.message, 500).send(res);
+        })
+
+});
+
+/**
+ Delete Bank Account
+ */
+router.post('/account/delete', verifyToken(true), async function (req, res) {
+    let id = req.body.id;
+    return bankAccountController.changeStatus(id, 0)
+        .then(result => { new NZ.Response(null,"BankAccount deleted successfully").send(res)})
         .catch(err => {
             console.error("Get bank accounts catch err:", err)
             new NZ.Response(null, err.message, 500).send(res);
