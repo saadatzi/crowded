@@ -45,11 +45,7 @@ areaController.prototype.add = async (newArea) => {
 areaController.prototype.get = async (optFilter) => {
     if (!optFilter || optFilter instanceof Object) { //newArea instanceof Array
         return await Area.list()
-            .then(interests => {
-                let returnedAreas = [];
-                interests.map(interest => returnedAreas.push(interest.transform(optFilter.selected, optFilter.lang)));
-                return returnedAreas;
-            })
+            .then(areas => areas)
             .catch(err => {
                 console.log("!!!Area getAll failed: ", err);
                 throw err;

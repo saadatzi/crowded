@@ -18,7 +18,6 @@ const RoleSchema = new Schema({
  */
 
 RoleSchema.pre('remove', function (next) {
-    //TODO pre-remove required...
     next();
 });
 
@@ -26,7 +25,6 @@ RoleSchema.pre('remove', function (next) {
  * Methods
  */
 RoleSchema.method({
-    //TODO method need... this.model('Interest')
 });
 
 /**

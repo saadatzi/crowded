@@ -21,7 +21,6 @@ const AreaSchema = new Schema({
  */
 
 AreaSchema.pre('remove', function (next) {
-    //TODO pre-remove required...
     next();
 });
 
@@ -29,7 +28,14 @@ AreaSchema.pre('remove', function (next) {
  * Methods
  */
 AreaSchema.method({
-    //TODO method need... this.model('Animal')
+    toJSON() {
+        return {
+            id: this._id,
+            name_en: this.name_en,
+            name_ar: this.name_ar,
+            childs: this.childs
+        }
+    }
 });
 
 /**
@@ -42,10 +48,11 @@ AreaSchema.static({
      * @param {ObjectId} _id
      * @api private
      */
-    getById: function(_id) {
+    getById: function (_id) {
         return this.findById({_id})
-        .then(area =>  area)
-        .catch(err => console.log("!!!!!!!! Event getById catch err: ", err))},
+            .then(area => area)
+            .catch(err => console.log("!!!!!!!! Event getById catch err: ", err))
+    },
 
     /**
      * Find area by identifier
@@ -53,10 +60,10 @@ AreaSchema.static({
      * @param {String} identifier
      * @api private
      */
-    getByIdentifier: (identifier) => {
-        return Area.findOne({identifier: identifier})
+    list() {
+        return Area.find({})
             .then(area => area)
-            .catch(err => console.log("!!!!!!!! getByIdentifier catch err: ", err));
+            .catch(err => console.log("!!!!!!!! get all Area catch err: ", err));
         // console.log("########## getByIdentifier area: ", area)
         // if (err) {
         // }

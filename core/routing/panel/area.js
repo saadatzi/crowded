@@ -21,29 +21,62 @@ const addSchema = Joi.object().keys({
     childs: JoiConfigs.arrayLength(1, 100, childSchema),
 });
 
+const addArraySchema = Joi.object().keys({
+    selected: JoiConfigs.arrayLength(1, 100, addSchema),
+});
+
 /**
  *  Add Area
  * -add Area in db
  * @return status
  */
 //______________________Add Area_____________________//
-router.post('/add', joiValidate(loginSchema, 0), verifyTokenPanel(), async (req, res) => {
+router.post('/add', joiValidate(addSchema), verifyTokenPanel(), async (req, res) => {
     console.info('API: Add Area/init %j', {body: req.body});
 
-    //TODO array only tmp
-    const areaSchema = Joi.object().keys({
-        selected: Joi.array().min(1).required()
-    });
-    let areaValidation = areaSchema.validate({selected: req.body});
-    if (areaValidation.error)
-        return new NZ.Response(areaValidation.error, 'input error.', 400).send(res);
-
     areaController.add(req.body)
-        .then(interest => {
-            new NZ.Response('', interest.length + ' Area has been successfully added!').send(res);
+        .then(area => {
+            new NZ.Response('', area.length + ' Area has been successfully added!').send(res);
         })
         .catch(err => {
             console.error("Area Add Catch err:", err)
+            new NZ.Response(null, res.message, err.code || 500).send(res);
+        })
+});
+
+/**
+ *  Add Area Array
+ * -add Area in db
+ * @return status
+ */
+//______________________Add Area_____________________//
+router.post('/addMulti', joiValidate(addArraySchema), verifyTokenPanel(), async (req, res) => {
+    console.info('API: Add Area/init %j', {body: req.body});
+
+    areaController.add(req.body)
+        .then(area => {
+            new NZ.Response('', area.length + ' Area has been successfully added!').send(res);
+        })
+        .catch(err => {
+            console.error("Area Add Catch err:", err)
+            new NZ.Response(null, res.message, err.code || 500).send(res);
+        })
+});
+
+/**
+ *  Get Area
+ * @return List Area
+ */
+//______________________Get Area_____________________//
+router.get('/', verifyTokenPanel(), async (req, res) => {
+    console.info('API: Get Area/init %j', {body: req.body});
+
+    areaController.get({})
+        .then(areas => {
+            new NZ.Response({items: areas}).send(res);
+        })
+        .catch(err => {
+            console.error("Area Get Catch err:", err)
             new NZ.Response(null, res.message, err.code || 500).send(res);
         })
 });
