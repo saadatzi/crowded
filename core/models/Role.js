@@ -99,10 +99,11 @@ RoleSchema.static({
     /**
      * Get All
      *
+     * @param {ObjectId} userId
      * @param {Array} needPermissions
      * @api private
      */
-    async authorize(needPermissions) {
+    async authorize(userId, needPermissions) {
         return await this.aggregate([
             {
                 $lookup: {
