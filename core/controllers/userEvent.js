@@ -45,7 +45,7 @@ userEventController.prototype.add = async (eventId, userId) => {
  * @return UserEvent
  */
 userEventController.prototype.getCurrent = async (userId, lang) => {
-    return await UserEvent.getOne({userId, status: {$in: ['ACTIVE', 'PAUSED']}})
+    return await UserEvent.getOne({userId, status: {$in: ['ACTIVE', 'PAUSED', 'CONTINUE']}})
         .then(async result => {
             if (result) {
                 //get from Event Aggregate

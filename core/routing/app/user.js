@@ -12,6 +12,7 @@ const NZ = require('../../utils/nz');
 const {uploader} = require('../../utils/fileManager');
 const {sign, verifyToken} = require('../../utils/validation');
 const settings = require('../../utils/settings');
+const nationalities = require('../../utils/nationalities');
 
 
 const userRegisterSchema = Joi.object().keys({
@@ -25,15 +26,13 @@ const userRegisterSchema = Joi.object().keys({
     });
 
 const userUpdateSchema = Joi.object().keys({
-    image:          JoiConfigs.strOptional,
     firstname:	    JoiConfigs.title,
     lastname:	    JoiConfigs.title,
     sex:	        JoiConfigs.gender,
-    // email:          JoiConfigs.email(),
     nationality:    JoiConfigs.title,
     birthDate:      JoiConfigs.datetime(false),
     civilId:        JoiConfigs.strOptional,
-    phone:          JoiConfigs.phone
+    phone:          JoiConfigs.phone(false)
 });
 const forgotSchema = Joi.object().keys({
     email: JoiConfigs.email(),
@@ -297,6 +296,17 @@ router.post('/changePassword',joiValidate(changePassSchema), verifyToken(true), 
             console.log('!!!! user login catch err: ', err);
             new NZ.Response(null, err.message, 400).send(res);
         });
+});
+
+/**
+ * Get Nationalities
+ * @return Nationalities
+ */
+//______________________Get Nationalities_____________________//
+router.get('/nationalities', verifyToken(true), function (req, res) {
+    console.info('API: Get Nationalities User/init');
+    const lang = req.headers['lang'] ? (req.headers['lang']).toLowerCase() : 'en';
+    new NZ.Response({items: nationalities[`title_${lang}`]}).send(res);
 });
 
 

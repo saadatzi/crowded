@@ -12,13 +12,13 @@ module.exports = {
     number: 			Joi.number().integer().min(1).required(),
     price: 				Joi.number().min(1).required(),
     numberOptional: 	Joi.number().min(0).optional(),
-    phone: 				Joi.number().integer().required(),
     gender: 			Joi.number().valid(1, 2).required(),
     timeStamp: 			Joi.date().timestamp().required(),
     percent: 			Joi.number().min(0).max(100).required(),
     html: 				Joi.string().min(1).required(),
     isMongoId: 			Joi.string().regex(/^[0-9a-fA-F]{24}$/, 'ID is invalid').required(),
 
+    phone: 		 (isRequired = true) => isRequired ? Joi.string().min(4).max(13).required() : Joi.string().min(4).max(13).optional(),
     datetime:    (isRequired = true) => isRequired ? Joi.date().required() : Joi.date().optional(),
     email: 		 (isRequired = true) => isRequired ?
         Joi.string().email({ minDomainSegments: 2, tlds: { allow: ['com', 'net', 'org'] } }).required() :
