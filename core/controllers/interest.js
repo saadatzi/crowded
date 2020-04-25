@@ -103,7 +103,7 @@ interestController.prototype.remove = async (optFilter) => {
                 })
         }
     } else {
-        throw {errMessage: 'for remove Object conditions or Id is required!'}
+        throw { errMessage: 'for remove Object conditions or Id is required!' }
     }
 
 
@@ -117,35 +117,21 @@ interestController.prototype.remove = async (optFilter) => {
  *
  * @return Query
  */
-interestController.prototype.update = async (optFilter, newValue) => {
-    if (optFilter) {
-        if (optFilter instanceof Object) { //instanceof mongoose.Types.ObjectId
-
-            return await Interest.updateMany(optFilter, newValue)
-                .then(result => {
-                    console.log("***Interest  Update many result: ", result);
-                    return result;
-                })
-                .catch(err => {
-                    console.log("!!!Interest Update failed: ", err);
-                    throw err;
-                })
-        } else {
-
-            return await Interest.findByIdAndUpdate(optFilter, newValue)
-                .then(result => {
-                    console.log(`***Interest Update by id ${optFilter} result: `, result);
-                    return result;
-                })
-                .catch(err => {
-                    console.log("!!!Interest Update failed: ", err);
-                    throw err;
-                })
-        }
-    } else {
-        throw {errMessage: 'for Update Object conditions or Id is required!'}
-    }
-
+interestController.prototype.update = async (payload) => {
+    let toUpdate= {}
+    payload.title_en ? toUpdate.title_en = payload.title_en : null;
+    payload.title_fa ? toUpdate.title_fa = payload.title_fa : null;
+    payload.order ? toUpdate.order = payload.order : null;
+    payload.image ? toUpdate.image = payload.image : null;
+    return await Interest.findByIdAndUpdate(payload.id, toUpdate)
+        .then(result => {
+            console.log(`***Interest Update by id ${payload.id} result: `, result);
+            return result;
+        })
+        .catch(err => {
+            console.log("!!!Interest Update failed: ", err);
+            throw err;
+        });
 
 };
 
