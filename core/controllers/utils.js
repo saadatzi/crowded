@@ -1,5 +1,4 @@
 const settings = require('../utils/settings');
-const engine = require('express-dot-engine');
 const path = require('path');
 const uuid = require('node-uuid');
 const nodemailer = require('nodemailer');
@@ -44,10 +43,10 @@ const sendEmail = async (to, subject, page, options) => {
 		from: `"${settings.mail.from_name}" <${settings.mail.from}>`,
 		to,
 		subject,
-		// text: "Hello world?", // plain text body
-		html: engine.render(path.join(process.cwd(), `/templates/email/${page}.dot`), {
-			...options
-		})
+		//TODO text: "Hello world?", // plain text body
+		// html: engine.render(path.join(process.cwd(), `/templates/email/${page}.dot`), {
+		// 	...options
+		// })
 	});
 
 	return info.messageId;

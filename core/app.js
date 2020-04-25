@@ -14,7 +14,6 @@ const fs = require('fs');
 const settings = require('./utils/settings');
 
 const helmet = require('helmet');
-const engine = require('express-dot-engine');
 const {logger, isAPIChecker} = require('./utils/logger');
 
 const logController = require('./controllers/log');
@@ -132,9 +131,9 @@ app.use(logger('PyLog', {
 }));
 
 
-app.engine('dot', engine.__express);
-app.set('views', path.join(_rootDir, './templates/default/dot'));
-app.set('view engine', 'dot');
+// app.engine('dot', engine.__express);
+// app.set('views', path.join(_rootDir, './templates/default/dot'));
+// app.set('view engine', 'dot');
 
 
 /*
