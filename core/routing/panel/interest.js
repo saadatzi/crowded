@@ -30,35 +30,12 @@ const editSchema = Joi.object().keys({
  * @return status
  */
 //______________________Add Interest_____________________//
-router.put('/add', verifyTokenPanel(), uploader, async (req, res) => {
-    console.info('API: Add interest/init %j', { body: req.body });
+router.post('/add', verifyTokenPanel(), uploader, async (req, res) => {
+    console.info('API: Add interest/init %j', {body: req.body});
 
     if (!req._uploadPath || !req._uploadFilename) {
         return new NZ.Response(null, 'fileUpload is Empty!', 400).send(res);
     }
-    // const schema = Joi.object().keys({
-    //     device:	Joi.object().keys({
-    //         name:		Joi.string().required(),
-    //         capacity:	Joi.string().regex(/^[0-9.GB]{3,18}$/).required(),
-    //         uid:		Joi.string().regex(/^[A-F0-9-]{36}$/).required(),
-    //         platform:	Joi.string().required()
-    //     }).required(),
-    //
-    //     os: Joi.object().keys({
-    //         version:	Joi.string().required(),
-    //         type:		Joi.string().allow('iOS', 'Android').required()
-    //     }).required()
-    // });
-    //
-    // result = schema.validate({
-    //     device:	req.body.device,
-    //     os:		req.body.os
-    // });
-    //
-    // let response = {};
-    //
-    // if (result.error)
-    //     return new NZ.Response(result.error, 'input error.', 400).send(res);
 
     req.body.image = req._uploadPath + '/' + req._uploadFilename;
     interestController.add(req.body)

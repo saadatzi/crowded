@@ -10,26 +10,20 @@ const NZ = require('./nz');
 
 const storage = multer.diskStorage({
     destination: async (req, file, callback) => {
-        console.info('multer.diskStorage destination file', file);
         if (!file) {
             return callback(true, null);
         }
         const target = (req.originalUrl).slice(1).split('/');
         let folder = await NZ.generateRandomFolder(target[1]);
 		folder = path.join(settings.media_path, folder);
-		// console.log(folder, process.env.PWD, require.main, path.dirname(require.main.filename));
-        console.info('API: UploadFile destination %j', {folder: folder});
-        console.info('multer.diskStorage destination folder', folder);
         req._uploadPath = (folder).substring((folder).indexOf(settings.media_folder)+(settings.media_folder).length);
         callback(null, folder)
     },
     filename: (req, file, callback) => {
-        console.info('multer.diskStorage filename file', file);
         if (!file.originalname.match(/\.(png|PNG|jpeg|JPEG|jpg|JPG)$/)) {
             return callback(new Error('fileType'))
         } else {
             const fileName = `${uuid.v4()}_${shortid.generate()}${path.extname(file.originalname)}`;
-            console.info('multer.diskStorage filename', fileName);
             req._uploadFilename = fileName;
             callback(null, fileName)
         }
@@ -43,10 +37,8 @@ const uploader = async (req, res, next) => {
     const upload = await multer({storage}).single('fileUpload');
     upload(req, res, (err) => {
         if (err) {
-            console.error('API: UploadFile Error uploading file. %s', err);
             return new NZ.Response(null, 'Nothing uploaded.', 400).send(res);
         }
-        console.info('multer.diskStorage upload');
         next();
     })
 };

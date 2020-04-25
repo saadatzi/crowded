@@ -2,6 +2,8 @@ const express = require('express')
     , router = express.Router();
 
 const Joi = require('@hapi/joi');
+const JoiConfigs = require('./../joiConfigs');
+const {joiValidate} = require('./../utils');
 
 // Instantiate the Device Model
 const areaController = require('../../controllers/area');
@@ -9,6 +11,15 @@ const userController = require('../../controllers/user');
 const deviceController = require('../../controllers/device');
 const NZ = require('../../utils/nz');
 const {verifyTokenPanel} = require('../../utils/validation');
+const childSchema = Joi.object().keys({
+    name_en: JoiConfigs.title,
+    name_ar: JoiConfigs.title,
+});
+const addSchema = Joi.object().keys({
+    name_en: JoiConfigs.title,
+    name_ar: JoiConfigs.title,
+    childs: JoiConfigs.arrayLength(1, 100, childSchema),
+});
 
 /**
  *  Add Area
@@ -16,7 +27,7 @@ const {verifyTokenPanel} = require('../../utils/validation');
  * @return status
  */
 //______________________Add Area_____________________//
-router.post('/add', verifyTokenPanel(), async (req, res) => {
+router.post('/add', joiValidate(loginSchema, 0), verifyTokenPanel(), async (req, res) => {
     console.info('API: Add Area/init %j', {body: req.body});
 
     //TODO array only tmp
