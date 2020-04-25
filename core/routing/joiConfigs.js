@@ -26,4 +26,5 @@ module.exports = {
 	description: (isRequired = true) => isRequired ? Joi.string().min(3).max(1023).required() : Joi.string().min(3).max(1023).optional(),
 	array: 		 (isRequired = true, items = Joi.any()) => isRequired ? Joi.array().items(items).required() : Joi.array().items(items).optional(),
 	arrayLength: (min, max, items = Joi.any()) => Joi.array().min(min).max(max).items(items).required(),
+	object: (item = Joi.any()) => Joi.object({item}),
 };

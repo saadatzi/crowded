@@ -65,6 +65,22 @@ eventController.prototype.get = async (optFilter, type = 'id') => {
 };
 
 /**
+ * get All Event
+ *
+ * @param {Object || ObjectId} optFilter
+ *
+ * @return Event
+ */
+eventController.prototype.getAll = async (optFilter) => {
+    return await Event.list()
+        .then(events => events)
+        .catch(err => {
+            console.error("!!!Event getAll failed: ", err);
+            throw err;
+        })
+};
+
+/**
  * getById Event
  *
  * @param {ObjectId} id

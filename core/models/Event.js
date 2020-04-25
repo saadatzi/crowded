@@ -461,6 +461,17 @@ EventSchema.static({
     },
 
     /**
+     * Interest list
+     */
+    async list() {
+        return await this.find({})
+            // .select({id: 1, title: 1, image: 1})
+            .sort({createdAt: -1})
+            .then(events => events)
+            .catch(err => console.log("Interest getAll Catch", err));
+    },
+
+    /**
      * List all event
      *
      * @param {Object} options
