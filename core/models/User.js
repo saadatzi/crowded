@@ -98,6 +98,24 @@ UserSchema.static({
                 console.log(res);
                 return res;
             });
+    },
+
+
+    /**
+     * Checks to see if given interest is related to any user
+     *
+     * @param {String} id
+     * @api private
+     */
+    interestIsRelated: async function (id) {
+        let result = this.aggregate([
+            { $match: {interests:id} }
+        ])
+        .catch(err => {
+            console.error(`User interestIsRelated check failed with criteria id:${id}`, err);
+            throw err;
+        });
+        console.log(result.length==0);
     }
 });
 

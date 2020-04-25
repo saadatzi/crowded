@@ -106,6 +106,24 @@ DeviceSchema.static({
                 console.log(res);
                 return res;
             });
+    },
+
+
+    /**
+     * Checks to see if given interest is related to any device
+     *
+     * @param {String} id
+     * @api private
+     */
+    interestIsRelated: async function (id) {
+        let result = this.aggregate([
+            { $match: {interests:id} }
+        ])
+        .catch(err => {
+            console.error(`Device interestIsRelated check failed with criteria id:${id}`, err);
+            throw err;
+        });
+        console.log(result.length==0);
     }
 });
 
