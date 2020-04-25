@@ -116,9 +116,16 @@ router.put('/upload', verifyToken(true), uploader, async (req, res) => {
     if (!req._uploadPath || !req._uploadFilename) {
         return new NZ.Response(null, 'fileUpload is Empty!', 400).send(res);
     }
-
     const image = req._uploadPath + '/' + req._uploadFilename;
-    new NZ.Response({item: image}).send(res);
+    userController.update(req.userId, {image: image})
+        .then(user => {
+            new NZ.Response(true, 'Profile picture uploaded successful!').send(res);
+        })
+        .catch(err => {
+            console.log('!!!! user Update picture profile Failed catch: ', err);
+            new NZ.Response(null, err.message, 400).send(res);
+        });
+
 });
 
 /**
