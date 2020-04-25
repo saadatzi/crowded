@@ -17,7 +17,6 @@ const helmet = require('helmet');
 const engine = require('express-dot-engine');
 const {logger, isAPIChecker} = require('./utils/logger');
 
-const {verifyToken} = require('./utils/jwt');
 const logController = require('./controllers/log');
 // const CheckException = require('./utils/CheckException');
 

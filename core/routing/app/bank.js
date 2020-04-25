@@ -15,7 +15,7 @@ const bankNameController = require('../../controllers/bankName');
 
 
 // Instantiate the Device Model
-const { verifyToken } = require('../../utils/jwt');
+const { verifyToken } = require('../../utils/validation');
 
 
 // Joi valdiator schemas

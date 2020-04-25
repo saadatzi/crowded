@@ -69,7 +69,8 @@ RoleSchema.static({
                     permissions: {
                         $push: {
                             title: {$arrayElemAt: ['$perName.title', 0]},
-                            accessLevel: binLevel2Bool('permissions.accessLevel')
+                            // accessLevel: {$binLevel2Bool: '$permissions.accessLevel'},
+                            accessLevelNum: '$permissions.accessLevel'
                         }
                     },
                     name: {$first: `$name`},
@@ -86,6 +87,62 @@ RoleSchema.static({
                 }
             },
         ])
+            .then(result => {
+                result.map(r => {
+                    r.permissions.map(rp => rp.accesssLevel = binLevel2Bool(rp.accessLevelNum))
+                });
+                return result;
+            })
+            .catch(err => console.error("Role List  Catch", err));
+    },
+
+    /**
+     * Get All
+     *
+     * @param {Array} needPermissions
+     * @api private
+     */
+    async authorize(needPermissions) {
+        return await this.aggregate([
+            {
+                $lookup: {
+                    from: 'permissions',
+                    localField: 'permissions.permissionId',
+                    foreignField: '_id',
+                    as: 'perName'
+                }
+            },
+            {$unwind: "$permissions"},
+            {
+                $group: {
+                    _id: "$_id",
+                    permissions: {
+                        $push: {
+                            title: {$arrayElemAt: ['$perName.title', 0]},
+                            // accessLevel: {$binLevel2Bool: '$permissions.accessLevel'},
+                            accessLevelNum: '$permissions.accessLevel'
+                        }
+                    },
+                    name: {$first: `$name`},
+                    status: {$first: `$status`},
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    id: '$_id',
+                    name: 1,
+                    permissions: 1,
+                    status: 1,
+                }
+            },
+        ])
+            .then(result => {
+                result.map(r => {
+                    r.permissions.map(rp => rp.accesssLevel = binLevel2Bool(rp.accessLevelNum))
+                });
+                return result;
+            })
             .catch(err => console.error("Role List  Catch", err));
     },
 
@@ -112,11 +169,32 @@ RoleSchema.static({
 });
 
 function binLevel2Bool(number) {
-    console.warn(">>>>>>>>>>>>>>> binLevel2Bool number: ", number);
-    const arrayAccess = Array.from(String((Number(number)).toString(2)), Number);
-    console.warn(">>>>>>>>>>>>>>> binLevel2Bool arrayAccess: ", arrayAccess);
+    const arrayAccess = Array.from(String((number).toString(2)), Number);
     return {create: !!arrayAccess[1], read: !!arrayAccess[2], update: !!arrayAccess[3], delete: !!arrayAccess[4]}
 }
 
 const Role = mongoose.model('Role', RoleSchema);
 module.exports = Role;
+
+/*
+* Access Level Map
+     Create-Read-Update-Delete
+  16   8     4    2      1
+__________________________________________________________
+  1    0     0    0      1  => 17   [Delete]
+  1    0     0    1      0  => 18   [Update]
+  1    0     0    1      1  => 19   [Update, Delete]
+  1    0     1    0      0  => 20   [Read]
+  1    0     1    0      1  => 21   [Read, Delete]
+  1    0     1    1      0  => 22   [Read, Update]
+  1    0     1    1      1  => 23   [Read, Update, Delete]
+  1    1     0    0      0  => 24   [Create]
+  1    1     0    0      1  => 25   [Create, Delete]
+  1    1     0    1      0  => 26   [Create, Update]
+  1    1     0    1      1  => 27   [Create, Update, Delete]
+  1    1     1    0      0  => 28   [Create, Read]
+  1    1     1    0      1  => 29   [Create, Read, Delete]
+  1    1     1    1      0  => 30   [Create, Read, Update]
+  1    1     1    1      1  => 31   [Create, Read, Update]
+____________________________________________________________
+* */

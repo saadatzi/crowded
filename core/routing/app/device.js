@@ -4,7 +4,7 @@ const app = express.Router();
 const deviceController = require('../../controllers/device');
 
 const NZ = require('../../utils/nz');
-const {sign} = require('../../utils/jwt');
+const {sign} = require('../../utils/validation');
 
 const Joi = require('@hapi/joi');
 

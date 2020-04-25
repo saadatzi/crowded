@@ -1,6 +1,5 @@
 const express = require('express')
     , router = express.Router();
-const jwtRun = require('../../utils/jwt')
 const mongoose = require('mongoose');
 const Joi = require('@hapi/joi');
 
@@ -11,7 +10,7 @@ const userController = require('../../controllers/user');
 const deviceController = require('../../controllers/device');
 const NZ = require('../../utils/nz');
 const {uploader} = require('../../utils/fileManager');
-const {verifyToken} = require('../../utils/jwt');
+const {verifyToken} = require('../../utils/validation');
 const settings = require('../../utils/settings');
 
 

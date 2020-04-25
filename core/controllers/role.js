@@ -3,7 +3,8 @@
  */
 let Role = require('../models/Role');
 
-const roleController = function () {};
+const roleController = function () {
+};
 
 /**
  * Add new Role
@@ -155,6 +156,25 @@ roleController.prototype.update = async (optFilter, newValue) => {
     }
 
 
+};
+
+/**
+ * Add new Role
+ *
+ * @param {Array} permissions
+ *
+ * @return {Boolean} hsaRoleTrueFalse
+ */
+roleController.prototype.authorize = async (permissions) => {
+    return await Role.authorize(permissions)
+        .then(room => {
+            console.log("***Role many save success room", room);
+            return room;
+        })
+        .catch(err => {
+            console.log("!!!Role many save failed: ", err);
+            throw err;
+        })
 };
 
 module.exports = new roleController();

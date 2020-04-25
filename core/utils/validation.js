@@ -1,8 +1,9 @@
 const fs = require('fs');
-const jwt = require('jsonwebtoken');
+const validation = require('jsonwebtoken');
 const moment = require('moment-timezone');
 const NZ = require('./nz');
-const deviceController = require('../controllers/device')
+const deviceController = require('../controllers/device');
+const roleController = require('../controllers/role');
 const settings = require('./settings')
 
 // use 'utf8' to get string instead of byte array  (512 bit key)
@@ -17,10 +18,10 @@ const tokenOption = {
 module.exports = {
     sign: (payload) => {
         console.info('API: JWT sign payload %j ', payload);
-        return jwt.sign(payload, privateKEY, tokenOption);
+        return validation.sign(payload, privateKEY, tokenOption);
     },
     decode: (token) => {
-        return jwt.decode(token, {complete: true});
+        return validation.decode(token, {complete: true});
         //returns null if token is invalid
     },
     verifyToken: (isSecure = false) => {
@@ -32,8 +33,8 @@ module.exports = {
             }
             if (token) {
                 try {
-                    //TODO from jwt
-                    //// let tokenObj = jwt.verify(token, publicKEY, tokenOption);
+                    //TODO from validation
+                    //// let tokenObj = validation.verify(token, publicKEY, tokenOption);
                     // if (!tokenObj) throw {errCode: 401};
                     //
                     // req.deviceId = tokenObj.deviceId;
@@ -89,7 +90,7 @@ module.exports = {
             }
             if (token) {
                 try {
-                    let tokenObj = jwt.verify(token, publicKEY, tokenOption);
+                    let tokenObj = validation.verify(token, publicKEY, tokenOption);
                     if (!tokenObj) return new NZ.Response(null, 'invalid token ', 401).send(res);
                     req.userId = tokenObj.userId;
                     return next();
@@ -102,6 +103,11 @@ module.exports = {
                 return new NZ.Response(null, 'invalid token', 403).send(res);
             }
 
+        }
+    },
+    authorization: (permissions = []) => {
+        return async (req, res, next) => {
+            roleController.authorize(permissions)
         }
     }
 };

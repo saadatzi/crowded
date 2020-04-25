@@ -1,6 +1,5 @@
 const express = require('express')
     , router = express.Router();
-const jwtRun = require('../../utils/jwt')
 
 const Joi = require('@hapi/joi');
 
@@ -9,7 +8,7 @@ const areaController = require('../../controllers/area');
 const userController = require('../../controllers/user');
 const deviceController = require('../../controllers/device');
 const NZ = require('../../utils/nz');
-const {verifyTokenPanel} = require('../../utils/jwt');
+const {verifyTokenPanel} = require('../../utils/validation');
 
 /**
  *  Add Area

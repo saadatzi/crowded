@@ -10,7 +10,7 @@ const controllerUtils = require('../../controllers/utils');
 const deviceController = require('../../controllers/device');
 const NZ = require('../../utils/nz');
 const {uploader} = require('../../utils/fileManager');
-const {sign, verifyToken} = require('../../utils/jwt');
+const {sign, verifyToken} = require('../../utils/validation');
 const settings = require('../../utils/settings');
 
 
@@ -34,6 +34,13 @@ const userUpdateSchema = Joi.object().keys({
     birthDate:      JoiConfigs.datetime(false),
     civilId:        JoiConfigs.strOptional,
     phone:          JoiConfigs.phone
+});
+const forgotSchema = Joi.object().keys({
+    email: JoiConfigs.email(),
+});
+const changePassSchema = Joi.object().keys({
+    oldPassword:    JoiConfigs.password,
+    password:       JoiConfigs.password,
 });
 
 /**
@@ -207,9 +214,6 @@ router.get('/', function (req, res) {
 /**
  *  Forgot Password
  */
-const forgotSchema = Joi.object().keys({
-    email: JoiConfigs.email(),
-});
 //______________________Forgot Password_____________________//
 router.post('/forgotPassword',joiValidate(forgotSchema, 0), verifyToken(), async (req, res) => {
     console.info('API: Forgot Password User/init %j', {body: req.body});
@@ -259,10 +263,7 @@ router.get('/profile', verifyToken(true), function (req, res) {
 
     userController.get(req.userId, 'id')
         .then(result => {
-            console.info("*** profile List : %j", result);
-            new NZ.Response({
-                items:  result,
-            }).send(res);
+            new NZ.Response(result).send(res);
         })
         .catch(err => {
             console.error("profile Get Catch err:", err)
@@ -273,10 +274,6 @@ router.get('/profile', verifyToken(true), function (req, res) {
 /**
  *  Change Password
  */
-const changePassSchema = Joi.object().keys({
-    oldPassword:    JoiConfigs.password,
-    password:       JoiConfigs.password,
-});
 //______________________Forgot Password_____________________//
 router.post('/changePassword',joiValidate(changePassSchema), verifyToken(true), async (req, res) => {
     console.info('API: Change Password User/init %j', {body: req.body});

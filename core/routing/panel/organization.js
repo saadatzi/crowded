@@ -1,11 +1,10 @@
 const express = require('express')
     , router = express.Router();
-const jwtRun = require('../../utils/jwt')
 
 // Instantiate the Device Model
 const organizationController = require('../../controllers/organization');
 const NZ = require('../../utils/nz');
-const {verifyTokenPanel} = require('../../utils/jwt');
+const {verifyTokenPanel} = require('../../utils/validation');
 
 const Joi = require('@hapi/joi');
 const JoiConfigs = require('./../joiConfigs');

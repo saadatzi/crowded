@@ -1,7 +1,5 @@
 const express = require('express')
     , router = express.Router();
-const jwtRun = require('../../utils/jwt')
-
 const Joi = require('@hapi/joi');
 
 // Instantiate the Device Model
@@ -10,7 +8,7 @@ const userController = require('../../controllers/user');
 const deviceController = require('../../controllers/device');
 const NZ = require('../../utils/nz');
 const {uploader} = require('../../utils/fileManager');
-const {verifyTokenPanel} = require('../../utils/jwt');
+const {verifyTokenPanel} = require('../../utils/validation');
 
 /**
  *  Add Interest
