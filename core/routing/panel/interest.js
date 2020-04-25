@@ -12,8 +12,17 @@ const { verifyTokenPanel } = require('../../utils/validation');
 const { joiValidate } = require('../utils');
 const JoiConfigs = require('../joiConfigs');
 
+// Models
+const Device = require('../../models/Device');
+const Event = require('../../models/Event');
+const User = require('../../models/User');
+
 
 // Joi valdiator schemas
+
+const hasValidIdSchema = Joi.object().keys({
+    id: JoiConfigs.isMongoId
+});
 
 const editSchema = Joi.object().keys({
     id: JoiConfigs.isMongoId,
@@ -78,13 +87,45 @@ router.put('/add', verifyTokenPanel(), uploader, async (req, res) => {
 router.put('/edit', verifyTokenPanel(), uploader, joiValidate(editSchema, 0), async (req, res) => {
     if (req._uploadPath && req._uploadFilename) req.body.image = req._uploadPath + '/' + req._uploadFilename;
     interestController.update(req.body)
-        .then(result=>{
-            new NZ.Response(null,"Interest edited successfully.").send(res);
+        .then(result => {
+            new NZ.Response(null, "Interest edited successfully.").send(res);
         })
-        .catch(err=>{
-            new NZ.Response(null,err.message,500).send(res);
+        .catch(err => {
+            new NZ.Response(null, err.message, 500).send(res);
         });
 });
+
+/**
+ * Remove Interest
+ */
+router.post('/remove', verifyTokenPanel(), joiValidate(hasValidIdSchema, 0), async (req, res) => {
+
+    let id = req.body.id;
+    let flag = false;
+
+    // await check events
+    flag = await Event.interestIsRelated(id);
+
+    // await check devices
+    flag = flag || await Device.interestIsRelated(id);
+
+    // await check users
+    flag = flag || await User.interestIsRelated(id);
+
+    if (flag) {
+        return new NZ.Response(null, "Couldn`t remove the interest due to its relation to other collections", 400).send(res);
+    } else {
+        interestController.remove(id)
+            .then(result => {
+                new NZ.Response(null, "Interest removed successfully.").send(res);
+            })
+            .catch(err => {
+                new NZ.Response(null, err.message, 500).send(res);
+            });
+    }
+
+});
+
 
 
 /**
