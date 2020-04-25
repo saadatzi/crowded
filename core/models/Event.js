@@ -249,7 +249,7 @@ EventSchema.static({
                 // maxDistance: 100000,
                 // spherical: true
             }
-        } : { $sort: { createAt: -1 } };
+        } : { $sort: { createdAt: -1 } };
 
 
         return await this.aggregate([
@@ -283,7 +283,7 @@ EventSchema.static({
                     // attendance: {$first: `$attendance`},
                     from: { $first: `$from` },
                     to: { $first: `$to` },
-                    // createAt: {$first: `$createAt`},
+                    // createdAt: {$first: `$createdAt`},
                     // allowedApplyTime: {$first: `$allowedApplyTime`},
                     // date: {$first: moment.tz("$from", 'Asia/Kuwait').format('YYYY-MM-DD HH:MM')},
                     // date: {$first: {$dateToString: {date: `$to`, timezone: "Asia/Kuwait", format: "%m-%d-%Y"}}},
@@ -319,7 +319,7 @@ EventSchema.static({
                         // from: {$concat: [{$toString: {$hour: "$from"}}, ":", {$toString: {$minute: "$from"}}]},
                         // to: {$concat: [{$toString: {$hour: {$dateToString: {date: `$to`, timezone: "Asia/Kuwait", format: "%H:%M"}}}}, ":", {$toString: {$minute: {$dateToString: {date: `$to`, timezone: "Asia/Kuwait", format: "%m-%d"}}}}]},
                     },
-                    // createAt: 0
+                    // createdAt: 0
                     // date: 1,
                     // from: 1,
                     // to: 1,
@@ -378,7 +378,7 @@ EventSchema.static({
                 }
             },
             { $unwind: { path: "$getUserEvents", preserveNullAndEmptyArrays: false } },
-            { $sort: { createAt: -1 } },
+            { $sort: { createdAt: -1 } },
             { $skip: limit * page },
             { $limit: limit + 1 },
             { $unwind: "$images" },
@@ -461,7 +461,7 @@ EventSchema.static({
     },
 
     /**
-     * Interest list
+     * Event list
      */
     async list() {
         return await this.find({})
@@ -483,7 +483,7 @@ EventSchema.static({
         const page = options.page || 0;
         const limit = options.limit || 30;
         return await this.find(criteria)
-            // .sort({createAt: -1})
+            // .sort({createdAt: -1})
             .sort({ 'images.order': 1 })
             .populate('interests')
             .limit(limit)
@@ -508,7 +508,28 @@ EventSchema.static({
                 throw err;
             });
         return result.length != 0;
-    }
+    },
+
+    /**
+     * Check Valid Event(find id, allowedApplyTime)
+     */
+    async validApplyEvent(id) {
+        return await this.findOne({_id: id, allowedApplyTime: {$gt: new Date()}})
+            .then(events => events)
+            .catch(err => console.log("Interest getAll Catch", err));
+    },
+
+    /**
+     * Check Valid Active Event
+     */
+    async validActiveEvent(id) {
+        return await this.findOne({_id: id, from: {$lte: new Date()}, to: {$gt: new Date()}})
+            .then(events => events)
+            .catch(err => console.log("Interest getAll Catch", err));
+    },
+
+
+
 });
 
 const Event = mongoose.model('Event', EventSchema);

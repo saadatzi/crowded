@@ -142,13 +142,8 @@ router.post('/status', verifyToken(true), async function (req, res) {
 router.post('/active', verifyToken(true), async function (req, res) {
     console.info('API: Set Active event/init', req.body);
     if (!mongoose.Types.ObjectId.isValid(req.body.eventId)) {
-        return new NZ.Response({
-            title: 'input error',
-            message: 'eventId must be a valid id'
-        }, 'input error.', 400).send(res);
+        return new NZ.Response({title: 'input error', message: 'eventId must be a valid id'}, 'input error.', 400).send(res);
     }
-
-    //TODO must be event from >= current && current + attendance < to
 
     userEventController.setStatus(req.userId, req.body.eventId, 'ACTIVE')
         .then(userEvent => {

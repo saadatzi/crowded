@@ -55,12 +55,29 @@ eventController.prototype.get = async (optFilter, type = 'id') => {
                 throw err;
             })
     } else {
-        return await Event.getById(optFilter)
-            .then(result => result)
-            .catch(err => {
-                console.log("!!!Event get failed: ", err);
-                throw err;
-            })
+        if (type === 'id') {
+            return await Event.getById(optFilter)
+                .then(result => result)
+                .catch(err => {
+                    console.log("!!!Event get failed: ", err);
+                    throw err;
+                })
+        } else if (type === 'validApplyEvent') {
+            return await Event.validApplyEvent(optFilter)
+                .then(result => result)
+                .catch(err => {
+                    console.log("!!!validEvent get failed: ", err);
+                    throw err;
+                })
+        } else if (type === 'validActiveEvent') {
+            return await Event.validActiveEvent(optFilter)
+                .then(result => result)
+                .catch(err => {
+                    console.log("!!!validActiveEvent get failed: ", err);
+                    throw err;
+                })
+        }
+
     }
 };
 
