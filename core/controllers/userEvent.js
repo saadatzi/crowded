@@ -100,7 +100,7 @@ userEventController.prototype.setStatus = async (userId, eventId, status, newVal
             .then(async userEvent => {
                 if (!userEvent) throw {code: 404, message: 'Not found!'}//Continue
                 if (status === 'ACTIVE'  && userEvent.status !== 'APPROVED') throw {code: 406, message: 'Status mismatch!'};
-                if (status === 'PAUSED'  && userEvent.status !== 'ACTIVE') throw {code: 406, message: 'Status mismatch!'};
+                if (status === 'PAUSED'  && (userEvent.status !== 'ACTIVE' || userEvent.status !== 'CONTINUE')) throw {code: 406, message: 'Status mismatch!'};
                 if (status === 'CONTINUE'  && userEvent.status !== 'PAUSED') throw {code: 406, message: 'Status mismatch!'}
             })
             .catch(err => {
@@ -137,7 +137,7 @@ userEventController.prototype.addElapsed = async (userId, eventId, elapsed, coor
     };
     return await UserEvent.getOne({userId, eventId})
         .then(async userEvent => {
-            if (userEvent && userEvent.status === 'ACTIVE') {
+            if (userEvent && (userEvent.status === 'ACTIVE' || userEvent.status === 'CONTINUE')) {
                 userEvent.attendance.push(newAttendanceElapsed);
                 userEvent.save();
                 if (isFinished) {

@@ -13,7 +13,7 @@ module.exports = {
     price: 				Joi.number().min(1).required(),
     numberOptional: 	Joi.number().min(0).optional(),
     phone: 				Joi.number().integer().required(),
-    gender: 			Joi.number().valid(1, 2, 3).required(),
+    gender: 			Joi.number().valid(1, 2).required(),
     timeStamp: 			Joi.date().timestamp().required(),
     percent: 			Joi.number().min(0).max(100).required(),
     html: 				Joi.string().min(1).required(),
