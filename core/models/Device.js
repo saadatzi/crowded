@@ -2,13 +2,13 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const DeviceSchema = new Schema({
-    userId: {type: Schema.Types.ObjectId, ref: 'User', index: true, default: null},
-    token: {type: String, index: true},
-    identifier: {type: String, index: true},
-    status: {type: Number, default: 1},
-    interests: [{type: Schema.Types.ObjectId, ref: 'Interest'}],
-    notificationToken: {type: String, index: true},
-    notificationTokenDev: {type: String, index: true},
+    userId: { type: Schema.Types.ObjectId, ref: 'User', index: true, default: null },
+    token: { type: String, index: true },
+    identifier: { type: String, index: true },
+    status: { type: Number, default: 1 },
+    interests: [{ type: Schema.Types.ObjectId, ref: 'Interest' }],
+    notificationToken: { type: String, index: true },
+    notificationTokenDev: { type: String, index: true },
     osType: String,
     osVersion: String,
     title: String,
@@ -17,9 +17,9 @@ const DeviceSchema = new Schema({
     version: String,
     build: Number,
     env: String,
-    debug: {type: Number, default: 0},
+    debug: { type: Number, default: 0 },
     lastInteract: Date,
-}, {timestamps: true});
+}, { timestamps: true });
 
 /**
  * Pre-remove hook
@@ -47,10 +47,11 @@ DeviceSchema.static({
      * @param {ObjectId} _id
      * @api private
      */
-    getById: function(_id) {
-        return this.findById({_id})
-        .then(device =>  device)
-        .catch(err => console.log("!!!!!!!! getById catch err: ", err))},
+    getById: function (_id) {
+        return this.findById({ _id })
+            .then(device => device)
+            .catch(err => console.log("!!!!!!!! getById catch err: ", err))
+    },
 
     /**
      * Find device by identifier
@@ -59,7 +60,7 @@ DeviceSchema.static({
      * @api private
      */
     getByIdentifier: (identifier) => {
-        return Device.findOne({identifier: identifier})
+        return Device.findOne({ identifier: identifier })
             .then(device => device)
             .catch(err => console.log("!!!!!!!! getByIdentifier catch err: ", err));
         // console.log("########## getByIdentifier device: ", device)
@@ -82,7 +83,7 @@ DeviceSchema.static({
      * @api private
      */
     getByToken: (token) => {
-        return Device.findOne({token: token})
+        return Device.findOne({ token: token })
             .then(device => device)
             .catch(err => console.log("!!!!!!!! getByToken catch err: ", err));
     },
@@ -98,7 +99,7 @@ DeviceSchema.static({
         const page = options.page || 0;
         const limit = options.limit || 30;
         return this.find(criteria)
-            .sort({createdAt: -1})
+            .sort({ createdAt: -1 })
             .limit(limit)
             .skip(limit * page)
             .exec(function (err, res) {
@@ -116,14 +117,15 @@ DeviceSchema.static({
      * @api private
      */
     interestIsRelated: async function (id) {
-        let result = this.aggregate([
-            { $match: {interests:id} }
+        let result = await this.aggregate([
+            { $match: { interests: mongoose.Types.ObjectId(id) } }
         ])
-        .catch(err => {
-            console.error(`Device interestIsRelated check failed with criteria id:${id}`, err);
-            throw err;
-        });
-        console.log(result.length==0);
+            .catch(err => {
+                console.error(`Device interestIsRelated check failed with criteria id:${id}`, err);
+                throw err;
+            });
+        return result.length != 0;
+
     }
 });
 

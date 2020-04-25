@@ -489,14 +489,14 @@ EventSchema.static({
      * @api private
      */
     interestIsRelated: async function (id) {
-        let result = this.aggregate([
-            { $match: {interests:id} }
+        let result = await this.aggregate([
+            { $match: { interests: mongoose.Types.ObjectId(id) } }
         ])
-        .catch(err => {
-            console.error(`Event interestIsRelated check failed with criteria id:${id}`, err);
-            throw err;
-        });
-        console.log(result.length==0);
+            .catch(err => {
+                console.error(`Event interestIsRelated check failed with criteria id:${id}`, err);
+                throw err;
+            });
+        return result.length != 0;
     }
 });
 
