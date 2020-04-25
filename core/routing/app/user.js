@@ -112,7 +112,7 @@ router.post('/edit', joiValidate(userUpdateSchema), verifyToken(true), async (re
  */
 //______________________Add Profile Pic_____________________//
 router.put('/upload', verifyToken(true), uploader, async (req, res) => {
-    console.info('API: Add Profile Pic/init');
+    console.info('API: Add Profile Pic/init req._uploadPath', req._uploadPath);
     if (!req._uploadPath || !req._uploadFilename) {
         return new NZ.Response(null, 'fileUpload is Empty!', 400).send(res);
     }
