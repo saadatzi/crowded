@@ -105,22 +105,39 @@ router.post('/remove', verifyTokenPanel(), joiValidate(hasValidIdSchema, 0), asy
 
 
 
-/**
- * Get Interest
- * @return list of interest
- */
-//______________________Get Interest_____________________//
-router.get('/', verifyTokenPanel(), async function (req, res) {
-    console.info('API: Get interest/init');
 
-    interestController.get({ selected: [], lang: req.headers['lang'] ? (req.headers['lang']).toLowerCase() : 'en' })
+
+/**
+ * Get Interests for panel
+ * @return list of interests
+ */
+router.post('/', verifyTokenPanel(), async function (req, res) {
+    interestController.getManyPanel(req.body)
         .then(result => {
-            console.info("*** interest List : %j", result);
-            new NZ.Response({ items: result, }).send(res);
+            new NZ.Response(result).send(res);
         })
         .catch(err => {
-            console.error("Interest Get Catch err:", err)
             new NZ.Response(null, err.message, 500).send(res);
+        });
+
+});
+
+
+/**
+ * Get Interest for panel
+ * @return list of interests
+ */
+router.get('/:id', verifyTokenPanel(), async function (req, res) {
+    let options = {
+        _id:req.params.id
+    };
+    interestController.getOnePanel(options)
+        .then(result => {
+            new NZ.Response(result).send(res);
         })
+        .catch(err => {
+            new NZ.Response(null, err.message, 500).send(res);
+        });
+
 });
 module.exports = router;
