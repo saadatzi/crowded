@@ -187,19 +187,19 @@ userEventController.prototype.addElapsed = async (userId, eventId, elapsed, coor
                             }
                         })
                         .catch(err => {
-                            console.log("!!!UserEvent get Event failed: ", err);
+                            console.log("!!!UserEvent get elapsed Event failed: ", err);
                             throw err;
                         })
                 } else {
                     return true
                 }
             } else {
-                throw {code: 406, message: userEvent ? 'Status mismatch!' : 'not found!'}
+                throw {code: userEvent ? 406 : 404, message: userEvent ? 'Status mismatch!' : 'not found!'}
             }
 
         })
         .catch(err => {
-            console.log("!!!UserEvent getByUserEvent failed: ", err);
+            console.log("!!!UserEvent getByUserEvent elapsed failed: ", err);
             throw err;
         })
 };

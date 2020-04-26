@@ -70,6 +70,24 @@ transactionController.prototype.myTransaction = async (userId, lang, page = 0, d
 
 };
 
+/**
+ * get myTransaction Total
+ *
+ * @param {ObjectId} userId
+ *
+ * @return Event
+ */
+transactionController.prototype.myTransactionTotal = async (userId) => {
+
+    return await Transaction.getMyTransactionTotal(userId)
+        .then(async event => event)
+        .catch(err => {
+            console.error("!!!get myTransaction failed: ", err);
+            throw err;
+        })
+
+};
+
 
 
 /**
