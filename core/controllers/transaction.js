@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 const Transaction = require('../models/Transaction');
 const eventController = require('./event');
 const settings = require('../utils/settings');
-
+const uuid = require('node-uuid');
 
 const transactionController = function () {
 };
@@ -111,7 +111,7 @@ transactionController.prototype.requestWithdraw = async (userId, bankId, total) 
                     price: -Math.abs(totalUnpaid.total),
                     eventDate: new Date(),
                     userId: userId,
-                    eventId: null,
+                    eventId: uuid.v4(),
                     situation: "PENDING",
                     isDebtor: true
                 };

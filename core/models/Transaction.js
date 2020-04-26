@@ -133,10 +133,10 @@ TransactionSchema.static({
     getMyTransactionTotal: async function (userId) {
         const criteria = {status: 1, userId: mongoose.Types.ObjectId(userId)};
 
-        //{$lte:  }
+        const monthAgo = new Date(new Date().getTime()-2678400000);//31*24*60*60*1000
 
         console.log("!!!!!!!! getMyTransaction userId: ", userId)
-        console.log("!!!!!!!! getMyTransaction criteria: ", criteria)
+        console.log("!!!!!!!! getMyTransaction criteria: ", criteria);
         return await this.aggregate([
             {$match: criteria},
             //Get one month ago
@@ -145,7 +145,7 @@ TransactionSchema.static({
                     from: 'transactions',
                     pipeline: [
                         {$match: criteria},
-                        {$match: {isDebtor: false, createdAt: {$gte: {$toDate: new Date().getTime()-(31*24*60*60*1000)}}}},
+                        {$match: {isDebtor: false, createdAt: {$gt: monthAgo}}},
                         {$project: {_id: 0, price: {$toString: "$price"}, eventDate: {$dateToString: {format: "%Y/%m/%d", date: "$eventDate", timezone: "Asia/Kuwait"}}}},
                     ],
                     as: 'getMonthAgo'
