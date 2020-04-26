@@ -84,6 +84,7 @@ transactionController.prototype.myTransaction = async (userId, lang, page = 0, d
 transactionController.prototype.requestWithdraw = async (userId, bankId, total) => {
     return await Transaction.getTotalUnpaid(userId)
         .then(totalUnpaid => {
+            //TODO duplicate
             console.log(">>>>>>>>>>>>>>>>>>>>>> requestWithdraw get totalUnpaid: %s, total: %s", totalUnpaid.total, total)
             if (Number(totalUnpaid.total) === Number(total)) {
                 const addNewTransaction = {
