@@ -13,8 +13,17 @@ const NZ = require('../../utils/nz');
 const {uploader, multiUploader} = require('../../utils/fileManager');
 const {verifyTokenPanel} = require('../../utils/validation');
 
+const UserEvent = require('../../models/UserEvent');
+
 const locationSchema = Joi.object().keys({
     coordinates: JoiConfigs.arrayLength(2,2, JoiConfigs.number)
+});
+
+
+// Joi valdiator schemas
+
+const hasValidIdSchema = Joi.object().keys({
+    id: JoiConfigs.isMongoId
 });
 
 const addSchema = Joi.object().keys({
@@ -92,6 +101,32 @@ router.get('/', verifyTokenPanel(), async (req, res) => {
             new NZ.Response(null, res.message, err.code || 500).send(res);
         })
 });
+
+
+/**
+ * Remove Interest
+ */
+router.delete('/remove', verifyTokenPanel(), joiValidate(hasValidIdSchema, 0), async (req, res) => {
+
+    let id = req.body.id;
+
+    // await check UserEvent relation 
+    let flag = await UserEvent.eventIsRelated(id);
+
+    if (flag) {
+        return new NZ.Response(null, "Couldn`t remove the event due to its relation to other collections", 400).send(res);
+    } else {
+        eventController.remove(id)
+            .then(result => {
+                new NZ.Response(null, "Event removed successfully.").send(res);
+            })
+            .catch(err => {
+                new NZ.Response(null, err.message, 500).send(res);
+            });
+    }
+
+});
+
 
 
 module.exports = router;
