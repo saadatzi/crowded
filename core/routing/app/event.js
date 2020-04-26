@@ -99,8 +99,7 @@ router.get('/current', verifyToken(true), async function (req, res) {
     console.info('API: Get current event/init');
     userEventController.getCurrent(req.userId, req.headers['lang'] ? (req.headers['lang']).toLowerCase() : 'en')
         .then(event => {
-            console.info("*** UserEvent current : %j", event);
-            new NZ.Response(event, event ? null : 'There is no active event!').send(res);
+            new NZ.Response(event).send(res);
         })
         .catch(err => {
             console.error("Event current Catch err:", err)
