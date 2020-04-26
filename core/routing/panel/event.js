@@ -114,7 +114,7 @@ router.delete('/', verifyTokenPanel(), joiValidate(hasValidIdSchema, 0), async (
     let flag = await UserEvent.eventIsRelated(id);
 
     if (flag) {
-        return new NZ.Response(null, "Couldn`t remove the event due to its relation to other collections", 400).send(res);
+        return new NZ.Response(null, "Couldn`t remove the event due to its usage by the users.", 400).send(res);
     } else {
         eventController.remove(id)
             .then(result => {
