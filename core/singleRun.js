@@ -281,18 +281,18 @@ const permissionController = require('./controllers/permission');
             if (permissions.length === 0) {
                 console.log('...Attempting to seed Permission Model.');
                 const initPermission = [
-                    {title: "ALL",          access: 31},
-                    {title: "Agent",        access: 31},
-                    {title: "Area",         access: 31},
-                    {title: "User account", access: 31},
-                    {title: "Bank name",    access: 31},
-                    {title: "Device app",   access: 31},
-                    {title: "Event",        access: 31},
-                    {title: "Interest",     access: 31},
-                    {title: "Organization", access: 31},
-                    {title: "Transaction",  access: 31},
-                    {title: "User Event(Approve-Reject)",   access: 22},
-                    {title: "User",  access: 31}
+                    {title: "ALL",          access: 15},
+                    {title: "Agent",        access: 15},
+                    {title: "Area",         access: 15},
+                    {title: "User account", access: 15},
+                    {title: "Bank name",    access: 15},
+                    {title: "Device app",   access: 15},
+                    {title: "Event",        access: 15},
+                    {title: "Interest",     access: 15},
+                    {title: "Organization", access: 15},
+                    {title: "Transaction",  access: 15},
+                    {title: "User Event(Approve-Reject)",   access: 6},
+                    {title: "User",  access: 15 }
                 ];
                 return permissionController.add(initPermission)
                     .catch(err => {

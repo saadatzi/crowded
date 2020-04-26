@@ -303,7 +303,7 @@ router.post('/changePassword',joiValidate(changePassSchema), verifyToken(true), 
  * @return Nationalities
  */
 //______________________Get Nationalities_____________________//
-router.get('/nationalities', verifyToken(true), function (req, res) {
+router.get('/nationalities', verifyToken(), function (req, res) {
     console.info('API: Get Nationalities User/init');
     const lang = req.headers['lang'] ? (req.headers['lang']).toLowerCase() : 'en';
     new NZ.Response({items: nationalities[`title_${lang}`]}).send(res);

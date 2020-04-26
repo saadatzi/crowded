@@ -177,23 +177,23 @@ module.exports = Role;
 
 /*
 * Access Level Map
-     Create-Read-Update-Delete
-  16   8     4    2      1
+           Create  Read  Update    Delete
+  32   16    8      4       2        1
 __________________________________________________________
-  1    0     0    0      1  => 17   [Delete]
-  1    0     0    1      0  => 18   [Update]
-  1    0     0    1      1  => 19   [Update, Delete]
-  1    0     1    0      0  => 20   [Read]
-  1    0     1    0      1  => 21   [Read, Delete]
-  1    0     1    1      0  => 22   [Read, Update]
-  1    0     1    1      1  => 23   [Read, Update, Delete]
-  1    1     0    0      0  => 24   [Create]
-  1    1     0    0      1  => 25   [Create, Delete]
-  1    1     0    1      0  => 26   [Create, Update]
-  1    1     0    1      1  => 27   [Create, Update, Delete]
-  1    1     1    0      0  => 28   [Create, Read]
-  1    1     1    0      1  => 29   [Create, Read, Delete]
-  1    1     1    1      0  => 30   [Create, Read, Update]
-  1    1     1    1      1  => 31   [Create, Read, Update]
+  1    0     0      0       0        1      => 1  33   [Delete]
+  1    0     0      0       1        0      => 2  34   [Update]
+  1    0     0      0       1        1      => 3  35   [Update, Delete]
+  1    0     0      1       0        0      => 4  36   [Read]
+  1    0     0      1       0        1      => 5  37   [Read, Delete]
+  1    0     0      1       1        0      => 6  38   [Read, Update]
+  1    0     0      1       1        1      => 7  39   [Read, Update, Delete]
+  1    0     1      0       0        0      => 8  40   [Create]
+  1    0     1      0       0        1      => 9  41   [Create, Delete]
+  1    0     1      0       1        0      => 10 42   [Create, Update]
+  1    0     1      0       1        1      => 11 43   [Create, Update, Delete]
+  1    0     1      1       0        0      => 12 44   [Create, Read]
+  1    0     1      1       0        1      => 13 45   [Create, Read, Delete]
+  1    0     1      1       1        0      => 14 46   [Create, Read, Update]
+  1    0     1      1       1        1      => 15 47   [Create, Read, Update, Delete]
 ____________________________________________________________
 * */

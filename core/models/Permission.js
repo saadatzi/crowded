@@ -19,9 +19,20 @@ const PermissionSchema = new Schema({
  */
 
 PermissionSchema.pre('remove', function (next) {
-    //TODO pre-remove required...
     next();
 });
+
+/**
+ * Pre-save hook
+ */
+PermissionSchema.pre('save', function (next) {
+    var permission = this;
+    if (permission.isNew) {
+        permission.access = permission.access + 32
+    }
+    next();
+});
+
 
 /**
  * Methods
