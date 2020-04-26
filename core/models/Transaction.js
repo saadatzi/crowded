@@ -156,9 +156,9 @@ TransactionSchema.static({
             {
                 $project: {
                     items: 1,
-                    withdraw: 1,
-                    totalEarned: 1,
-                    thisWeek: 1,
+                    withdraw: {$cond: {if: {$gt: ["$withdraw", 0]}, then: "$withdraw", else: 0}},
+                    totalEarned: {$cond: {if: {$gt: ["$totalEarned", 0]}, then: "$totalEarned", else: 0}},
+                    thisWeek: {$cond: {if: {$gt: ["$thisWeek", 0]}, then: "$thisWeek", else: 0}},
                     nextPage: 1,
                 }
             }
