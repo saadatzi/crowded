@@ -364,6 +364,8 @@ EventSchema.static({
 
         const limit = settings.event.limitPage;
 
+        console.log(">>>>>>>>>>> getAllMyEvent userId: ", userId);
+        console.log(">>>>>>>>>>> getAllMyEvent criteria: ", criteria);
         return await this.aggregate([
             {$match: criteria},
             {
@@ -457,7 +459,10 @@ EventSchema.static({
             {$sort: {id: -1}},
         ])
             // .exec()
-            .then(events => events)
+            .then(events => {
+                console.log(">>>>>>>>>>> getAllMyEvent events: ", events);
+               return  events
+            })
             .catch(err => console.error("getAllMyEvent  Catch", err));
     },
 
