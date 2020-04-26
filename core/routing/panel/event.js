@@ -106,7 +106,7 @@ router.get('/', verifyTokenPanel(), async (req, res) => {
 /**
  * Remove Interest
  */
-router.delete('/remove', verifyTokenPanel(), joiValidate(hasValidIdSchema, 0), async (req, res) => {
+router.delete('/', verifyTokenPanel(), joiValidate(hasValidIdSchema, 0), async (req, res) => {
 
     let id = req.body.id;
 

@@ -75,7 +75,7 @@ router.put('/edit', verifyTokenPanel(), uploader, joiValidate(editSchema, 0), as
 /**
  * Remove Interest
  */
-router.post('/remove', verifyTokenPanel(), joiValidate(hasValidIdSchema, 0), async (req, res) => {
+router.delete('/', verifyTokenPanel(), joiValidate(hasValidIdSchema, 0), async (req, res) => {
 
     let id = req.body.id;
     let flag = false;
