@@ -6,7 +6,7 @@ const roleController = require('../../controllers/role');
 const permissionController = require('../../controllers/permission');
 const deviceController = require('../../controllers/device');
 const NZ = require('../../utils/nz');
-const {verifyTokenPanel} = require('../../utils/validation');
+const {verifyTokenPanel, authorization} = require('../../utils/validation');
 
 const Joi = require('@hapi/joi');
 const JoiConfigs = require('./../joiConfigs');
@@ -35,7 +35,7 @@ const updateSchema = Joi.object().keys({
  * @return status
  */
 //______________________Add Role_____________________//
-router.post('/add', joiValidate(addSchema, 0), verifyTokenPanel(), async (req, res) => {
+router.post('/add', joiValidate(addSchema, 0), verifyTokenPanel(), authorization({ROLE: ['Create']}), async (req, res) => {
     console.info('API: Add Role/init %j', {body: req.body});
 
     roleController.add(req.body)
@@ -97,6 +97,20 @@ router.get('/', verifyTokenPanel(), async (req, res) => {
     roleController.get({})
         .then(roles => {
             new NZ.Response({items: roles}).send(res);
+        })
+        .catch(err => {
+            console.error("Role List Catch err:", err)
+            new NZ.Response(null, err.message, err.code || 500).send(res);
+        })
+});
+
+//TODO check Authorize
+router.get('/auth', verifyTokenPanel(), async (req, res) => {
+    console.info('API: Authorize check/init');
+
+    roleController.authorize([{ROLE:['create']}])
+        .then(roles => {
+            new NZ.Response(roles).send(res);
         })
         .catch(err => {
             console.error("Role List Catch err:", err)

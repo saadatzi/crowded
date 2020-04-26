@@ -169,7 +169,7 @@ RoleSchema.static({
 
 function binLevel2Bool(number) {
     const arrayAccess = Array.from(String((number).toString(2)), Number);
-    return {create: !!arrayAccess[1], read: !!arrayAccess[2], update: !!arrayAccess[3], delete: !!arrayAccess[4]}
+    return {create: !!arrayAccess[2], read: !!arrayAccess[3], update: !!arrayAccess[4], delete: !!arrayAccess[5]}
 }
 
 const Role = mongoose.model('Role', RoleSchema);

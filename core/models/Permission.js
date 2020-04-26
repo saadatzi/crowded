@@ -2,18 +2,11 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const PermissionSchema = new Schema({
-    title: {type: String, unique: true, required: [true, "can't be blank"]},
+    title: {type: String, index: true, uppercase: true, unique: true, required: [true, "can't be blank"]},
     access: {type: Number, default: 0}
 });
 
-// 11..toString(2)
-// schema.set('toJSON', {
-//     transform: function (doc, ret, options) {
-//         ret.id = ret._id;
-//         delete ret._id;
-//         delete ret.__v;
-//     }
-// });
+
 /**
  * Pre-remove hook
  */
@@ -27,8 +20,11 @@ PermissionSchema.pre('remove', function (next) {
  */
 PermissionSchema.pre('save', function (next) {
     var permission = this;
-    if (permission.isNew) {
-        permission.access = permission.access + 32
+    console.log(">>>>>>>>>>>>>> toJson this permission: ", permission);
+
+    if (permission.isNew && permission.access < 16) {
+        permission.access = (Number(permission.access) + 32);
+        console.log(">>>>>>>>>>>>>> toJson  permission is new and: ", permission.access);
     }
     next();
 });
@@ -39,7 +35,6 @@ PermissionSchema.pre('save', function (next) {
  */
 PermissionSchema.method({
     toJSON() {
-        console.log(">>>>>>>>>>>>>> toJson this: ", this);
         const arrayAccess = Array.from(String((this.access ? this.access : 0).toString(2)), Number);
         return {
             id: this._id,

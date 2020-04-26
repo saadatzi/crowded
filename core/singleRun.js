@@ -281,18 +281,19 @@ const permissionController = require('./controllers/permission');
             if (permissions.length === 0) {
                 console.log('...Attempting to seed Permission Model.');
                 const initPermission = [
-                    {title: "ALL",          access: 15},
-                    {title: "Agent",        access: 15},
-                    {title: "Area",         access: 15},
-                    {title: "User account", access: 15},
-                    {title: "Bank name",    access: 15},
-                    {title: "Device app",   access: 15},
-                    {title: "Event",        access: 15},
-                    {title: "Interest",     access: 15},
-                    {title: "Organization", access: 15},
-                    {title: "Transaction",  access: 15},
-                    {title: "User Event(Approve-Reject)",   access: 6},
-                    {title: "User",  access: 15 }
+                    {title: "ALL",          access: 47},
+                    {title: "Agent",        access: 47},
+                    {title: "Area",         access: 47},
+                    {title: "User account", access: 47},
+                    {title: "Bank name",    access: 47},
+                    {title: "Device app",   access: 47},
+                    {title: "Event",        access: 47},
+                    {title: "Interest",     access: 47},
+                    {title: "Organization", access: 47},
+                    {title: "Role",         access: 47},
+                    {title: "Transaction",  access: 47},
+                    {title: "User Event(Approve-Reject)",   access: 38},
+                    {title: "User",  access: 47 }
                 ];
                 return permissionController.add(initPermission)
                     .catch(err => {
@@ -313,6 +314,7 @@ const permissionController = require('./controllers/permission');
         .catch(err=>{
             console.error('Oops!',err);
         });
+
     /* !-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-! */
     /* !-!-!-!-!-!-!-DEV-TEMPORARY-!-!-!-!-!-!-!-!-! */
     /* !-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-! */
