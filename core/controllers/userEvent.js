@@ -109,9 +109,10 @@ userEventController.prototype.setStatus = async (userId, eventId, status, newVal
     if (status === 'ACTIVE' || status === 'PAUSED' || status === 'CONTINUE') {
         await UserEvent.getOne({userId, eventId})
             .then(async userEvent => {
-                if (!userEvent) throw {code: 404, message: 'Not found!'}//Continue
+                console.log(">>>>>>>>>> setStatus userEvent: ", userEvent.status);
+                if (!userEvent) throw {code: 404, message: 'Not found!'}
                 if (status === 'ACTIVE'  && userEvent.status !== 'APPROVED') throw {code: 406, message: 'Active status mismatch!'};
-                if (status === 'PAUSED'  && (userEvent.status !== 'ACTIVE' || userEvent.status !== 'CONTINUE')) throw {code: 406, message: 'Paused status mismatch!'};
+                if (status === 'PAUSED'  && (userEvent.status !== 'ACTIVE' && userEvent.status !== 'CONTINUE')) throw {code: 406, message: 'Paused status mismatch!'};
                 if (status === 'CONTINUE'  && userEvent.status !== 'PAUSED') throw {code: 406, message: 'Active again status mismatch!'}
             })
             .catch(err => {
