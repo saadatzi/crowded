@@ -145,6 +145,9 @@ eventController.prototype.getByIdAggregate = async (id, lang, userId = null) => 
  */
 eventController.prototype.getMyEvent = async (userId, lang, page = 0, isPrevious = false, date = null) => {
     const showPrevEvent = isPrevious == 'true' || isPrevious == 1;
+    if(String(date).length > 10) {
+        date = date / 1000;
+    }
     const dateFilter = date ? {
         startMonth: moment.unix(date).startOf('month').toDate(),
         endMonth: moment.unix(date).endOf('month').toDate()

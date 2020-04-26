@@ -171,6 +171,80 @@ TransactionSchema.static({
     },
 
     /**
+     * List my Transaction Total
+     *
+     * @param {Object} userId
+     */
+    getMyTransactionTotal: async function (userId) {
+        const criteria = {status: 1, userId: mongoose.Types.ObjectId(userId)};
+
+        console.log("!!!!!!!! getMyTransaction userId: ", userId)
+        console.log("!!!!!!!! getMyTransaction criteria: ", criteria)
+        return await this.aggregate([
+            {$match: criteria},
+            //Get All UNPAID for withdraw
+            {
+                $lookup: {
+                    from: 'transactions',
+                    pipeline: [
+                        {$match: criteria},
+                        {$match: {situation: "UNPAID", isDebtor: false}},
+                        {$group: {_id: null, total: {$sum: "$price"}, count: {$sum: 1}}},
+                        {$project: {_id: 0, total: {$toString: "$total"}, count: 1}},
+                    ],
+                    as: 'getUnpaid'
+                }
+            },
+            //Get All Earned
+            {
+                $lookup: {
+                    from: 'transactions',
+                    pipeline: [
+                        {$match: criteria},
+                        {$match: {isDebtor: false}},
+                        {$group: {_id: null, total: {$sum: "$price"}, count: {$sum: 1}}},
+                        {$project: {_id: 0, total: {$toString: "$total"}, count: 1}},
+                    ],
+                    as: 'getTotal'
+                }
+            },
+            //Get total Earned in current Week
+            {
+                $lookup: {
+                    from: 'transactions',
+                    pipeline: [
+                        {$match: criteria},
+                        {$match: {isDebtor: false, $expr: {$and: [{$eq: [{$week: new Date()}, {$week: "$createdAt"}]}, {$eq: [{$year: new Date()}, {$year: "$createdAt"}]}]}}},
+                        {$group: {_id: null, total: {$sum: "$price"}, count: {$sum: 1}}},
+                        {$project: {_id: 0, total: {$toString: "$total"}, count: 1}},
+                    ],
+                    as: 'getWeek'
+                }
+            },
+            {
+                $project: {
+                    withdraw: {$arrayElemAt: ["$getUnpaid", 0]},
+                    totalEarned: {$arrayElemAt: ["$getTotal", 0]},
+                    thisWeek: {$arrayElemAt: ["$getWeek", 0]}
+
+                }
+            },
+            {
+                $project: {
+                    withdraw: {$cond: {if: {$gt: ["$withdraw.total", 0]}, then: "$withdraw", else: {count: 0, total: '0'}}},
+                    totalEarned: {$cond: {if: {$gt: ["$totalEarned.total", 0]}, then: "$totalEarned", else: {count: 0, total: '0'}}},
+                    thisWeek: {$cond: {if: {$gt: ["$thisWeek.total", 0]}, then: "$thisWeek", else: {count: 0, total: '0'}}},
+                }
+            }
+        ])
+            .then(async transactions => {
+                console.log(">>>>>>>>>>>> getMyTransaction transaction: ", transactions);
+                return transactions[0]
+            })
+            .catch(err => console.error("getMyTransaction  Catch", err));
+    },
+
+    /**
      * List my Transaction unpaid
      *
      * @param {Object} userId

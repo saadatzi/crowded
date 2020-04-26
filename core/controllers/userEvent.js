@@ -109,9 +109,10 @@ userEventController.prototype.setStatus = async (userId, eventId, status, newVal
     if (status === 'ACTIVE' || status === 'PAUSED' || status === 'CONTINUE') {
         await UserEvent.getOne({userId, eventId})
             .then(async userEvent => {
-                if (!userEvent) throw {code: 404, message: 'Not found!'}//Continue
+                console.log(">>>>>>>>>> setStatus userEvent: ", userEvent.status);
+                if (!userEvent) throw {code: 404, message: 'Not found!'}
                 if (status === 'ACTIVE'  && userEvent.status !== 'APPROVED') throw {code: 406, message: 'Active status mismatch!'};
-                if (status === 'PAUSED'  && (userEvent.status !== 'ACTIVE' || userEvent.status !== 'CONTINUE')) throw {code: 406, message: 'Paused status mismatch!'};
+                if (status === 'PAUSED'  && (userEvent.status !== 'ACTIVE' && userEvent.status !== 'CONTINUE')) throw {code: 406, message: 'Paused status mismatch!'};
                 if (status === 'CONTINUE'  && userEvent.status !== 'PAUSED') throw {code: 406, message: 'Active again status mismatch!'}
             })
             .catch(err => {
@@ -120,16 +121,16 @@ userEventController.prototype.setStatus = async (userId, eventId, status, newVal
             })
     }
     // must be event from =< current && current < to
-    if (status === 'ACTIVE') {
-        await eventController.get(eventId, 'validActiveEvent')
-            .then(event => {
-                if (!event) throw {code: 400, message: 'The event has not started or ended!'};
-            })
-            .catch(err => {
-                console.log("!!!validActiveEvent failed: ", err);
-                throw err;
-            })
-    }
+    // if (status === 'ACTIVE' && status === 'CONTINUE') {
+    //     await eventController.get(eventId, 'validActiveEvent')
+    //         .then(event => {
+    //             if (!event) throw {code: 400, message: 'The event has not started or ended!'};
+    //         })
+    //         .catch(err => {
+    //             console.log("!!!validActiveEvent failed: ", err);
+    //             throw err;
+    //         })
+    // }
     return await UserEvent.findOneAndUpdate({userId, eventId}, updateValue)
         .then(async result => {
             if (!result) throw {code: 404, message: 'Not found!'}
@@ -186,19 +187,19 @@ userEventController.prototype.addElapsed = async (userId, eventId, elapsed, coor
                             }
                         })
                         .catch(err => {
-                            console.log("!!!UserEvent get Event failed: ", err);
+                            console.log("!!!UserEvent get elapsed Event failed: ", err);
                             throw err;
                         })
                 } else {
                     return true
                 }
             } else {
-                throw {code: 406, message: userEvent ? 'Status mismatch!' : 'not found!'}
+                throw {code: userEvent ? 406 : 404, message: userEvent ? 'Status mismatch!' : 'not found!'}
             }
 
         })
         .catch(err => {
-            console.log("!!!UserEvent getByUserEvent failed: ", err);
+            console.log("!!!UserEvent getByUserEvent elapsed failed: ", err);
             throw err;
         })
 };
