@@ -31,6 +31,14 @@ TransactionSchema.pre('remove', function (next) {
 });
 
 /**
+ * Pre-save hook
+ */
+TransactionSchema.pre('save', function (next) {
+    if (this.eventId === null) this.eventId = mongoose.Types.ObjectId();
+    next();
+});
+
+/**
  * Methods
  */
 TransactionSchema.method({

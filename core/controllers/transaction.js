@@ -5,7 +5,6 @@ const mongoose = require('mongoose');
 const Transaction = require('../models/Transaction');
 const eventController = require('./event');
 const settings = require('../utils/settings');
-const uuid = require('node-uuid');
 
 const transactionController = function () {
 };
@@ -103,7 +102,7 @@ transactionController.prototype.requestWithdraw = async (userId, bankId, total) 
     return await Transaction.getTotalUnpaid(userId)
         .then(totalUnpaid => {
             //TODO duplicate
-            console.log(">>>>>>>>>>>>>>>>>>>>>> requestWithdraw get totalUnpaid: %s, total: %s", totalUnpaid.total, total)
+            console.log(">>>>>>>>>>>>>>>>>>>>>> requestWithdraw get totalUnpaid: %j, total: %s", totalUnpaid, total)
             if (Number(totalUnpaid.total) === Number(total)) {
                 const addNewTransaction = {
                     title_ar: settings.wallet.withdrawTitle_ar,
@@ -111,7 +110,7 @@ transactionController.prototype.requestWithdraw = async (userId, bankId, total) 
                     price: -Math.abs(totalUnpaid.total),
                     eventDate: new Date(),
                     userId: userId,
-                    eventId: uuid.v4(),
+                    eventId: null,
                     situation: "PENDING",
                     isDebtor: true
                 };
