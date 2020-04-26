@@ -38,6 +38,44 @@ interestController.prototype.add = async (newInterest) => {
     }
 };
 
+
+
+/**
+ * Panel get one interest
+ *
+ * @return Interest
+ */
+interestController.prototype.getOnePanel = async (optFilter) => {
+
+    return await Interest.getOnePanel(optFilter)
+        .then(result => {
+            console.log(`***Interest get by id ${optFilter} result: `, result);
+            return result;
+        })
+        .catch(err => {
+            console.log("!!!Interest get failed: ", err);
+            throw err;
+        })
+};
+
+
+/**
+ * Panel get all interests
+ *
+ * @return Interest
+ */
+interestController.prototype.getManyPanel = async (optFilter) => {
+
+    return await Interest.getManyPanel(optFilter)
+        .then(result => {
+            return result;
+        })
+        .catch(err => {
+            console.log("!!!Interest getAllPanel failed: ", err);
+            throw err;
+        });
+};
+
 /**
  * get Interest
  *
