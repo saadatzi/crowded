@@ -84,6 +84,7 @@ InterestSchema.static({
      */
     async getManyPanel(optFilter) {
         optFilter.search = optFilter.search || "";
+        optFilter.filters = optFilter.filters || {};
         const page = optFilter.page || 0;
         const limit = optFilter.limit || 50;
         // TODO: add limit,page,sort, etc.
@@ -91,6 +92,22 @@ InterestSchema.static({
         let items = await this.aggregate([
             {
                 $match: {}
+            },
+            {
+                $match:optFilter.filters
+            },
+            {
+                $project: {
+                    _id: 0,
+                    id: '$_id',
+                    title_en: 1,
+                    title_ar: 1,
+                    order:1,
+                    image: {
+                        url: {$concat:[settings.media_domain, "$image"]}
+                    },
+                    status:1
+                }
             }
         ]).catch(err => console.error(err));
 
@@ -109,13 +126,30 @@ InterestSchema.static({
      * Get one interest for panel
      * @param {Object} options
      */
-    async getOnePanel (options) {
+    async getOnePanel(options) {
         if (!options) throw { message: "Missing criteria for Interest.getOnePanel!" };
-        return await this.findOne(options)
-            .catch(err => {
-                console.error(`Interest.getOnePanel failed with criteria ${JSON.stringify(options)}`, err);
-                throw err;
-            })
+        options._id = mongoose.Types.ObjectId(options._id);
+        return await this.aggregate([
+            {
+                $match: options
+            },
+            {
+                $project: {
+                    _id: 0,
+                    id: '$_id',
+                    title_en: 1,
+                    title_ar: 1,
+                    order:1,
+                    image: {
+                        url: {$concat:[settings.media_domain, "$image"]}
+                    },
+                    createdAt:1,
+                    updatedAt: 1,
+                    status:1
+                }
+            }
+            ]).catch(err => console.error(err));
+
     }
 });
 
