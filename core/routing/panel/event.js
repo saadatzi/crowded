@@ -132,7 +132,7 @@ router.get('/', verifyTokenPanel(), async (req, res) => {
  * Get Event Detail
  */
 router.get('/:id', verifyTokenPanel(), async (req, res) => {
-
+    console.info('API: Get event Detail/init ', req.params);
     let options = {
         _id:req.params.id
     };
@@ -141,6 +141,7 @@ router.get('/:id', verifyTokenPanel(), async (req, res) => {
             new NZ.Response(result).send(res);
         })
         .catch(err => {
+            console.error('API: Get event Detail catch ', err);
             new NZ.Response(null, err.message, 500).send(res);
         });
 
