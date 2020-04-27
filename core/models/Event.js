@@ -11,7 +11,7 @@ const EventSchema = new Schema({
     desc_en: String,
     images: [{
         url: String,
-        order: Number
+        order: {type: Number, default: 1},
     }],
     interests: [{type: Schema.Types.ObjectId, ref: 'Interest'}],
     value: {type: Schema.Types.Decimal128, default: 0},
@@ -25,7 +25,7 @@ const EventSchema = new Schema({
         type: {type: String, enum: ['Point', 'LineString', 'Polygon' /*& multi*/], default: 'Point'},
         coordinates: {type: [Number], default: [0, 0]}
     },
-    status: {type: Number, default: 1}, // 1 active, 0 deActive, 2 softDelete, 3 hardDelete
+    status: {type: Number, default: 0}, // 1 active, 0 deActive, 2 softDelete, 3 hardDelete
     allowedApplyTime: Date,
     owner: {type: Schema.Types.ObjectId, ref: 'Agent'}
 }, {timestamps: true});
@@ -533,6 +533,7 @@ EventSchema.static({
             .then(events => events)
             .catch(err => console.log("Interest getAll Catch", err));
     },
+
 
 
 });

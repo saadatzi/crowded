@@ -113,7 +113,7 @@ router.get('/auth', verifyTokenPanel(), async (req, res) => {
             new NZ.Response(roles).send(res);
         })
         .catch(err => {
-            console.error("Role List Catch err:", err)
+            console.error("Role List Catch err:", err);
             new NZ.Response(null, err.message, err.code || 500).send(res);
         })
 });
