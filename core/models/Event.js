@@ -250,7 +250,7 @@ EventSchema.static({
                 maxDistance: 3000000,
                 spherical: true
             }
-        } : {$sort: {value: -1, createdAt: -1}};
+        } : {$sort: {value: -1}};
 
 
         return await this.aggregate([
