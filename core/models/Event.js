@@ -327,7 +327,7 @@ EventSchema.static({
                     // address: 1
                 }
             },
-            {$sort: {id: -1}},
+            // {$sort: {id: -1}},
         ])
             // .exec()
             .then(events => events)
