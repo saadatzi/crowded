@@ -39,7 +39,8 @@ const addSchema = Joi.object().keys({
     area:               JoiConfigs.isMongoId,
     address_ar:         JoiConfigs.description(),
     address_en:         JoiConfigs.description(),
-    location:           Joi.any(),
+    lat:                JoiConfigs.number,
+    lng:                JoiConfigs.number,
     interests:          JoiConfigs.arrayLength(1,100, JoiConfigs.isMongoId),
 });
 
@@ -74,9 +75,33 @@ router.post('/add', uploader, joiValidate(addSchema), verifyTokenPanel(), async 
     }
 
     req.body.images = [{url: req._uploadPath + '/' + req._uploadFilename, order: 1}];
+    req.body.location = {coordinates: [req.body.lat,req.body.lng]};
     eventController.add(req.body)
         .then(event => {
             new NZ.Response(true, 'Event add successful!').send(res);
+        })
+        .catch(err => {
+            console.error("Event Add Catch err:", err)
+            new NZ.Response(null, res.message, err.code || 500).send(res);
+        })
+});
+
+/**
+ *  Update Event
+ * -upload image and save in req._uploadPath
+ * -add Event in db
+ * @return status
+ */
+//______________________Add Event_____________________//
+router.put('/edit', /*joiValidate(addSchema),*/ verifyTokenPanel(), async (req, res) => {
+    console.info('API: Add event/init %j', {body: req.body});
+
+
+    eventController.get(req.body.eventId)
+        .then(event => {
+            event.images = event.images.concat(req.body.images);
+            event.save();
+            new NZ.Response(true, 'Event Update successful!').send(res);
         })
         .catch(err => {
             console.error("Event Add Catch err:", err)
