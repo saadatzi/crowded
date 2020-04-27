@@ -49,7 +49,7 @@ router.post('/add', verifyTokenPanel(), uploader, async (req, res) => {
     req.body.image = req._uploadPath + '/' + req._uploadFilename;
     interestController.add(req.body)
         .then(interest => {
-            new NZ.Response({ item: interest }).send(res);
+            new NZ.Response(true, 'Added interest successfully!').send(res);
         })
         .catch(err => {
             console.error("Interest Add Catch err:", err)
