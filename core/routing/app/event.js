@@ -256,7 +256,7 @@ router.post('/elapsed', verifyToken(true), async function (req, res) {
     userEventController.addElapsed(req.userId, req.body.eventId, req.body.elapsed, req.body.coordinates, String(req.body.isFinished).toBoolean())
         .then(event => {
             console.info("*** Set Status : %j", event);
-            new NZ.Response(null, 'Add attendance').send(res);
+            new NZ.Response(true).send(res);
         })
         .catch(err => {
             console.error("Event Set Elapsed Catch err:", err)
