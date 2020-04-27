@@ -321,7 +321,6 @@ EventSchema.static({
                         // from: {$concat: [{$toString: {$hour: "$from"}}, ":", {$toString: {$minute: "$from"}}]},
                         // to: {$concat: [{$toString: {$hour: {$dateToString: {date: `$to`, timezone: "Asia/Kuwait", format: "%H:%M"}}}}, ":", {$toString: {$minute: {$dateToString: {date: `$to`, timezone: "Asia/Kuwait", format: "%m-%d"}}}}]},
                     },
-                    distance: 1
                     // createdAt: 0
                     // date: 1,
                     // from: 1,
@@ -536,8 +535,95 @@ EventSchema.static({
             .catch(err => console.log("Interest getAll Catch", err));
     },
 
+    /**
+     *
+     * @param {String} id
+     */
+    async getOnePanel(options) {
+        if (!options) throw { message: "Missing criteria for Event.getOnePanel!" };
+        options._id = mongoose.Types.ObjectId(options._id);
+        return await this.aggregate([
+            {
+                $lookup: {
+                    from: 'areas',
+                    let: { 'primaryArea': '$area' },
+                    pipeline: [
+                        { $match: { $expr: { $in: ["$$primaryArea", "$childs._id"] } } },
+                        { $unwind: "$childs" },
+                        { $match: { $expr: { $eq: ["$childs._id", "$$primaryArea"] } } }
+                    ],
+                    as: 'getArea'
+                }
+            },
+            { $match: options },
+            { $unwind: "$images" },
+            { $sort: { 'images.order': 1 } },
+            {
+                $group: {
+                    _id: "$_id",
+                    images: { $push: { url: { $concat: [settings.media_domain, "$images.url"] } } }, //$push
+                    title_en: { $first: `$title_en` },
+                    title_ar: { $first: `$title_ar` },
+                    desc_en: { $first: `$desc_en` },
+                    desc_ar: { $first: `$desc_ar` },
+                    value: { $first: { $toString: "$value" } },
+                    attendance: { $first: `$attendance` },
+                    from: { $first: `$from` },
+                    to: { $first: `$to` },
+                    getArea_en: { $first: `$getArea.childs.name_en` }, //
+                    getArea_ar: { $first: `$getArea.childs.name_ar` }, //
+                    _address_en: { $first: `$address_en` },
+                    _address_ar: { $first: `$address_ar` },
+                    coordinates: { $first: `$location.coordinates` },
 
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    id: "$_id",
+                    title: 1,
+                    images: 1,
+                    desc: 1,
+                    // area: {$arrayElemAt: ['$getArea', 0]},
+                    value: 1,
+                    attendance: 1,
+                    status: 1,
+                    date: {
+                        day: {
+                            $concat: [
+                                {
+                                    $arrayElemAt: [settings.constant.dayOfWeek, {
+                                        $dayOfWeek: {
+                                            date: "$from",
+                                            timezone: "Asia/Kuwait"
+                                        }
+                                    }]
+                                }, ' ', { $toString: { $dayOfMonth: { date: "$from", timezone: "Asia/Kuwait" } } }
+                            ]
+                        },
+                        month: {
+                            $arrayElemAt: [settings.constant.monthNames, {
+                                $month: {
+                                    date: "$from",
+                                    timezone: "Asia/Kuwait"
+                                }
+                            }]
+                        },
+                        from: { $dateToString: { date: `$from`, timezone: "Asia/Kuwait", format: "%H:%M" } },
+                        to: { $dateToString: { date: `$to`, timezone: "Asia/Kuwait", format: "%H:%M" } }
+                    },
+                    address_en: { $concat: [{ $arrayElemAt: ['$getArea_en', 0] }, ', ', "$_address_en"] },
+                    address_ar: { $concat: [{ $arrayElemAt: ['$getArea_ar', 0] }, ', ', "$_address_ar"] },
+                    coordinates: 1
+                }
+            },
+        ])
+            // .exec()
+            .then(event => event[0])
+            .catch(err => console.error(err));
 
+    }
 });
 
 const Event = mongoose.model('Event', EventSchema);

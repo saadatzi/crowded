@@ -131,6 +131,25 @@ eventController.prototype.getByIdAggregate = async (id, lang, userId = null) => 
 
 };
 
+/**
+ * Get Event Detail for panel
+ *
+ * @param {String} optFilter (id)
+ *
+ * @return Event
+ */
+eventController.prototype.getOnePanel = async (optFilter) => {
+    return await Event.getOnePanel(optFilter)
+        .then(result => {
+            console.log(`***Event get by id ${optFilter} result: `, result);
+            return result;
+        })
+        .catch(err => {
+            console.log("!!!Event get failed: ", err);
+            throw err;
+        });
+};
+
 
 /**
  * get myEvent

@@ -129,6 +129,25 @@ router.get('/', verifyTokenPanel(), async (req, res) => {
 
 
 /**
+ * Get Event Detail
+ */
+router.get('/:id', verifyTokenPanel(), async (req, res) => {
+
+    let options = {
+        _id:req.params.id
+    };
+    eventController.getOnePanel(options)
+        .then(result => {
+            new NZ.Response(result).send(res);
+        })
+        .catch(err => {
+            new NZ.Response(null, err.message, 500).send(res);
+        });
+
+});
+
+
+/**
  * Remove Interest
  */
 router.delete('/', verifyTokenPanel(), joiValidate(hasValidIdSchema, 0), async (req, res) => {
