@@ -247,10 +247,10 @@ EventSchema.static({
                     coordinates: [options.lat, options.lng]
                 },
                 distanceField: "dist",
-                // maxDistance: 100000,
-                // spherical: true
+                maxDistance: 300000,
+                spherical: true
             }
-        } : {$sort: {createdAt: -1}};
+        } : {$sort: {value: -1}};
 
 
         return await this.aggregate([
