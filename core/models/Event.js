@@ -246,7 +246,7 @@ EventSchema.static({
                     type: "Point",
                     coordinates: [options.lat, options.lng]
                 },
-                distanceField: "dist",
+                distanceField: "distance",
                 maxDistance: 3000000,
                 spherical: true
             }
@@ -290,6 +290,7 @@ EventSchema.static({
                     // date: {$first: {$dateToString: {date: `$to`, timezone: "Asia/Kuwait", format: "%m-%d-%Y"}}},
                     getArea: {$first: `$getArea.childs.name_${options.lang}`}, //
                     address: {$first: `$address_${options.lang}`},
+                    distance: {$first: "$distance"}
 
                 }
             },
@@ -320,6 +321,7 @@ EventSchema.static({
                         // from: {$concat: [{$toString: {$hour: "$from"}}, ":", {$toString: {$minute: "$from"}}]},
                         // to: {$concat: [{$toString: {$hour: {$dateToString: {date: `$to`, timezone: "Asia/Kuwait", format: "%H:%M"}}}}, ":", {$toString: {$minute: {$dateToString: {date: `$to`, timezone: "Asia/Kuwait", format: "%m-%d"}}}}]},
                     },
+                    distance: 1
                     // createdAt: 0
                     // date: 1,
                     // from: 1,
