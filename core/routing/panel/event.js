@@ -142,12 +142,12 @@ router.put('/edit', joiValidate(updateSchema), verifyTokenPanel(), async (req, r
  * @return Events
  */
 //______________________Get Event_____________________//
-router.get('/', verifyTokenPanel(), authorization([{EVENT:'r'}]),  async (req, res) => {
+router.post('/', verifyTokenPanel(), async (req, res) => {
     console.info('API: Get event/init %j', {body: req.body});
 
-    eventController.getAll(req.userId, req.accessGroup, req.accessAny)
-        .then(events => {
-            new NZ.Response({items: events}).send(res);
+    eventController.getAll(req.body)
+        .then(result => {
+            new NZ.Response(result).send(res);
         })
         .catch(err => {
             console.error("Event Get Catch err:", err)

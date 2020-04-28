@@ -90,9 +90,8 @@ eventController.prototype.get = async (optFilter, type = 'id') => {
  *
  * @return Events
  */
-eventController.prototype.getAll = async (userId, accessGroup = false, accessAny = false) => {
-    return await Event.list()
-        .then(events => events)
+eventController.prototype.getAll = async (optFilter) => {
+    return await Event.list(optFilter)
         .catch(err => {
             console.error("!!!Event getAll failed: ", err);
             throw err;

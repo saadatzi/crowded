@@ -33,6 +33,10 @@ const EventSchema = new Schema({
 //index for geo location
 EventSchema.index({location: '2dsphere'});
 
+// index for search
+EventSchema.index({ title_en: 'text' });
+
+
 /*
 //get enum value
 console.log(use.schema.path('salutation').enumValues);
@@ -484,12 +488,64 @@ EventSchema.static({
     /**
      * Event list
      */
-    async list() {
-        return await this.find({})
-            // .select({id: 1, title: 1, image: 1})
-            .sort({createdAt: -1})
-            .then(events => events)
-            .catch(err => console.log("Interest getAll Catch", err));
+    async list(optFilter) {
+
+         // TODO: enable search
+         optFilter.search = optFilter.search || "";
+         optFilter.filters = optFilter.filters || {
+             status: 1
+         };
+         optFilter.sorts = optFilter.sorts || {
+             title_en: 1
+         };
+         optFilter.pagination = optFilter.pagination || {
+             page: 0,
+             limit: 12
+         };
+ 
+         // TODO: do it the right way
+         // Absolutely not a rational decision - Kazem
+         // Didn't have time to do it the right way - Kazem
+         let total = await this.aggregate([
+             // { $match: { $text: { $search: optFilter.search } } },
+             { $match: optFilter.filters },
+             // { $sort: { score: { $meta: "textScore" } } },
+             { $count: 'total' },
+             { $project: { total: "$total" } }
+         ])
+             .catch(err => console.error(err));
+ 
+         let items = await this.aggregate([
+             // { $match: { $text: { $search: optFilter.search } } },
+             { $match: optFilter.filters },
+             // { $sort: { score: { $meta: "textScore" } } },
+             { $sort: optFilter.sorts },
+             { $skip: optFilter.pagination.page * optFilter.pagination.limit },
+             { $limit: optFilter.pagination.limit },
+             {$unwind: "$images"},
+             {$sort: {'images.order': 1}},
+             {
+                 $group: {
+                     _id: "$_id",
+                     image: {$first: {url: {$concat: [settings.media_domain, "$images.url"]}}}, 
+                     title_en: {$first: `$title_en`},
+                    //  value: {$first: {$toString: "$value"}},    
+                 }
+             },
+             {
+                 $project: {
+                     _id: 0,
+                     id: '$_id',
+                     title_en: 1, 
+                     image: 1
+                 }
+             }
+         ])
+             .catch(err => console.error(err));
+ 
+         optFilter.pagination.total = total[0].total;
+ 
+         return { explain: optFilter, items };
     },
 
     /**
