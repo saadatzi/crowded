@@ -86,6 +86,8 @@ InterestSchema.static({
      * @api private
      */
     async getManyPanel(optFilter) {
+
+        // TODO: enable search
         optFilter.search = optFilter.search || "";
         optFilter.filters = optFilter.filters || {
             status: 1
@@ -98,7 +100,19 @@ InterestSchema.static({
             limit: 12
         };
 
-        let result = await this.aggregate([
+        // TODO: do it the right way
+        // Absolutely not a rational decision - Kazem
+        // Didn't have time to do it the right way - Kazem
+        let total = await this.aggregate([
+            // { $match: { $text: { $search: optFilter.search } } },
+            { $match: optFilter.filters },
+            // { $sort: { score: { $meta: "textScore" } } },
+            { $count: 'total' },
+            { $project: { total: "$total" } }
+        ])
+            .catch(err => console.error(err));
+
+        let items = await this.aggregate([
             // { $match: { $text: { $search: optFilter.search } } },
             { $match: optFilter.filters },
             // { $sort: { score: { $meta: "textScore" } } },
@@ -106,46 +120,21 @@ InterestSchema.static({
             { $skip: optFilter.pagination.page * optFilter.pagination.limit },
             { $limit: optFilter.pagination.limit },
             {
-                $facet: {
-                    explain: [
-                        { $count: "_total" },
-                        {
-                            $addFields: {
-                                pagination: {
-                                    ...optFilter.pagination,
-                                    total: "$_total"
-                                },
-                                sorts: optFilter.sorts,
-                                filters: optFilter.filters,
-                                search: optFilter.search
-                            }
-                        },
-                        {
-                            $project:
-                            {
-                                pagination: 1,
-                                sorts: 1,
-                                filters: 1,
-                                search: 1
-                            }
-                        }
-                    ],
-                    items: [{
-                        $project: {
-                            _id: 0,
-                            id: '$_id',
-                            title_en: 1,
-                            image: {
-                                url: { $concat: [settings.media_domain, "$image"] }
-                            }
-                        }
-                    }]
+                $project: {
+                    _id: 0,
+                    id: '$_id',
+                    title_en: 1,
+                    image: {
+                        url: { $concat: [settings.media_domain, "$image"] }
+                    }
                 }
             }
+        ])
+            .catch(err => console.error(err));
 
-        ]).catch(err => console.error(err));
+        optFilter.pagination.total = total[0].total;
 
-        return result;
+        return { explain: optFilter, items };
 
     },
 
