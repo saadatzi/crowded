@@ -159,7 +159,7 @@ roleController.prototype.update = async (optFilter, newValue) => {
 };
 
 /**
- * Add new Role
+ * authorize Role
  *
  * @param {ObjectId} userId
  * @param {Array} permissions
@@ -173,11 +173,11 @@ roleController.prototype.authorize = async (userId, permissions) => {
     });
     return await Role.authorize(userId, permissions)
         .then(result => {
-            console.log("***Role many save success result", result);
+            console.log("***Role Authorize success result %j", result);
             return result;
         })
         .catch(err => {
-            console.log("!!!Role many save failed: ", err);
+            console.log("!!!Role Authorize failed: ", err);
             throw err;
         })
 };

@@ -126,6 +126,7 @@ router.get('/auth', verifyTokenPanel(), async (req, res) => {
 //______________________Update Role_____________________//
 router.post('/authTest', verifyTokenPanel(), async (req, res) => {
     console.info('API: Test Authorization Role/init %j', {body: req.body});
+    console.info('API: Test Authorization Role/init userId', req.userId);
 
     roleController.authorize(req.userId, req.body)
         .then(role => {

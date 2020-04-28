@@ -96,11 +96,10 @@ module.exports = {
                     agentController.get(tokenObj.userId, 'id')
                         .then(user => {
                             user.updateOne({
-                                $set: {lastIp:req.headers['x-real-ip'] ? req.headers['x-real-ip'] : '127.0.0.1', lastInteract: new Date()},
+                                $set: {lastIp:req.headers['x-real-ip'] , lastInteract: new Date()},
                             })
                                 .catch(err => {
-                                    console.error("!!!!!!!!Agent incLoginAttempts lock expired catch err: ", err);
-                                    throw err;
+                                    console.error("!!!!!!!!Agent lastIp lastInteract update catch err: ", err);
                                 });
                         })
                         .catch(err => console.error('!!!agentController get byId Failed!!! ', err));

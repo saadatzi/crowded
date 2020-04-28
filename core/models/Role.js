@@ -107,49 +107,52 @@ RoleSchema.static({
             {
                 $lookup: {
                     from: 'agents',
-                    localField: userId,
-                    foreignField: '_id',
-                    as: 'getUser'
+                    pipeline: [
+                        {$match: {_id: mongoose.Types.ObjectId(userId)}},
+                        {$match: {$expr: {$eq: ["$$primaryEventId", "$eventId"]}}},
+                        {$project: {_id: 0, status: "$status"}},
+                    ],
+                    as: 'getUserEvents'
                 }
             },
 
-            {
-                $lookup: {
-                    from: 'permissions',
-                    localField: 'permissions.permissionId',
-                    foreignField: '_id',
-                    as: 'perName'
-                }
-            },
-            {$unwind: "$permissions"},
-            {
-                $group: {
-                    _id: "$_id",
-                    permissions: {
-                        $push: {
-                            title: {$arrayElemAt: ['$perName.title', 0]},
-                            // accessLevel: {$binLevel2Bool: '$permissions.accessLevel'},
-                            accessLevelNum: '$permissions.accessLevel'
-                        }
-                    },
-                    name: {$first: `$name`},
-                    status: {$first: `$status`},
-                }
-            },
+            // {
+            //     $lookup: {
+            //         from: 'permissions',
+            //         localField: 'permissions.permissionId',
+            //         foreignField: '_id',
+            //         as: 'perName'
+            //     }
+            // },
+            // {$unwind: "$permissions"},
+            // {
+            //     $group: {
+            //         _id: "$_id",
+            //         permissions: {
+            //             $push: {
+            //                 title: {$arrayElemAt: ['$perName.title', 0]},
+            //                 // accessLevel: {$binLevel2Bool: '$permissions.accessLevel'},
+            //                 accessLevelNum: '$permissions.accessLevel'
+            //             }
+            //         },
+            //         name: {$first: `$name`},
+            //         status: {$first: `$status`},
+            //     }
+            // },
             {
                 $project: {
                     _id: 0,
                     id: '$_id',
-                    name: 1,
-                    permissions: 1,
-                    status: 1,
+                    getUser: "$getUser",
+                    // permissions: 1,
+                    // status: 1,
                 }
             },
         ])
             .then(result => {
-                result.map(r => {
-                    r.permissions.map(rp => rp.accesssLevel = binLevel2Bool(rp.accessLevelNum))
-                });
+                // result.map(r => {
+                //     r.permissions.map(rp => rp.accesssLevel = binLevel2Bool(rp.accessLevelNum))
+                // });
                 return result;
             })
             .catch(err => console.error("Role List  Catch", err));
