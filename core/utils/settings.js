@@ -2,10 +2,10 @@ const path = require('path');
 module.exports = {
 	initDataDB: false,
 	contact:		{
-		email:		'info@kidsapp.com',
+		email:		'info@crowdedapp.com',
 		phone:		'+965 9744 8984',
 		address:	'Crowder Technologies CO. <br> MSSS Alddd Complex, <br> Kuwait City',
-		copyright:	'Kids Inc.',
+		copyright:	'Crowded Inc.',
 		privacy:	'https://google.com',
 		terms:		'https://google.com',
 	},
@@ -31,7 +31,7 @@ module.exports = {
 		username:  'automated@nizek.com',
 		password:  '@nizek123456_',
 		from:      'kidsapp@nizek.com',
-		from_name: 'Kids App'
+		from_name: 'Crowded App'
 	},
 
 	redis: 			{
@@ -67,12 +67,12 @@ module.exports = {
 	hashids_seed:	"cc679a61iipahn2u4ged2df11",
 	hashids_max:	3,
 
-	api_domain:		'https://api.kids.dev.nizek.com/',
+	api_domain:		'https://api.crowded.dev.nizek.com/',
 	cdn_domain:		'https://media.kids.dev.nizek.com/',
 	primary_domain:	'https://kids.dev.nizek.com/',
-	project_name:	'Kids',
+	project_name:	'Crowded',
 
-	panel_route:	'',
+	panel_route:	'https://panel.crowded.dev.nizek.com/api/',
 	api_base:		'https://api.crowded.dev.nizek.com/',
 	media_domain:	'https://media.crowded.dev.nizek.com/',
 

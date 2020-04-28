@@ -1,3 +1,4 @@
+_rootDir = __dirname;
 /**
  * Module dependencies
  */
@@ -13,10 +14,8 @@ const fs = require('fs');
 const settings = require('./utils/settings');
 
 const helmet = require('helmet');
-
 const {logger, isAPIChecker} = require('./utils/logger');
 
-const {verifyToken} = require('./utils/jwt');
 const logController = require('./controllers/log');
 // const CheckException = require('./utils/CheckException');
 
@@ -65,7 +64,7 @@ require('./utils/ncs/ncs.localization').init('com.nizek.crowded', ncs_localizati
 * Cross-Origin
 * */
 app.use(function (req, res, next) {
-    const allowedOrigins = ['http://localhost:3000', 'https://panel.kids.dev.nizek.com'];
+    const allowedOrigins = ['http://localhost:3000', 'http://localhost:3001','http://localhost:3002','http://localhost:3003', 'https://panel.crowded.dev.nizek.com'];
     const origin = req.headers.origin;
     if (allowedOrigins.indexOf(origin) > -1) {
         res.setHeader('Access-Control-Allow-Origin', origin);
@@ -91,9 +90,7 @@ app.use(
         if (req.userId) {
             user = req.userId;
         }
-        if (req._admin) {
-            user = req._admin.id;
-        }
+
         let device = null;
         if (req.deviceId) {
             device = req.deviceId;
@@ -131,10 +128,10 @@ app.use(logger('PyLog', {
     }
 }));
 
-/*
-* Authentication JWT
-* */
-// app.use(verifyToken);
+
+// app.engine('dot', engine.__express);
+// app.set('views', path.join(_rootDir, './templates/default/dot'));
+// app.set('view engine', 'dot');
 
 
 /*

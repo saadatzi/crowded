@@ -2,7 +2,7 @@
  * Module dependencies.
  */
 let User = require('../models/User');
-
+const settings = require('../utils/settings')
 const userController = function () {
 };
 
@@ -59,7 +59,9 @@ userController.prototype.get = async (optFilter, type = 'email') => {
     } else {
         if (type === 'email') {
             return await User.getByEmail(optFilter)
-                .then(result => result)
+                .then(result => {
+
+                    return result})
                 .catch(err => {
                     console.log("!!!User getByEmail failed: ", err);
                     throw err;
@@ -68,7 +70,7 @@ userController.prototype.get = async (optFilter, type = 'email') => {
             return await User.getById(optFilter)
                 .then(result => result)
                 .catch(err => {
-                    console.log("!!!User get failed: ", err);
+                    console.log("!!!User getById failed: ", err);
                     throw err;
                 })
         }
@@ -85,7 +87,7 @@ userController.prototype.get = async (optFilter, type = 'email') => {
 userController.prototype.remove = async (optFilter) => {
     if (optFilter) {
         if (optFilter instanceof Object) { //instanceof mongoose.Types.ObjectId
-            //ToDo return Query?!
+
             return await User.remove(optFilter)
                 .then(result => {
                     console.log("***User  Remove many result: ", result);
@@ -96,7 +98,7 @@ userController.prototype.remove = async (optFilter) => {
                     throw err;
                 })
         } else {
-            //ToDo return Query?!
+
             return await User.findByIdAndRemove(optFilter)
                 .then(result => {
                     console.log(`***User Remove by id ${optFilter} result: `, result);

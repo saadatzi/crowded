@@ -4,7 +4,30 @@
 
 let Agent = require('../models/Agent');
 
-const agentController = function () {};
+const agentController = function () {
+};
+
+/**
+ * Login User Panel
+ *
+ * @param {String} email
+ * @param {String} pass
+ *
+ * @return {Agent} agent
+ */
+agentController.prototype.auth = async (email, pass) => {
+
+    return await Agent.getAuthenticated(email, pass)
+        .then(agent => {
+            console.log("***Login Agent success agent", agent);
+            return agent;
+        })
+        .catch(err => {
+            console.log("!!!Login Agent failed: ", err);
+            throw err;
+        })
+};
+
 
 /**
  * Add new Agent
@@ -66,12 +89,8 @@ agentController.prototype.get = async (optFilter, type = 'email') => {
                     throw err;
                 })
         } else {
-            console.log("***Agent get by Id optFilter 3: ", optFilter);
             return await Agent.getById(optFilter)
-                .then(result => {
-                    console.log(`***Agent get by id ${optFilter} result: `, result);
-                    return result;
-                })
+                .then(result => result)
                 .catch(err => {
                     console.log("!!!Agent get failed: ", err);
                     throw err;
@@ -90,7 +109,7 @@ agentController.prototype.get = async (optFilter, type = 'email') => {
 agentController.prototype.remove = async (optFilter) => {
     if (optFilter) {
         if (optFilter instanceof Object) { //instanceof mongoose.Types.ObjectId
-            //ToDo return Query?!
+
             return await Agent.remove(optFilter)
                 .then(result => {
                     console.log("***Agent  Remove many result: ", result);
@@ -101,7 +120,7 @@ agentController.prototype.remove = async (optFilter) => {
                     throw err;
                 })
         } else {
-            //ToDo return Query?!
+
             return await Agent.findByIdAndRemove(optFilter)
                 .then(result => {
                     console.log(`***Agent Remove by id ${optFilter} result: `, result);

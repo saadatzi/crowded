@@ -5,13 +5,14 @@ const moment = require('moment-timezone');
 const areaController = require('../controllers/area');
 // mongoose.Types.ObjectId.isValid()
 const EventSchema = new Schema({
+    owner: {type: Schema.Types.ObjectId, ref: 'Agent'},
     title_ar: String,
     title_en: String,
     desc_ar: String,
     desc_en: String,
     images: [{
         url: String,
-        order: Number
+        order: {type: Number, default: 1},
     }],
     interests: [{type: Schema.Types.ObjectId, ref: 'Interest'}],
     value: {type: Schema.Types.Decimal128, default: 0},
@@ -25,11 +26,9 @@ const EventSchema = new Schema({
         type: {type: String, enum: ['Point', 'LineString', 'Polygon' /*& multi*/], default: 'Point'},
         coordinates: {type: [Number], default: [0, 0]}
     },
-    status: {type: Number, default: 1}, // 1 active, 0 deActive, 2 softDelete, 3 hardDelete
-    allowedApplyTime: Date,
-    createAt: {type: Date, default: Date.now},
-    updateAt: {type: Date, default: Date.now},
-});
+    status: {type: Number, default: 0}, // 1 active, 0 deActive, 2 softDelete, 3 hardDelete
+    allowedApplyTime: Date
+}, {timestamps: true});
 
 //index for geo location
 EventSchema.index({location: '2dsphere'});
@@ -80,10 +79,24 @@ console.log(use.schema.path('salutation').enumValues);
 
 /**
  * Pre-remove hook
- */
+ *
 
+ */
 EventSchema.pre('remove', function (next) {
-    //ToDo pre-remove required...
+    //TODO pre-remove required...
+    next();
+});
+
+/**
+ * Pre-save hook
+ */
+EventSchema.pre('save', function (next) {
+    var event = this;
+    if (!event.isNew && !event.images[event.images.length-1].order) {
+        console.log(">>>>>>>>>>>>>> pre save AddImage event: ", event);
+        const maxOrder = Math.max.apply(Math, event.images.map(function(o) {return o.order}))
+        event.images[event.images.length-1].order = maxOrder + 1;
+    }
     next();
 });
 
@@ -247,11 +260,11 @@ EventSchema.static({
                     type: "Point",
                     coordinates: [options.lat, options.lng]
                 },
-                distanceField: "dist",
-                // maxDistance: 100000,
-                // spherical: true
+                distanceField: "distance",
+                maxDistance: 3000000,
+                spherical: true
             }
-        } : {$sort: {createAt: -1}};
+        } : {$sort: {value: -1}};
 
 
         return await this.aggregate([
@@ -285,12 +298,13 @@ EventSchema.static({
                     // attendance: {$first: `$attendance`},
                     from: {$first: `$from`},
                     to: {$first: `$to`},
-                    // createAt: {$first: `$createAt`},
+                    // createdAt: {$first: `$createdAt`},
                     // allowedApplyTime: {$first: `$allowedApplyTime`},
                     // date: {$first: moment.tz("$from", 'Asia/Kuwait').format('YYYY-MM-DD HH:MM')},
                     // date: {$first: {$dateToString: {date: `$to`, timezone: "Asia/Kuwait", format: "%m-%d-%Y"}}},
                     getArea: {$first: `$getArea.childs.name_${options.lang}`}, //
                     address: {$first: `$address_${options.lang}`},
+                    distance: {$first: "$distance"}
 
                 }
             },
@@ -321,14 +335,14 @@ EventSchema.static({
                         // from: {$concat: [{$toString: {$hour: "$from"}}, ":", {$toString: {$minute: "$from"}}]},
                         // to: {$concat: [{$toString: {$hour: {$dateToString: {date: `$to`, timezone: "Asia/Kuwait", format: "%H:%M"}}}}, ":", {$toString: {$minute: {$dateToString: {date: `$to`, timezone: "Asia/Kuwait", format: "%m-%d"}}}}]},
                     },
-                    // createAt: 0
+                    // createdAt: 0
                     // date: 1,
                     // from: 1,
                     // to: 1,
                     // address: 1
                 }
             },
-            {$sort: {id: -1}},
+            // {$sort: {id: -1}},
         ])
             // .exec()
             .then(events => events)
@@ -353,7 +367,7 @@ EventSchema.static({
 
         if (dateFilter) criteria.from = {$gte: dateFilter.startMonth, $lt: dateFilter.endMonth};
 
-        //ToDo .find date range
+        //TODO .find date range
         /*criteria.from = {
         $expr: {
             $and: [
@@ -363,9 +377,10 @@ EventSchema.static({
         }
     };*/
 
-
         const limit = settings.event.limitPage;
 
+        console.log(">>>>>>>>>>> getAllMyEvent userId: ", userId);
+        console.log(">>>>>>>>>>> getAllMyEvent criteria: ", criteria);
         return await this.aggregate([
             {$match: criteria},
             {
@@ -381,7 +396,7 @@ EventSchema.static({
                 }
             },
             {$unwind: {path: "$getUserEvents", preserveNullAndEmptyArrays: false}},
-            {$sort: {createAt: -1}},
+            {$sort: {createdAt: -1}},
             {$skip: limit * page},
             {$limit: limit + 1},
             {$unwind: "$images"},
@@ -459,8 +474,22 @@ EventSchema.static({
             {$sort: {id: -1}},
         ])
             // .exec()
-            .then(events => events)
+            .then(events => {
+                console.log(">>>>>>>>>>> getAllMyEvent events: ", events);
+               return  events
+            })
             .catch(err => console.error("getAllMyEvent  Catch", err));
+    },
+
+    /**
+     * Event list
+     */
+    async list() {
+        return await this.find({})
+            // .select({id: 1, title: 1, image: 1})
+            .sort({createdAt: -1})
+            .then(events => events)
+            .catch(err => console.log("Interest getAll Catch", err));
     },
 
     /**
@@ -475,7 +504,7 @@ EventSchema.static({
         const page = options.page || 0;
         const limit = options.limit || 30;
         return await this.find(criteria)
-            // .sort({createAt: -1})
+            // .sort({createdAt: -1})
             .sort({'images.order': 1})
             .populate('interests')
             .limit(limit)
@@ -483,6 +512,131 @@ EventSchema.static({
             .exec()
             .then(events => events)
             .catch(err => console.log("Event getAll Catch", err));
+    },
+
+    /**
+     * Checks to see if given interest is related to any event
+     *
+     * @param {String} id
+     * @api private
+     */
+    interestIsRelated: async function (id) {
+        let result = await this.aggregate([
+            {$match: {interests: mongoose.Types.ObjectId(id)}}
+        ])
+            .catch(err => {
+                console.error(`Event interestIsRelated check failed with criteria id:${id}`, err);
+                throw err;
+            });
+        return result.length != 0;
+    },
+
+    /**
+     * Check Valid Event(find id, allowedApplyTime)
+     */
+    async validApplyEvent(id) {
+        return await this.findOne({_id: id, allowedApplyTime: {$gt: new Date()}})
+            .then(events => events)
+            .catch(err => console.log("Interest getAll Catch", err));
+    },
+
+    /**
+     * Check Valid Active Event
+     */
+    async validActiveEvent(id) {
+        return await this.findOne({_id: id, from: {$lte: new Date()}, to: {$gt: new Date()}})
+            .then(events => events)
+            .catch(err => console.log("Interest getAll Catch", err));
+    },
+
+    /**
+     *
+     * @param {String} id
+     */
+    async getOnePanel(options) {
+        if (!options) throw { message: "Missing criteria for Event.getOnePanel!" };
+        options._id = mongoose.Types.ObjectId(options._id);
+        return await this.aggregate([
+            {
+                $lookup: {
+                    from: 'areas',
+                    let: { 'primaryArea': '$area' },
+                    pipeline: [
+                        { $match: { $expr: { $in: ["$$primaryArea", "$childs._id"] } } },
+                        { $unwind: "$childs" },
+                        { $match: { $expr: { $eq: ["$childs._id", "$$primaryArea"] } } }
+                    ],
+                    as: 'getArea'
+                }
+            },
+            { $match: options },
+            { $unwind: "$images" },
+            { $sort: { 'images.order': 1 } },
+            {
+                $group: {
+                    _id: "$_id",
+                    images: { $push: { url: { $concat: [settings.media_domain, "$images.url"] } } }, //$push
+                    title_en: { $first: `$title_en` },
+                    title_ar: { $first: `$title_ar` },
+                    desc_en: { $first: `$desc_en` },
+                    desc_ar: { $first: `$desc_ar` },
+                    value: { $first: { $toString: "$value" } },
+                    attendance: { $first: `$attendance` },
+                    from: { $first: `$from` },
+                    to: { $first: `$to` },
+                    getArea_en: { $first: `$getArea.childs.name_en` }, //
+                    getArea_ar: { $first: `$getArea.childs.name_ar` }, //
+                    _address_en: { $first: `$address_en` },
+                    _address_ar: { $first: `$address_ar` },
+                    coordinates: { $first: `$location.coordinates` },
+
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    id: "$_id",
+                    title: 1,
+                    images: 1,
+                    desc: 1,
+                    // area: {$arrayElemAt: ['$getArea', 0]},
+                    value: 1,
+                    attendance: 1,
+                    status: 1,
+                    date: {
+                        day: {
+                            $concat: [
+                                {
+                                    $arrayElemAt: [settings.constant.dayOfWeek, {
+                                        $dayOfWeek: {
+                                            date: "$from",
+                                            timezone: "Asia/Kuwait"
+                                        }
+                                    }]
+                                }, ' ', { $toString: { $dayOfMonth: { date: "$from", timezone: "Asia/Kuwait" } } }
+                            ]
+                        },
+                        month: {
+                            $arrayElemAt: [settings.constant.monthNames, {
+                                $month: {
+                                    date: "$from",
+                                    timezone: "Asia/Kuwait"
+                                }
+                            }]
+                        },
+                        from: { $dateToString: { date: `$from`, timezone: "Asia/Kuwait", format: "%H:%M" } },
+                        to: { $dateToString: { date: `$to`, timezone: "Asia/Kuwait", format: "%H:%M" } }
+                    },
+                    address_en: { $concat: [{ $arrayElemAt: ['$getArea_en', 0] }, ', ', "$_address_en"] },
+                    address_ar: { $concat: [{ $arrayElemAt: ['$getArea_ar', 0] }, ', ', "$_address_ar"] },
+                    coordinates: 1
+                }
+            },
+        ])
+            // .exec()
+            .then(event => event[0])
+            .catch(err => console.error(err));
+
     }
 });
 

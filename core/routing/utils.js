@@ -1,8 +1,6 @@
 const NZ = require('./../utils/nz');
 const accessors = {
-	0: {
-		key: 'body'
-	},
+	0: {key: 'body'},
 	1: {
 		shouldParse:  true,
 		checkFiles:   true,
@@ -10,15 +8,14 @@ const accessors = {
 		fileCount:    1,
 		key:          'body.data'
 	},
-	2: {
-		key: 'params'
-	},
+	2: {key: 'params'},
 	3: {
 		shouldParse:  true,
 		checkFiles:   true,
 		key:          'body.data',
 		getFileArray: false
-	}
+	},
+	4: {key: 'query'}
 };
 
 const reduceJoiMessages = joiErr => {

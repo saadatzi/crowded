@@ -17,9 +17,7 @@ const TransactionSchema = new Schema({
     },
     status: {type: Number, default: 1}, // 1 active, 0 deActive, 2 softDelete, 3 hardDelete
     eventDate: Date,
-    createdAt: {type: Date, default: Date.now},
-    updateAt: {type: Date, default: Date.now}
-});
+}, {timestamps: true});
 TransactionSchema.index({userId: 1, eventId: 1}, {unique: true});
 TransactionSchema.plugin(AutoIncrement, {inc_field: 'transactionId'});
 
@@ -29,7 +27,14 @@ TransactionSchema.plugin(AutoIncrement, {inc_field: 'transactionId'});
  */
 
 TransactionSchema.pre('remove', function (next) {
-    //ToDo pre-remove required...
+    next();
+});
+
+/**
+ * Pre-save hook
+ */
+TransactionSchema.pre('save', function (next) {
+    if (this.eventId === null) this.eventId = mongoose.Types.ObjectId();
     next();
 });
 
@@ -86,7 +91,7 @@ TransactionSchema.static({
         console.log("!!!!!!!! getMyTransaction criteria: ", criteria)
         return await this.aggregate([
             {$match: criteria},
-            {$sort: {createAt: -1}},
+            {$sort: {createdAt: -1}},
             {$skip: limit * page},
             {$limit: limit + 1},
             {
@@ -104,6 +109,54 @@ TransactionSchema.static({
                 $group: {
                     _id: null,
                     items: {$push: '$$ROOT'},
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    nextPage: {$cond: {if: {$gt: [{$size: "$items"}, limit]}, then: page + 1, else: null}},
+                    items: {$slice: ["$items", limit]},
+
+                }
+            },
+            {
+                $project: {
+                    items: 1,
+                    nextPage: 1,
+                }
+            }
+        ])
+            .then(async transactions => {
+                console.log(">>>>>>>>>>>> getMyTransaction transaction: ", transactions);
+                return transactions[0]
+            })
+            .catch(err => console.error("getMyTransaction  Catch", err));
+    },
+
+    /**
+     * List my Transaction Total
+     *
+     * @param {Object} userId
+     */
+    getMyTransactionTotal: async function (userId) {
+        const criteria = {status: 1, userId: mongoose.Types.ObjectId(userId)};
+
+        const monthAgo = new Date(new Date().getTime()-2678400000);//31*24*60*60*1000
+
+        console.log("!!!!!!!! getMyTransaction userId: ", userId)
+        console.log("!!!!!!!! getMyTransaction criteria: ", criteria);
+        return await this.aggregate([
+            {$match: criteria},
+            //Get one month ago
+            {
+                $lookup: {
+                    from: 'transactions',
+                    pipeline: [
+                        {$match: criteria},
+                        {$match: {isDebtor: false, createdAt: {$gt: monthAgo}}},
+                        {$project: {_id: 0, price: {$toString: "$price"}, eventDate: {$dateToString: {format: "%Y/%m/%d", date: "$eventDate", timezone: "Asia/Kuwait"}}}},
+                    ],
+                    as: 'getMonthAgo'
                 }
             },
             //Get All UNPAID for withdraw
@@ -138,7 +191,12 @@ TransactionSchema.static({
                     from: 'transactions',
                     pipeline: [
                         {$match: criteria},
-                        {$match: {isDebtor: false, $expr: {$and: [{$eq: [{$week: new Date()}, {$week: "$createdAt"}]}, {$eq: [{$year: new Date()}, {$year: "$createdAt"}]}]}}},
+                        {
+                            $match: {
+                                isDebtor: false,
+                                $expr: {$and: [{$eq: [{$week: new Date()}, {$week: "$createdAt"}]}, {$eq: [{$year: new Date()}, {$year: "$createdAt"}]}]}
+                            }
+                        },
                         {$group: {_id: null, total: {$sum: "$price"}, count: {$sum: 1}}},
                         {$project: {_id: 0, total: {$toString: "$total"}, count: 1}},
                     ],
@@ -148,8 +206,7 @@ TransactionSchema.static({
             {
                 $project: {
                     _id: 0,
-                    nextPage: {$cond: {if: {$gt: [{$size: "$items"}, limit]}, then: page + 1, else: null}},
-                    items: {$slice: ["$items", limit]},
+                    dataCart: "$getMonthAgo",
                     withdraw: {$arrayElemAt: ["$getUnpaid", 0]},
                     totalEarned: {$arrayElemAt: ["$getTotal", 0]},
                     thisWeek: {$arrayElemAt: ["$getWeek", 0]}
@@ -158,16 +215,35 @@ TransactionSchema.static({
             },
             {
                 $project: {
-                    items: 1,
-                    withdraw: 1,
-                    totalEarned: 1,
-                    thisWeek: 1,
-                    nextPage: 1,
+                    dataCart: 1,
+                    withdraw: {
+                        $cond: {
+                            if: {$gt: ["$withdraw.total", 0]},
+                            then: "$withdraw",
+                            else: {count: 0, total: '0'}
+                        }
+                    },
+                    totalEarned: {
+                        $cond: {
+                            if: {$gt: ["$totalEarned.total", 0]},
+                            then: "$totalEarned",
+                            else: {count: 0, total: '0'}
+                        }
+                    },
+                    thisWeek: {
+                        $cond: {
+                            if: {$gt: ["$thisWeek.total", 0]},
+                            then: "$thisWeek",
+                            else: {count: 0, total: '0'}
+                        }
+                    },
                 }
             }
         ])
-            // .exec()
-            .then(async transactions => transactions[0])
+            .then(async transactions => {
+                console.log(">>>>>>>>>>>> getMyTransaction transaction: ", transactions);
+                return transactions[0]
+            })
             .catch(err => console.error("getMyTransaction  Catch", err));
     },
 

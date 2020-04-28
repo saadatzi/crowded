@@ -31,6 +31,7 @@ organizationController.prototype.add = async (newOrganization) => {
             })
             .catch(err => {
                 console.log("!!!Organization save failed: ", err);
+                if (err.code === 11000) throw {message: "The entered title is duplicate!", code: 424};
                 throw err;
             })
     }
@@ -44,7 +45,7 @@ organizationController.prototype.add = async (newOrganization) => {
  *
  * @return Organization
  */
-organizationController.prototype.get = async (optFilter, type = 'email') => {
+organizationController.prototype.get = async (optFilter, type = 'id') => {
     console.log("***Organization get by Id optFilter 2: ", optFilter);
     if (!optFilter || optFilter instanceof Object) { //newOrganization instanceof Array
         return await Organization.getAll(optFilter)
@@ -57,14 +58,7 @@ organizationController.prototype.get = async (optFilter, type = 'email') => {
                 throw err;
             })
     } else {
-        if (type === 'email') {
-            return await Organization.getByEmail(optFilter)
-                .then(result => result)
-                .catch(err => {
-                    console.log("!!!Organization getByEmail failed: ", err);
-                    throw err;
-                })
-        } else {
+        if (type === 'id') {
             console.log("***Organization get by Id optFilter 3: ", optFilter);
             return await Organization.getById(optFilter)
                 .then(result => {
@@ -89,7 +83,7 @@ organizationController.prototype.get = async (optFilter, type = 'email') => {
 organizationController.prototype.remove = async (optFilter) => {
     if (optFilter) {
         if (optFilter instanceof Object) { //instanceof mongoose.Types.ObjectId
-            //ToDo return Query?!
+
             return await Organization.remove(optFilter)
                 .then(result => {
                     console.log("***Organization  Remove many result: ", result);
@@ -100,7 +94,7 @@ organizationController.prototype.remove = async (optFilter) => {
                     throw err;
                 })
         } else {
-            //ToDo return Query?!
+
             return await Organization.findByIdAndRemove(optFilter)
                 .then(result => {
                     console.log(`***Organization Remove by id ${optFilter} result: `, result);

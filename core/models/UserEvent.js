@@ -7,32 +7,31 @@ const UserEventSchema = new Schema({
         enum: ['APPLIED', 'APPROVED', 'REJECTED', 'ACTIVE', 'LEFT', 'PAUSED', 'CONTINUE', 'SUCCESS'],
         default: 'APPLIED'
     },
-    userId: {type: Schema.ObjectId, ref: 'User'},
-    eventId: {type: Schema.ObjectId, ref: 'Event'},
+    userId: { type: Schema.ObjectId, ref: 'User' },
+    eventId: { type: Schema.ObjectId, ref: 'Event' },
     attendance: [
         {
-            elapsed: {type: Number, required: [true, "elapsed can't be blank!"]},
+            elapsed: { type: Number, required: [true, "elapsed can't be blank!"] },
             location: {
-                type: {type: String, enum: ['Point'], default: 'Point'},
-                coordinates: {type: [Number], default: [0, 0]}
+                type: { type: String, enum: ['Point'], default: 'Point' },
+                coordinates: { type: [Number], default: [0, 0] }
             },
-            createAt: {type: Date, default: Date.now},
+            createAt: { type: Date, default: Date.now },
         }
     ],
     feedbackDesc: String,
     feedbackTitle: String,
     star: Number,
-    createAt: {type: Date, default: Date.now},
-    updateAt: {type: Date, default: Date.now},
-});
-UserEventSchema.index({userId: 1, eventId: 1}, {unique: true});
+}, { timestamps: true });
+UserEventSchema.index({ userId: 1, eventId: 1 }, { unique: true });
+
 
 /**
  * Pre-remove hook
  */
 
 UserEventSchema.pre('remove', function (next) {
-    //ToDo pre-remove required...
+    //TODO pre-remove required...
     next();
 });
 
@@ -52,7 +51,7 @@ UserEventSchema.static({
      * @api private
      */
     getById: function (_id) {
-        return this.findById({_id})
+        return this.findById({ _id })
             .then(userEvent => userEvent)
             .catch(err => console.log("!!!!!!!! Event getById catch err: ", err))
     },
@@ -84,14 +83,31 @@ UserEventSchema.static({
         const limit = options.limit || 30;
         return await this.find(criteria)
             // .sort({createAt: -1})
-            .sort({'images.order': 1})
+            .sort({ 'images.order': 1 })
             .populate('interests')
             .limit(limit)
             .skip(limit * page)
             .exec()
             .then(userEvents => userEvents)
             .catch(err => console.log("Event getAll Catch", err));
-    }
+    },
+
+    /**
+    * Checks to see if given event is related to any UserEvent
+    *
+    * @param {String} id
+    * @api private
+    */
+    eventIsRelated: async function (id) {
+        let result = await this.aggregate([
+            { $match: { eventId: mongoose.Types.ObjectId(id) } }
+        ])
+            .catch(err => {
+                console.error(`UserEvent eventIsRelated check failed with criteria id:${id}`, err);
+                throw err;
+            });
+        return result.length != 0;
+    },
 });
 
 const UserEvent = mongoose.model('UserEvent', UserEventSchema);

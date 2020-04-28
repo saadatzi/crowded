@@ -1,8 +1,9 @@
 const express = require('express')
     , router = express.Router();
-const jwtRun = require('../../utils/jwt')
 
 const Joi = require('@hapi/joi');
+const JoiConfigs = require('../joiConfigs');
+const {joiValidate} = require('../utils');
 
 // Instantiate the Device Model
 const eventController = require('../../controllers/event');
@@ -10,7 +11,57 @@ const userController = require('../../controllers/user');
 const deviceController = require('../../controllers/device');
 const NZ = require('../../utils/nz');
 const {uploader, multiUploader} = require('../../utils/fileManager');
-const {verifyToken} = require('../../utils/jwt');
+const {verifyTokenPanel, authorization} = require('../../utils/validation');
+
+const UserEvent = require('../../models/UserEvent');
+
+const locationSchema = Joi.object().keys({
+    coordinates: JoiConfigs.arrayLength(2,2, JoiConfigs.number)
+});
+
+
+// Joi valdiator schemas
+
+const hasValidIdSchema = Joi.object().keys({
+    id: JoiConfigs.isMongoId
+});
+
+const addSchema = Joi.object().keys({
+    title_ar:           JoiConfigs.title,
+    title_en:           JoiConfigs.title,
+    desc_en:            JoiConfigs.description(),
+    desc_ar:            JoiConfigs.description(),
+    value:              JoiConfigs.price,
+    attendance:         JoiConfigs.number,
+    from:               JoiConfigs.timeStamp,
+    to:                 JoiConfigs.timeStamp,
+    allowedApplyTime:   JoiConfigs.timeStamp,
+    area:               JoiConfigs.isMongoId,
+    address_ar:         JoiConfigs.description(),
+    address_en:         JoiConfigs.description(),
+    lat:                JoiConfigs.price,
+    lng:                JoiConfigs.price,
+    interests:          JoiConfigs.arrayLength(1,100, JoiConfigs.isMongoId),
+});
+
+const updateSchema = Joi.object().keys({
+    eventId:            JoiConfigs.isMongoId,
+    title_ar:           JoiConfigs.title,
+    title_en:           JoiConfigs.title,
+    desc_en:            JoiConfigs.description(),
+    desc_ar:            JoiConfigs.description(),
+    value:              JoiConfigs.price,
+    attendance:         JoiConfigs.number,
+    from:               JoiConfigs.timeStamp,
+    to:                 JoiConfigs.timeStamp,
+    allowedApplyTime:   JoiConfigs.timeStamp,
+    area:               JoiConfigs.isMongoId,
+    address_ar:         JoiConfigs.description(),
+    address_en:         JoiConfigs.description(),
+    lat:                JoiConfigs.price,
+    lng:                JoiConfigs.price,
+    interests:          JoiConfigs.arrayLength(1,100, JoiConfigs.isMongoId),
+});
 
 /**
  *  Add Event Image
@@ -18,14 +69,22 @@ const {verifyToken} = require('../../utils/jwt');
  * @return status
  */
 //______________________Add Event_____________________//
-router.post('/upload', verifyToken(true), uploader, async (req, res) => {
-    console.info('API: Add event/init %j', {body: req.body});
+router.post('/addImage', verifyTokenPanel(), uploader, async (req, res) => {
+    console.info('API: addImage event/init %j', {body: req.body});
     if (!req._uploadPath || !req._uploadFilename) {
         return new NZ.Response(null, 'fileUpload is Empty!', 400).send(res);
     }
 
-    const image = req._uploadPath + '/' + req._uploadFilename;
-    new NZ.Response({item: image}).send(res);
+    eventController.get(req.body.eventId)
+        .then(event => {
+            event.images.push({url: req._uploadPath + '/' + req._uploadFilename, order: null});
+            event.save();
+            new NZ.Response(true, 'Event add image successful!').send(res);
+        })
+        .catch(err => {
+            console.error("Event Add Catch err:", err)
+            new NZ.Response(null, res.message, err.code || 500).send(res);
+        })
 });
 
 /**
@@ -35,159 +94,112 @@ router.post('/upload', verifyToken(true), uploader, async (req, res) => {
  * @return status
  */
 //______________________Add Event_____________________//
-router.post('/add', verifyToken(true), async (req, res) => {
+router.post('/add', uploader, joiValidate(addSchema), verifyTokenPanel(), async (req, res) => {
     console.info('API: Add event/init %j', {body: req.body});
 
-    // const schema = Joi.object().keys({
-    //     device:	Joi.object().keys({
-    //         name:		Joi.string().required(),
-    //         capacity:	Joi.string().regex(/^[0-9.GB]{3,18}$/).required(),
-    //         uid:		Joi.string().regex(/^[A-F0-9-]{36}$/).required(),
-    //         platform:	Joi.string().required()
-    //     }).required(),
-    //
-    //     os: Joi.object().keys({
-    //         version:	Joi.string().required(),
-    //         type:		Joi.string().allow('iOS', 'Android').required()
-    //     }).required()
-    // });
-    //
-    // result = schema.validate({
-    //     device:	req.body.device,
-    //     os:		req.body.os
-    // });
-    //
-    // let response = {};
-    //
-    // if (result.error)
-    //     return new NZ.Response(result.error, 'input error.', 400).send(res);
+    if (!req._uploadPath || !req._uploadFilename) {
+        return new NZ.Response(null, 'fileUpload is Empty!', 400).send(res);
+    }
 
+    req.body.images = [{url: req._uploadPath + '/' + req._uploadFilename, order: 1}];
+    req.body.location = {coordinates: [req.body.lat,req.body.lng]};
+    req.body.owner = req.userId;
     eventController.add(req.body)
         .then(event => {
-            new NZ.Response({item: event}).send(res);
+            new NZ.Response(true, 'Event add successful!').send(res);
         })
         .catch(err => {
             console.error("Event Add Catch err:", err)
-            res.err(err)
+            new NZ.Response(null, res.message, err.code || 500).send(res);
+        })
+});
+
+/**
+ *  Update Event
+ * -upload image and save in req._uploadPath
+ * -add Event in db
+ * @return status
+ */
+//______________________Add Event_____________________//
+router.put('/edit', joiValidate(updateSchema), verifyTokenPanel(), async (req, res) => {
+    console.info('API: Add event/init %j', {body: req.body});
+
+
+    const eventId = req.body.eventId;
+    delete req.body.eventId;
+    eventController.update(eventId, req.body)
+        .then(event => {
+            new NZ.Response(!!event, event ? 'Event Update successful!' : 'Not Found!').send(res);
+        })
+        .catch(err => {
+            console.error("Event Update Catch err:", err);
+            new NZ.Response(null, res.message, err.code || 500).send(res);
         })
 });
 
 /**
  * Get Event
- * @return list of event
+ * @return Events
  */
 //______________________Get Event_____________________//
-router.get('/', verifyToken(), async function (req, res) {
-    console.info('API: Get event/init');
-    new NZ.Response({
-        items: [
-            {
-                title: "Ochello’s catwalk fiesta",
-                // desc: "Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi.",
-                images: [
-                    {url: "https://media.crowded.dev.nizek.com/interest/96ToCv/36baa1d8-bf3e-4699-8fdd-ab4bd0933dd4_3SVd6wHgs1.jpg"},
-                    // {url: "https://media.crowded.dev.nizek.com/interest/5wTRsy/9520fccd-a305-4c3b-9acb-620b315a6abc_aUzcRNTUn9.jpg"}
-                ],
-                value: 50.00,
-                // Attendance: 60,
-                from: Date.now().toString(),
-                to: (Date.now()+55).toString(),
-                // address: "Kuwait City, Sample St, Famous Alley, NO 13",
-                area: "Kuwait City",
-            },
-            {
-                title: "Fashion Event",
-                // desc: "Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi.",
-                images: [
-                    {url: "https://media.crowded.dev.nizek.com/interest/GosLsv/8329a57a-1ed7-406a-961f-926c5d0aa955_ovR5bMFxFB.jpg"},
-                    // {url: "https://media.crowded.dev.nizek.com/interest/6pT5Tn/e7a7f4ea-c4fa-49ca-9538-8b1ed7da2267__RDeeJG1YQ.jpg"}
-                ],
-                value: 77.00,
-                // Attendance: 95,
-                from: Date.now().toString(),
-                to: (Date.now()+55).toString(),
-                area: "Kuwait City",
-                // address: "Kuwait City, Sample St, Famous Alley, NO 13",
-            },
-        ]
-    }).send(res);
+router.get('/', verifyTokenPanel(), authorization(),  async (req, res) => {
+    console.info('API: Get event/init %j', {body: req.body});
+
+    eventController.getAll(req.userId, req.accessGroup, req.accessAny)
+        .then(events => {
+            new NZ.Response({items: events}).send(res);
+        })
+        .catch(err => {
+            console.error("Event Get Catch err:", err)
+            new NZ.Response(null, res.message, err.code || 500).send(res);
+        })
 });
 
-/**
- * Get Event
- * @return Detail of event
- */
-//______________________Get Event_____________________//
-router.get('/:id', verifyToken(), async function (req, res) {
-    console.info('API: Get detail event/init');
-    new NZ.Response({
-        items: [
-            {
-                title: "Ochello’s catwalk fiesta",
-                desc: "Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi.",
-                images: [
-                    {url: "https://media.crowded.dev.nizek.com/interest/96ToCv/36baa1d8-bf3e-4699-8fdd-ab4bd0933dd4_3SVd6wHgs1.jpg"},
-                    {url: "https://media.crowded.dev.nizek.com/interest/5wTRsy/9520fccd-a305-4c3b-9acb-620b315a6abc_aUzcRNTUn9.jpg"}
-                ],
-                value: 50.00,
-                Attendance: 60,
-                from: Date.now().toString(),
-                to: (Date.now()+55).toString(),
-                address: "Kuwait City, Sample St, Famous Alley, NO 13",
-                area: "Kuwait City",
-            },
 
-        ]
-    }).send(res);
+/**
+ * Get Event Detail
+ */
+router.get('/:id', verifyTokenPanel(), async (req, res) => {
+    console.info('API: Get event Detail/init ', req.params);
+    let options = {
+        _id:req.params.id
+    };
+    eventController.getOnePanel(options)
+        .then(result => {
+            new NZ.Response(result).send(res);
+        })
+        .catch(err => {
+            console.error('API: Get event Detail catch ', err);
+            new NZ.Response(null, err.message, 500).send(res);
+        });
+
 });
 
+
 /**
- * Set Event
- * @return list of event
+ * Remove Interest
  */
-//______________________Set Event_____________________//
-router.post('/', async function (req, res) {
+router.delete('/', verifyTokenPanel(), joiValidate(hasValidIdSchema, 0), async (req, res) => {
 
-    const setEventSchema = Joi.object().keys({
-        selected: Joi.array().min(1).required()
-    });
-    let setEventValidation = setEventSchema.validate({selected: req.body.selected});
-    if (setEventValidation.error)
-        return new NZ.Response(setEventValidation.error, 'input error.', 400).send(res);
+    let id = req.body.id;
 
-    let lastEvents;
-    if (req.userId)
-        lastEvents = await userController.get(req.userId, 'id');
-    else
-        lastEvents = await deviceController.get(req.deviceId, 'id');
-    const uniqueEvents = Array.from(new Set([...lastEvents.events.map(item => item.toString()), ...req.body.selected]));
+    // await check UserEvent relation 
+    let flag = await UserEvent.eventIsRelated(id);
 
-    const updateValue = {events: uniqueEvents};
-
-
-    if (req.userId) {
-        userController.update(req.userId, updateValue)
-            .then(result => {
-                console.info("***User event update List : %j", result);
-                new NZ.Response('', 'Event has been successfully added!').send(res);
-            })
-            .catch(err => {
-                console.error("Set Event Get Catch err:", err)
-                new NZ.Response(null, err.message, 500).send(res);
-            })
+    if (flag) {
+        return new NZ.Response(null, "Couldn`t remove the event due to its usage by the users.", 400).send(res);
     } else {
-        deviceController.update(req.deviceId, updateValue)
+        eventController.remove(id)
             .then(result => {
-                console.info("***User event update List : %j", result);
-                new NZ.Response('', 'Event has been successfully added!').send(res);
+                new NZ.Response(null, "Event removed successfully.").send(res);
             })
             .catch(err => {
-                console.error("Set Event Get Catch err:", err)
                 new NZ.Response(null, err.message, 500).send(res);
-            })
+            });
     }
 
-
 });
+
+
 
 module.exports = router;

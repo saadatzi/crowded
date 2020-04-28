@@ -4,8 +4,7 @@
 const mongoose = require('mongoose');
 const Transaction = require('../models/Transaction');
 const eventController = require('./event');
-const settings = require('../utils/settings')
-
+const settings = require('../utils/settings');
 
 const transactionController = function () {
 };
@@ -70,6 +69,24 @@ transactionController.prototype.myTransaction = async (userId, lang, page = 0, d
 
 };
 
+/**
+ * get myTransaction Total
+ *
+ * @param {ObjectId} userId
+ *
+ * @return Event
+ */
+transactionController.prototype.myTransactionTotal = async (userId) => {
+
+    return await Transaction.getMyTransactionTotal(userId)
+        .then(async event => event)
+        .catch(err => {
+            console.error("!!!get myTransaction failed: ", err);
+            throw err;
+        })
+
+};
+
 
 
 /**
@@ -84,7 +101,8 @@ transactionController.prototype.myTransaction = async (userId, lang, page = 0, d
 transactionController.prototype.requestWithdraw = async (userId, bankId, total) => {
     return await Transaction.getTotalUnpaid(userId)
         .then(totalUnpaid => {
-            console.log(">>>>>>>>>>>>>>>>>>>>>> requestWithdraw get totalUnpaid: %s, total: %s", totalUnpaid.total, total)
+            //TODO duplicate
+            console.log(">>>>>>>>>>>>>>>>>>>>>> requestWithdraw get totalUnpaid: %j, total: %s", totalUnpaid, total)
             if (Number(totalUnpaid.total) === Number(total)) {
                 const addNewTransaction = {
                     title_ar: settings.wallet.withdrawTitle_ar,
@@ -162,7 +180,7 @@ transactionController.prototype.get = async (optFilter, type = 'id') => {
 transactionController.prototype.remove = async (optFilter) => {
     if (optFilter) {
         if (optFilter instanceof Object) { //instanceof mongoose.Types.ObjectId
-            //ToDo return Query?!
+
             return await Transaction.remove(optFilter)
                 .then(result => {
                     console.log("***Transaction  Remove many result: ", result);
@@ -173,7 +191,7 @@ transactionController.prototype.remove = async (optFilter) => {
                     throw err;
                 })
         } else {
-            //ToDo return Query?!
+
             return await Transaction.findByIdAndRemove(optFilter)
                 .then(result => {
                     console.log(`***Transaction Remove by id ${optFilter} result: `, result);

@@ -137,11 +137,14 @@ app.get('/', async (req, res) => {
 	return new NZ.Response('crowded stuff coming at ya...').send(res);
 });
 
-app.use('/device', 		require('./device'));
-app.use('/interest', 	require('./interest'));
-app.use('/user', 		require('./user'));
-app.use('/event', 		require('./event'));
-app.use('/wallet', 		require('./wallet'));
+app.use('/device', 	    	require('./device'));
+app.use('/interest', 	    require('./interest'));
+app.use('/user', 		    require('./user'));
+app.use('/event', 		    require('./event'));
+app.use('/wallet', 		    require('./wallet'));
+app.use('/bank', 			require('./bank'));
+// app.use('/bankName', 	    require('./bankName'));
+
 
 
 module.exports = app;

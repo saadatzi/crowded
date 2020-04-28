@@ -14,16 +14,13 @@ const AreaSchema = new Schema({
         }
     ],
     status: {type: Number, default: 1}, // 1 active, 0 deActive, 2 softDelete, 3 hardDelete
-    createAt: {type: Date, default: Date.now},
-    updateAt: {type: Date, default: Date.now},
-});
+}, {timestamps: true});
 
 /**
  * Pre-remove hook
  */
 
 AreaSchema.pre('remove', function (next) {
-    //ToDo pre-remove required...
     next();
 });
 
@@ -31,7 +28,14 @@ AreaSchema.pre('remove', function (next) {
  * Methods
  */
 AreaSchema.method({
-    //ToDo method need... this.model('Animal')
+    toJSON() {
+        return {
+            id: this._id,
+            name_en: this.name_en,
+            name_ar: this.name_ar,
+            childs: this.childs
+        }
+    }
 });
 
 /**
@@ -44,10 +48,11 @@ AreaSchema.static({
      * @param {ObjectId} _id
      * @api private
      */
-    getById: function(_id) {
+    getById: function (_id) {
         return this.findById({_id})
-        .then(area =>  area)
-        .catch(err => console.log("!!!!!!!! Event getById catch err: ", err))},
+            .then(area => area)
+            .catch(err => console.log("!!!!!!!! Event getById catch err: ", err))
+    },
 
     /**
      * Find area by identifier
@@ -55,10 +60,10 @@ AreaSchema.static({
      * @param {String} identifier
      * @api private
      */
-    getByIdentifier: (identifier) => {
-        return Area.findOne({identifier: identifier})
+    list() {
+        return Area.find({})
             .then(area => area)
-            .catch(err => console.log("!!!!!!!! getByIdentifier catch err: ", err));
+            .catch(err => console.log("!!!!!!!! get all Area catch err: ", err));
         // console.log("########## getByIdentifier area: ", area)
         // if (err) {
         // }
@@ -87,11 +92,7 @@ AreaSchema.static({
             .sort({createdAt: -1})
             .limit(limit)
             .skip(limit * page)
-            .exec(function (err, res) {
-                if (err) return {}; //ToDo logger
-                console.log(res);
-                return res;
-            });
+            .catch(err => console.error("!!!!!!!!organization getAll catch err: ", err))
     }
 });
 

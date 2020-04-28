@@ -17,7 +17,7 @@ logController.prototype.add = async (newLog) => {
         .then(log => log)
         .catch(err => {
             console.log("!!!Log save failed: ", err);
-            return -1;
+            throw err;
         })
 };
 
@@ -38,7 +38,7 @@ logController.prototype.get = async (optFilter, type = 'email') => {
             })
             .catch(err => {
                 console.log("!!!Log getAll failed: ", err);
-                return -1;
+                throw err;
             })
     } else {
         if (type === 'email') {
@@ -49,7 +49,7 @@ logController.prototype.get = async (optFilter, type = 'email') => {
                 })
                 .catch(err => {
                     console.log("!!!Log getByEmail failed: ", err);
-                    return -1;
+                    throw err;
                 })
         } else {
             return await Log.get(optFilter)
@@ -59,7 +59,7 @@ logController.prototype.get = async (optFilter, type = 'email') => {
                 })
                 .catch(err => {
                     console.log("!!!Log get failed: ", err);
-                    return -1;
+                    throw err;
                 })
         }
     }
@@ -75,7 +75,7 @@ logController.prototype.get = async (optFilter, type = 'email') => {
 logController.prototype.remove = async (optFilter) => {
     if (optFilter) {
         if (optFilter instanceof Object) { //instanceof mongoose.Types.ObjectId
-            //ToDo return Query?!
+
             return await Log.remove(optFilter)
                 .then(result => {
                     console.log("@@@Log  Remove many result: ", result);
@@ -83,10 +83,10 @@ logController.prototype.remove = async (optFilter) => {
                 })
                 .catch(err => {
                     console.log("!!!Log Remove failed: ", err);
-                    return -1;
+                    throw err;
                 })
         } else {
-            //ToDo return Query?!
+
             return await Log.findByIdAndRemove(optFilter)
                 .then(result => {
                     console.log(`@@@Log Remove by id ${optFilter} result: `, result);
@@ -94,7 +94,7 @@ logController.prototype.remove = async (optFilter) => {
                 })
                 .catch(err => {
                     console.log("!!!Log Remove failed: ", err);
-                    return -1;
+                    throw err;
                 })
         }
     } else {
@@ -115,7 +115,7 @@ logController.prototype.remove = async (optFilter) => {
 logController.prototype.update = async (optFilter, newValue) => {
     if (optFilter) {
         if (optFilter instanceof Object) { //instanceof mongoose.Types.ObjectId
-            //ToDo return Query?!
+
             return await Log.updateMany(optFilter, newValue)
                 .then(result => {
                     console.log("@@@Log  Update many result: ", result);
@@ -123,10 +123,10 @@ logController.prototype.update = async (optFilter, newValue) => {
                 })
                 .catch(err => {
                     console.log("!!!Log Update failed: ", err);
-                    return -1;
+                    throw err;
                 })
         } else {
-            //ToDo return Query?!
+
             return await Log.findByIdAndUpdate(optFilter, newValue)
                 .then(result => {
                     console.log(`@@@Log Update by id ${optFilter} result: `, result);
@@ -134,7 +134,7 @@ logController.prototype.update = async (optFilter, newValue) => {
                 })
                 .catch(err => {
                     console.log("!!!Log Update failed: ", err);
-                    return -1;
+                    throw err;
                 })
         }
     } else {

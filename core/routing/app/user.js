@@ -2,13 +2,45 @@ const express = require('express')
     , router = express.Router();
 const moment = require('moment-timezone');
 const Joi = require('@hapi/joi');
+const JoiConfigs = require('./../joiConfigs');
+const {joiValidate} = require('./../utils');
 const uuid = require('node-uuid');
 const userController = require('../../controllers/user');
+const controllerUtils = require('../../controllers/utils');
 const deviceController = require('../../controllers/device');
 const NZ = require('../../utils/nz');
 const {uploader} = require('../../utils/fileManager');
-const {sign, verifyToken} = require('../../utils/jwt');
+const {sign, verifyToken} = require('../../utils/validation');
 const settings = require('../../utils/settings');
+const nationalities = require('../../utils/nationalities');
+
+
+const userRegisterSchema = Joi.object().keys({
+    firstname:	    JoiConfigs.title,
+    lastname:	    JoiConfigs.title,
+    sex:	        JoiConfigs.gender,
+    email:          JoiConfigs.email(),
+    password:       JoiConfigs.password,
+    nationality:    JoiConfigs.title,
+    birthDate:      JoiConfigs.datetime,
+    });
+
+const userUpdateSchema = Joi.object().keys({
+    firstname:	    JoiConfigs.title,
+    lastname:	    JoiConfigs.title,
+    sex:	        JoiConfigs.gender,
+    nationality:    JoiConfigs.title,
+    birthDate:      JoiConfigs.datetime(false),
+    civilId:        JoiConfigs.strOptional,
+    phone:          JoiConfigs.phone(false)
+});
+const forgotSchema = Joi.object().keys({
+    email: JoiConfigs.email(),
+});
+const changePassSchema = Joi.object().keys({
+    oldPassword:    JoiConfigs.password,
+    password:       JoiConfigs.password,
+});
 
 /**
  *  Add User
@@ -16,26 +48,8 @@ const settings = require('../../utils/settings');
  * @return status
  */
 //______________________Add User_____________________//
-router.post('/register', verifyToken(), async (req, res) => {
+router.post('/register', joiValidate(userRegisterSchema), verifyToken(), async (req, res) => {
     console.info('API: Register User/init %j', {body: req.body});
-
-    // req.body.email = (req.body.email).toString().toLowerCase();
-
-    const userSchema = Joi.object().keys({
-        user:	Joi.object().keys({
-            firstname:	    Joi.string().required(),
-            lastname:	    Joi.string().required(),
-            sex:	        Joi.number().required(),
-            email:          Joi.string().email({ minDomainSegments: 2, tlds: { allow: ['com', 'net', 'org'] } }).required(),
-            password:       Joi.string().min(6).max(63).required(),
-            nationality:    Joi.string().required(),
-            birthDate:      Joi.date().required(),
-        }).required(),
-    });
-
-    let userValidation = userSchema.validate({user: req.body});
-    if (userValidation.error)
-        return new NZ.Response(userValidation.error, 'input error.', 400).send(res);
     userController.get(req.body.email)
         .then(oldUser => {
             if (oldUser) return new NZ.Response(null, 'A user with this email already exists', 400).send(res);
@@ -73,6 +87,47 @@ router.post('/register', verifyToken(), async (req, res) => {
 });
 
 /**
+ *  Update User
+ * -Update User in db
+ * @return status
+ */
+//______________________Update User_____________________//
+router.post('/edit', joiValidate(userUpdateSchema), verifyToken(true), async (req, res) => {
+    console.info('API: Update User/init %j', {body: req.body});
+    userController.update(req.userId, req.body)
+        .then(user => {
+            new NZ.Response().send(res);
+        })
+        .catch(err => {
+            console.error("User Update Catch err:", err);
+            new NZ.Response(null, err.message, err.code || 500).send(res);
+        });
+});
+
+/**
+ *  Add Profile Pic
+ * -upload image callback path&name
+ * @return status
+ */
+//______________________Add Profile Pic_____________________//
+router.put('/upload', verifyToken(true), uploader, async (req, res) => {
+    console.info('API: Add Profile Pic/init req._uploadPath', req._uploadPath);
+    if (!req._uploadPath || !req._uploadFilename) {
+        return new NZ.Response(null, 'fileUpload is Empty!', 400).send(res);
+    }
+    const image = req._uploadPath + '/' + req._uploadFilename;
+    userController.update(req.userId, {image: image})
+        .then(user => {
+            new NZ.Response(true, 'Profile picture uploaded successful!').send(res);
+        })
+        .catch(err => {
+            console.log('!!!! user Update picture profile Failed catch: ', err);
+            new NZ.Response(null, err.message, 400).send(res);
+        });
+
+});
+
+/**
  *  login
  */
 //______________________Login_____________________//
@@ -93,10 +148,9 @@ router.post('/login', verifyToken(), async (req, res) => {
         .then(user => {
             if (!user || (user.password !== NZ.sha512Hmac(req.body.password, user.salt)))
                 return new NZ.Response(null, 'Wrong email or password, Try again', 400).send(res);
-            console.error("User Login user:", user);
             const newToken = sign({deviceId: req.deviceId, userId: user._id});
             //update device(toke,userId,updateAt)
-            deviceController.update(req.deviceId, {userId: user._id, token: newToken, updateAt: Date.now()})
+            deviceController.update(req.deviceId, {userId: user._id, token: newToken})
                 .then(device => {
                     //interest selected from device to user & merge & unique
                     user.interests = Array.from(new Set([...user.interests.map(item => item.toString()), ...device.interests.map(item => item.toString())]));
@@ -159,8 +213,100 @@ router.get('/', function (req, res) {
         })
         .catch(err => {
             console.error("Interest Get Catch err:", err)
-            // res.err(err)
+            // new NZ.Response(null, res.message, err.code || 500).send(res);
         })
+});
+
+/**
+ *  Forgot Password
+ */
+//______________________Forgot Password_____________________//
+router.post('/forgotPassword',joiValidate(forgotSchema, 0), verifyToken(), async (req, res) => {
+    console.info('API: Forgot Password User/init %j', {body: req.body});
+
+
+    userController.get(req.body.email)
+        .then(async user => {
+            let email = '';
+            if (user) {
+                const hash = await controllerUtils.createResetPasswordHash( user.id);
+
+                await controllerUtils.sendEmail(user.email, 'Reset Password', 'reset-password', {
+                    name: 			user.name,
+                    logo:			settings.email_logo,
+                    cdn_domain:		settings.cdn_domain,
+                    primary_domain:	settings.primary_domain,
+                    contact_email:	settings.contact.email,
+                    contact_phone:	settings.contact.phone,
+                    contact_address:settings.contact.address,
+                    contact_copy:	settings.contact.copyright,
+                    contact_project:settings.project_name,
+                    contact_privacy:settings.contact.privacy,
+                    contact_terms:	settings.contact.terms,
+                    link: 			`${settings.panel_route}panel/reset-password-app/${hash}`
+                });
+                email = 'Email has been sent.';
+                return new NZ.Response(true, `Password has been reset! ${email}`).send(res);
+            } else {
+                return new NZ.Response(false, `${req.body.email} is not valid email!`).send(res);
+            }
+
+
+        })
+        .catch(err => {
+            console.log('!!!! user forgot catch err: ', err);
+            new NZ.Response(null, err.message, 400).send(res);
+        });
+});
+
+/**
+ * Get User Profile
+ * @return User
+ */
+//______________________Get User_____________________//
+router.get('/profile', verifyToken(true), function (req, res) {
+    console.info('API: Get profile User/init');
+
+    userController.get(req.userId, 'id')
+        .then(result => {
+            new NZ.Response(result).send(res);
+        })
+        .catch(err => {
+            console.error("profile Get Catch err:", err)
+            // new NZ.Response(null, res.message, err.code || 500).send(res);
+        })
+});
+
+/**
+ *  Change Password
+ */
+//______________________Forgot Password_____________________//
+router.post('/changePassword',joiValidate(changePassSchema), verifyToken(true), async (req, res) => {
+    console.info('API: Change Password User/init %j', {body: req.body});
+    userController.get(req.userId, 'id')
+        .then(user => {
+            if (!user || (user.password !== NZ.sha512Hmac(req.body.oldPassword, user.salt)))
+                return new NZ.Response(null, 'Wrong old password, Try again', 400).send(res);
+            user.password = NZ.sha512Hmac(req.body.password, user.salt);
+            user.save();
+            new NZ.Response(null, 'change password success!').send(res);
+
+        })
+        .catch(err => {
+            console.log('!!!! user login catch err: ', err);
+            new NZ.Response(null, err.message, 400).send(res);
+        });
+});
+
+/**
+ * Get Nationalities
+ * @return Nationalities
+ */
+//______________________Get Nationalities_____________________//
+router.get('/nationalities', verifyToken(), function (req, res) {
+    console.info('API: Get Nationalities User/init');
+    const lang = req.headers['lang'] ? (req.headers['lang']).toLowerCase() : 'en';
+    new NZ.Response({items: nationalities[`title_${lang}`]}).send(res);
 });
 
 

@@ -1,36 +1,23 @@
-const {googleStaticImage} = require('./utils/map')
+const { googleStaticImage } = require('./utils/map');
 const settings = require('./utils/settings');
 const interestController = require('./controllers/interest');
 const areaController = require('./controllers/area');
 const roleController = require('./controllers/role');
 
 
+// DEV-TEMPORARY
+const bankNameController = require('./controllers/bankName');
+const BankName = require('./models/BankName');
+
+const permissionController = require('./controllers/permission');
+
+
+
 (async () => {
     console.log("******* single run **********");
-    googleStaticImage(35.7485728,51.4080562);
+    googleStaticImage(35.7485728, 51.4080562);
     if (settings.initDataDB) {
-        const superAdminRole = {
-            name: 'superAdmin',
-            permissions: [
-                {
-                    name: 'all',
-                    permission: 'ALL'
-                }
-            ],
-        }
-        roleController.remove({})
-            .then(() => {
-                roleController.add(AREA)
-                    .then(role => {
-                        console.log("initDataDB Role>>>>>>>>>>>>>>>>> ", role.length + ' Role has been successfully added!')
-                    })
-                    .catch(err => {
-                        console.error("Role Add Catch err:", err)
-                    })
-            })
-            .catch(err => {
-                console.error("Role Remove Catch err:", err)
-            })
+
         /*const AREA = [
             {
                 name_en: "Hawally",
@@ -239,13 +226,101 @@ const roleController = require('./controllers/role');
     //             })
     //             .catch(err => {
     //                 console.error("session Add Catch err:", err)
-    //                 res.err(err)
+    //                 new NZ.Response(null, res.message, err.code || 500).send(res);
     //             })*/
     //     })
     //     .catch(err => {
     //         console.error("Interest Add Catch err:", err)
-    //         res.err(err)
+    //         new NZ.Response(null, res.message, err.code || 500).send(res);
     //     })
+
+
+    /* !-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-! */
+    /* !-!-!Seed BankName model with fade data-!-!-! */
+    /* !-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-! */
+    BankName.find({})
+        .then(bankNames => {
+            if (bankNames.length === 0) {
+                console.log('...Attempting to seed BankName Model.');
+                return bankNameController.add([
+                    {
+                        "name_en": "Alpha Bank",
+                        "name_ar": "بنك ألفا"
+                    },
+                    {
+                        "name_en": "Beta Bank",
+                        "name_ar": "بنك بيتا"
+                    },
+                    {
+                        "name_en": "Gamma Bank",
+                        "name_ar": "بنك جاما"
+                    },
+                    {
+                        "name_en": "Delta Bank",
+                        "name_ar": "بنك الدلتا"
+                    }
+                ])
+            } else {
+                return false;
+            }
+        })
+        .then(insertReport => {
+            if (insertReport === false) {
+                console.log('*** BankName model is already feed.');
+            } else {
+                console.log('*** BankName model seed done.');
+            }
+        })
+        .catch(err=>{
+            console.error('Oops!',err);
+        });
+
+    /*Init Permissions*/
+    permissionController.get({})
+        .then(permissions => {
+            if (permissions.length === 0) {
+                console.log('...Attempting to seed Permission Model.');
+                const initPermission = [
+                    {title: "Agent",        access: 143},
+                    // {title: "Area",         access: 143},
+                    {title: "User account", access: 143},
+                    {title: "Bank name",    access: 143},
+                    {title: "Device app",   access: 143},
+                    {title: "Event",        access: 167}, //All
+                    {title: "Interest",     access: 143},
+                    {title: "Organization", access: 143},
+                    {title: "Role",         access: 143},
+                    {title: "Transaction",  access: 143},
+                    {title: "User Event(Approve-Reject)",   access: 166}, // All
+                    {title: "User",  access: 143}
+                ];
+                return permissionController.add(initPermission)
+                    .catch(err => {
+                        console.log("!!!Permission many save failed: ", err);
+                        throw err
+                    })
+            } else {
+                return false;
+            }
+        })
+        .then(permissionReport => {
+            if (permissionReport === false) {
+                console.log('*** Permission model is already feed.');
+            } else {
+                console.log('*** Permission model seed done.');
+            }
+        })
+        .catch(err=>{
+            console.error('Oops!',err);
+        });
+
+    /* !-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-! */
+    /* !-!-!-!-!-!-!-DEV-TEMPORARY-!-!-!-!-!-!-!-!-! */
+    /* !-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-! */
+
+
+
+
 })();
 
 console.log('SINGLE RUN');

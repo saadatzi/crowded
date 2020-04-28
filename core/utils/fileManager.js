@@ -16,9 +16,6 @@ const storage = multer.diskStorage({
         const target = (req.originalUrl).slice(1).split('/');
         let folder = await NZ.generateRandomFolder(target[1]);
 		folder = path.join(settings.media_path, folder);
-		// console.log(folder, process.env.PWD, require.main, path.dirname(require.main.filename));
-        console.info('API: UploadFile destination %j', {folder: folder});
-
         req._uploadPath = (folder).substring((folder).indexOf(settings.media_folder)+(settings.media_folder).length);
         callback(null, folder)
     },
@@ -40,7 +37,6 @@ const uploader = async (req, res, next) => {
     const upload = await multer({storage}).single('fileUpload');
     upload(req, res, (err) => {
         if (err) {
-            console.error('API: UploadFile Error uploading file. %s', err);
             return new NZ.Response(null, 'Nothing uploaded.', 400).send(res);
         }
         next();
@@ -71,7 +67,7 @@ const multiUploader = async (req, res, next) => {
     // var mimetype = mime.lookup(file);
 
     res.setHeader('Content-disposition', 'inline; filename=' + filename);
-    // ToDo For Show in Browser
+    // TODO For Show in Browser
     // res.setHeader('Content-type', mimetype);
 
 

@@ -23,7 +23,7 @@ interestController.prototype.add = async (newInterest) => {
             })
             .catch(err => {
                 console.log("!!!Interest many save failed: ", err);
-                return -1;
+                throw err;
             })
     } else {
         return await Interest.create(newInterest)
@@ -33,9 +33,47 @@ interestController.prototype.add = async (newInterest) => {
             })
             .catch(err => {
                 console.log("!!!Interest save failed: ", err);
-                return -1;
+                throw err;
             })
     }
+};
+
+
+
+/**
+ * Panel get one interest
+ *
+ * @return Interest
+ */
+interestController.prototype.getOnePanel = async (optFilter) => {
+
+    return await Interest.getOnePanel(optFilter)
+        .then(result => {
+            console.log(`***Interest get by id ${optFilter} result: `, result);
+            return result;
+        })
+        .catch(err => {
+            console.log("!!!Interest get failed: ", err);
+            throw err;
+        })
+};
+
+
+/**
+ * Panel get all interests
+ *
+ * @return Interest
+ */
+interestController.prototype.getManyPanel = async (optFilter) => {
+
+    return await Interest.getManyPanel(optFilter)
+        .then(result => {
+            return result;
+        })
+        .catch(err => {
+            console.log("!!!Interest getAllPanel failed: ", err);
+            throw err;
+        });
 };
 
 /**
@@ -65,48 +103,28 @@ interestController.prototype.get = async (optFilter) => {
             })
             .catch(err => {
                 console.log("!!!Interest get failed: ", err);
-                return -1;
+                throw err;
             })
     }
 };
 
 /**
- * remove Interest
+ * Remove Interest
  *
- * @param {Object || ObjectId} optFilter
+ * @param {String} id
+ * @returns {Promise}
  *
- * @return Query
  */
-interestController.prototype.remove = async (optFilter) => {
-    if (optFilter) {
-        if (optFilter instanceof Object) { //instanceof mongoose.Types.ObjectId
-            //ToDo return Query?!
-            return await Interest.remove(optFilter)
-                .then(result => {
-                    console.log("***Interest  Remove many result: ", result);
-                    return result;
-                })
-                .catch(err => {
-                    console.log("!!!Interest Remove failed: ", err);
-                    return -1;
-                })
-        } else {
-            //ToDo return Query?!
-            return await Interest.findByIdAndRemove(optFilter)
-                .then(result => {
-                    console.log(`***Interest Remove by id ${optFilter} result: `, result);
-                    return result;
-                })
-                .catch(err => {
-                    console.log("!!!Interest Remove failed: ", err);
-                    return -1;
-                })
-        }
-    } else {
-        throw {errMessage: 'for remove Object conditions or Id is required!'}
-    }
-
-
+interestController.prototype.remove = async (id) => {
+    return await Interest.findByIdAndRemove(id)
+        .then(result => {
+            console.log(`***Interest Removed by id ${id} result: `, result);
+            return result;
+        })
+        .catch(err => {
+            console.log(`!!!Interest Remove failed for id ${id}: `, err);
+            throw err;
+        });
 };
 
 /**
@@ -117,35 +135,21 @@ interestController.prototype.remove = async (optFilter) => {
  *
  * @return Query
  */
-interestController.prototype.update = async (optFilter, newValue) => {
-    if (optFilter) {
-        if (optFilter instanceof Object) { //instanceof mongoose.Types.ObjectId
-            //ToDo return Query?!
-            return await Interest.updateMany(optFilter, newValue)
-                .then(result => {
-                    console.log("***Interest  Update many result: ", result);
-                    return result;
-                })
-                .catch(err => {
-                    console.log("!!!Interest Update failed: ", err);
-                    return -1;
-                })
-        } else {
-            //ToDo return Query?!
-            return await Interest.findByIdAndUpdate(optFilter, newValue)
-                .then(result => {
-                    console.log(`***Interest Update by id ${optFilter} result: `, result);
-                    return result;
-                })
-                .catch(err => {
-                    console.log("!!!Interest Update failed: ", err);
-                    return -1;
-                })
-        }
-    } else {
-        throw {errMessage: 'for Update Object conditions or Id is required!'}
-    }
-
+interestController.prototype.update = async (payload) => {
+    let toUpdate = {}
+    payload.title_en ? toUpdate.title_en = payload.title_en : null;
+    payload.title_fa ? toUpdate.title_fa = payload.title_fa : null;
+    payload.order ? toUpdate.order = payload.order : null;
+    payload.image ? toUpdate.image = payload.image : null;
+    return await Interest.findByIdAndUpdate(payload.id, toUpdate)
+        .then(result => {
+            console.log(`***Interest Update by id ${payload.id} result: `, result);
+            return result;
+        })
+        .catch(err => {
+            console.log("!!!Interest Update failed: ", err);
+            throw err;
+        });
 
 };
 

@@ -1,8 +1,10 @@
 const fs = require('fs');
-const jwt = require('jsonwebtoken');
+const validation = require('jsonwebtoken');
 const moment = require('moment-timezone');
 const NZ = require('./nz');
-const deviceController = require('../controllers/device')
+const deviceController = require('../controllers/device');
+const roleController = require('../controllers/role');
+const agentController = require('../controllers/agent');
 const settings = require('./settings')
 
 // use 'utf8' to get string instead of byte array  (512 bit key)
@@ -17,10 +19,10 @@ const tokenOption = {
 module.exports = {
     sign: (payload) => {
         console.info('API: JWT sign payload %j ', payload);
-        return jwt.sign(payload, privateKEY, tokenOption);
+        return validation.sign(payload, privateKEY, tokenOption);
     },
     decode: (token) => {
-        return jwt.decode(token, {complete: true});
+        return validation.decode(token, {complete: true});
         //returns null if token is invalid
     },
     verifyToken: (isSecure = false) => {
@@ -32,8 +34,8 @@ module.exports = {
             }
             if (token) {
                 try {
-                    //ToDo from jwt
-                    //// let tokenObj = jwt.verify(token, publicKEY, tokenOption);
+                    //TODO from validation
+                    //// let tokenObj = validation.verify(token, publicKEY, tokenOption);
                     // if (!tokenObj) throw {errCode: 401};
                     //
                     // req.deviceId = tokenObj.deviceId;
@@ -70,7 +72,7 @@ module.exports = {
 
 
                 } catch (err) {
-                    console.error('!!!Verify Token not have Token: Authorization Failed!!! => API: %s', err);
+                    console.error('!!!Verify Token Catch! Token: Authorization Failed!!! => API: %s', err);
                     return new NZ.Response(null, 'invalid token err: ' + err.message, 403).send(res);
                 }
             } else {
@@ -78,6 +80,48 @@ module.exports = {
                 return new NZ.Response(null, 'invalid token', 403).send(res);
             }
 
+        }
+    },
+    verifyTokenPanel: () => {
+        return async (req, res, next) => {
+            let token = req.headers['authorization']; // Express headers are auto converted to lowercase
+            if (token && token.startsWith('Bearer ')) {
+                // Remove Bearer from string
+                token = token.slice(7, token.length);
+            }
+            if (token) {
+                try {
+                    let tokenObj = validation.verify(token, publicKEY, tokenOption);
+                    if (!tokenObj) return new NZ.Response(null, 'invalid token ', 401).send(res);
+                    agentController.get(tokenObj.userId, 'id')
+                        .then(user => {
+                            user.updateOne({
+                                $set: {lastIp:req.headers['x-real-ip'] ? req.headers['x-real-ip'] : '127.0.0.1', lastInteract: new Date()},
+                            })
+                                .catch(err => {
+                                    console.error("!!!!!!!!Agent incLoginAttempts lock expired catch err: ", err);
+                                    throw err;
+                                });
+                        })
+                        .catch(err => console.error('!!!agentController get byId Failed!!! ', err));
+                    req.userId = tokenObj.userId;
+                    return next();
+                } catch (err) {
+                    console.error('!!!Panel Verify Token Catch! Token: Authorization Failed!!! => API: %s', err);
+                    return new NZ.Response(null, 'invalid token err: ' + err.message, 403).send(res);
+                }
+            } else {
+                console.error('!!!Panel Verify Token not have Token: Authorization Failed!!! => API: %s', req.originalUrl);
+                return new NZ.Response(null, 'invalid token', 403).send(res);
+            }
+
+        }
+    },
+    authorization: (permissions = []) => {
+        return async (req, res, next) => {
+            console.error('>>>>>>>>>>>>>>>>>>>>> authorization userId', req.userId);
+            roleController.authorize(permissions)
+            return next();
         }
     }
 };

@@ -2,7 +2,7 @@
  * Module dependencies.
  */
 const Event = require('../models/Event');
-const {googleStaticImage} = require('../utils/map');
+const { googleStaticImage } = require('../utils/map');
 const moment = require('moment-timezone');
 
 const eventController = function () {
@@ -55,13 +55,48 @@ eventController.prototype.get = async (optFilter, type = 'id') => {
                 throw err;
             })
     } else {
-        return await Event.getById(optFilter)
-            .then(result => result)
-            .catch(err => {
-                console.log("!!!Event get failed: ", err);
-                throw err;
-            })
+        if (type === 'id') {
+            return await Event.getById(optFilter)
+                .then(result => result)
+                .catch(err => {
+                    console.log("!!!Event get failed: ", err);
+                    throw err;
+                })
+        } else if (type === 'validApplyEvent') {
+            return await Event.validApplyEvent(optFilter)
+                .then(result => result)
+                .catch(err => {
+                    console.log("!!!validEvent get failed: ", err);
+                    throw err;
+                })
+        } else if (type === 'validActiveEvent') {
+            return await Event.validActiveEvent(optFilter)
+                .then(result => result)
+                .catch(err => {
+                    console.log("!!!validActiveEvent get failed: ", err);
+                    throw err;
+                })
+        }
+
     }
+};
+
+/**
+ * get All Event
+ *
+ * @param {ObjectId} userId
+ * @param {Boolean} accessGroup
+ * @param {Boolean} accessAny
+ *
+ * @return Events
+ */
+eventController.prototype.getAll = async (userId, accessGroup = false, accessAny = false) => {
+    return await Event.list()
+        .then(events => events)
+        .catch(err => {
+            console.error("!!!Event getAll failed: ", err);
+            throw err;
+        })
 };
 
 /**
@@ -88,7 +123,7 @@ eventController.prototype.getByIdAggregate = async (id, lang, userId = null) => 
     const isApproved = ['APPROVED', 'ACTIVE', 'LEFT', 'PAUSED', 'SUCCESS'].includes(userEventStatus);
     return await Event.getByIdAggregate(id, lang, isApproved, userEventStatus)
         .then(async event => {
-            if (isApproved) event = Object.assign(event, {map: isApproved ? {url: await googleStaticImage(event.coordinates[0], event.coordinates[1])} : null});
+            if (isApproved) event = Object.assign(event, { map: isApproved ? { url: await googleStaticImage(event.coordinates[0], event.coordinates[1]) } : null });
             return event
         })
         .catch(err => {
@@ -96,6 +131,25 @@ eventController.prototype.getByIdAggregate = async (id, lang, userId = null) => 
             throw err;
         })
 
+};
+
+/**
+ * Get Event Detail for panel
+ *
+ * @param {String} optFilter (id)
+ *
+ * @return Event
+ */
+eventController.prototype.getOnePanel = async (optFilter) => {
+    return await Event.getOnePanel(optFilter)
+        .then(result => {
+            console.log(`***Event get by id ${optFilter} result: `, result);
+            return result;
+        })
+        .catch(err => {
+            console.log("!!!Event get failed: ", err);
+            throw err;
+        });
 };
 
 
@@ -112,6 +166,9 @@ eventController.prototype.getByIdAggregate = async (id, lang, userId = null) => 
  */
 eventController.prototype.getMyEvent = async (userId, lang, page = 0, isPrevious = false, date = null) => {
     const showPrevEvent = isPrevious == 'true' || isPrevious == 1;
+    if (String(date).length > 10) {
+        date = date / 1000;
+    }
     const dateFilter = date ? {
         startMonth: moment.unix(date).startOf('month').toDate(),
         endMonth: moment.unix(date).endOf('month').toDate()
@@ -133,34 +190,16 @@ eventController.prototype.getMyEvent = async (userId, lang, page = 0, isPrevious
  *
  * @return Query
  */
-eventController.prototype.remove = async (optFilter) => {
-    if (optFilter) {
-        if (optFilter instanceof Object) { //instanceof mongoose.Types.ObjectId
-            //ToDo return Query?!
-            return await Event.remove(optFilter)
-                .then(result => {
-                    console.log("***Event  Remove many result: ", result);
-                    return result;
-                })
-                .catch(err => {
-                    console.log("!!!Event Remove failed: ", err);
-                    throw err;
-                })
-        } else {
-            //ToDo return Query?!
-            return await Event.findByIdAndRemove(optFilter)
-                .then(result => {
-                    console.log(`***Event Remove by id ${optFilter} result: `, result);
-                    return result;
-                })
-                .catch(err => {
-                    console.log("!!!Event Remove failed: ", err);
-                    throw err;
-                })
-        }
-    } else {
-        throw {errMessage: 'for remove Object conditions or Id is required!'}
-    }
+eventController.prototype.remove = async (id) => {
+    return await Event.findByIdAndRemove(id)
+        .then(result => {
+            console.log(`***Event Remove by id ${id} result: `, result);
+            return result;
+        })
+        .catch(err => {
+            console.log("!!!Event Remove failed: ", err);
+            throw err;
+        });
 
 
 };
@@ -176,7 +215,7 @@ eventController.prototype.remove = async (optFilter) => {
 eventController.prototype.update = async (optFilter, newValue) => {
     if (optFilter) {
         if (optFilter instanceof Object) { //instanceof mongoose.Types.ObjectId
-            //ToDo return Query?!
+
             return await Event.updateMany(optFilter, newValue)
                 .then(result => {
                     console.log("***Event  Update many result: ", result);
@@ -187,7 +226,7 @@ eventController.prototype.update = async (optFilter, newValue) => {
                     throw err;
                 })
         } else {
-            //ToDo return Query?!
+
             return await Event.findByIdAndUpdate(optFilter, newValue)
                 .then(result => {
                     console.log(`***Event Update by id ${optFilter} result: `, result);
@@ -199,7 +238,7 @@ eventController.prototype.update = async (optFilter, newValue) => {
                 })
         }
     } else {
-        throw {errMessage: 'for Update Object conditions or Id is required!'}
+        throw { errMessage: 'for Update Object conditions or Id is required!' }
     }
 
 

@@ -1,6 +1,5 @@
 const express = require('express')
     , router = express.Router();
-const jwtRun = require('../../utils/jwt')
 
 const Joi = require('@hapi/joi');
 
@@ -10,7 +9,7 @@ const userController = require('../../controllers/user');
 const deviceController = require('../../controllers/device');
 const NZ = require('../../utils/nz');
 const {uploader} = require('../../utils/fileManager');
-const {verifyToken} = require('../../utils/jwt');
+const {verifyToken} = require('../../utils/validation');
 
 /**
  *  Add Interest
@@ -55,7 +54,7 @@ router.put('/add', verifyToken(true), uploader, async (req, res) => {
         })
         .catch(err => {
             console.error("Interest Add Catch err:", err)
-            res.err(err)
+            new NZ.Response(null, res.message, err.code || 500).send(res);
         })
 });
 
@@ -97,7 +96,7 @@ router.post('/', verifyToken(), async function (req, res) {
     if (setInterestValidation.error)
         return new NZ.Response(setInterestValidation.error, 'input error.', 400).send(res);
 
-    //ToDo new value replace / Added
+    //TODO new value replace / Added
     //Added
     let lastInterests;
     if (req.userId)

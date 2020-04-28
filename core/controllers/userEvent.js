@@ -11,7 +11,7 @@ const userEventController = function () {
 };
 
 /**
- * Add new UserEvent
+ * Add new UserEvent => Apply
  *
  * @param {ObjectId} eventId
  * @param {ObjectId} userId
@@ -23,14 +23,25 @@ userEventController.prototype.add = async (eventId, userId) => {
         eventId: eventId,
         status: 'APPLIED',
     };
-    //ToDo if other Applied in same time //now skipped
-    return await UserEvent.create(applyUserEvent)
-        .then(event => {
-            console.log("***UserEvent save success event", event);
-            return event;
+    //TODO if other Applied in same time //now skipped
+    return await eventController.get(eventId, 'validApplyEvent')
+        .then(async event => {
+            if (event) {
+                return await UserEvent.create(applyUserEvent)
+                    .then(event => {
+                        console.log("***UserEvent save success event", event);
+                        return event;
+                    })
+                    .catch(err => {
+                        console.log("!!!UserEvent save failed: ", err);
+                        if (err.code === 11000) throw {message: "You have already registered for this event", code: 424};
+                        throw err;
+                    })
+            }
+            throw {code: 400, message: 'Event not valid! or Expired allow apply time!'};
         })
         .catch(err => {
-            console.log("!!!UserEvent save failed: ", err);
+            console.log("!!!Get validEvent failed: ", err);
             throw err;
         })
 };
@@ -44,7 +55,8 @@ userEventController.prototype.add = async (eventId, userId) => {
  * @return UserEvent
  */
 userEventController.prototype.getCurrent = async (userId, lang) => {
-    return await UserEvent.getOne({userId, status: {$in: ['ACTIVE', 'PAUSED']}})
+    //TODO if multi in current?!
+    return await UserEvent.getOne({userId, status: {$in: ['ACTIVE', 'PAUSED', 'CONTINUE']}})
         .then(async result => {
             if (result) {
                 //get from Event Aggregate
@@ -91,23 +103,34 @@ userEventController.prototype.getByUserEvent = async (userId, eventId) => {
  * @return UserEvent
  */
 userEventController.prototype.setStatus = async (userId, eventId, status, newValue = null) => {
-    let updateValue = {status, updateAt: new Date()};
-    if (newValue) Object.assign(updateValue, newValue)
+    let updateValue = {status};
+    if (newValue) Object.assign(updateValue, newValue);
     console.log(">>>>>>>>>> updateValue: ", updateValue);
     if (status === 'ACTIVE' || status === 'PAUSED' || status === 'CONTINUE') {
         await UserEvent.getOne({userId, eventId})
             .then(async userEvent => {
-                if (!userEvent) throw {code: 404, message: 'Not found!'}//Continue
-                if (status === 'ACTIVE'  && userEvent.status !== 'APPROVED') throw {code: 406, message: 'Status mismatch!'};
-                if (status === 'PAUSED'  && userEvent.status !== 'ACTIVE') throw {code: 406, message: 'Status mismatch!'};
-                if (status === 'CONTINUE'  && userEvent.status !== 'PAUSED') throw {code: 406, message: 'Status mismatch!'}
+                console.log(">>>>>>>>>> setStatus userEvent: ", userEvent.status);
+                if (!userEvent) throw {code: 404, message: 'Not found!'}
+                if (status === 'ACTIVE'  && userEvent.status !== 'APPROVED') throw {code: 406, message: 'Active status mismatch!'};
+                if (status === 'PAUSED'  && (userEvent.status !== 'ACTIVE' && userEvent.status !== 'CONTINUE')) throw {code: 406, message: 'Paused status mismatch!'};
+                if (status === 'CONTINUE'  && userEvent.status !== 'PAUSED') throw {code: 406, message: 'Active again status mismatch!'}
             })
             .catch(err => {
-
                 console.log("!!!UserEvent getOne check Approved failed: ", err);
                 throw err;
             })
     }
+    // must be event from =< current && current < to
+    // if (status === 'ACTIVE' && status === 'CONTINUE') {
+    //     await eventController.get(eventId, 'validActiveEvent')
+    //         .then(event => {
+    //             if (!event) throw {code: 400, message: 'The event has not started or ended!'};
+    //         })
+    //         .catch(err => {
+    //             console.log("!!!validActiveEvent failed: ", err);
+    //             throw err;
+    //         })
+    // }
     return await UserEvent.findOneAndUpdate({userId, eventId}, updateValue)
         .then(async result => {
             if (!result) throw {code: 404, message: 'Not found!'}
@@ -137,7 +160,7 @@ userEventController.prototype.addElapsed = async (userId, eventId, elapsed, coor
     };
     return await UserEvent.getOne({userId, eventId})
         .then(async userEvent => {
-            if (userEvent && userEvent.status === 'ACTIVE') {
+            if (userEvent && (userEvent.status === 'ACTIVE' || userEvent.status === 'CONTINUE')) {
                 userEvent.attendance.push(newAttendanceElapsed);
                 userEvent.save();
                 if (isFinished) {
@@ -164,19 +187,19 @@ userEventController.prototype.addElapsed = async (userId, eventId, elapsed, coor
                             }
                         })
                         .catch(err => {
-                            console.log("!!!UserEvent get Event failed: ", err);
+                            console.log("!!!UserEvent get elapsed Event failed: ", err);
                             throw err;
                         })
                 } else {
                     return true
                 }
             } else {
-                throw {code: 406, message: userEvent ? 'Status mismatch!' : 'not found!'}
+                throw {code: userEvent ? 406 : 404, message: userEvent ? 'Status mismatch!' : 'not found!'}
             }
 
         })
         .catch(err => {
-            console.log("!!!UserEvent getByUserEvent failed: ", err);
+            console.log("!!!UserEvent getByUserEvent elapsed failed: ", err);
             throw err;
         })
 };
@@ -208,7 +231,7 @@ userEventController.prototype.getById = async (id) => {
 userEventController.prototype.remove = async (optFilter) => {
     if (optFilter) {
         if (optFilter instanceof Object) { //instanceof mongoose.Types.ObjectId
-            //ToDo return Query?!
+
             return await UserEvent.remove(optFilter)
                 .then(result => {
                     console.log("***UserEvent  Remove many result: ", result);
@@ -219,7 +242,7 @@ userEventController.prototype.remove = async (optFilter) => {
                     throw err;
                 })
         } else {
-            //ToDo return Query?!
+
             return await UserEvent.findByIdAndRemove(optFilter)
                 .then(result => {
                     console.log(`***UserEvent Remove by id ${optFilter} result: `, result);

@@ -1,6 +1,5 @@
 const express = require('express')
     , router = express.Router();
-const jwtRun = require('../../utils/jwt')
 const mongoose = require('mongoose');
 const Joi = require('@hapi/joi');
 
@@ -11,7 +10,7 @@ const userController = require('../../controllers/user');
 const deviceController = require('../../controllers/device');
 const NZ = require('../../utils/nz');
 const {uploader} = require('../../utils/fileManager');
-const {verifyToken} = require('../../utils/jwt');
+const {verifyToken} = require('../../utils/validation');
 const settings = require('../../utils/settings');
 
 
@@ -78,11 +77,15 @@ router.post('/', verifyToken(true), async function (req, res) {
 
     userEventController.add(req.body.eventId, req.userId)
         .then(result => {
+            //TODO set automatic Approved for Test
+            console.info(">>>>>>>>>>>>>>>>>>>>>***30sec Set Status APPROVED : %j", result);
+            result.status = "APPROVED";
+            result.save();
             new NZ.Response({status: result.status}).send(res);
         })
         .catch(err => {
             console.error("Event Get Catch err:", err)
-            new NZ.Response(null, err.message, 500).send(res);
+            new NZ.Response(null, err.message, err.code || 500).send(res);
         })
 
 });
@@ -96,12 +99,11 @@ router.get('/current', verifyToken(true), async function (req, res) {
     console.info('API: Get current event/init');
     userEventController.getCurrent(req.userId, req.headers['lang'] ? (req.headers['lang']).toLowerCase() : 'en')
         .then(event => {
-            console.info("*** UserEvent current : %j", event);
-            new NZ.Response(event, event ? null : 'There is no active event!').send(res);
+            new NZ.Response(event).send(res);
         })
         .catch(err => {
             console.error("Event current Catch err:", err)
-            new NZ.Response(null, err.message, 500).send(res);
+            new NZ.Response(null, err.message, err.code || 500).send(res);
         })
 });
 
@@ -112,7 +114,7 @@ router.get('/current', verifyToken(true), async function (req, res) {
 router.post('/status', verifyToken(true), async function (req, res) {
     console.info('API: Set Status event/init');
     new NZ.Response(null, 'Disable method!', 405).send(res);
-    //ToDo JOE validation
+    //TODO JOE validation
     /*const setStatusJoi = Joi.object().keys({
         eventId: Joi.string().length(24).required(),
         status: Joi.string().valid('APPROVED', 'REJECTED', 'ACTIVE', 'LEFT', 'PAUSED', 'SUCCESS').required()
@@ -139,15 +141,12 @@ router.post('/status', verifyToken(true), async function (req, res) {
 router.post('/active', verifyToken(true), async function (req, res) {
     console.info('API: Set Active event/init', req.body);
     if (!mongoose.Types.ObjectId.isValid(req.body.eventId)) {
-        return new NZ.Response({
-            title: 'input error',
-            message: 'eventId must be a valid id'
-        }, 'input error.', 400).send(res);
+        return new NZ.Response({title: 'input error', message: 'eventId must be a valid id'}, 'input error.', 400).send(res);
     }
 
     userEventController.setStatus(req.userId, req.body.eventId, 'ACTIVE')
-        .then(event => {
-            console.info("*** Set Status : %j", event);
+        .then(userEvent => {
+            console.info("*** Set Status : %j", userEvent);
             new NZ.Response(null, 'Active').send(res);
         })
         .catch(err => {
@@ -194,10 +193,11 @@ router.post('/continue', verifyToken(true), async function (req, res) {
         }, 'input error.', 400).send(res);
     }
 
+    //TODO like Active..... can Pause
     userEventController.setStatus(req.userId, req.body.eventId, 'CONTINUE')
         .then(event => {
             console.info("*** Set Status : %j", event);
-            new NZ.Response(null, 'PAUSED').send(res);
+            new NZ.Response(null, 'CONTINUE').send(res);
         })
         .catch(err => {
             console.error("Event Set CONTINUE Catch err:", err)
@@ -242,7 +242,7 @@ router.post('/elapsed', verifyToken(true), async function (req, res) {
         }, 'input error.', 400).send(res);
     }
 
-    //ToDo JOE validation
+    //TODO JOE validation
     const elapsedJoi = Joi.object().keys({
         eventId: Joi.string().length(24).required(),
         elapsed: Joi.number().required(),
@@ -253,10 +253,10 @@ router.post('/elapsed', verifyToken(true), async function (req, res) {
     if (elapsedJoiValidation.error)
         return new NZ.Response(elapsedJoiValidation.error, 'input error.', 400).send(res);
 
-    userEventController.addElapsed(req.userId, req.body.eventId, req.body.elapsed, req.body.coordinates, req.body.isFinished)
+    userEventController.addElapsed(req.userId, req.body.eventId, req.body.elapsed, req.body.coordinates, String(req.body.isFinished).toBoolean())
         .then(event => {
             console.info("*** Set Status : %j", event);
-            new NZ.Response(null, 'Add attendance').send(res);
+            new NZ.Response(true).send(res);
         })
         .catch(err => {
             console.error("Event Set Elapsed Catch err:", err)
@@ -271,7 +271,7 @@ router.post('/elapsed', verifyToken(true), async function (req, res) {
 router.post('/leftFeedback', verifyToken(true), async function (req, res) {
     // const validOption = settings.event.leftOption.join().toString();
     console.info('API: Set leftFeedback event/init');
-    //ToDo JOE validation
+    //TODO JOE validation
     const setStatusJoi = Joi.object().keys({
         eventId: Joi.string().length(24).required(),
         title: Joi.string().required(),
@@ -303,7 +303,7 @@ router.post('/leftFeedback', verifyToken(true), async function (req, res) {
 //______________________Set successFeedback Event_____________________//
 router.post('/feedback', verifyToken(true), async function (req, res) {
     console.info('API: Set successFeedback event/init');
-    //ToDo JOE validation
+    //TODO JOE validation
     const setStatusJoi = Joi.object().keys({
         eventId: Joi.string().length(24).required(),
         star: Joi.number().optional(),
@@ -352,7 +352,6 @@ router.get('/myEvent', verifyToken(true), async function (req, res) {
 
     eventController.getMyEvent(req.userId, req.headers['lang'] ? (req.headers['lang']).toLowerCase() : 'en', req.query.page, req.query.previous, req.query.date)
         .then(result => {
-            console.info("*** myEvent List :", result);
             let nextPage = null;
             if (result.length > settings.event.limitPage) {
                 nextPage = Number(req.query.page) + 1;
