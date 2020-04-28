@@ -16,9 +16,9 @@ const userController = function () {
 userController.prototype.add = async (newUser) => {
     if (Array.isArray(newUser)) { //newUser instanceof Array
         return await User.insertMany(newUser)
-            .then(room => {
-                console.log("***User many save success room", room);
-                return room;
+            .then(result => {
+                console.log("***User many save success result", result);
+                return result;
             })
             .catch(err => {
                 console.log("!!!User many save failed: ", err);

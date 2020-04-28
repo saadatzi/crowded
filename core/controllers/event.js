@@ -18,9 +18,9 @@ const eventController = function () {
 eventController.prototype.add = async (newEvent) => {
     if (Array.isArray(newEvent)) { //newEvent instanceof Array
         return await Event.insertMany(newEvent)
-            .then(room => {
-                console.log("***Event many save success room", room);
-                return room;
+            .then(result => {
+                console.log("***Event many save success result", result);
+                return result;
             })
             .catch(err => {
                 console.log("!!!Event many save failed: ", err);

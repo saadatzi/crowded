@@ -39,9 +39,9 @@ agentController.prototype.auth = async (email, pass) => {
 agentController.prototype.add = async (newAgent) => {
     if (Array.isArray(newAgent)) { //newAgent instanceof Array
         return await Agent.insertMany(newAgent)
-            .then(room => {
-                console.log("***Agent many save success room", room);
-                return room;
+            .then(result => {
+                console.log("***Agent many save success result", result);
+                return result;
             })
             .catch(err => {
                 console.log("!!!Agent many save failed: ", err);

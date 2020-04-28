@@ -17,9 +17,9 @@ const interestController = function () {
 interestController.prototype.add = async (newInterest) => {
     if (Array.isArray(newInterest)) { //newInterest instanceof Array
         return await Interest.insertMany(newInterest)
-            .then(room => {
-                console.log("***Interest many save success room", room);
-                return room;
+            .then(result => {
+                console.log("***Interest many save success result", result);
+                return result;
             })
             .catch(err => {
                 console.log("!!!Interest many save failed: ", err);
@@ -27,9 +27,9 @@ interestController.prototype.add = async (newInterest) => {
             })
     } else {
         return await Interest.create(newInterest)
-            .then(room => {
-                console.log("***Interest save success room._id", room);
-                return room;
+            .then(result => {
+                console.log("***Interest save success result._id", result);
+                return result;
             })
             .catch(err => {
                 console.log("!!!Interest save failed: ", err);

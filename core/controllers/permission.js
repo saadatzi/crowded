@@ -17,9 +17,9 @@ const permissionController = function () {
 permissionController.prototype.add = async (newPermission) => {
     if (Array.isArray(newPermission)) { //newPermission instanceof Array
         return await Permission.insertMany(newPermission)
-            .then(room => {
-                console.log("***Permission many save success room", room);
-                return room;
+            .then(result => {
+                console.log("***Permission many save success result", result);
+                return result;
             })
             .catch(err => {
                 console.log("!!!Permission many save failed: ", err);
@@ -27,9 +27,9 @@ permissionController.prototype.add = async (newPermission) => {
             })
     } else {
         return await Permission.create(newPermission)
-            .then(room => {
-                console.log("***Permission save success room._id", room);
-                return room;
+            .then(result => {
+                console.log("***Permission save success result._id", result);
+                return result;
             })
             .catch(err => {
                 console.log("!!!Permission save failed: ", err);

@@ -18,7 +18,7 @@ deviceController.prototype.add = async function (newDevice) {
     if (Array.isArray(newDevice)) { //newInterest instanceof Array
         return await Device.insertMany(newDevice)
             .then(device => {
-                console.log("***device many save success room", device);
+                console.log("***device many save success result", device);
                 return device;
             })
             .catch(err => {
@@ -28,7 +28,7 @@ deviceController.prototype.add = async function (newDevice) {
     } else {
         return await Device.create(newDevice)
             .then(device => {
-                console.log("***device save success room._id", device);
+                console.log("***device save success result._id", device);
                 return device;
             })
             .catch(err => {
