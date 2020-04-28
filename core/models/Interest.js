@@ -99,9 +99,9 @@ InterestSchema.static({
         };
 
         let result = await this.aggregate([
-            { $match: { $text: { $search: optFilter.search } } },
+            // { $match: { $text: { $search: optFilter.search } } },
             { $match: optFilter.filters },
-            { $sort: { score: { $meta: "textScore" } } },
+            // { $sort: { score: { $meta: "textScore" } } },
             { $sort: optFilter.sorts },
             { $skip: optFilter.pagination.page * optFilter.pagination.limit },
             { $limit: optFilter.pagination.limit },
