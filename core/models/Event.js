@@ -5,6 +5,7 @@ const moment = require('moment-timezone');
 const areaController = require('../controllers/area');
 // mongoose.Types.ObjectId.isValid()
 const EventSchema = new Schema({
+    owner: {type: Schema.Types.ObjectId, ref: 'Agent'},
     title_ar: String,
     title_en: String,
     desc_ar: String,
@@ -26,8 +27,7 @@ const EventSchema = new Schema({
         coordinates: {type: [Number], default: [0, 0]}
     },
     status: {type: Number, default: 0}, // 1 active, 0 deActive, 2 softDelete, 3 hardDelete
-    allowedApplyTime: Date,
-    owner: {type: Schema.Types.ObjectId, ref: 'Agent'}
+    allowedApplyTime: Date
 }, {timestamps: true});
 
 //index for geo location
@@ -79,10 +79,24 @@ console.log(use.schema.path('salutation').enumValues);
 
 /**
  * Pre-remove hook
- */
+ *
 
+ */
 EventSchema.pre('remove', function (next) {
     //TODO pre-remove required...
+    next();
+});
+
+/**
+ * Pre-save hook
+ */
+EventSchema.pre('save', function (next) {
+    var event = this;
+    if (!event.isNew && !event.images[event.images.length-1].order) {
+        console.log(">>>>>>>>>>>>>> pre save AddImage event: ", event);
+        const maxOrder = Math.max.apply(Math, event.images.map(function(o) {return o.order}))
+        event.images[event.images.length-1].order = maxOrder + 1;
+    }
     next();
 });
 

@@ -90,7 +90,7 @@ router.get('/permissions', verifyTokenPanel(), async (req, res) => {
  * Get Role List
  * @return status
  */
-//______________________Update Role_____________________//
+//______________________Role List_____________________//
 router.get('/', verifyTokenPanel(), async (req, res) => {
     console.info('API: Role List/init');
 

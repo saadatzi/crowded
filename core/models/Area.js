@@ -92,11 +92,7 @@ AreaSchema.static({
             .sort({createdAt: -1})
             .limit(limit)
             .skip(limit * page)
-            .exec(function (err, res) {
-                if (err) return {}; //TODO logger
-                console.log(res);
-                return res;
-            });
+            .catch(err => console.error("!!!!!!!!organization getAll catch err: ", err))
     }
 });
 

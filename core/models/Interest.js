@@ -3,8 +3,8 @@ const Schema = mongoose.Schema;
 const settings = require('../utils/settings');
 
 const InterestSchema = new Schema({
-    title_ar: { type: String, default: '', index: true },
-    title_en: { type: String, default: '', index: true },
+    title_ar: { type: String, default: '', unique: true },
+    title_en: { type: String, default: '' },
     image: { type: String, default: '' },
     order: { type: Number, default: 0 },
     status: { type: Number, default: 1 }, // 1 active, 0 deActive, 2 softDelete, 3 hardDelete

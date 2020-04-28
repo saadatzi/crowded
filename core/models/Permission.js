@@ -36,11 +36,54 @@ PermissionSchema.pre('save', function (next) {
 PermissionSchema.method({
     toJSON() {
         const arrayAccess = Array.from(String((this.access ? this.access : 0).toString(2)), Number);
-        return {
+        const len = arrayAccess.length;
+        let result = {
             id: this._id,
             title: this.title,
-            access: {create: !!arrayAccess[1], read: !!arrayAccess[2], update: !!arrayAccess[3], delete: !!arrayAccess[4]}
+        };
+        let access = {};
+        if (this.access > 160) {
+            Object.assign(access, {
+                own: {
+                    create: !!arrayAccess[len - 4],
+                    read: !!arrayAccess[len - 3],
+                    update: !!arrayAccess[len - 2],
+                    delete: !!arrayAccess[len - 1]
+                },
+                group: {
+                    read: !!arrayAccess[len - 3],
+                    update: !!arrayAccess[len - 2],
+                    delete: !!arrayAccess[len - 1]
+                },
+                any: {
+                    read: !!arrayAccess[len - 3],
+                    update: !!arrayAccess[len - 2],
+                    delete: !!arrayAccess[len - 1]
+                },
+            });
+        } else if (this.access > 144) {
+            Object.assign(access, {
+                own: {
+                    create: !!arrayAccess[len - 4],
+                    read: !!arrayAccess[len - 3],
+                    update: !!arrayAccess[len - 2],
+                    delete: !!arrayAccess[len - 1]
+                },
+                group: {
+                    read: !!arrayAccess[len - 3],
+                    update: !!arrayAccess[len - 2],
+                    delete: !!arrayAccess[len - 1]
+                }
+            });
+        } else {
+            Object.assign(access, {
+                create: !!arrayAccess[len - 4],
+                read: !!arrayAccess[len - 3],
+                update: !!arrayAccess[len - 2],
+                delete: !!arrayAccess[len - 1]
+            });
         }
+        return Object.assign(result, {access})
     }
 });
 
@@ -64,7 +107,7 @@ PermissionSchema.static({
     /**
      * Permission list
      */
-    list: async function() {
+    list: async function () {
         return await this.find({})
             .then(permissions => permissions)
             .catch(err => console.log("permissions getAll Catch", err));
@@ -84,11 +127,7 @@ PermissionSchema.static({
             .sort({createdAt: -1})
             .limit(limit)
             .skip(limit * page)
-            .exec(function (err, res) {
-                if (err) return {}; //TODO logger
-                console.log(res);
-                return res;
-            });
+            .catch(err => console.error("!!!!!!!!organization getAll catch err: ", err))
     }
 });
 

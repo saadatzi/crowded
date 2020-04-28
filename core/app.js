@@ -90,9 +90,7 @@ app.use(
         if (req.userId) {
             user = req.userId;
         }
-        if (req._admin) {
-            user = req._admin.id;
-        }
+
         let device = null;
         if (req.deviceId) {
             device = req.deviceId;

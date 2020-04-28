@@ -84,11 +84,13 @@ eventController.prototype.get = async (optFilter, type = 'id') => {
 /**
  * get All Event
  *
- * @param {Object || ObjectId} optFilter
+ * @param {ObjectId} userId
+ * @param {Boolean} accessGroup
+ * @param {Boolean} accessAny
  *
- * @return Event
+ * @return Events
  */
-eventController.prototype.getAll = async (optFilter) => {
+eventController.prototype.getAll = async (userId, accessGroup = false, accessAny = false) => {
     return await Event.list()
         .then(events => events)
         .catch(err => {

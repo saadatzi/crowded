@@ -4,6 +4,7 @@ const moment = require('moment-timezone');
 const NZ = require('./nz');
 const deviceController = require('../controllers/device');
 const roleController = require('../controllers/role');
+const agentController = require('../controllers/agent');
 const settings = require('./settings')
 
 // use 'utf8' to get string instead of byte array  (512 bit key)
@@ -92,6 +93,17 @@ module.exports = {
                 try {
                     let tokenObj = validation.verify(token, publicKEY, tokenOption);
                     if (!tokenObj) return new NZ.Response(null, 'invalid token ', 401).send(res);
+                    agentController.get(tokenObj.userId, 'id')
+                        .then(user => {
+                            user.updateOne({
+                                $set: {lastIp:req.headers['x-real-ip'] ? req.headers['x-real-ip'] : '127.0.0.1', lastInteract: new Date()},
+                            })
+                                .catch(err => {
+                                    console.error("!!!!!!!!Agent incLoginAttempts lock expired catch err: ", err);
+                                    throw err;
+                                });
+                        })
+                        .catch(err => console.error('!!!agentController get byId Failed!!! ', err));
                     req.userId = tokenObj.userId;
                     return next();
                 } catch (err) {
@@ -107,7 +119,9 @@ module.exports = {
     },
     authorization: (permissions = []) => {
         return async (req, res, next) => {
+            console.error('>>>>>>>>>>>>>>>>>>>>> authorization userId', req.userId);
             roleController.authorize(permissions)
+            return next();
         }
     }
 };

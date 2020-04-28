@@ -57,7 +57,7 @@ router.post('/login', joiValidate(loginSchema, 0), async (req, res) => {
 
     agentController.auth(req.body.email, req.body.password)
         .then(user => {
-            const token = sign({userId: user._id});
+            const token = sign({userId: user.id});
             new NZ.Response({user, token}).send(res);
 
         })
@@ -99,7 +99,7 @@ router.post('/add', joiValidate(addSchema, 0), verifyTokenPanel(), async (req, r
 
     agentController.add(req.body)
         .then(agent => {
-            new NZ.Response(agent, 'Agent has been successfully added!').send(res);
+            new NZ.Response(true, 'Agent has been successfully added!').send(res);
         })
         .catch(err => {
             console.error("Agent Add Catch err:", err);
@@ -130,7 +130,7 @@ router.put('/update', joiValidate(updateSchema, 0), verifyTokenPanel(), async (r
  *  Forgot Password
  */
 //______________________Forgot Password_____________________//
-router.post('/forgotPassword',joiValidate(forgotSchema, 0), async (req, res) => {
+router.post('/forgotPassword', joiValidate(forgotSchema, 0), async (req, res) => {
     console.info('API: Forgot Password Admin/init %j', {body: req.body});
 
 
@@ -141,18 +141,18 @@ router.post('/forgotPassword',joiValidate(forgotSchema, 0), async (req, res) => 
                 const hash = await controllerUtils.createResetPasswordHash(user.id);
 
                 await controllerUtils.sendEmail(user.email, 'Reset Password', 'reset-password', {
-                    name: 			user.name,
-                    logo:			settings.email_logo,
-                    cdn_domain:		settings.cdn_domain,
-                    primary_domain:	settings.primary_domain,
-                    contact_email:	settings.contact.email,
-                    contact_phone:	settings.contact.phone,
-                    contact_address:settings.contact.address,
-                    contact_copy:	settings.contact.copyright,
-                    contact_project:settings.project_name,
-                    contact_privacy:settings.contact.privacy,
-                    contact_terms:	settings.contact.terms,
-                    link: 			`${settings.panel_route}panel/reset-password/${hash}`
+                    name: user.name,
+                    logo: settings.email_logo,
+                    cdn_domain: settings.cdn_domain,
+                    primary_domain: settings.primary_domain,
+                    contact_email: settings.contact.email,
+                    contact_phone: settings.contact.phone,
+                    contact_address: settings.contact.address,
+                    contact_copy: settings.contact.copyright,
+                    contact_project: settings.project_name,
+                    contact_privacy: settings.contact.privacy,
+                    contact_terms: settings.contact.terms,
+                    link: `${settings.panel_route}panel/reset-password/${hash}`
                 });
                 email = 'Email has been sent.';
                 return new NZ.Response(true, `Password has been reset! ${email}`).send(res);

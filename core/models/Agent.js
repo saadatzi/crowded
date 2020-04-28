@@ -13,7 +13,6 @@ const AgentSchema = new Schema({
     password: {type: String, required: true},
     status: {type: Number, default: 1},
     role: [{type: Schema.ObjectId, ref: 'Role'}],
-    lastIp: String,
     call: [
         {
             type: String,
@@ -21,6 +20,7 @@ const AgentSchema = new Schema({
         }
     ],
     organizationId: {type: Schema.ObjectId, ref: 'Organization', required: [true, "Organization can't be blank"]},
+    lastIp: String,
     lastLogin: Date,
     lastInteract: Date,
     loginAttempts: {type: Number, required: true, default: 0},
@@ -70,13 +70,13 @@ AgentSchema.pre('save', function (next) {
  * Methods
  */
 AgentSchema.method({
-    comparePassword: async function (candidatePassword) {
+    async comparePassword(candidatePassword) {
         console.log("!!!!!!!!Agent comparePassword candidatePassword: ", candidatePassword);
         return await bcrypt.compare(candidatePassword, this.password)
             .then(isMatch => isMatch)
             .catch(err => console.log("!!!!!!!!Agent getById catch err: ", err));
     },
-    incLoginAttempts: async function () {
+    async incLoginAttempts() {
         //TODO add log Attempts to Array{ip, time, ...}
         //// if we have a previous lock that has expired, restart at 1
         if (this.lockUntil && this.lockUntil < Date.now()) {
@@ -100,6 +100,17 @@ AgentSchema.method({
                 console.error("!!!!!!!!Agent incLoginAttempts catch err: ", err);
                 throw err;
             });
+    },
+    dto(){
+        this.updateOne({$set: {lastLogin: new Date()}})
+            .catch(err => console.error("!!!!!!!!DTO, Agent update lastLogin  catch err: ", err));
+        return {
+            id: this._id,
+            email: this.email,
+            name: this.name,
+            organization: this.organizationId.name,
+            call: this.call,
+        };
     }
 });
 
@@ -131,6 +142,7 @@ AgentSchema.static({
 
     getAuthenticated: async function(email, password) {
         return await this.findOne({email: email})
+            .populate('organizationId', 'name')
             .then(async user => {
                 // make sure the user exists
                 if (!user) {
@@ -156,11 +168,11 @@ AgentSchema.static({
                         // check if the password was a match
                         if (isMatch) {
                             // if there's no lock or failed attempts, just return the user
-                            if (!user.loginAttempts && !user.lockUntil) return user;
+                            if (!user.loginAttempts && !user.lockUntil) return user.dto();
                             // reset attempts and lock info
                             return await user.updateOne({$set: {loginAttempts: 0}, $unset: {lockUntil: 1}})
                                 .then(resUpdate => {
-                                    return user;
+                                    return user.dto();
                                 })
                                 .catch(err => {
                                     console.error("!!!!!!!!Agent getById catch err: ", err);
@@ -229,11 +241,7 @@ AgentSchema.static({
             .sort({createdAt: -1})
             .limit(limit)
             .skip(limit * page)
-            .exec(function (err, res) {
-                if (err) return {}; //TODO logger
-                console.log(res);
-                return res;
-            });
+            .catch(err => console.error("!!!!!!!!organization getAll catch err: ", err))
     }
 });
 

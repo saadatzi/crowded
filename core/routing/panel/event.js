@@ -11,7 +11,7 @@ const userController = require('../../controllers/user');
 const deviceController = require('../../controllers/device');
 const NZ = require('../../utils/nz');
 const {uploader, multiUploader} = require('../../utils/fileManager');
-const {verifyTokenPanel} = require('../../utils/validation');
+const {verifyTokenPanel, authorization} = require('../../utils/validation');
 
 const UserEvent = require('../../models/UserEvent');
 
@@ -44,20 +44,47 @@ const addSchema = Joi.object().keys({
     interests:          JoiConfigs.arrayLength(1,100, JoiConfigs.isMongoId),
 });
 
+const updateSchema = Joi.object().keys({
+    eventId:            JoiConfigs.isMongoId,
+    title_ar:           JoiConfigs.title,
+    title_en:           JoiConfigs.title,
+    desc_en:            JoiConfigs.description(),
+    desc_ar:            JoiConfigs.description(),
+    value:              JoiConfigs.price,
+    attendance:         JoiConfigs.number,
+    from:               JoiConfigs.timeStamp,
+    to:                 JoiConfigs.timeStamp,
+    allowedApplyTime:   JoiConfigs.timeStamp,
+    area:               JoiConfigs.isMongoId,
+    address_ar:         JoiConfigs.description(),
+    address_en:         JoiConfigs.description(),
+    lat:                JoiConfigs.price,
+    lng:                JoiConfigs.price,
+    interests:          JoiConfigs.arrayLength(1,100, JoiConfigs.isMongoId),
+});
+
 /**
  *  Add Event Image
  * -upload image callback path&name
  * @return status
  */
 //______________________Add Event_____________________//
-router.post('/upload', verifyTokenPanel(), uploader, async (req, res) => {
-    console.info('API: Add event/init %j', {body: req.body});
+router.post('/addImage', verifyTokenPanel(), uploader, async (req, res) => {
+    console.info('API: addImage event/init %j', {body: req.body});
     if (!req._uploadPath || !req._uploadFilename) {
         return new NZ.Response(null, 'fileUpload is Empty!', 400).send(res);
     }
 
-    const image = req._uploadPath + '/' + req._uploadFilename;
-    new NZ.Response({item: image}).send(res);
+    eventController.get(req.body.eventId)
+        .then(event => {
+            event.images.push({url: req._uploadPath + '/' + req._uploadFilename, order: null});
+            event.save();
+            new NZ.Response(true, 'Event add image successful!').send(res);
+        })
+        .catch(err => {
+            console.error("Event Add Catch err:", err)
+            new NZ.Response(null, res.message, err.code || 500).send(res);
+        })
 });
 
 /**
@@ -76,6 +103,7 @@ router.post('/add', uploader, joiValidate(addSchema), verifyTokenPanel(), async 
 
     req.body.images = [{url: req._uploadPath + '/' + req._uploadFilename, order: 1}];
     req.body.location = {coordinates: [req.body.lat,req.body.lng]};
+    req.body.owner = req.userId;
     eventController.add(req.body)
         .then(event => {
             new NZ.Response(true, 'Event add successful!').send(res);
@@ -93,18 +121,18 @@ router.post('/add', uploader, joiValidate(addSchema), verifyTokenPanel(), async 
  * @return status
  */
 //______________________Add Event_____________________//
-router.put('/edit', /*joiValidate(addSchema),*/ verifyTokenPanel(), async (req, res) => {
+router.put('/edit', joiValidate(updateSchema), verifyTokenPanel(), async (req, res) => {
     console.info('API: Add event/init %j', {body: req.body});
 
 
-    eventController.get(req.body.eventId)
+    const eventId = req.body.eventId;
+    delete req.body.eventId;
+    eventController.update(eventId, req.body)
         .then(event => {
-            event.images = event.images.concat(req.body.images);
-            event.save();
-            new NZ.Response(true, 'Event Update successful!').send(res);
+            new NZ.Response(!!event, event ? 'Event Update successful!' : 'Not Found!').send(res);
         })
         .catch(err => {
-            console.error("Event Add Catch err:", err)
+            console.error("Event Update Catch err:", err);
             new NZ.Response(null, res.message, err.code || 500).send(res);
         })
 });
@@ -114,10 +142,10 @@ router.put('/edit', /*joiValidate(addSchema),*/ verifyTokenPanel(), async (req, 
  * @return Events
  */
 //______________________Get Event_____________________//
-router.get('/', verifyTokenPanel(), async (req, res) => {
+router.get('/', verifyTokenPanel(), authorization(),  async (req, res) => {
     console.info('API: Get event/init %j', {body: req.body});
 
-    eventController.getAll({})
+    eventController.getAll(req.userId, req.accessGroup, req.accessAny)
         .then(events => {
             new NZ.Response({items: events}).send(res);
         })

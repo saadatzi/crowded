@@ -28,7 +28,7 @@ const updateSchema = Joi.object().keys({
  * @return status
  */
 //______________________Add Organization_____________________//
-router.post('/add', joiValidate(addSchema, 0), verifyTokenPanel(), async (req, res) => {
+router.post('/add', joiValidate(addSchema), verifyTokenPanel(), async (req, res) => {
     console.info('API: Add Organization/init %j', {body: req.body});
 
     organizationController.add(req.body)
@@ -47,7 +47,7 @@ router.post('/add', joiValidate(addSchema, 0), verifyTokenPanel(), async (req, r
  * @return status
  */
 //______________________Update Organization_____________________//
-router.put('/update', joiValidate(updateSchema, 0), verifyTokenPanel(), async (req, res) => {
+router.put('/update', joiValidate(updateSchema), verifyTokenPanel(), async (req, res) => {
     console.info('API: update Organization/init %j', {body: req.body});
 
     organizationController.update(req.body.organizationId, req.body.permissions)
@@ -56,6 +56,24 @@ router.put('/update', joiValidate(updateSchema, 0), verifyTokenPanel(), async (r
         })
         .catch(err => {
             console.error("Organization update Catch err:", err);
+            new NZ.Response(null, err.message, err.code || 500).send(res);
+        })
+});
+
+/**
+ *  Get Organization
+ * @return Organizations
+ */
+//______________________Update Organization_____________________//
+router.get('/', verifyTokenPanel(), async (req, res) => {
+    console.info('API: Get Organization List/init');
+
+    organizationController.get({})
+        .then(organizations => {
+            new NZ.Response({items: organizations}).send(res);
+        })
+        .catch(err => {
+            console.error("Organization List Catch err:", err);
             new NZ.Response(null, err.message, err.code || 500).send(res);
         })
 });

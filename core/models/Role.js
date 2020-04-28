@@ -24,8 +24,7 @@ RoleSchema.pre('remove', function (next) {
 /**
  * Methods
  */
-RoleSchema.method({
-});
+RoleSchema.method({});
 
 /**
  * Statics
@@ -52,6 +51,7 @@ RoleSchema.static({
      */
     async list() {
         return await this.aggregate([
+            {$unwind: "$permissions"},
             {
                 $lookup: {
                     from: 'permissions',
@@ -60,15 +60,15 @@ RoleSchema.static({
                     as: 'perName'
                 }
             },
-            {$unwind: "$permissions"},
+            // {$replaceRoot: {newRoot: {$mergeObjects: [{$arrayElemAt: ["$perName", 0]}, "$$ROOT"]}}},
+            {$unwind: "$perName"},
             {
                 $group: {
                     _id: "$_id",
                     permissions: {
                         $push: {
-                            title: {$arrayElemAt: ['$perName.title', 0]},
-                            // accessLevel: {$binLevel2Bool: '$permissions.accessLevel'},
-                            accessLevelNum: '$permissions.accessLevel'
+                            title: '$perName.title',
+                            accessLevelNum: '$permissions.accessLevel',
                         }
                     },
                     name: {$first: `$name`},
@@ -81,9 +81,10 @@ RoleSchema.static({
                     id: '$_id',
                     name: 1,
                     permissions: 1,
-                    status: 1,
+                    isActive: {$cond: {if: {$eq: ["$status", 1]}, then: true, else: false}},
                 }
             },
+            {$sort: {id: -1}},
         ])
             .then(result => {
                 result.map(r => {
@@ -159,41 +160,77 @@ RoleSchema.static({
             .sort({createdAt: -1})
             .limit(limit)
             .skip(limit * page)
-            .exec(function (err, res) {
-                if (err) return {}; //TODO logger
-                console.log(res);
-                return res;
-            });
+            .catch(err => console.error("!!!!!!!!organization getAll catch err: ", err))
     }
 });
 
 function binLevel2Bool(number) {
     const arrayAccess = Array.from(String((number).toString(2)), Number);
-    return {create: !!arrayAccess[2], read: !!arrayAccess[3], update: !!arrayAccess[4], delete: !!arrayAccess[5]}
+    const len = arrayAccess.length;
+    return {
+        create: !!arrayAccess[len - 4],
+        read: !!arrayAccess[len - 3],
+        update: !!arrayAccess[len - 2],
+        delete: !!arrayAccess[len - 1]
+    }
 }
 
 const Role = mongoose.model('Role', RoleSchema);
 module.exports = Role;
 
+
 /*
 * Access Level Map
-           Create  Read  Update    Delete
-  32   16    8      4       2        1
-__________________________________________________________
-  1    0     0      0       0        1      => 1  33   [Delete]
-  1    0     0      0       1        0      => 2  34   [Update]
-  1    0     0      0       1        1      => 3  35   [Update, Delete]
-  1    0     0      1       0        0      => 4  36   [Read]
-  1    0     0      1       0        1      => 5  37   [Read, Delete]
-  1    0     0      1       1        0      => 6  38   [Read, Update]
-  1    0     0      1       1        1      => 7  39   [Read, Update, Delete]
-  1    0     1      0       0        0      => 8  40   [Create]
-  1    0     1      0       0        1      => 9  41   [Create, Delete]
-  1    0     1      0       1        0      => 10 42   [Create, Update]
-  1    0     1      0       1        1      => 11 43   [Create, Update, Delete]
-  1    0     1      1       0        0      => 12 44   [Create, Read]
-  1    0     1      1       0        1      => 13 45   [Create, Read, Delete]
-  1    0     1      1       1        0      => 14 46   [Create, Read, Update]
-  1    0     1      1       1        1      => 15 47   [Create, Read, Update, Delete]
-____________________________________________________________
+                 Any   Group   Create   Read   Update  Delete
+ 128     64      32      16       8       4       2       1
+__________________________________________________________________________________________________
+  1       0       0       0       0       0       0       1      => 1   129   [Delete]
+  1       0       0       0       0       0       1       0      => 2   130   [Update]
+  1       0       0       0       0       0       1       1      => 3   131   [Update, Delete]
+  1       0       0       0       0       1       0       0      => 4   132   [Read]
+  1       0       0       0       0       1       0       1      => 5   133   [Read, Delete]
+  1       0       0       0       0       1       1       0      => 6   134   [Read, Update]
+  1       0       0       0       0       1       1       1      => 7   135   [Read, Update, Delete]
+  1       0       0       0       1       0       0       0      => 8   136   [Create]
+  1       0       0       0       1       0       0       1      => 9   137   [Create, Delete]
+  1       0       0       0       1       0       1       0      => 10  138   [Create, Update]
+  1       0       0       0       1       0       1       1      => 11  138   [Create, Update, Delete]
+  1       0       0       0       1       1       0       0      => 12  140   [Create, Read]
+  1       0       0       0       1       1       0       1      => 13  141   [Create, Read, Delete]
+  1       0       0       0       1       1       1       0      => 14  142   [Create, Read, Update]
+  1       0       0       0       1       1       1       1      => 15  143   [Create, Read, Update, Delete]
+_______________________________________________________________________ ___________________________
+  1       0       0       1       0       0       0       0      => 0   144   []
+  1       0       0       1       0       0       0       1      => 1   145   [Delete]
+  1       0       0       1       0       0       1       0      => 2   146   [Update]
+  1       0       0       1       0       0       1       1      => 3   147   [Update, Delete]
+  1       0       0       1       0       1       0       0      => 4   148   [Read]
+  1       0       0       1       0       1       0       1      => 5   149   [Read, Delete]
+  1       0       0       1       0       1       1       0      => 6   150   [Read, Update]
+  1       0       0       1       0       1       1       1      => 7   151   [Read, Update, Delete]
+  1       0       0       1       1       0       0       0      => 8   152   [Create]
+  1       0       0       1       1       0       0       1      => 9   153   [Create, Delete]
+  1       0       0       1       1       0       1       0      => 10  154   [Create, Update]
+  1       0       0       1       1       0       1       1      => 11  155   [Create, Update, Delete]
+  1       0       0       1       1       1       0       0      => 12  156   [Create, Read]
+  1       0       0       1       1       1       0       1      => 13  157   [Create, Read, Delete]
+  1       0       0       1       1       1       1       0      => 14  158   [Create, Read, Update]
+  1       0       0       1       1       1       1       1      => 15  159   [Create, Read, Update, Delete]
+___________________________________________________________________________________________________
+  1       0       1       0       0       0       0       0      => 0   160   []
+  1       0       1       0       0       0       0       1      => 1   161   [Delete]
+  1       0       1       0       0       0       1       0      => 2   162   [Update]
+  1       0       1       0       0       0       1       1      => 3   163   [Update, Delete]
+  1       0       1       0       0       1       0       0      => 4   164   [Read]
+  1       0       1       0       0       1       0       1      => 5   165   [Read, Delete]
+  1       0       1       0       0       1       1       0      => 6   166   [Read, Update]
+  1       0       1       0       0       1       1       1      => 7   167   [Read, Update, Delete]
+  1       0       1       0       1       0       0       0      => 8   168   [Create]
+  1       0       1       0       1       0       0       1      => 9   179   [Create, Delete]
+  1       0       1       0       1       0       1       0      => 10  170   [Create, Update]
+  1       0       1       0       1       0       1       1      => 11  171   [Create, Update, Delete]
+  1       0       1       0       1       1       0       0      => 12  172   [Create, Read]
+  1       0       1       0       1       1       0       1      => 13  173   [Create, Read, Delete]
+  1       0       1       0       1       1       1       0      => 14  174   [Create, Read, Update]
+  1       0       1       0       1       1       1       1      => 15  175   [Create, Read, Update, Delete]
 * */

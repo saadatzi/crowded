@@ -45,7 +45,7 @@ organizationController.prototype.add = async (newOrganization) => {
  *
  * @return Organization
  */
-organizationController.prototype.get = async (optFilter, type = 'email') => {
+organizationController.prototype.get = async (optFilter, type = 'id') => {
     console.log("***Organization get by Id optFilter 2: ", optFilter);
     if (!optFilter || optFilter instanceof Object) { //newOrganization instanceof Array
         return await Organization.getAll(optFilter)
@@ -58,14 +58,7 @@ organizationController.prototype.get = async (optFilter, type = 'email') => {
                 throw err;
             })
     } else {
-        if (type === 'email') {
-            return await Organization.getByEmail(optFilter)
-                .then(result => result)
-                .catch(err => {
-                    console.log("!!!Organization getByEmail failed: ", err);
-                    throw err;
-                })
-        } else {
+        if (type === 'id') {
             console.log("***Organization get by Id optFilter 3: ", optFilter);
             return await Organization.getById(optFilter)
                 .then(result => {

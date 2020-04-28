@@ -89,12 +89,8 @@ agentController.prototype.get = async (optFilter, type = 'email') => {
                     throw err;
                 })
         } else {
-            console.log("***Agent get by Id optFilter 3: ", optFilter);
             return await Agent.getById(optFilter)
-                .then(result => {
-                    console.log(`***Agent get by id ${optFilter} result: `, result);
-                    return result;
-                })
+                .then(result => result)
                 .catch(err => {
                     console.log("!!!Agent get failed: ", err);
                     throw err;

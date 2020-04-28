@@ -19,7 +19,13 @@ OrganizationSchema.pre('remove', function (next) {
  * Methods
  */
 OrganizationSchema.method({
-    //TODO method need... this.model('Interest')
+    toJSON() {
+        return {
+            id: this._id,
+            name: this.name,
+            isActive: !!this.status,
+        }
+    }
 });
 
 /**
@@ -28,27 +34,16 @@ OrganizationSchema.method({
 OrganizationSchema.static({
 
     /**
-     * Find User by id
+     * Find Organization by id
      *
      * @param {ObjectId} _id
      * @api private
      */
-    getById: function(_id) {
+    getByI(_id) {
         return this.findById({_id})
-            .then(device =>  device)
-            .catch(err => console.log("!!!!!!!!User getById catch err: ", err))},
+            .then(organization =>  organization)
+            .catch(err => console.error("!!!!!!!!organization getById catch err: ", err))},
 
-    /**
-     * Find use by email
-     *
-     * @param {String} email
-     * @api private
-     */
-    getByEmail: async (email) => {
-        return await User.findOne({email: email})
-            .then(user => user)
-            .catch(err => console.log("!!!!!!!! getByEmail catch err: ", err));
-    },
 
     /**
      * List all User
@@ -57,7 +52,7 @@ OrganizationSchema.static({
      * @api private
      */
 
-    getAll: (options) => {
+    getAll(options){
         const criteria = options.criteria || {};
         const page = options.page || 0;
         const limit = options.limit || 50;
@@ -65,11 +60,7 @@ OrganizationSchema.static({
             .sort({createdAt: -1})
             .limit(limit)
             .skip(limit * page)
-            .exec(function (err, res) {
-                if (err) return {}; //TODO logger
-                console.log(res);
-                return res;
-            });
+            .catch(err => console.error("!!!!!!!!organization getAll catch err: ", err))
     }
 });
 

@@ -2,8 +2,8 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const LogSchema = new Schema({
-    userId: {type: Schema.Types.ObjectId, ref: 'Log', index: true},
-    deviceId: {type: Schema.Types.ObjectId, ref: 'Device', index: true},
+    userId: {type: Schema.Types.ObjectId, ref: 'Log'},
+    deviceId: {type: Schema.Types.ObjectId, ref: 'Device'},
     method: String,
     path: String,
     ip: String,
@@ -29,7 +29,6 @@ LogSchema.pre('remove', function (next) {
  * Methods
  */
 LogSchema.method({
-    //TODO method need... this.model('Interest')
 });
 
 /**
@@ -67,11 +66,7 @@ LogSchema.static({
             .sort({createdAt: -1})
             .limit(limit)
             .skip(limit * page)
-            .exec(function (err, res) {
-                if (err) return {}; //TODO logger
-                console.log(res);
-                return res;
-            });
+            .catch(err => console.error("!!!!!!!!organization getAll catch err: ", err))
     }
 });
 
