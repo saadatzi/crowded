@@ -292,6 +292,7 @@ EventSchema.static({
                 }
             },
             // {$replaceRoot: { newRoot: { $mergeObjects: [ { $arrayElemAt: [ "$area", 0 ] }, "$$ROOT" ] } }},
+            // {$sort: {value: -1}},
             {
                 $group: {
                     _id: "$_id",
@@ -346,6 +347,7 @@ EventSchema.static({
                     // address: 1
                 }
             },
+            {$sort: {value: -1}}
             // {$sort: {id: -1}},
         ])
             // .exec()
