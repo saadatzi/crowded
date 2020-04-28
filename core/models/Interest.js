@@ -10,6 +10,9 @@ const InterestSchema = new Schema({
     status: { type: Number, default: 1 }, // 1 active, 0 deActive, 2 softDelete, 3 hardDelete
 }, { timestamps: true, toJSON: { virtuals: false, getters: false }, toObject: { virtuals: false } });
 
+mongoose.set('useCreateIndex', true);
+InterestSchema.index({ title_en: 'text' });
+
 
 // InterestSchema.index({ title_ar: 1, type: -1 });
 // InterestSchema.index({ title_en: 1, type: -1 });
@@ -96,7 +99,9 @@ InterestSchema.static({
         };
 
         let result = await this.aggregate([
+            // { $match: { $text: { $search: optFilter.search } } },
             { $match: optFilter.filters },
+            // { $sort: { score: { $meta: "textScore" } } },
             { $sort: optFilter.sorts },
             { $skip: optFilter.pagination.page * optFilter.pagination.limit },
             { $limit: optFilter.pagination.limit },
