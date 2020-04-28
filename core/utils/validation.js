@@ -120,7 +120,7 @@ module.exports = {
     authorization: (permissions = []) => {
         return async (req, res, next) => {
             console.error('>>>>>>>>>>>>>>>>>>>>> authorization userId', req.userId);
-            roleController.authorize(permissions)
+            roleController.authorize(req.userId, permissions)
             return next();
         }
     }

@@ -73,18 +73,10 @@ router.post('/login', joiValidate(loginSchema, 0), async (req, res) => {
 //______________________Logout_____________________//
 router.get('/logout', verifyTokenPanel(), async (req, res) => {
     console.info('API: logout Panel User/init');
-    const newToken = sign({deviceId: req.deviceId});
-    deviceController.update(req.deviceId, {userId: null, token: newToken, updateAt: Date.now()})
-        .then(device => {
-            new NZ.Response({
-                access_token: newToken,
-                access_type: 'public'
-            }).send(res);
-        })
-        .catch(err => {
-            console.log('!!!! user logout Panel catch ert: ', err);
-            new NZ.Response(null, err.message, 400).send(res);
-        });
+    // const newToken = sign({deviceId: req.deviceId});
+    //TODO redis Token blackList
+    new NZ.Response(true).send(res);
+
 });
 
 

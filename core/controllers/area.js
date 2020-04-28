@@ -17,16 +17,16 @@ const areaController = function () {
 areaController.prototype.add = async (newArea) => {
     if (Array.isArray(newArea)) { //newArea instanceof Array
         return await Area.insertMany(newArea)
-            .then(room => room)
+            .then(result => result)
             .catch(err => {
                 console.log("!!!Area many save failed: ", err);
                 throw err;
             })
     } else {
         return await Area.create(newArea)
-            .then(room => {
-                console.log("***Area save success room._id", room);
-                return room;
+            .then(result => {
+                console.log("***Area save success result._id", result);
+                return result;
             })
             .catch(err => {
                 console.log("!!!Area save failed: ", err);

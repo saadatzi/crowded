@@ -96,7 +96,7 @@ RoleSchema.static({
     },
 
     /**
-     * Get All
+     * Check Authorization
      *
      * @param {ObjectId} userId
      * @param {Array} needPermissions
@@ -104,6 +104,14 @@ RoleSchema.static({
      */
     async authorize(userId, needPermissions) {
         return await this.aggregate([
+            {
+                $lookup: {
+                    from: 'agents',
+                    localField: userId,
+                    foreignField: '_id',
+                    as: 'getUser'
+                }
+            },
             {
                 $lookup: {
                     from: 'permissions',

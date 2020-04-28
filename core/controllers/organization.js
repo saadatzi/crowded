@@ -15,9 +15,9 @@ const organizationController = function () {};
 organizationController.prototype.add = async (newOrganization) => {
     if (Array.isArray(newOrganization)) { //newOrganization instanceof Array
         return await Organization.insertMany(newOrganization)
-            .then(room => {
-                console.log("***Organization many save success room", room);
-                return room;
+            .then(result => {
+                console.log("***Organization many save success result", result);
+                return result;
             })
             .catch(err => {
                 console.log("!!!Organization many save failed: ", err);

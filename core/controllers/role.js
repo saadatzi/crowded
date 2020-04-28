@@ -16,9 +16,9 @@ const roleController = function () {
 roleController.prototype.add = async (newRole) => {
     if (Array.isArray(newRole)) { //newRole instanceof Array
         return await Role.insertMany(newRole)
-            .then(room => {
-                console.log("***Role many save success room", room);
-                return room;
+            .then(result => {
+                console.log("***Role many save success result", result);
+                return result;
             })
             .catch(err => {
                 console.log("!!!Role many save failed: ", err);
@@ -166,10 +166,14 @@ roleController.prototype.update = async (optFilter, newValue) => {
  * @return {Boolean} hsaRoleTrueFalse
  */
 roleController.prototype.authorize = async (permissions) => {
+    let conceptualization = [];
+    permissions.map(per => {
+
+    });
     return await Role.authorize(permissions)
-        .then(room => {
-            console.log("***Role many save success room", room);
-            return room;
+        .then(result => {
+            console.log("***Role many save success result", result);
+            return result;
         })
         .catch(err => {
             console.log("!!!Role many save failed: ", err);

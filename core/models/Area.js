@@ -29,11 +29,18 @@ AreaSchema.pre('remove', function (next) {
  */
 AreaSchema.method({
     toJSON() {
+       const newChilds = this.childs.map(ch => {
+           return {
+                id: ch._id,
+                name_en: ch.name_en,
+                name_ar: ch.name_ar
+            }
+        })
         return {
             id: this._id,
             name_en: this.name_en,
             name_ar: this.name_ar,
-            childs: this.childs
+            childs: newChilds
         }
     }
 });
