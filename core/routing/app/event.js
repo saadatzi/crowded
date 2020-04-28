@@ -320,7 +320,7 @@ router.post('/feedback', verifyToken(true), async function (req, res) {
     userEventController.setStatus(req.userId, req.body.eventId, 'SUCCESS', updateSuccessValue)
         .then(event => {
             console.info("*** Set successFeedback  : %j", event);
-            new NZ.Response(null, 'SUCCESS').send(res);
+            new NZ.Response(true, 'Your event has been completed.').send(res);
         })
         .catch(err => {
             console.error("Event Set successFeedback Catch err:", err)

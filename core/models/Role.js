@@ -107,7 +107,7 @@ RoleSchema.static({
             {
                 $lookup: {
                     from: 'agents',
-                    localField: mongoose.Types.ObjectId(userId),
+                    localField: userId,
                     foreignField: '_id',
                     as: 'getUser'
                 }
