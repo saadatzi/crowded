@@ -104,18 +104,20 @@ RoleSchema.static({
      */
     async authorize(userId, needPermissions) {
         return await this.aggregate([
+            {$match: {status: 1}},
             {
                 $lookup: {
                     from: 'agents',
+                    let: {primaryRole: '$_id'},
                     pipeline: [
                         {$match: {_id: mongoose.Types.ObjectId(userId)}},
-                        {$match: {$expr: {$eq: ["$$primaryEventId", "$eventId"]}}},
-                        {$project: {_id: 0, status: "$status"}},
+                        {$match: {$expr: {$eq: ["$$primaryRole", "$role"]}}},
+                        // {$project: {_id: 0, status: "$status"}},
                     ],
-                    as: 'getUserEvents'
+                    as: 'getUser'
                 }
             },
-
+            {$unwind: {path: "$getUser", preserveNullAndEmptyArrays: false}},
             // {
             //     $lookup: {
             //         from: 'permissions',
