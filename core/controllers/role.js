@@ -161,16 +161,17 @@ roleController.prototype.update = async (optFilter, newValue) => {
 /**
  * Add new Role
  *
+ * @param {ObjectId} userId
  * @param {Array} permissions
  *
  * @return {Boolean} hsaRoleTrueFalse
  */
-roleController.prototype.authorize = async (permissions) => {
+roleController.prototype.authorize = async (userId, permissions) => {
     let conceptualization = [];
     permissions.map(per => {
 
     });
-    return await Role.authorize(permissions)
+    return await Role.authorize(userId, permissions)
         .then(result => {
             console.log("***Role many save success result", result);
             return result;

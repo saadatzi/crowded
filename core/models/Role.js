@@ -84,7 +84,7 @@ RoleSchema.static({
                     isActive: {$cond: {if: {$eq: ["$status", 1]}, then: true, else: false}},
                 }
             },
-            {$sort: {id: -1}},
+            {$sort: {id: 1}},
         ])
             .then(result => {
                 result.map(r => {
@@ -107,7 +107,7 @@ RoleSchema.static({
             {
                 $lookup: {
                     from: 'agents',
-                    localField: userId,
+                    localField: mongoose.Types.ObjectId(userId),
                     foreignField: '_id',
                     as: 'getUser'
                 }

@@ -118,4 +118,23 @@ router.get('/auth', verifyTokenPanel(), async (req, res) => {
         })
 });
 
+
+/**
+ *  Test Authorization
+ * @return status
+ */
+//______________________Update Role_____________________//
+router.post('/authTest', verifyTokenPanel(), async (req, res) => {
+    console.info('API: Test Authorization Role/init %j', {body: req.body});
+
+    roleController.authorize(req.userId, req.body)
+        .then(role => {
+            new NZ.Response(null, role ? 'Role Test Authorization!' : 'Not found!', role ? 200 : 404 ).send(res);
+        })
+        .catch(err => {
+            console.error("Role Test Authorization Catch err:", err)
+            new NZ.Response(null, err.message, err.code || 500).send(res);
+        })
+});
+
 module.exports = router;

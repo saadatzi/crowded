@@ -286,11 +286,11 @@ const permissionController = require('./controllers/permission');
                     {title: "User account", access: 143},
                     {title: "Bank name",    access: 143},
                     {title: "Device app",   access: 143},
-                    {title: "Event",        access: 167}, //All
+                    {title: "Event",        access: 175}, //All
                     {title: "Interest",     access: 143},
                     {title: "Organization", access: 143},
                     {title: "Role",         access: 143},
-                    {title: "Transaction",  access: 143},
+                    {title: "Transaction",  access: 167},
                     {title: "User Event(Approve-Reject)",   access: 166}, // All
                     {title: "User",  access: 143}
                 ];
