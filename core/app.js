@@ -64,7 +64,7 @@ require('./utils/ncs/ncs.localization').init('com.nizek.crowded', ncs_localizati
 * Cross-Origin
 * */
 app.use(function (req, res, next) {
-    const allowedOrigins = ['http://localhost:3000', 'https://panel.kids.dev.nizek.com'];
+    const allowedOrigins = ['http://localhost:3000', 'http://localhost:3001','http://localhost:3002','http://localhost:3003', 'https://panel.crowded.dev.nizek.com'];
     const origin = req.headers.origin;
     if (allowedOrigins.indexOf(origin) > -1) {
         res.setHeader('Access-Control-Allow-Origin', origin);
