@@ -10,7 +10,9 @@ const InterestSchema = new Schema({
     status: { type: Number, default: 1 }, // 1 active, 0 deActive, 2 softDelete, 3 hardDelete
 }, { timestamps: true, toJSON: { virtuals: false, getters: false }, toObject: { virtuals: false } });
 
-mongoose.set('useCreateIndex', true);
+
+
+// index for search
 InterestSchema.index({ title_en: 'text' });
 
 
