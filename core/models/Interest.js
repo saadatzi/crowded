@@ -79,47 +79,69 @@ InterestSchema.static({
     /**
      * List all Interest for panel
      *
-     * @param {Object} options
+     * @param {Object} optFilter
      * @api private
      */
     async getManyPanel(optFilter) {
         optFilter.search = optFilter.search || "";
-        optFilter.filters = optFilter.filters || {};
-        const page = optFilter.page || 0;
-        const limit = optFilter.limit || 50;
-        // TODO: add limit,page,sort, etc.
+        optFilter.filters = optFilter.filters || {
+            status: 1
+        };
+        optFilter.sorts = optFilter.sorts || {
+            title_en: 1
+        };
+        optFilter.pagination = optFilter.pagination || {
+            page: 0,
+            limit: 12
+        };
 
-        let items = await this.aggregate([
+        let result = await this.aggregate([
+            { $match: optFilter.filters },
+            { $sort: optFilter.sorts },
+            { $skip: optFilter.pagination.page * optFilter.pagination.limit },
+            { $limit: optFilter.pagination.limit },
             {
-                $match: {}
-            },
-            {
-                $match:optFilter.filters
-            },
-            {
-                $project: {
-                    _id: 0,
-                    id: '$_id',
-                    title_en: 1,
-                    title_ar: 1,
-                    order:1,
-                    image: {
-                        url: {$concat:[settings.media_domain, "$image"]}
-                    },
-                    status:1
+                $facet: {
+                    explain: [
+                        { $count: "_total" },
+                        {
+                            $addFields: {
+                                pagination: {
+                                    ...optFilter.pagination,
+                                    total: "$_total"
+                                },
+                                sorts: optFilter.sorts,
+                                filters: optFilter.filters,
+                                search: optFilter.search
+                            }
+                        },
+                        {
+                            $project:
+                            {
+                                pagination: 1,
+                                sorts: 1,
+                                filters: 1,
+                                search: 1
+                            }
+                        }
+                    ],
+                    items: [{
+                        $project: {
+                            _id: 0,
+                            id: '$_id',
+                            title_en: 1,
+                            image: {
+                                url: { $concat: [settings.media_domain, "$image"] }
+                            }
+                        }
+                    }]
                 }
             }
+
         ]).catch(err => console.error(err));
 
-        return { options: optFilter, items };
+        return result;
 
-        return await Interest.find(criteria, options.field || '')
-            .sort({ order: -1 })
-            .limit(limit)
-            .skip(limit * page)
-            .exec()
-            .then(result => result)
-            .catch(err => console.log("Interest getAll Catch", err));
     },
 
     /**
@@ -139,16 +161,16 @@ InterestSchema.static({
                     id: '$_id',
                     title_en: 1,
                     title_ar: 1,
-                    order:1,
+                    order: 1,
                     image: {
-                        url: {$concat:[settings.media_domain, "$image"]}
+                        url: { $concat: [settings.media_domain, "$image"] }
                     },
-                    createdAt:1,
+                    createdAt: 1,
                     updatedAt: 1,
-                    status:1
+                    status: 1
                 }
             }
-            ]).catch(err => console.error(err));
+        ]).catch(err => console.error(err));
 
     }
 });
