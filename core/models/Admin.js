@@ -7,7 +7,7 @@ const SALT_WORK_FACTOR = 10,
     MAX_LOGIN_ATTEMPTS = 5,
     LOCK_TIME = 2 * 60 * 60 * 1000;
 
-const AgentSchema = new Schema({
+const AdminSchema = new Schema({
     email: {type: String, index: true, lowercase: true, unique: true, required: [true, "can't be blank"]},
     name: String,
     password: {type: String, required: true},
@@ -27,7 +27,7 @@ const AgentSchema = new Schema({
     lockUntil: Number,
 }, {timestamps: true});
 
-AgentSchema.virtual('isLocked').get(function () {
+AdminSchema.virtual('isLocked').get(function () {
     // check for a future lockUntil timestamp
     return !!(this.lockUntil && this.lockUntil > Date.now());
 });
@@ -36,7 +36,7 @@ AgentSchema.virtual('isLocked').get(function () {
  * Pre-remove hook
  */
 
-AgentSchema.pre('remove', function (next) {
+AdminSchema.pre('remove', function (next) {
     //TODO pre-remove required...
     next();
 });
@@ -44,7 +44,7 @@ AgentSchema.pre('remove', function (next) {
 /**
  * Pre-save hook
  */
-AgentSchema.pre('save', function (next) {
+AdminSchema.pre('save', function (next) {
     var user = this;
 
     // only hash the password if it has been modified (or is new)
@@ -69,9 +69,9 @@ AgentSchema.pre('save', function (next) {
 /**
  * Methods
  */
-AgentSchema.method({
+AdminSchema.method({
     async comparePassword(candidatePassword) {
-        console.log("!!!!!!!!Agent comparePassword candidatePassword: ", candidatePassword);
+        console.log("!!!!!!!!Admin comparePassword candidatePassword: ", candidatePassword);
         return await bcrypt.compare(candidatePassword, this.password)
             .then(isMatch => isMatch)
             .catch(err => console.log("!!!!!!!!comparePassword bcrypt.compare getById catch err: ", err));
@@ -85,7 +85,7 @@ AgentSchema.method({
                 $unset: {lockUntil: 1}
             })
                 .catch(err => {
-                    console.error("!!!!!!!!Agent incLoginAttempts lock expired catch err: ", err);
+                    console.error("!!!!!!!!Admin incLoginAttempts lock expired catch err: ", err);
                     throw err;
                 });
         }
@@ -97,13 +97,13 @@ AgentSchema.method({
         }
         return this.updateOne(updates)
             .catch(err => {
-                console.error("!!!!!!!!Agent incLoginAttempts catch err: ", err);
+                console.error("!!!!!!!!Admin incLoginAttempts catch err: ", err);
                 throw err;
             });
     },
     dto(){
         this.updateOne({$set: {lastLogin: new Date()}})
-            .catch(err => console.error("!!!!!!!!DTO, Agent update lastLogin  catch err: ", err));
+            .catch(err => console.error("!!!!!!!!DTO, Admin update lastLogin  catch err: ", err));
         return {
             id: this._id,
             email: this.email,
@@ -118,10 +118,10 @@ AgentSchema.method({
 /**
  * Statics
  */
-AgentSchema.static({
+AdminSchema.static({
 
     /**
-     * Find Agent by id
+     * Find Admin by id
      *
      * @param {ObjectId} _id
      * @api private
@@ -129,11 +129,11 @@ AgentSchema.static({
     getById: function (_id) {
         return this.findById({_id})
             .then(device => device)
-            .catch(err => console.log("!!!!!!!!Agent getById catch err: ", err))
+            .catch(err => console.log("!!!!!!!!Admin getById catch err: ", err))
     },
 
     /**
-     * Authenticate Agent
+     * Authenticate Admin
      *
      * @param {String} email
      * @param {String} password
@@ -229,7 +229,7 @@ AgentSchema.static({
     },
 
     /**
-     * List all Agent
+     * List all Admin
      *
      * @param {Object} options
      * @api private
@@ -247,5 +247,5 @@ AgentSchema.static({
     }
 });
 
-const Agent = mongoose.model('Agent', AgentSchema);
-module.exports = Agent;
+const Admin = mongoose.model('Admin', AdminSchema);
+module.exports = Admin;

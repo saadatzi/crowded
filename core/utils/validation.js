@@ -4,7 +4,7 @@ const moment = require('moment-timezone');
 const NZ = require('./nz');
 const deviceController = require('../controllers/device');
 const roleController = require('../controllers/role');
-const agentController = require('../controllers/agent');
+const adminController = require('../controllers/admin');
 const settings = require('./settings')
 
 // use 'utf8' to get string instead of byte array  (512 bit key)
@@ -93,16 +93,16 @@ module.exports = {
                 try {
                     let tokenObj = validation.verify(token, publicKEY, tokenOption);
                     if (!tokenObj) return new NZ.Response(null, 'invalid token ', 401).send(res);
-                    agentController.get(tokenObj.userId, 'id')
+                    adminController.get(tokenObj.userId, 'id')
                         .then(user => {
                             user.updateOne({
                                 $set: {lastIp:req.headers['x-real-ip'] , lastInteract: new Date()},
                             })
                                 .catch(err => {
-                                    console.error("!!!!!!!!Agent lastIp lastInteract update catch err: ", err);
+                                    console.error("!!!!!!!!Admin lastIp lastInteract update catch err: ", err);
                                 });
                         })
-                        .catch(err => console.error('!!!agentController get byId Failed!!! ', err));
+                        .catch(err => console.error('!!!adminController get byId Failed!!! ', err));
                     req.userId = tokenObj.userId;
                     return next();
                 } catch (err) {

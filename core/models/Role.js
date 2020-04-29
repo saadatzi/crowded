@@ -108,7 +108,7 @@ RoleSchema.static({
             {$match: {status: 1}},
             {
                 $lookup: {
-                    from: 'agents',
+                    from: 'admins',
                     let: {primaryRole: '$_id'},
                     pipeline: [
                         {$match: {_id: mongoose.Types.ObjectId(userId)}},

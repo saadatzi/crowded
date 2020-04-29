@@ -25,9 +25,9 @@ organizationController.prototype.add = async (newOrganization) => {
             })
     } else {
         return await Organization.create(newOrganization)
-            .then(agent => {
-                console.log("*** Organization save success agent", agent);
-                return agent;
+            .then(admin => {
+                console.log("*** Organization save success admin", admin);
+                return admin;
             })
             .catch(err => {
                 console.log("!!!Organization save failed: ", err);

@@ -5,7 +5,7 @@ const moment = require('moment-timezone');
 const areaController = require('../controllers/area');
 // mongoose.Types.ObjectId.isValid()
 const EventSchema = new Schema({
-    owner: { type: Schema.Types.ObjectId, ref: 'Agent' },
+    owner: { type: Schema.Types.ObjectId, ref: 'Admin' },
     title_ar: String,
     title_en: String,
     desc_ar: String,
@@ -658,7 +658,7 @@ EventSchema.static({
             },
             {
                 $lookup:{
-                    from:"agents",
+                    from:"admins",
                     localField:"owner",
                     foreignField:"_id",
                     as:"_owner"
