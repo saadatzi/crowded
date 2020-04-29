@@ -101,9 +101,7 @@ AdminSchema.method({
                 throw err;
             });
     },
-    dto(){
-        this.updateOne({$set: {lastLogin: new Date()}})
-            .catch(err => console.error("!!!!!!!!DTO, Admin update lastLogin  catch err: ", err));
+    dto() {
         return {
             id: this._id,
             email: this.email,
@@ -128,7 +126,7 @@ AdminSchema.static({
      */
     getById: function (_id) {
         return this.findById({_id})
-            .then(device => device)
+            .then(admin => admin)
             .catch(err => console.log("!!!!!!!!Admin getById catch err: ", err))
     },
 
@@ -140,7 +138,7 @@ AdminSchema.static({
      * @api private
      */
 
-    getAuthenticated: async function(email, password) {
+    getAuthenticated: async function (email, password) {
         return await this.findOne({email: email})
             .populate('organizationId', 'name')
             .then(async user => {
@@ -170,7 +168,11 @@ AdminSchema.static({
                         // check if the password was a match
                         if (isMatch) {
                             // if there's no lock or failed attempts, just return the user
-                            if (!user.loginAttempts && !user.lockUntil) return user.dto();
+                            if (!user.loginAttempts && !user.lockUntil) {
+                                return await user.updateOne({$set: {lastLogin: new Date()}})
+                                    .then(resUpdate => user.dto())
+                                    .catch(err => console.error("!!!!!!!!DTO, Admin update lastLogin  catch err: ", err));
+                            }
                             // reset attempts and lock info
                             return await user.updateOne({$set: {loginAttempts: 0}, $unset: {lockUntil: 1}})
                                 .then(resUpdate => {
@@ -193,7 +195,7 @@ AdminSchema.static({
                                 throw err;
                             })
 
-                        })
+                    })
                     .catch(err => {
                         console.log("!!!!!!!!Admin getAuthenticated comparePassword getById catch err: ", err);
                         throw err;
@@ -207,8 +209,7 @@ AdminSchema.static({
     },
 
 
-
-        function (email, password, cb) {
+    function(email, password, cb) {
         this.findOne({email: email}, function (err, user) {
             if (err) return cb(err);
 
@@ -222,7 +223,7 @@ AdminSchema.static({
      * @param {String} email
      * @api private
      */
-    getByEmail: async function(email) {
+    getByEmail: async function (email) {
         return await this.findOne({email: email})
             .then(user => user)
             .catch(err => console.log("!!!!!!!! getByEmail catch err: ", err));

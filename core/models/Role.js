@@ -134,7 +134,9 @@ RoleSchema.static({
             },
             {$unwind: "$permissions"},
             {$unwind: "$getPermissionsId"},
-            {$redact: {$cond: [{
+            {
+                $redact: {
+                    $cond: [{
                         $eq: [
                             "$permissions.permissionId",
                             "$getPermissionsId.perId",
@@ -145,7 +147,8 @@ RoleSchema.static({
                     ]
                 }
             },
-            {$project: {
+            {
+                $project: {
                     name: 1,
                     status: 1,
                     newPermission: {
@@ -177,7 +180,7 @@ RoleSchema.static({
                     delete: !!arrayAccess[len - 1]
     }
                 * */
-                let isAccess = false;
+                let resultAccess = [];
                 needPermissions.map(np => {
                     const perName = Object.keys(np)[0];
                     const perValue = Object.values(np)[0];
@@ -185,23 +188,37 @@ RoleSchema.static({
 
                     console.warn('>>>>>>> needPermissions', np);
                     console.warn('>>>>>>> perValue', perValue);
-                    permissions.map(permission => {
-                        const findPermission = permission.perResult.find(find => find.title === perName);
-                        console.warn('>>>>>>> findPermission', findPermission);
-                        if (findPermission) {
-                            const arrayAccess = Array.from(String((findPermission.access).toString(2)), Number);
-                            const len = arrayAccess.length;
-                            arrValue.map(value => {
-                                
-                            })
-                        }
+                    arrValue.map(value => {
+                        console.warn('>>>>>>> accessPerNeed value', value);
+                        let accessPerNeed = [];
+                        permissions.map(permission => {
+                            const findPermission = permission.perResult.find(find => find.title === perName);
+                            console.warn('>>>>>>> findPermission', findPermission);
+                            if (findPermission) {
+                                const arrayAccess = Array.from(String((findPermission.access).toString(2)), Number);
+                                const len = arrayAccess.length;
+                                if (value === 'C') {
+                                    accessPerNeed.push(!!arrayAccess[len - 4])
+                                } else if (value === 'R') {
+                                    accessPerNeed.push(!!arrayAccess[len - 3])
+                                } else if (value === 'U') {
+                                    accessPerNeed.push(!!arrayAccess[len - 2])
+                                } else if (value === 'D') {
+                                    accessPerNeed.push(!!arrayAccess[len - 1])
+                                }
+                            }
+                            console.warn('<<<<<<<<<<<<<< in Roles %s %s ', permission.name,  accessPerNeed);
+                        });
+                        resultAccess.push(accessPerNeed.some(Boolean));
+                        console.warn('>>>>>>>>>>>>> resultAccess for %s %s ', value, resultAccess);
 
                     })
-
+                    console.warn('>>>>>>> resultAccess ', resultAccess);
+                    console.warn('>>>>>>> resultAccess.every ', resultAccess.every(Boolean));
 
                     // r.permissions.map(rp => rp.accesssLevel = binLevel2Bool(rp.accessLevelNum))
                 });
-                return permissions;
+                return {access: resultAccess.every(Boolean)};
             })
             .catch(err => console.error("Role List  Catch", err));
     },
@@ -235,9 +252,6 @@ function binLevel2Bool(number) {
     }
 }
 
-function accessToNumber(access) {
-
-}
 
 const Role = mongoose.model('Role', RoleSchema);
 module.exports = Role;
