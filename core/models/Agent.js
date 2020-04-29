@@ -108,7 +108,7 @@ AgentSchema.method({
             id: this._id,
             email: this.email,
             name: this.name,
-            organization: this.organizationId,
+            organization: this.organization ? this.organization.name : '',
             call: this.call,
         };
     }
@@ -144,6 +144,8 @@ AgentSchema.static({
         return await this.findOne({email: email})
             .populate('organizationId', 'name')
             .then(async user => {
+                console.log("!!!!!!!!Admin getAuthenticated user: ", user);
+
                 // make sure the user exists
                 if (!user) {
                     throw {code: 404, message: "User not found!"}
