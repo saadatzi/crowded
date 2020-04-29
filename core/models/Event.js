@@ -653,7 +653,8 @@ EventSchema.static({
                     coordinates: { $first: `$location.coordinates` },
                     createdAt: { $first: `$createdAt` },
                     updatedAt: { $first: `$updatedAt` },
-                    interests: {$first:"$interests"}
+                    interests: {$first:"$interests"},
+                    owner: {$first:"$owner"}
                 }
             },
             {
@@ -677,7 +678,7 @@ EventSchema.static({
                 $project: {
                     createdAt: 1,
                     updatedAt: 1,
-                    owner:{$arrayElemAt:["$_owner",0]},
+                    owner:"$_owner",
                     isActive: "$isActive",
                     _id: 0,
                     id: "$_id",
