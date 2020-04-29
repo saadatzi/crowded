@@ -2,9 +2,17 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const OrganizationSchema = new Schema({
-    name: {type: String, unique: true, required: [true, "can't be blank"]},
+    title_en: {type: String, unique: true, required: [true, "can't be blank"]},
+    title_ar: {type: String, unique: true, required: [true, "can't be blank"]},
     status: {type: Number, default: 1},
+    image: { type: String, default: '' },
+    address_en: {type:String, default:''},
+    address_ar: {type:String, default:''},
+    phones: [{
+        type: String
+    }]
 }, {timestamps: true});
+    
 
 /**
  * Pre-remove hook
