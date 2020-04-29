@@ -181,6 +181,8 @@ RoleSchema.static({
                 needPermissions.map(np => {
                     const perName = Object.keys(np)[0];
                     const perValue = Object.values(np)[0];
+                    const arrValue = perValue.toUpperCase().split('');
+
                     console.warn('>>>>>>> needPermissions', np);
                     console.warn('>>>>>>> perValue', perValue);
                     permissions.map(permission => {
@@ -188,9 +190,10 @@ RoleSchema.static({
                         console.warn('>>>>>>> findPermission', findPermission);
                         if (findPermission) {
                             const arrayAccess = Array.from(String((findPermission.access).toString(2)), Number);
-
-
                             const len = arrayAccess.length;
+                            arrValue.map(value => {
+                                
+                            })
                         }
 
                     })
