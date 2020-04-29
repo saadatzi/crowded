@@ -168,18 +168,21 @@ roleController.prototype.update = async (optFilter, newValue) => {
  */
 roleController.prototype.authorize = async (userId, permissions) => {
     let conceptualization = [];
+    let perName = [];
+    let perValue = [];
     permissions.map(per => {
-
+        perName.push(Object.keys(per)[0]);
+        perValue.push(Object.values(per)[0])
     });
-    return await Role.authorize(userId, permissions)
+    return await Role.authorize(userId, permissions, perName, perValue)
         .then(result => {
-            console.log("***Role Authorize success result %j", result);
+            console.log("***Role  authorize Controller: ", result);
             return result;
         })
         .catch(err => {
             console.log("!!!Role Authorize failed: ", err);
             throw err;
-        })
+        });
 };
 
 module.exports = new roleController();

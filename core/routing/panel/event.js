@@ -142,7 +142,7 @@ router.put('/edit', joiValidate(updateSchema), verifyTokenPanel(), async (req, r
  * @return Events
  */
 //______________________Get Event_____________________//
-router.post('/', verifyTokenPanel(), async (req, res) => {
+router.post('/', verifyTokenPanel(), authorization([{EVENT:'R'}]), async (req, res) => {
     console.info('API: Get event/init %j', {body: req.body});
 
     eventController.getAll(req.body)
