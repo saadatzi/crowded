@@ -12,7 +12,11 @@ const {joiValidate} = require('./../utils');
 
 
 const addSchema = Joi.object().keys({
-    name:           JoiConfigs.title,
+    title_en:           JoiConfigs.title,
+    title_ar:           JoiConfigs.title,
+    address_en:         JoiConfigs.title,
+    address_ar:         JoiConfigs.title,
+    phones:             Joi.array().items(JoiConfigs.phone),
 });
 
 
@@ -28,7 +32,7 @@ const updateSchema = Joi.object().keys({
  * @return status
  */
 //______________________Add Organization_____________________//
-router.post('/add', joiValidate(addSchema), verifyTokenPanel(), async (req, res) => {
+router.post('/add', uploader, joiValidate(addSchema), verifyTokenPanel(), async (req, res) => {
     console.info('API: Add Organization/init %j', {body: req.body});
 
     organizationController.add(req.body)
