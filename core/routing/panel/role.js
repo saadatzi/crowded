@@ -104,33 +104,35 @@ router.get('/', verifyTokenPanel(), async (req, res) => {
         })
 });
 
-//TODO check Authorize
-router.get('/auth', verifyTokenPanel(), async (req, res) => {
-    console.info('API: Authorize check/init');
-
-    roleController.authorize([{ROLE:['create']}])
-        .then(roles => {
-            new NZ.Response(roles).send(res);
-        })
-        .catch(err => {
-            console.error("Role List Catch err:", err);
-            new NZ.Response(null, err.message, err.code || 500).send(res);
-        })
-});
+// router.get('/auth', verifyTokenPanel(), async (req, res) => {
+//     console.info('API: Authorize check/init');
+//
+//     roleController.authorize([{ROLE:['create']}])
+//         .then(roles => {
+//
+//             new NZ.Response({items: roles}).send(res);
+//         })
+//         .catch(err => {
+//             console.error("Role List Catch err:", err);
+//             new NZ.Response(null, err.message, err.code || 500).send(res);
+//         })
+// });
 
 
 /**
  *  Test Authorization
  * @return status
  */
-//______________________Update Role_____________________//
+//TODO check Authorize
+//______________________Test Authorization Role_____________________//
 router.post('/authTest', verifyTokenPanel(), async (req, res) => {
     console.info('API: Test Authorization Role/init %j', {body: req.body});
     console.info('API: Test Authorization Role/init userId', req.userId);
 
     roleController.authorize(req.userId, req.body)
-        .then(role => {
-            new NZ.Response(null, role ? 'Role Test Authorization!' : 'Not found!', role ? 200 : 404 ).send(res);
+        .then(roles => {
+            console.log(">>>>>>>>>>>>>>>> Role Authorize ROUT success result %j", roles);
+            new NZ.Response({items: roles}).send(res);
         })
         .catch(err => {
             console.error("Role Test Authorization Catch err:", err)

@@ -100,17 +100,19 @@ RoleSchema.static({
      *
      * @param {ObjectId} userId
      * @param {Array} needPermissions
+     * @param {Array} perNameNeed
      * @api private
      */
-    async authorize(userId, needPermissions) {
+    async authorize(userId, needPermissions, perNameNeed) {
         return await this.aggregate([
             {$match: {status: 1}},
             {
                 $lookup: {
-                    from: 'agents',
+                    from: 'admins',
                     let: {primaryRole: '$_id'},
                     pipeline: [
                         {$match: {_id: mongoose.Types.ObjectId(userId)}},
+                        {$unwind: "$role"},
                         {$match: {$expr: {$eq: ['$$primaryRole', "$role"]}}},
                         {$project: {_id: 0, status: '$status', name: '$name'}},
                     ],
@@ -118,44 +120,88 @@ RoleSchema.static({
                 }
             },
             {$unwind: {path: "$getUser", preserveNullAndEmptyArrays: false}},
-            // {
-            //     $lookup: {
-            //         from: 'permissions',
-            //         localField: 'permissions.permissionId',
-            //         foreignField: '_id',
-            //         as: 'perName'
-            //     }
-            // },
-            // {$unwind: "$permissions"},
-            // {
-            //     $group: {
-            //         _id: "$_id",
-            //         permissions: {
-            //             $push: {
-            //                 title: {$arrayElemAt: ['$perName.title', 0]},
-            //                 // accessLevel: {$binLevel2Bool: '$permissions.accessLevel'},
-            //                 accessLevelNum: '$permissions.accessLevel'
-            //             }
-            //         },
-            //         name: {$first: `$name`},
-            //         status: {$first: `$status`},
-            //     }
-            // },
             {
-                $project: {
-                    _id: 0,
-                    id: '$_id',
-                    getUser: "$getUser",
-                    // permissions: 1,
-                    // status: 1,
+                $lookup: {
+                    from: 'permissions',
+                    let: {primaryPermissions: '$permissions'},
+                    pipeline: [
+                        {$match: {title: {$in: perNameNeed}}},
+                        // {$match: {$expr: {$eq: ["$_id", '$$primaryPermissions']}}},
+                        {$project: {_id: 0, perId: "$_id", title: 1}},
+                    ],
+                    as: 'getPermissionsId'
+                }
+            },
+            {$unwind: "$permissions"},
+            {$unwind: "$getPermissionsId"},
+            {$redact: {$cond: [{
+                        $eq: [
+                            "$permissions.permissionId",
+                            "$getPermissionsId.perId",
+                        ]
+                    },
+                        "$$KEEP",
+                        "$$PRUNE",
+                    ]
+                }
+            },
+            {$project: {
+                    name: 1,
+                    status: 1,
+                    newPermission: {
+                        title: "$getPermissionsId.title",
+                        access: "$permissions.accessLevel",
+                        id: "$permissions.permissionId"
+                    }
+                }
+            },
+
+            {
+                $group: {
+                    _id: '$_id',
+
+                    name: {$first: `$name`},
+                    status: {$first: `$status`},
+                    perResult: {$push: '$newPermission'}
                 }
             },
         ])
-            .then(result => {
-                // result.map(r => {
-                //     r.permissions.map(rp => rp.accesssLevel = binLevel2Bool(rp.accessLevelNum))
-                // });
-                return result;
+            .then(permissions => {
+                /*
+
+
+                return {
+                    create: !!arrayAccess[len - 4],
+                    read: !!arrayAccess[len - 3],
+                    update: !!arrayAccess[len - 2],
+                    delete: !!arrayAccess[len - 1]
+    }
+                * */
+                let isAccess = false;
+                needPermissions.map(np => {
+                    const perName = Object.keys(np)[0];
+                    const perValue = Object.values(np)[0];
+                    const arrValue = perValue.toUpperCase().split('');
+
+                    console.warn('>>>>>>> needPermissions', np);
+                    console.warn('>>>>>>> perValue', perValue);
+                    permissions.map(permission => {
+                        const findPermission = permission.perResult.find(find => find.title === perName);
+                        console.warn('>>>>>>> findPermission', findPermission);
+                        if (findPermission) {
+                            const arrayAccess = Array.from(String((findPermission.access).toString(2)), Number);
+                            const len = arrayAccess.length;
+                            arrValue.map(value => {
+                                
+                            })
+                        }
+
+                    })
+
+
+                    // r.permissions.map(rp => rp.accesssLevel = binLevel2Bool(rp.accessLevelNum))
+                });
+                return permissions;
             })
             .catch(err => console.error("Role List  Catch", err));
     },
@@ -187,6 +233,10 @@ function binLevel2Bool(number) {
         update: !!arrayAccess[len - 2],
         delete: !!arrayAccess[len - 1]
     }
+}
+
+function accessToNumber(access) {
+
 }
 
 const Role = mongoose.model('Role', RoleSchema);

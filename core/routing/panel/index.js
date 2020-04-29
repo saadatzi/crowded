@@ -4,7 +4,7 @@ const bodyParser = require('body-parser');
 const NZ = require('../../utils/nz');
 const {getForgotHash} = require('../../utils/cacheLayer');
 const userController = require('../../controllers/user');
-const agentController = require('../../controllers/agent');
+const agentController = require('../../controllers/admin');
 app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
 app.use(bodyParser.json({limit: '5mb'}));
 

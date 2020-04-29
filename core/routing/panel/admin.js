@@ -2,7 +2,7 @@ const express = require('express')
     , router = express.Router();
 
 // Instantiate the Device Model
-const agentController = require('../../controllers/agent');
+const adminController = require('../../controllers/admin');
 const userController = require('../../controllers/user');
 const NZ = require('../../utils/nz');
 const {sign, verifyTokenPanel} = require('../../utils/validation');
@@ -30,7 +30,7 @@ const addSchema = Joi.object().keys({
 
 
 const updateSchema = Joi.object().keys({
-    agentId: JoiConfigs.isMongoId,
+    adminId: JoiConfigs.isMongoId,
     name: JoiConfigs.title,
     password: JoiConfigs.password,
     role: JoiConfigs.arrayLength(1, 50, JoiConfigs.isMongoId),
@@ -55,7 +55,7 @@ const forgotSchema = Joi.object().keys({
 router.post('/login', joiValidate(loginSchema, 0), async (req, res) => {
     console.info('API: Login Panel User/init %j', {body: req.body});
 
-    agentController.auth(req.body.email, req.body.password)
+    adminController.auth(req.body.email, req.body.password)
         .then(user => {
             const token = sign({userId: user.id});
             new NZ.Response({user, token}).send(res);
@@ -81,39 +81,39 @@ router.get('/logout', verifyTokenPanel(), async (req, res) => {
 
 
 /**
- *  Add Agent
- * -add Agent in db
+ *  Add Admin
+ * -add Admin in db
  * @return status 5e9fa191c12938e496a23480
  */
-//______________________Add Agent_____________________//
+//______________________Add Admin_____________________//
 router.post('/add', joiValidate(addSchema, 0), verifyTokenPanel(), async (req, res) => {
-    console.info('API: Add Agent/init %j', {body: req.body});
+    console.info('API: Add Admin/init %j', {body: req.body});
 
-    agentController.add(req.body)
-        .then(agent => {
-            new NZ.Response(true, 'Agent has been successfully added!').send(res);
+    adminController.add(req.body)
+        .then(admin => {
+            new NZ.Response(true, 'Admin has been successfully added!').send(res);
         })
         .catch(err => {
-            console.error("Agent Add Catch err:", err);
+            console.error("Admin Add Catch err:", err);
             new NZ.Response(null, err.message, err.code || 500).send(res);
         })
 });
 
 /**
- *  Update Agent
- * -update Agent in db
+ *  Update Admin
+ * -update Admin in db
  * @return status
  */
-//______________________Update Agent_____________________//
+//______________________Update Admin_____________________//
 router.put('/update', joiValidate(updateSchema, 0), verifyTokenPanel(), async (req, res) => {
-    console.info('API: update Agent/init %j', {body: req.body});
+    console.info('API: update Admin/init %j', {body: req.body});
 
-    agentController.update(req.body.agentId, req.body.permissions)
-        .then(agent => {
-            new NZ.Response(agent, agent ? 'Agent has been successfully update!' : 'Not found!', agent ? 200 : 404).send(res);
+    adminController.update(req.body.adminId, req.body.permissions)
+        .then(admin => {
+            new NZ.Response(admin, admin ? 'Admin has been successfully update!' : 'Not found!', admin ? 200 : 404).send(res);
         })
         .catch(err => {
-            console.error("Agent update Catch err:", err);
+            console.error("Admin update Catch err:", err);
             new NZ.Response(null, err.message, err.code || 500).send(res);
         })
 });
@@ -126,7 +126,7 @@ router.post('/forgotPassword', joiValidate(forgotSchema, 0), async (req, res) =>
     console.info('API: Forgot Password Admin/init %j', {body: req.body});
 
 
-    agentController.get(req.body.email)
+    adminController.get(req.body.email)
         .then(async user => {
             let email = '';
             if (user) {
@@ -168,7 +168,7 @@ router.post('/forgotPassword', joiValidate(forgotSchema, 0), async (req, res) =>
  * -update Password
  * @return template reset password
  */
-//______________________Update Agent_____________________//
+//______________________Update Admin_____________________//
 router.post('/reset-password/:token', async (req, res) => {
     const userId = await getForgotHash(req.params.token);
 
