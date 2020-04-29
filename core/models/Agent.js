@@ -74,7 +74,7 @@ AgentSchema.method({
         console.log("!!!!!!!!Agent comparePassword candidatePassword: ", candidatePassword);
         return await bcrypt.compare(candidatePassword, this.password)
             .then(isMatch => isMatch)
-            .catch(err => console.log("!!!!!!!!Agent getById catch err: ", err));
+            .catch(err => console.log("!!!!!!!!comparePassword bcrypt.compare getById catch err: ", err));
     },
     async incLoginAttempts() {
         //TODO add log Attempts to Array{ip, time, ...}
@@ -108,7 +108,7 @@ AgentSchema.method({
             id: this._id,
             email: this.email,
             name: this.name,
-            organization: this.organizationId.name,
+            organization: this.organizationId,
             call: this.call,
         };
     }
@@ -157,7 +157,7 @@ AgentSchema.static({
                             throw {code: 401, message: "Max Attempts!"}
                         })
                         .catch(err => {
-                            console.log("!!!!!!!!Agent getById catch err: ", err);
+                            console.log("!!!!!!!!Admin getAuthenticated user.isLocked getById catch err: ", err);
                             throw err;
                         })
                 }
@@ -175,7 +175,7 @@ AgentSchema.static({
                                     return user.dto();
                                 })
                                 .catch(err => {
-                                    console.error("!!!!!!!!Agent getById catch err: ", err);
+                                    console.error("!!!!!!!!Admin isMatch user.updateOne getById catch err: ", err);
                                     throw err;
                                 })
 
@@ -187,13 +187,13 @@ AgentSchema.static({
                                 throw {code: 401, message: "Password is incorrect!"}
                             })
                             .catch(err => {
-                                console.log("!!!!!!!!Agent getById catch err: ", err);
+                                console.log("!!!!!!!!Admin incLoginAttempts getById catch err: ", err);
                                 throw err;
                             })
 
                         })
                     .catch(err => {
-                        console.log("!!!!!!!!Agent getById catch err: ", err);
+                        console.log("!!!!!!!!Admin getAuthenticated comparePassword getById catch err: ", err);
                         throw err;
                     })
 

@@ -170,7 +170,7 @@ const dto = user => {
         sex: user.sex,
         birthDate: user.birthDate,
         nationality: user.nationality,
-        image: user.image ? `${settings.cdn_domain}${user.image}` : null,
+        image: user.image ? {url:`${settings.cdn_domain}${user.image}`} : null,
     }
 };
 userController.prototype.dto = dto;

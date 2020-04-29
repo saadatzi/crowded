@@ -166,10 +166,10 @@ RoleSchema.static({
                 }
             },
         ])
-            .then(result => {
+            .then(permissions => {
                 /*
-                const arrayAccess = Array.from(String((number).toString(2)), Number);
-                const len = arrayAccess.length;
+
+
                 return {
                     create: !!arrayAccess[len - 4],
                     read: !!arrayAccess[len - 3],
@@ -177,10 +177,28 @@ RoleSchema.static({
                     delete: !!arrayAccess[len - 1]
     }
                 * */
-                // result.map(r => {
-                //     r.permissions.map(rp => rp.accesssLevel = binLevel2Bool(rp.accessLevelNum))
-                // });
-                return result;
+                let isAccess = false;
+                needPermissions.map(np => {
+                    const perName = Object.keys(np)[0];
+                    const perValue = Object.values(np)[0];
+                    console.warn('>>>>>>> needPermissions', np);
+                    console.warn('>>>>>>> perValue', perValue);
+                    permissions.map(permission => {
+                        const findPermission = permission.perResult.find(find => find.title === perName);
+                        console.warn('>>>>>>> findPermission', findPermission);
+                        if (findPermission) {
+                            const arrayAccess = Array.from(String((findPermission.access).toString(2)), Number);
+
+
+                            const len = arrayAccess.length;
+                        }
+
+                    })
+
+
+                    // r.permissions.map(rp => rp.accesssLevel = binLevel2Bool(rp.accessLevelNum))
+                });
+                return permissions;
             })
             .catch(err => console.error("Role List  Catch", err));
     },
@@ -212,6 +230,10 @@ function binLevel2Bool(number) {
         update: !!arrayAccess[len - 2],
         delete: !!arrayAccess[len - 1]
     }
+}
+
+function accessToNumber(access) {
+
 }
 
 const Role = mongoose.model('Role', RoleSchema);
