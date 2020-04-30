@@ -10,7 +10,6 @@ const {verifyTokenPanel} = require('../../utils/validation');
 const Joi = require('@hapi/joi');
 const JoiConfigs = require('./../joiConfigs');
 const {joiValidate} = require('./../utils');
-const {uploader, multiUploader} = require('../../utils/fileManager');
 
 
 
