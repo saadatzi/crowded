@@ -5,81 +5,37 @@ const moment = require('moment-timezone');
 const areaController = require('../controllers/area');
 // mongoose.Types.ObjectId.isValid()
 const EventSchema = new Schema({
-    owner: { type: Schema.Types.ObjectId, ref: 'Admin' },
+    owner: {type: Schema.Types.ObjectId, ref: 'Admin'},
     title_ar: String,
     title_en: String,
     desc_ar: String,
     desc_en: String,
     images: [{
         url: String,
-        order: { type: Number, default: 1 },
+        order: {type: Number, default: 1},
     }],
-    interests: [{ type: Schema.Types.ObjectId, ref: 'Interest' }],
-    value: { type: Schema.Types.Decimal128, default: 0 },
-    attendance: { type: Number, default: 0 }, //Minute
+    interests: [{type: Schema.Types.ObjectId, ref: 'Interest'}],
+    value: {type: Schema.Types.Decimal128, default: 0},
+    attendance: {type: Number, default: 0}, //Minute
     from: Date,
     to: Date,
-    area: { type: Schema.Types.ObjectId, ref: 'Area', required: true },
+    area: {type: Schema.Types.ObjectId, ref: 'Area', required: true},
     address_ar: String,
     address_en: String,
     location: {
-        type: { type: String, enum: ['Point', 'LineString', 'Polygon' /*& multi*/], default: 'Point' },
-        coordinates: { type: [Number], default: [0, 0] }
+        type: {type: String, enum: ['Point', 'LineString', 'Polygon' /*& multi*/], default: 'Point'},
+        coordinates: {type: [Number], default: [0, 0]}
     },
-    status: { type: Number, default: 0 }, // 1 active, 0 deActive, 2 softDelete, 3 hardDelete
+    status: {type: Number, default: 0}, // 1 active, 0 deActive, 2 softDelete, 3 hardDelete
     // allowedApplyTime: Date
-}, { timestamps: true });
+}, {timestamps: true});
 
 //index for geo location
-EventSchema.index({ location: '2dsphere' });
+EventSchema.index({location: '2dsphere'});
 
 // index for search
-EventSchema.index({ title_en: 'text' });
+EventSchema.index({title_en: 'text'});
 
-
-/*
-//get enum value
-console.log(use.schema.path('salutation').enumValues);
-
-
-
-* Restaurants.aggregate([
-   {
-     $geoNear: {
-        near: {
-          type: "Point",
-          coordinates: [ long , lat]
-        },
-        distanceField: "dist.calculated",
-        maxDistance: 2,
-        spherical: true
-     }
-   }
-  ],(err,data)=>{
-   if(err) {
-     next(err);
-     return;
-   }
-   res.send(data);
- })
-});
-*
-*
-* Message.find({
-  location: {
-   $near: {
-    $maxDistance: 1000,
-    $geometry: {
-     type: "Point",
-     coordinates: [long, latt]
-    }
-   }
-  }
- }).find((error, results) => {
-  if (error) console.log(error);
-  console.log(JSON.stringify(results, 0, 2));
- });
-* */
 
 /**
  * Pre-remove hook
@@ -98,7 +54,9 @@ EventSchema.pre('save', function (next) {
     var event = this;
     if (!event.isNew && !event.images[event.images.length - 1].order) {
         console.log(">>>>>>>>>>>>>> pre save AddImage event: ", event);
-        const maxOrder = Math.max.apply(Math, event.images.map(function (o) { return o.order }))
+        const maxOrder = Math.max.apply(Math, event.images.map(function (o) {
+            return o.order
+        }))
         event.images[event.images.length - 1].order = maxOrder + 1;
     }
     next();
@@ -117,7 +75,7 @@ EventSchema.method({
             value: this.value.toString(),
             attendance: this.attendance,
             date: {
-                day: { $dayOfMonth: { date: "$from", timezone: "Asia/Kuwait" } },
+                day: {$dayOfMonth: {date: "$from", timezone: "Asia/Kuwait"}},
                 month: {
                     $arrayElemAt: [settings.constant.monthNamesShort, {
                         $month: {
@@ -126,8 +84,8 @@ EventSchema.method({
                         }
                     }]
                 },
-                from: { $dateToString: { date: `$from`, timezone: "Asia/Kuwait", format: "%H:%M" } },
-                to: { $dateToString: { date: `$to`, timezone: "Asia/Kuwait", format: "%H:%M" } }
+                from: {$dateToString: {date: `$from`, timezone: "Asia/Kuwait", format: "%H:%M"}},
+                to: {$dateToString: {date: `$to`, timezone: "Asia/Kuwait", format: "%H:%M"}}
             },
             area: area,
             address: this[`address_${lang}`],
@@ -146,7 +104,7 @@ EventSchema.static({
      * @api private
      */
     getById: function (_id) {
-        return this.findById({ _id })
+        return this.findById({_id})
             .then(event => event)
             .catch(err => console.log("!!!!!!!! Event getById catch err: ", err))
     },
@@ -162,39 +120,39 @@ EventSchema.static({
      * @api private
      */
     getByIdAggregate: async function (id, lang, isApproved, userEventState = null) {
-        const criteria = { _id: mongoose.Types.ObjectId(id) };
+        const criteria = {_id: mongoose.Types.ObjectId(id)};
         console.log("!!!!!!!! getEvent criteria: ", criteria);
         return await this.aggregate([
             // {$lookup: {from: 'areas', localField: 'area', foreignField: `childs._id`, as: 'getArea'}}, //from: collection Name  of mongoDB
             {
                 $lookup: {
                     from: 'areas',
-                    let: { 'primaryArea': '$area' },
+                    let: {'primaryArea': '$area'},
                     pipeline: [
-                        { $match: { $expr: { $in: ["$$primaryArea", "$childs._id"] } } },
-                        { $unwind: "$childs" },
-                        { $match: { $expr: { $eq: ["$childs._id", "$$primaryArea"] } } }
+                        {$match: {$expr: {$in: ["$$primaryArea", "$childs._id"]}}},
+                        {$unwind: "$childs"},
+                        {$match: {$expr: {$eq: ["$childs._id", "$$primaryArea"]}}}
                     ],
                     as: 'getArea'
                 }
             },
-            { $match: criteria },
-            { $unwind: "$images" },
-            { $sort: { 'images.order': 1 } },
+            {$match: criteria},
+            {$unwind: "$images"},
+            {$sort: {'images.order': 1}},
             // {$replaceRoot: { newRoot: { $mergeObjects: [ { $arrayElemAt: [ "$area", 0 ] }, "$$ROOT" ] } }},
             {
                 $group: {
                     _id: "$_id",
-                    images: { $push: { url: { $concat: [settings.media_domain, "$images.url"] } } }, //$push
-                    title: { $first: `$title_${lang}` },
-                    desc: { $first: `$desc_${lang}` },
-                    value: { $first: { $toString: "$value" } },
-                    attendance: { $first: `$attendance` },
-                    from: { $first: `$from` },
-                    to: { $first: `$to` },
-                    getArea: { $first: `$getArea.childs.name_${lang}` }, //
-                    _address: { $first: `$address_${lang}` },
-                    coordinates: { $first: `$location.coordinates` },
+                    images: {$push: {url: {$concat: [settings.media_domain, "$images.url"]}}}, //$push
+                    title: {$first: `$title_${lang}`},
+                    desc: {$first: `$desc_${lang}`},
+                    value: {$first: {$toString: "$value"}},
+                    attendance: {$first: `$attendance`},
+                    from: {$first: `$from`},
+                    to: {$first: `$to`},
+                    getArea: {$first: `$getArea.childs.name_${lang}`}, //
+                    _address: {$first: `$address_${lang}`},
+                    coordinates: {$first: `$location.coordinates`},
 
                 }
             },
@@ -219,7 +177,7 @@ EventSchema.static({
                                             timezone: "Asia/Kuwait"
                                         }
                                     }]
-                                }, ' ', { $toString: { $dayOfMonth: { date: "$from", timezone: "Asia/Kuwait" } } }
+                                }, ' ', {$toString: {$dayOfMonth: {date: "$from", timezone: "Asia/Kuwait"}}}
                             ]
                         },
                         month: {
@@ -230,10 +188,10 @@ EventSchema.static({
                                 }
                             }]
                         },
-                        from: { $dateToString: { date: `$from`, timezone: "Asia/Kuwait", format: "%H:%M" } },
-                        to: { $dateToString: { date: `$to`, timezone: "Asia/Kuwait", format: "%H:%M" } }
+                        from: {$dateToString: {date: `$from`, timezone: "Asia/Kuwait", format: "%H:%M"}},
+                        to: {$dateToString: {date: `$to`, timezone: "Asia/Kuwait", format: "%H:%M"}}
                     },
-                    address: isApproved ? { $concat: [{ $arrayElemAt: ['$getArea', 0] }, ', ', "$_address"] } : { $arrayElemAt: ['$getArea', 0] },
+                    address: isApproved ? {$concat: [{$arrayElemAt: ['$getArea', 0]}, ', ', "$_address"]} : {$arrayElemAt: ['$getArea', 0]},
                     coordinates: isApproved ? 1 : null,
                 }
             },
@@ -256,7 +214,7 @@ EventSchema.static({
         const limit = settings.event.limitPage;
 
         criteria.status = 1;
-        criteria.allowedApplyTime = { $gt: new Date() };
+        criteria.allowedApplyTime = {$gt: new Date()};
 
         const sortNearDate = options.lat ? {
             $geoNear: {
@@ -268,25 +226,25 @@ EventSchema.static({
                 maxDistance: 3000000,
                 spherical: true
             }
-        } : { $sort: { value: -1 } };
+        } : {$sort: {value: -1}};
 
 
         return await this.aggregate([
             // {$lookup: {from: 'areas', localField: 'area', foreignField: `childs._id`, as: 'getArea'}}, //from: collection Name  of mongoDB
             sortNearDate,
-            { $match: criteria },
-            { $skip: limit * page },
-            { $limit: limit + 1 },
-            { $unwind: "$images" },
-            { $sort: { 'images.order': 1 } },
+            {$match: criteria},
+            {$skip: limit * page},
+            {$limit: limit + 1},
+            {$unwind: "$images"},
+            {$sort: {'images.order': 1}},
             {
                 $lookup: {
                     from: 'areas',
-                    let: { 'primaryArea': '$area' },
+                    let: {'primaryArea': '$area'},
                     pipeline: [
-                        { $match: { $expr: { $in: ["$$primaryArea", "$childs._id"] } } },
-                        { $unwind: "$childs" },
-                        { $match: { $expr: { $eq: ["$childs._id", "$$primaryArea"] } } }
+                        {$match: {$expr: {$in: ["$$primaryArea", "$childs._id"]}}},
+                        {$unwind: "$childs"},
+                        {$match: {$expr: {$eq: ["$childs._id", "$$primaryArea"]}}}
                     ],
                     as: 'getArea'
                 }
@@ -296,20 +254,20 @@ EventSchema.static({
             {
                 $group: {
                     _id: "$_id",
-                    image: { $first: { url: { $concat: [settings.media_domain, "$images.url"] } } }, //$push
-                    title: { $first: `$title_${options.lang}` },
+                    image: {$first: {url: {$concat: [settings.media_domain, "$images.url"]}}}, //$push
+                    title: {$first: `$title_${options.lang}`},
                     // dec: {$first: `$desc_${options.lang}`},
-                    value: { $first: { $toString: "$value" } },
+                    value: {$first: {$toString: "$value"}},
                     // attendance: {$first: `$attendance`},
-                    from: { $first: `$from` },
-                    to: { $first: `$to` },
+                    from: {$first: `$from`},
+                    to: {$first: `$to`},
                     // createdAt: {$first: `$createdAt`},
                     // allowedApplyTime: {$first: `$allowedApplyTime`},
                     // date: {$first: moment.tz("$from", 'Asia/Kuwait').format('YYYY-MM-DD HH:MM')},
                     // date: {$first: {$dateToString: {date: `$to`, timezone: "Asia/Kuwait", format: "%m-%d-%Y"}}},
-                    getArea: { $first: `$getArea.childs.name_${options.lang}` }, //
-                    address: { $first: `$address_${options.lang}` },
-                    distance: { $first: "$distance" }
+                    getArea: {$first: `$getArea.childs.name_${options.lang}`}, //
+                    address: {$first: `$address_${options.lang}`},
+                    distance: {$first: "$distance"}
 
                 }
             },
@@ -320,13 +278,13 @@ EventSchema.static({
                     title: 1,
                     image: 1,
                     // dec: 1,
-                    area: { $arrayElemAt: ['$getArea', 0] },
+                    area: {$arrayElemAt: ['$getArea', 0]},
                     value: 1,
                     count: 1,
                     // attendance: 1,
                     //{$dateToString: {date: `$to`, timezone: "Asia/Kuwait", format: "%m-%d"}}
                     date: {
-                        day: { $toString: { $dayOfMonth: { date: "$from", timezone: "Asia/Kuwait" } } },
+                        day: {$toString: {$dayOfMonth: {date: "$from", timezone: "Asia/Kuwait"}}},
                         month: {
                             $arrayElemAt: [settings.constant.monthNamesShort, {
                                 $month: {
@@ -335,8 +293,8 @@ EventSchema.static({
                                 }
                             }]
                         },
-                        from: { $dateToString: { date: `$from`, timezone: "Asia/Kuwait", format: "%H:%M" } },
-                        to: { $dateToString: { date: `$to`, timezone: "Asia/Kuwait", format: "%H:%M" } }
+                        from: {$dateToString: {date: `$from`, timezone: "Asia/Kuwait", format: "%H:%M"}},
+                        to: {$dateToString: {date: `$to`, timezone: "Asia/Kuwait", format: "%H:%M"}}
                         // from: {$concat: [{$toString: {$hour: "$from"}}, ":", {$toString: {$minute: "$from"}}]},
                         // to: {$concat: [{$toString: {$hour: {$dateToString: {date: `$to`, timezone: "Asia/Kuwait", format: "%H:%M"}}}}, ":", {$toString: {$minute: {$dateToString: {date: `$to`, timezone: "Asia/Kuwait", format: "%m-%d"}}}}]},
                     },
@@ -347,7 +305,7 @@ EventSchema.static({
                     // address: 1
                 }
             },
-            { $sort: { value: -1 } }
+            {$sort: {value: -1}}
             // {$sort: {id: -1}},
         ])
             // .exec()
@@ -368,10 +326,10 @@ EventSchema.static({
     getAllMyEvent: async function (userId, lang, page, isPrevious, dateFilter) {
         const criteria = {
             status: 1,
-            from: isPrevious ? { $lt: new Date() } : { $gte: new Date() } // after now & before now
+            from: isPrevious ? {$lt: new Date()} : {$gte: new Date()} // after now & before now
         };
 
-        if (dateFilter) criteria.from = { $gte: dateFilter.startMonth, $lt: dateFilter.endMonth };
+        if (dateFilter) criteria.from = {$gte: dateFilter.startMonth, $lt: dateFilter.endMonth};
 
         //TODO .find date range
         /*criteria.from = {
@@ -388,35 +346,35 @@ EventSchema.static({
         console.log(">>>>>>>>>>> getAllMyEvent userId: ", userId);
         console.log(">>>>>>>>>>> getAllMyEvent criteria: ", criteria);
         return await this.aggregate([
-            { $match: criteria },
+            {$match: criteria},
             {
                 $lookup: {
                     from: 'userevents',
-                    let: { primaryEventId: "$_id" },
+                    let: {primaryEventId: "$_id"},
                     pipeline: [
-                        { $match: { userId: mongoose.Types.ObjectId(userId) } },
-                        { $match: { $expr: { $eq: ["$$primaryEventId", "$eventId"] } } },
-                        { $project: { _id: 0, status: "$status" } },
+                        {$match: {userId: mongoose.Types.ObjectId(userId)}},
+                        {$match: {$expr: {$eq: ["$$primaryEventId", "$eventId"]}}},
+                        {$project: {_id: 0, status: "$status"}},
                     ],
                     as: 'getUserEvents'
                 }
             },
-            { $unwind: { path: "$getUserEvents", preserveNullAndEmptyArrays: false } },
-            { $sort: { createdAt: -1 } },
-            { $skip: limit * page },
-            { $limit: limit + 1 },
-            { $unwind: "$images" },
-            { $sort: { 'images.order': 1 } },
+            {$unwind: {path: "$getUserEvents", preserveNullAndEmptyArrays: false}},
+            {$sort: {createdAt: -1}},
+            {$skip: limit * page},
+            {$limit: limit + 1},
+            {$unwind: "$images"},
+            {$sort: {'images.order': 1}},
             {
                 $group: {
                     _id: "$_id",
-                    image: { $first: { url: { $concat: [settings.media_domain, "$images.url"] } } }, //$push
-                    title: { $first: `$title_${lang}` },
-                    value: { $first: { $toString: "$value" } },
-                    attendance: { $first: `$attendance` },
-                    from: { $first: `$from` },
-                    to: { $first: `$to` },
-                    userEventStatus: { $first: `$getUserEvents.status` }
+                    image: {$first: {url: {$concat: [settings.media_domain, "$images.url"]}}}, //$push
+                    title: {$first: `$title_${lang}`},
+                    value: {$first: {$toString: "$value"}},
+                    attendance: {$first: `$attendance`},
+                    from: {$first: `$from`},
+                    to: {$first: `$to`},
+                    userEventStatus: {$first: `$getUserEvents.status`}
                 }
             },
             {
@@ -429,7 +387,7 @@ EventSchema.static({
                     value: 1,
                     attendance: 1,
                     date: {
-                        day: { $toString: { $dayOfMonth: { date: "$from", timezone: "Asia/Kuwait" } } },
+                        day: {$toString: {$dayOfMonth: {date: "$from", timezone: "Asia/Kuwait"}}},
                         month: {
                             $arrayElemAt: [settings.constant.monthNamesShort, {
                                 $month: {
@@ -457,7 +415,7 @@ EventSchema.static({
                                     }]
                                 },
                                 ' ',
-                                { $toString: { $dayOfMonth: { date: "$from", timezone: "Asia/Kuwait" } } },
+                                {$toString: {$dayOfMonth: {date: "$from", timezone: "Asia/Kuwait"}}},
                                 ' ',
                                 {
                                     $arrayElemAt: [settings.constant.monthNames, {
@@ -469,15 +427,15 @@ EventSchema.static({
                                 },
                             ]
                         },
-                        from: { $dateToString: { date: `$from`, timezone: "Asia/Kuwait", format: "%H:%M" } },
-                        to: { $dateToString: { date: `$to`, timezone: "Asia/Kuwait", format: "%H:%M" } }
+                        from: {$dateToString: {date: `$from`, timezone: "Asia/Kuwait", format: "%H:%M"}},
+                        to: {$dateToString: {date: `$to`, timezone: "Asia/Kuwait", format: "%H:%M"}}
                     },
                     // getUserEvents: 1,
                     userEventStatus: 1
                     // _eventIds: 1,
                 }
             },
-            { $sort: { id: -1 } },
+            {$sort: {id: -1}},
         ])
             // .exec()
             .then(events => {
@@ -488,14 +446,17 @@ EventSchema.static({
     },
 
     /**
-     * Event list
+     * Event list OWN/Any
      */
-    async list(optFilter) {
+    async listOwnAny(userId, optFilter, accessLevel) {
+
+        const ownAny = accessLevel === 'OWN' ? {owner: mongoose.Types.ObjectId(userId)} : {};
 
         // TODO: enable search
         optFilter.search = optFilter.search || "";
         optFilter.filters = optFilter.filters || {
-            status: 1
+            //TODO s.mahdi: dont need in panel
+            //// status: 1
         };
         optFilter.sorts = optFilter.sorts || {
             title_en: 1
@@ -505,51 +466,164 @@ EventSchema.static({
             limit: 12
         };
 
-        // TODO: do it the right way
-        // Absolutely not a rational decision - Kazem
-        // Didn't have time to do it the right way - Kazem
-        let total = await this.aggregate([
-            // { $match: { $text: { $search: optFilter.search } } },
-            { $match: optFilter.filters },
-            // { $sort: { score: { $meta: "textScore" } } },
-            { $count: 'total' },
-            { $project: { total: "$total" } }
-        ])
-            .catch(err => console.error(err));
 
-        let items = await this.aggregate([
+        return await this.aggregate([
+            {$match: ownAny},
             // { $match: { $text: { $search: optFilter.search } } },
-            { $match: optFilter.filters },
+            {$match: optFilter.filters},
             // { $sort: { score: { $meta: "textScore" } } },
-            { $sort: optFilter.sorts },
-            { $skip: optFilter.pagination.page * optFilter.pagination.limit },
-            { $limit: optFilter.pagination.limit },
-            { $unwind: "$images" },
-            { $sort: { 'images.order': 1 } },
+            {$sort: optFilter.sorts},
+            {$skip: optFilter.pagination.page * optFilter.pagination.limit},
+            {$limit: optFilter.pagination.limit},
+            {$unwind: "$images"},
+            {$sort: {'images.order': 1}},
             {
                 $group: {
                     _id: "$_id",
-                    image: { $first: { url: { $concat: [settings.media_domain, "$images.url"] } } },
-                    title_en: { $first: `$title_en` },
-                    //  value: {$first: {$toString: "$value"}},    
+                    image: {$first: {url: {$concat: [settings.media_domain, "$images.url"]}}},
+                    title_en: {$first: `$title_en`},
+                    //  value: {$first: {$toString: "$value"}},
                 }
             },
             {
                 $project: {
                     _id: 0,
-                    id: '$_id',
-                    title_en: 1,
-                    title_en: 1,
-                    title_en: 1,
+                    id: "$_id",
+                    title_en:1,
                     image: 1
+                },
+            },
+            {
+                $group: {
+                    _id: null,
+                    items: {$push: '$$ROOT'},
                 }
-            }
+            },
+            {
+                $lookup: {
+                    from: 'events',
+                    pipeline: [
+                        {$match: ownAny},
+                        {$match: optFilter.filters},
+                        {$count: 'total'},
+                    ],
+                    as: 'getTotal'
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    items: 1,
+                    total: {$arrayElemAt: ["$getTotal", 0]},
+                }
+            },
         ])
+            .then(result => {
+                let items = [],
+                    total = 0;
+                if (result.length > 0) {
+                    console.warn(">>>>>>>>>>>>>>>>>>>>>>> result:", result);
+                    total = result[0].total.total;
+                    delete result[0].total;
+                    items = result[0].items;
+                }
+                optFilter.pagination.total = total;
+                return {explain: optFilter, items};
+            })
             .catch(err => console.error(err));
+    },
 
-        optFilter.pagination.total = total[0].total;
+    /**
+     * Event list Group
+     */
+    async listGroup(userId, optFilter) {
 
-        return { explain: optFilter, items };
+        // TODO: enable search
+        optFilter.search = optFilter.search || "";
+        optFilter.filters = optFilter.filters || {};
+        optFilter.sorts = optFilter.sorts || {
+            _id: -1
+        };
+        optFilter.pagination = optFilter.pagination || {
+            page: 0,
+            limit: 12
+        };
+
+        return await this.aggregate([
+            // { $match: { $text: { $search: optFilter.search } } },
+            {$match: optFilter.filters},
+            {
+                $lookup: {
+                    from: 'admins',
+                    let: {primaryOwnerId: "$owner"},
+                    pipeline: [
+                        {$match: {organizationId: mongoose.Types.ObjectId(userId)}},
+                        {$match: {$expr: {$eq: ["$$primaryOwnerId", "$eventId"]}}},
+                        {$project: {_id: 0, status: "$status"}},
+                    ],
+                    as: 'getUserEvents'
+                }
+            },
+            // { $sort: { score: { $meta: "textScore" } } },
+            {$sort: optFilter.sorts},
+            {$skip: optFilter.pagination.page * optFilter.pagination.limit},
+            {$limit: optFilter.pagination.limit},
+            {$unwind: "$images"},
+            {$sort: {'images.order': 1}},
+            {
+                $group: {
+                    _id: "$_id",
+                    image: {$first: {url: {$concat: [settings.media_domain, "$images.url"]}}},
+                    title_en: {$first: `$title_en`},
+                    //  value: {$first: {$toString: "$value"}},
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    id: "$_id",
+                    title_en:1,
+                    image: 1
+                },
+            },
+            {
+                $group: {
+                    _id: null,
+                    items: {$push: '$$ROOT'},
+                }
+            },
+            {
+                $lookup: {
+                    from: 'events',
+                    pipeline: [
+                        {$match: optFilter.filters},
+                        {$count: 'total'},
+                    ],
+                    as: 'getTotal'
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    items: 1,
+                    total: {$arrayElemAt: ["$getTotal", 0]},
+                }
+            },
+
+        ])
+            .then(result => {
+                let items = [],
+                    total = 0;
+                if (result.length > 0) {
+                    console.warn(">>>>>>>>>>>>>>>>>>>>>>> result:", result);
+                    total = result[0].total.total;
+                    delete result[0].total;
+                    items = result[0].items;
+                }
+                optFilter.pagination.total = total;
+                return {explain: optFilter, items};
+            })
+            .catch(err => console.error(err));
     },
 
     /**
@@ -565,7 +639,7 @@ EventSchema.static({
         const limit = options.limit || 30;
         return await this.find(criteria)
             // .sort({createdAt: -1})
-            .sort({ 'images.order': 1 })
+            .sort({'images.order': 1})
             .populate('interests')
             .limit(limit)
             .skip(limit * page)
@@ -582,7 +656,7 @@ EventSchema.static({
      */
     interestIsRelated: async function (id) {
         let result = await this.aggregate([
-            { $match: { interests: mongoose.Types.ObjectId(id) } }
+            {$match: {interests: mongoose.Types.ObjectId(id)}}
         ])
             .catch(err => {
                 console.error(`Event interestIsRelated check failed with criteria id:${id}`, err);
@@ -595,7 +669,7 @@ EventSchema.static({
      * Check Valid Event(find id, allowedApplyTime)
      */
     async validApplyEvent(id) {
-        return await this.findOne({ _id: id, allowedApplyTime: { $gt: new Date() } })
+        return await this.findOne({_id: id, allowedApplyTime: {$gt: new Date()}})
             .then(events => events)
             .catch(err => console.log("Interest getAll Catch", err));
     },
@@ -604,7 +678,7 @@ EventSchema.static({
      * Check Valid Active Event
      */
     async validActiveEvent(id) {
-        return await this.findOne({ _id: id, from: { $lte: new Date() }, to: { $gt: new Date() } })
+        return await this.findOne({_id: id, from: {$lte: new Date()}, to: {$gt: new Date()}})
             .then(events => events)
             .catch(err => console.log("Interest getAll Catch", err));
     },
@@ -614,71 +688,71 @@ EventSchema.static({
      * @param {String} id
      */
     async getOnePanel(options) {
-        if (!options) throw { message: "Missing criteria for Event.getOnePanel!" };
+        if (!options) throw {message: "Missing criteria for Event.getOnePanel!"};
         options._id = mongoose.Types.ObjectId(options._id);
         return await this.aggregate([
-            { $match: options },
+            {$match: options},
             {
                 $lookup: {
                     from: 'areas',
-                    let: { 'primaryArea': '$area' },
+                    let: {'primaryArea': '$area'},
                     pipeline: [
-                        { $match: { $expr: { $in: ["$$primaryArea", "$childs._id"] } } },
-                        { $unwind: "$childs" },
-                        { $match: { $expr: { $eq: ["$childs._id", "$$primaryArea"] } } }
+                        {$match: {$expr: {$in: ["$$primaryArea", "$childs._id"]}}},
+                        {$unwind: "$childs"},
+                        {$match: {$expr: {$eq: ["$childs._id", "$$primaryArea"]}}}
                     ],
                     as: 'getArea'
                 }
             },
-            { $unwind: "$images" },
-            { $sort: { 'images.order': 1 } },
+            {$unwind: "$images"},
+            {$sort: {'images.order': 1}},
             {
                 $group: {
                     _id: "$_id",
-                    isActive: { $first: "$status" },
-                    images: { $push: { url: { $concat: [settings.media_domain, "$images.url"] }, order: "$images.order" } }, //$push
-                    title_en: { $first: `$title_en` },
-                    title_ar: { $first: `$title_ar` },
-                    desc_en: { $first: `$desc_en` },
-                    desc_ar: { $first: `$desc_ar` },
-                    value: { $first: { $toString: "$value" } },
-                    attendance: { $first: `$attendance` },
-                    from: { $first: `$from` },
-                    to: { $first: `$to` },
-                    getArea_en: { $first: `$getArea.childs.name_en` }, //
-                    getArea_ar: { $first: `$getArea.childs.name_ar` }, //
-                    _address_en: { $first: `$address_en` },
-                    _address_ar: { $first: `$address_ar` },
-                    _allowedApplyTime: { $first: `$allowedApplyTime` },
-                    coordinates: { $first: `$location.coordinates` },
-                    createdAt: { $first: `$createdAt` },
-                    updatedAt: { $first: `$updatedAt` },
-                    interests: {$first:"$interests"},
-                    owner: {$first:"$owner"}
+                    isActive: {$first: "$status"},
+                    images: {$push: {url: {$concat: [settings.media_domain, "$images.url"]}, order: "$images.order"}}, //$push
+                    title_en: {$first: `$title_en`},
+                    title_ar: {$first: `$title_ar`},
+                    desc_en: {$first: `$desc_en`},
+                    desc_ar: {$first: `$desc_ar`},
+                    value: {$first: {$toString: "$value"}},
+                    attendance: {$first: `$attendance`},
+                    from: {$first: `$from`},
+                    to: {$first: `$to`},
+                    getArea_en: {$first: `$getArea.childs.name_en`}, //
+                    getArea_ar: {$first: `$getArea.childs.name_ar`}, //
+                    _address_en: {$first: `$address_en`},
+                    _address_ar: {$first: `$address_ar`},
+                    _allowedApplyTime: {$first: `$allowedApplyTime`},
+                    coordinates: {$first: `$location.coordinates`},
+                    createdAt: {$first: `$createdAt`},
+                    updatedAt: {$first: `$updatedAt`},
+                    interests: {$first: "$interests"},
+                    owner: {$first: "$owner"}
                 }
             },
             {
-                $lookup:{
-                    from:"admins",
-                    localField:"owner",
-                    foreignField:"_id",
-                    as:"_owner"
+                $lookup: {
+                    from: "admins",
+                    localField: "owner",
+                    foreignField: "_id",
+                    as: "_owner"
                 }
             },
             {
                 $lookup:
-                {
-                  from: "interests",
-                  localField: "interests",
-                  foreignField: "_id",
-                  as:"interests",
-                }
+                    {
+                        from: "interests",
+                        localField: "interests",
+                        foreignField: "_id",
+                        as: "interests",
+                    }
             },
             {
                 $project: {
                     createdAt: 1,
                     updatedAt: 1,
-                    owner:"$_owner",
+                    owner: "$_owner",
                     isActive: "$isActive",
                     _id: 0,
                     id: "$_id",
@@ -686,21 +760,21 @@ EventSchema.static({
                     images: 1,
                     desc_en: 1,
                     desc_ar: 1,
-                    title_en:1,
-                    title_ar:1,
-                    area: { $arrayElemAt: ['$getArea', 0] },
+                    title_en: 1,
+                    title_ar: 1,
+                    area: {$arrayElemAt: ['$getArea', 0]},
                     value: 1,
                     attendance: 1,
                     allowedApplyTime: "$_allowedApplyTime",
                     from: 1,
                     to: 1,
-                    address_en: { $concat: [{ $arrayElemAt: ['$getArea_en', 0] }, "$_address_en"] },
-                    address_ar: { $concat: [{ $arrayElemAt: ['$getArea_ar', 0] }, "$_address_ar"] },
-                    lat: { $arrayElemAt: ["$coordinates", 0] },
-                    lng: { $arrayElemAt: ["$coordinates", 1] },
+                    address_en: {$concat: [{$arrayElemAt: ['$getArea_en', 0]}, "$_address_en"]},
+                    address_ar: {$concat: [{$arrayElemAt: ['$getArea_ar', 0]}, "$_address_ar"]},
+                    lat: {$arrayElemAt: ["$coordinates", 0]},
+                    lng: {$arrayElemAt: ["$coordinates", 1]},
                     // __interests: 1 ,
                     // rawInterests: "$interests",
-                    interests:1,
+                    interests: 1,
                 }
             },
         ])

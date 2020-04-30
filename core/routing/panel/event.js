@@ -106,7 +106,7 @@ router.post('/add', uploader, joiValidate(addSchema), verifyTokenPanel(), async 
     req.body.owner = req.userId;
     eventController.add(req.body)
         .then(event => {
-            new NZ.Response(true, 'Event add successful!').send(res);
+            new NZ.Response({id: event._id}, 'Event add successful!').send(res);
         })
         .catch(err => {
             console.error("Event Add Catch err:", err)
@@ -142,10 +142,11 @@ router.put('/edit', joiValidate(updateSchema), verifyTokenPanel(), async (req, r
  * @return Events
  */
 //______________________Get Event_____________________//
-router.post('/', verifyTokenPanel(), /*authorization([{EVENT:'R'}]),*/ async (req, res) => {
+router.post('/', verifyTokenPanel(), authorization([{EVENT:'R'}]), async (req, res) => {
     console.info('API: Get event/init %j', {body: req.body});
+    console.info('API: Get event/init req.auth %j', req.auth);
 
-    eventController.getAll(req.body)
+    eventController.list(req.userId, req.body, req.auth.accessLevel.EVENT[0].R.level)
         .then(result => {
             new NZ.Response(result).send(res);
         })
