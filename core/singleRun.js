@@ -8,13 +8,23 @@ const roleController = require('./controllers/role');
 // DEV-TEMPORARY
 const bankNameController = require('./controllers/bankName');
 const BankName = require('./models/BankName');
+const Staticpage = require('./models/Staticpage');
 
 const permissionController = require('./controllers/permission');
 
 
 
 (async () => {
-    console.log("******* single run **********");
+	console.log("******* single run **********");
+	
+	Staticpage.create([{
+		alias: 	 'about-us',
+		name_en: 'About us',
+		name_ar: 'About USS',
+		html_en: 'somehtmlhere',
+		html_ar: 'YOYO'
+	}]);
+
     googleStaticImage(35.7485728, 51.4080562);
     if (settings.initDataDB) {
 
