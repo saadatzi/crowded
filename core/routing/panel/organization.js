@@ -79,13 +79,30 @@ router.post('/', verifyTokenPanel(), async (req, res) => {
     console.info('API: Get Organization List/init');
 
     organizationController.getManyPanel(req.body)
-        .then(organizations => {
-            new NZ.Response({items: organizations}).send(res);
+        .then(result => {
+            new NZ.Response(result).send(res);
         })
         .catch(err => {
             console.error("Organization List Catch err:", err);
             new NZ.Response(null, err.message, err.code || 500).send(res);
         })
+});
+
+/**
+ *  Get Organization
+ * @return Organizations
+ */
+router.get('/:id', verifyTokenPanel(), async (req, res) => {
+    console.info('API: Get Organization');
+
+    // organizationController.getOnePanel(req.body)
+    //     .then(organization => {
+    //         new NZ.Response(organization).send(res);
+    //     })
+    //     .catch(err => {
+    //         console.error("Organization getOnePanel Catch err:", err);
+    //         new NZ.Response(null, err.message, err.code || 500).send(res);
+    //     })
 });
 
 module.exports = router;
