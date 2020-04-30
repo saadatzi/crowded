@@ -57,7 +57,7 @@ OrganizationSchema.static({
     /**
      * List all Organizations
      *
-     * @param {Object} options
+     * @param {Object} optFilter
      * @api private
      */
 
@@ -100,8 +100,14 @@ OrganizationSchema.static({
                     _id: 0,
                     id: '$_id',
                     title: 1,
-                    isActive: {$toBool:"$status"},
-                    image: {$concat: [settings.media_domain, "$image"]}
+                    isActive: { $toBool: "$status" },
+                    image: {
+                        $cond:[
+                            {$ne : ["$image",""]},
+                            {$concat: [settings.media_domain, "$image"]},
+                            null
+                        ]
+                    }
                 }
             }
         ])
@@ -109,11 +115,49 @@ OrganizationSchema.static({
 
         optFilter.pagination.total = total[0].total;
         return { explain: optFilter, items };
+    },
+
+    /**
+     * Get an Organization
+     *
+     * @param {Object} optFilter
+     * @api private
+     */
+    async getOnePanel(optFilter) {
+        if (!optFilter) throw { message: "Missing criteria for Organization.getOnePanel!" };
+        optFilter._id = mongoose.Types.ObjectId(optFilter._id);
+
+        console.log(optFilter);
+        return await this.aggregate([
+            { $match: optFilter },
+            {
+                $project: {
+                    _id: 0,
+                    id: '$_id',
+                    title: 1,
+                    address: 1,
+                    createdAt: 1,
+                    updatedAt: 1,
+                    phones: 1,
+                    isActive: { $toBool: "$status" },
+                    image: {
+                        $cond:[
+                            {$ne : ["$image",""]},
+                            {$concat: [settings.media_domain, "$image"]},
+                            null
+                        ]
+                    }
+                }
+            }
+        ])
+            .then(org => org[0])
+            .catch(err => console.error(err));
+
     }
 
 
 
-    });
+});
 
 const Organization = mongoose.model('Organization', OrganizationSchema);
 module.exports = Organization;
