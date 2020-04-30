@@ -30,7 +30,7 @@ OrganizationSchema.method({
     toJSON() {
         return {
             id: this._id,
-            name: this.name,
+            name: this.name||null,
             isActive: !!this.status,
         }
     }
