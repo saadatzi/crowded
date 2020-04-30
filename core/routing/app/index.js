@@ -143,6 +143,7 @@ app.use('/user', 		    require('./user'));
 app.use('/event', 		    require('./event'));
 app.use('/wallet', 		    require('./wallet'));
 app.use('/bank', 			require('./bank'));
+app.use('/support', 		require('./support'));
 // app.use('/bankName', 	    require('./bankName'));
 
 
