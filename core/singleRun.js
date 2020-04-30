@@ -17,13 +17,13 @@ const permissionController = require('./controllers/permission');
 (async () => {
 	console.log("******* single run **********");
 	
-	Staticpage.create([{
-		alias: 	 'about-us',
-		name_en: 'About us',
-		name_ar: 'About USS',
-		html_en: 'somehtmlhere',
-		html_ar: 'YOYO'
-	}]);
+	// Staticpage.create([{
+	// 	alias: 	 'about-us',
+	// 	name_en: 'About us',
+	// 	name_ar: 'About USS',
+	// 	html_en: 'somehtmlhere',
+	// 	html_ar: 'YOYO'
+	// }]);
 
     googleStaticImage(35.7485728, 51.4080562);
     if (settings.initDataDB) {
