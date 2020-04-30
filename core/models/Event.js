@@ -552,7 +552,8 @@ EventSchema.static({
         return await this.aggregate([
             // { $match: { $text: { $search: optFilter.search } } },
             {$match: optFilter.filters},
-            {
+            // TODO why not work????!!!!! GROUP
+            /*{
                 $lookup: {
                     from: 'admins',
                     pipeline: [
@@ -561,11 +562,13 @@ EventSchema.static({
                     as: 'getAdmin'
                 }
             },
-            {$addFields: {admin: {$arrayElemAt: ["$getAdmin", 0]}}},
+            {$unwind: "$getAdmin"},
+            // {$addFields: {admin: {$arrayElemAt: ["$getAdmin", 0]}}},
+            {$addFields: {orgId: {$toObjectId: '$getAdmin.organizationId'}}},
             {
                 $lookup: {
                     from: 'admins',
-                    let: {orgId: "$admin.organizationId", owner: "$owner"},
+                    let: {orgId: "$orgId", owner: "$owner"},
                     pipeline: [
                         {$match: {organizationId: "$$orgId"}},
                         // {$match: {$expr: {$eq: ["$$primaryOwnerId", "$eventId"]}}},
@@ -573,9 +576,9 @@ EventSchema.static({
                     ],
                     as: 'getOrgAdmin'
                 }
-            },
+            },*/
             // { $sort: { score: { $meta: "textScore" } } },
-            /*{$sort: optFilter.sorts},
+            {$sort: optFilter.sorts},
             {$skip: optFilter.pagination.page * optFilter.pagination.limit},
             {$limit: optFilter.pagination.limit},
             {$unwind: "$images"},
@@ -618,12 +621,12 @@ EventSchema.static({
                     items: 1,
                     total: {$arrayElemAt: ["$getTotal", 0]},
                 }
-            },*/
+            },
 
         ])
             .then(result => {
-                return result;
-                /*let items = [],
+                // return result;
+                let items = [],
                     total = 0;
                 if (result.length > 0) {
                     console.warn(">>>>>>>>>>>>>>>>>>>>>>> result:", result);
@@ -632,7 +635,7 @@ EventSchema.static({
                     items = result[0].items;
                 }
                 optFilter.pagination.total = total;
-                return {explain: optFilter, items};*/
+                return {explain: optFilter, items};
             })
             .catch(err => console.error(err));
     },

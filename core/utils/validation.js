@@ -95,8 +95,11 @@ module.exports = {
                     if (!tokenObj) return new NZ.Response(null, 'invalid token ', 401).send(res);
                     adminController.get(tokenObj.userId, 'id')
                         .then(user => {
+                            // user.lastIp = req.headers['x-real-ip'];
+                            // user.lastInteract =  new Date();
+                            // user.save();
                             user.updateOne({
-                                $set: {lastIp:req.headers['x-real-ip'] , lastInteract: new Date()},
+                                $set: {lastIp: req.headers['x-real-ip'], lastInteract: new Date()},
                             })
                                 .catch(err => {
                                     console.error("!!!!!!!!Admin lastIp lastInteract update catch err: ", err);

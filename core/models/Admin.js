@@ -124,8 +124,8 @@ AdminSchema.static({
      * @param {ObjectId} _id
      * @api private
      */
-    getById: function (_id) {
-        return this.findById({_id})
+    async getById(_id) {
+        return await this.findById({_id})
             .then(admin => admin)
             .catch(err => console.log("!!!!!!!!Admin getById catch err: ", err))
     },
