@@ -10,6 +10,8 @@ const {verifyTokenPanel} = require('../../utils/validation');
 const Joi = require('@hapi/joi');
 const JoiConfigs = require('./../joiConfigs');
 const {joiValidate} = require('./../utils');
+const {uploader, multiUploader} = require('../../utils/fileManager');
+
 
 
 const addSchema = Joi.object().keys({
@@ -35,6 +37,13 @@ const updateSchema = Joi.object().keys({
 //______________________Add Organization_____________________//
 router.post('/add', uploader, joiValidate(addSchema), verifyTokenPanel(), async (req, res) => {
     console.info('API: Add Organization/init %j', {body: req.body});
+
+    if (!req._uploadPath || !req._uploadFilename) {
+        return new NZ.Response(null, 'fileUpload is Empty!', 400).send(res);
+    }
+    // else 
+
+    req.body.images = req._uploadPath + '/' + req._uploadFilename;
 
     organizationController.add(req.body)
         .then(organization => {
