@@ -134,7 +134,9 @@ RoleSchema.static({
             },
             {$unwind: "$permissions"},
             {$unwind: "$getPermissionsId"},
-            {$redact: {$cond: [{
+            {
+                $redact: {
+                    $cond: [{
                         $eq: [
                             "$permissions.permissionId",
                             "$getPermissionsId.perId",
@@ -145,7 +147,9 @@ RoleSchema.static({
                     ]
                 }
             },
-            {$project: {
+            {$sort: {"permissions.accessLevel": -1}},
+            {
+                $project: {
                     name: 1,
                     status: 1,
                     newPermission: {
@@ -155,53 +159,51 @@ RoleSchema.static({
                     }
                 }
             },
-
             {
                 $group: {
                     _id: '$_id',
-
                     name: {$first: `$name`},
                     status: {$first: `$status`},
                     perResult: {$push: '$newPermission'}
                 }
             },
+            {$sort: {_id: 1}}
         ])
             .then(permissions => {
-                /*
-
-
-                return {
-                    create: !!arrayAccess[len - 4],
-                    read: !!arrayAccess[len - 3],
-                    update: !!arrayAccess[len - 2],
-                    delete: !!arrayAccess[len - 1]
-    }
-                * */
-                let isAccess = false;
+                let resultAccess = [];
+                let accessLevel = {};
                 needPermissions.map(np => {
                     const perName = Object.keys(np)[0];
                     const perValue = Object.values(np)[0];
                     const arrValue = perValue.toUpperCase().split('');
+                    const valueMap = {C: 4, R: 3, U: 2, D: 1};
 
-                    console.warn('>>>>>>> needPermissions', np);
-                    console.warn('>>>>>>> perValue', perValue);
-                    permissions.map(permission => {
-                        const findPermission = permission.perResult.find(find => find.title === perName);
-                        console.warn('>>>>>>> findPermission', findPermission);
-                        if (findPermission) {
-                            const arrayAccess = Array.from(String((findPermission.access).toString(2)), Number);
-                            const len = arrayAccess.length;
-                            arrValue.map(value => {
-                                
-                            })
-                        }
+                    accessLevel[perName] = [];
+
+                    arrValue.map(value => {
+                        let maxValue = 0;
+                        let accessPerNeed = [],
+                            isNewValue = true;
+                        permissions.map(permission => {
+                            const findPermission = permission.perResult.find(find => find.title === perName);
+                            if (findPermission) {
+                                const arrayAccess = Array.from(String((findPermission.access).toString(2)), Number);
+                                const len = arrayAccess.length;
+                                if (findPermission.access > maxValue && !!arrayAccess[len - valueMap[value]]) {
+                                    maxValue = findPermission.access;
+                                    const level = maxValue > 160 ? 'ANY' : maxValue > 144 ? 'GROUP' : 'OWN';
+                                    if (!isNewValue) accessLevel[perName].pop();
+                                    accessLevel[perName].push({[value]: {level, value: maxValue}});
+                                    isNewValue = false;
+                                }
+                                accessPerNeed.push(!!arrayAccess[len - valueMap[value]])
+                            }
+                        });
+                        resultAccess.push(accessPerNeed.some(Boolean));
 
                     })
-
-
-                    // r.permissions.map(rp => rp.accesssLevel = binLevel2Bool(rp.accessLevelNum))
                 });
-                return permissions;
+                return {access: resultAccess.every(Boolean), accessLevel};
             })
             .catch(err => console.error("Role List  Catch", err));
     },
@@ -235,9 +237,6 @@ function binLevel2Bool(number) {
     }
 }
 
-function accessToNumber(access) {
-
-}
 
 const Role = mongoose.model('Role', RoleSchema);
 module.exports = Role;

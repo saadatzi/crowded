@@ -94,9 +94,8 @@ router.post('/', verifyToken(), async function (req, res) {
     });
     let setInterestValidation = setInterestSchema.validate({selected: req.body.selected});
     if (setInterestValidation.error)
-        return new NZ.Response(setInterestValidation.error, 'input error.', 400).send(res);
+        return new NZ.Response(setInterestValidation.error, 'You must choose at least one interest.', 400).send(res);
 
-    //TODO new value replace / Added
     //Added
     let lastInterests;
     if (req.userId)

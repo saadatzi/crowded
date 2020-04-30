@@ -130,9 +130,9 @@ router.post('/authTest', verifyTokenPanel(), async (req, res) => {
     console.info('API: Test Authorization Role/init userId', req.userId);
 
     roleController.authorize(req.userId, req.body)
-        .then(roles => {
-            console.log(">>>>>>>>>>>>>>>> Role Authorize ROUT success result %j", roles);
-            new NZ.Response({items: roles}).send(res);
+        .then(access => {
+            console.log(">>>>>>>>>>>>>>>> Role Authorize ROUT success result %j", access);
+            new NZ.Response(access).send(res);
         })
         .catch(err => {
             console.error("Role Test Authorization Catch err:", err)

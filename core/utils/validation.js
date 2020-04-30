@@ -95,8 +95,11 @@ module.exports = {
                     if (!tokenObj) return new NZ.Response(null, 'invalid token ', 401).send(res);
                     adminController.get(tokenObj.userId, 'id')
                         .then(user => {
+                            // user.lastIp = req.headers['x-real-ip'];
+                            // user.lastInteract =  new Date();
+                            // user.save();
                             user.updateOne({
-                                $set: {lastIp:req.headers['x-real-ip'] , lastInteract: new Date()},
+                                $set: {lastIp: req.headers['x-real-ip'], lastInteract: new Date()},
                             })
                                 .catch(err => {
                                     console.error("!!!!!!!!Admin lastIp lastInteract update catch err: ", err);
@@ -107,11 +110,11 @@ module.exports = {
                     return next();
                 } catch (err) {
                     console.error('!!!Panel Verify Token Catch! Token: Authorization Failed!!! => API: %s', err);
-                    return new NZ.Response(null, 'invalid token err: ' + err.message, 403).send(res);
+                    return new NZ.Response(null, 'invalid token err: ' + err.message, 401).send(res);
                 }
             } else {
                 console.error('!!!Panel Verify Token not have Token: Authorization Failed!!! => API: %s', req.originalUrl);
-                return new NZ.Response(null, 'invalid token', 403).send(res);
+                return new NZ.Response(null, 'invalid token', 401).send(res);
             }
 
         }
@@ -120,7 +123,15 @@ module.exports = {
         return async (req, res, next) => {
             console.error('>>>>>>>>>>>>>>>>>>>>> authorization userId', req.userId);
             roleController.authorize(req.userId, permissions)
-            return next();
+                .then(accessLevel => {
+                    if (!accessLevel.access) return new NZ.Response(null, 'You do not have the need permissions for this request!', 403).send(res);
+                    req.auth = accessLevel;
+                    return next();
+                })
+                .catch(err => {
+                    console.error("Role Authorization Catch err:", err);
+                    return new NZ.Response(null, 'Authorization err: ' + err.message, 403).send(res);
+                })
         }
     }
 };

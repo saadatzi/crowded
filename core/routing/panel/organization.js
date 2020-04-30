@@ -1,5 +1,6 @@
 const express = require('express')
     , router = express.Router();
+const {uploader} = require('../../utils/fileManager');
 
 // Instantiate the Device Model
 const organizationController = require('../../controllers/organization');
@@ -9,7 +10,6 @@ const {verifyTokenPanel} = require('../../utils/validation');
 const Joi = require('@hapi/joi');
 const JoiConfigs = require('./../joiConfigs');
 const {joiValidate} = require('./../utils');
-const {uploader, multiUploader} = require('../../utils/fileManager');
 
 
 
@@ -21,8 +21,8 @@ const addSchema = Joi.object().keys({
 
 
 const updateSchema = Joi.object().keys({
-    organizationId:       	JoiConfigs.isMongoId,
-    name:           JoiConfigs.title,
+    organizationId: JoiConfigs.isMongoId,
+    name: JoiConfigs.title,
 });
 
 const hasValidIdSchema = Joi.object().keys({
@@ -67,7 +67,7 @@ router.put('/update', joiValidate(updateSchema), verifyTokenPanel(), async (req,
 
     organizationController.update(req.body.organizationId, req.body.permissions)
         .then(organization => {
-            new NZ.Response(null, organization ? 'Organization has been successfully update!' : 'Not found!', organization ? 200 : 404 ).send(res);
+            new NZ.Response(null, organization ? 'Organization has been successfully update!' : 'Not found!', organization ? 200 : 404).send(res);
         })
         .catch(err => {
             console.error("Organization update Catch err:", err);

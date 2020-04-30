@@ -1,6 +1,7 @@
 /**
  * Module dependencies.
  */
+const mongoose = require('mongoose');
 const Event = require('../models/Event');
 const { googleStaticImage } = require('../utils/map');
 const moment = require('moment-timezone');
@@ -82,20 +83,29 @@ eventController.prototype.get = async (optFilter, type = 'id') => {
 };
 
 /**
- * get All Event
+ * get List Event (OWN,GROUP,ANY)
  *
  * @param {ObjectId} userId
- * @param {Boolean} accessGroup
- * @param {Boolean} accessAny
+ * @param {Object} optFilter
+ * @param {String} accessLevel
  *
  * @return Events
  */
-eventController.prototype.getAll = async (optFilter) => {
-    return await Event.list(optFilter)
-        .catch(err => {
-            console.error("!!!Event getAll failed: ", err);
-            throw err;
-        })
+eventController.prototype.list = async (userId, optFilter, accessLevel) => {
+    if (accessLevel === 'GROUP') {
+        return await Event.listGroup(userId, optFilter)
+            .catch(err => {
+                console.error("!!!Event getAll failed: ", err);
+                throw err;
+            })
+    } else {
+        console.log(">>>>>>>>>>>>>>>> accessLevel: %s", accessLevel);
+        return await Event.listOwnAny(userId, optFilter, accessLevel)
+            .catch(err => {
+                console.error("!!!Event getAll failed: ", err);
+                throw err;
+            })
+    }
 };
 
 /**
