@@ -245,7 +245,25 @@ AdminSchema.static({
             .limit(limit)
             .skip(limit * page)
             .catch(err => console.error("!!!!!!!!organization getAll catch err: ", err))
+    },
+
+    /**
+     * Checks to see if given organization is related to any admin
+     *
+     * @param {String} id
+     * @api private
+     */
+    organizationIsRelated: async function (id) {
+        let result = await this.aggregate([
+            {$match: {organizationId: mongoose.Types.ObjectId(id)}}
+        ])
+            .catch(err => {
+                console.error(`Event interestIsRelated check failed with criteria id:${id}`, err);
+                throw err;
+            });
+        return result.length != 0;
     }
+    
 });
 
 const Admin = mongoose.model('Admin', AdminSchema);
