@@ -14,11 +14,9 @@ const {joiValidate} = require('./../utils');
 
 
 const addSchema = Joi.object().keys({
-    title_en: JoiConfigs.title,
-    title_ar: JoiConfigs.title,
-    address_en: JoiConfigs.title,
-    address_ar: JoiConfigs.title,
-    phones: Joi.array().items(JoiConfigs.phone),
+    title:           JoiConfigs.title,
+    address:         JoiConfigs.title,
+    phones:             Joi.array().items(JoiConfigs.phone),
 });
 
 
@@ -42,7 +40,7 @@ router.post('/add', uploader, joiValidate(addSchema), verifyTokenPanel(), async 
     }
     // else 
 
-    req.body.images = req._uploadPath + '/' + req._uploadFilename;
+    req.body.image = req._uploadPath + '/' + req._uploadFilename;
 
     organizationController.add(req.body)
         .then(organization => {
@@ -74,21 +72,37 @@ router.put('/update', joiValidate(updateSchema), verifyTokenPanel(), async (req,
 });
 
 /**
- *  Get Organization
+ *  Get Organizations
  * @return Organizations
  */
-//______________________Update Organization_____________________//
-router.get('/', verifyTokenPanel(), async (req, res) => {
+router.post('/', verifyTokenPanel(), async (req, res) => {
     console.info('API: Get Organization List/init');
 
-    organizationController.get({})
-        .then(organizations => {
-            new NZ.Response({items: organizations}).send(res);
+    organizationController.getManyPanel(req.body)
+        .then(result => {
+            new NZ.Response(result).send(res);
         })
         .catch(err => {
             console.error("Organization List Catch err:", err);
             new NZ.Response(null, err.message, err.code || 500).send(res);
         })
+});
+
+/**
+ *  Get Organization
+ * @return Organizations
+ */
+router.get('/:id', verifyTokenPanel(), async (req, res) => {
+    console.info('API: Get Organization');
+
+    // organizationController.getOnePanel(req.body)
+    //     .then(organization => {
+    //         new NZ.Response(organization).send(res);
+    //     })
+    //     .catch(err => {
+    //         console.error("Organization getOnePanel Catch err:", err);
+    //         new NZ.Response(null, err.message, err.code || 500).send(res);
+    //     })
 });
 
 module.exports = router;

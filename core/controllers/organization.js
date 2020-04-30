@@ -15,24 +15,15 @@ const organizationController = function () {};
 organizationController.prototype.add = async (newOrganization) => {
     if (Array.isArray(newOrganization)) { //newOrganization instanceof Array
         return await Organization.insertMany(newOrganization)
-            .then(result => {
-                console.log("***Organization many save success result", result);
-                return result;
-            })
             .catch(err => {
                 console.log("!!!Organization many save failed: ", err);
                 throw err;
             })
     } else {
         return await Organization.create(newOrganization)
-            .then(admin => {
-                console.log("*** Organization save success admin", admin);
-                return admin;
-            })
             .catch(err => {
                 console.log("!!!Organization save failed: ", err);
-                // if (err.code === 11000) throw {message: "The entered title is duplicate!", code: 424};
-                // The line above was returning same error for everything
+                if (err.code === 11000) throw {message: "The entered title is duplicated!", code: 424};
                 throw err;
             })
     }
@@ -150,5 +141,21 @@ organizationController.prototype.update = async (optFilter, newValue) => {
 
 
 };
+
+
+/**
+ * Panel get all organizations
+ *
+ * @return Organizations
+ */
+organizationController.prototype.getManyPanel = async (optFilter) => {
+
+    return await Organization.getManyPanel(optFilter)
+        .catch(err => {
+            console.log("!!!Organization getAllPanel failed: ", err);
+            throw err;
+        });
+};
+
 
 module.exports = new organizationController();
