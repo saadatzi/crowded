@@ -522,7 +522,6 @@ EventSchema.static({
                 let items = [],
                     total = 0;
                 if (result.length > 0) {
-                    console.warn(">>>>>>>>>>>>>>>>>>>>>>> result:", result);
                     total = result[0].total.total;
                     delete result[0].total;
                     items = result[0].items;
@@ -552,8 +551,7 @@ EventSchema.static({
         return await this.aggregate([
             // { $match: { $text: { $search: optFilter.search } } },
             {$match: optFilter.filters},
-            // TODO why not work????!!!!! GROUP
-            /*{
+            {
                 $lookup: {
                     from: 'admins',
                     pipeline: [
@@ -563,20 +561,19 @@ EventSchema.static({
                 }
             },
             {$unwind: "$getAdmin"},
-            // {$addFields: {admin: {$arrayElemAt: ["$getAdmin", 0]}}},
-            {$addFields: {orgId: {$toObjectId: '$getAdmin.organizationId'}}},
             {
                 $lookup: {
                     from: 'admins',
-                    let: {orgId: "$orgId", owner: "$owner"},
+                    let: {orgId: "$getAdmin.organizationId", owner: "$owner"},
                     pipeline: [
-                        {$match: {organizationId: "$$orgId"}},
-                        // {$match: {$expr: {$eq: ["$$primaryOwnerId", "$eventId"]}}},
+                        {$match: {$expr: {$eq: ["$$orgId", "$organizationId"]}}},
+                        {$match: {$expr: {$eq: ["$$owner", "$_id"]}}},
                         // {$project: {_id: 0, status: "$status"}},
                     ],
                     as: 'getOrgAdmin'
                 }
-            },*/
+            },
+            {$unwind: {path: "$getOrgAdmin", preserveNullAndEmptyArrays: false}},
             // { $sort: { score: { $meta: "textScore" } } },
             {$sort: optFilter.sorts},
             {$skip: optFilter.pagination.page * optFilter.pagination.limit},
@@ -605,6 +602,7 @@ EventSchema.static({
                     items: {$push: '$$ROOT'},
                 }
             },
+            //TODO check valid Count!
             {
                 $lookup: {
                     from: 'events',
@@ -629,7 +627,6 @@ EventSchema.static({
                 let items = [],
                     total = 0;
                 if (result.length > 0) {
-                    console.warn(">>>>>>>>>>>>>>>>>>>>>>> result:", result);
                     total = result[0].total.total;
                     delete result[0].total;
                     items = result[0].items;

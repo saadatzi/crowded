@@ -16,7 +16,7 @@ const {joiValidate} = require('./../utils');
 const addSchema = Joi.object().keys({
     title:           JoiConfigs.title,
     address:         JoiConfigs.title,
-    phones:             Joi.array().items(JoiConfigs.phone),
+    phones:          Joi.array().items(JoiConfigs.phone),
 });
 
 
