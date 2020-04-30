@@ -11,6 +11,7 @@ app.use('/assets', express.static(path.join(__dirname, './templates/default/asse
 app.use(`/panel/assets`, express.static(path.join(__dirname, './templates/default/assets')));
 
 app.use('/app', 			require('./app'));
+app.use('/static', 			require('./static'))
 app.use('/panel', 			require('./panel'));
 
 

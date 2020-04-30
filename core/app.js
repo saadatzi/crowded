@@ -128,10 +128,11 @@ app.use(logger('PyLog', {
     }
 }));
 
+const engine = require('express-dot-engine');
 
-// app.engine('dot', engine.__express);
-// app.set('views', path.join(_rootDir, './templates/default/dot'));
-// app.set('view engine', 'dot');
+app.engine('dot', engine.__express);
+app.set('views', path.join(_rootDir, './templates'));
+app.set('view engine', 'dot');
 
 
 /*
