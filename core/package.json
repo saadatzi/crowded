@@ -20,6 +20,7 @@
     "download": "^7.1.0",
     "eventemitter2": "^6.2.1",
     "express": "^4.17.1",
+    "express-dot-engine": "^1.0.8",
     "file-type": "^14.1.4",
     "firebase-admin": "^8.9.0",
     "google-protobuf": "^3.11.2",
