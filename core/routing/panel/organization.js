@@ -74,14 +74,13 @@ router.put('/update', joiValidate(updateSchema), verifyTokenPanel(), async (req,
 });
 
 /**
- *  Get Organization
+ *  Get Organizations
  * @return Organizations
  */
-//______________________Update Organization_____________________//
-router.get('/', verifyTokenPanel(), async (req, res) => {
+router.post('/', verifyTokenPanel(), async (req, res) => {
     console.info('API: Get Organization List/init');
 
-    organizationController.get({})
+    organizationController.getManyPanel(req.body)
         .then(organizations => {
             new NZ.Response({items: organizations}).send(res);
         })

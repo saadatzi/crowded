@@ -151,4 +151,20 @@ organizationController.prototype.update = async (optFilter, newValue) => {
 
 };
 
+
+/**
+ * Panel get all organizations
+ *
+ * @return Organizations
+ */
+organizationController.prototype.getManyPanel = async (optFilter) => {
+
+    return await Organization.getManyPanel(optFilter)
+        .catch(err => {
+            console.log("!!!Interest getAllPanel failed: ", err);
+            throw err;
+        });
+};
+
+
 module.exports = new organizationController();
