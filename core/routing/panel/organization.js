@@ -14,10 +14,8 @@ const {uploader, multiUploader} = require('../../utils/fileManager');
 
 
 const addSchema = Joi.object().keys({
-    title_en:           JoiConfigs.title,
-    title_ar:           JoiConfigs.title,
-    address_en:         JoiConfigs.title,
-    address_ar:         JoiConfigs.title,
+    title:           JoiConfigs.title,
+    address:         JoiConfigs.title,
     phones:             Joi.array().items(JoiConfigs.phone),
 });
 
@@ -42,7 +40,7 @@ router.post('/add', uploader, joiValidate(addSchema), verifyTokenPanel(), async 
     }
     // else 
 
-    req.body.images = req._uploadPath + '/' + req._uploadFilename;
+    req.body.image = req._uploadPath + '/' + req._uploadFilename;
 
     organizationController.add(req.body)
         .then(organization => {

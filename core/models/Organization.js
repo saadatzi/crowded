@@ -1,13 +1,13 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+const settings = require('../utils/settings');
+
 
 const OrganizationSchema = new Schema({
-    title_en: { type: String, unique: true, required: [true, "can't be blank"] },
-    title_ar: { type: String, unique: true, required: [true, "can't be blank"] },
+    title: { type: String, unique: true, required: [true, "can't be blank"] },
     status: { type: Number, default: 1 },
     image: { type: String, default: '' },
-    address_en: { type: String, default: '' },
-    address_ar: { type: String, default: '' },
+    address: { type: String, default: '' },
     phones: [{
         type: String
     }]
@@ -30,7 +30,7 @@ OrganizationSchema.method({
     toJSON() {
         return {
             id: this._id,
-            name: this.name,
+            title: this.title,
             isActive: !!this.status,
         }
     }
@@ -99,8 +99,9 @@ OrganizationSchema.static({
                 $project: {
                     _id: 0,
                     id: '$_id',
-                    title_en: 1,
-                    image: 1
+                    title: 1,
+                    isActive: {$toBool:"$status"},
+                    image: {$concat: [settings.media_domain, "$image"]}
                 }
             }
         ])
