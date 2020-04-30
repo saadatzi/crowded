@@ -25,6 +25,10 @@ const updateSchema = Joi.object().keys({
     name:           JoiConfigs.title,
 });
 
+const hasValidIdSchema = Joi.object().keys({
+    id: JoiConfigs.isMongoId
+});
+
 
 /**
  *  Add Organization
@@ -59,7 +63,7 @@ router.post('/add', uploader, joiValidate(addSchema), verifyTokenPanel(), async 
  */
 //______________________Update Organization_____________________//
 router.put('/update', joiValidate(updateSchema), verifyTokenPanel(), async (req, res) => {
-    console.info('API: update Organization/init %j', {body: req.body});
+    console.info('API: update Organizatio n/init %j', {body: req.body});
 
     organizationController.update(req.body.organizationId, req.body.permissions)
         .then(organization => {
@@ -92,17 +96,17 @@ router.post('/', verifyTokenPanel(), async (req, res) => {
  *  Get Organization
  * @return Organizations
  */
-router.get('/:id', verifyTokenPanel(), async (req, res) => {
+router.get('/:id', verifyTokenPanel(), joiValidate(hasValidIdSchema,2) ,async (req, res) => {
     console.info('API: Get Organization');
 
-    // organizationController.getOnePanel(req.body)
-    //     .then(organization => {
-    //         new NZ.Response(organization).send(res);
-    //     })
-    //     .catch(err => {
-    //         console.error("Organization getOnePanel Catch err:", err);
-    //         new NZ.Response(null, err.message, err.code || 500).send(res);
-    //     })
+    organizationController.getOnePanel({_id:req.params.id})
+        .then(organization => {
+            new NZ.Response(organization).send(res);
+        })
+        .catch(err => {
+            console.error("Organization getOnePanel Catch err:", err);
+            new NZ.Response(null, err.message, err.code || 500).send(res);
+        })
 });
 
 module.exports = router;

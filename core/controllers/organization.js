@@ -152,10 +152,27 @@ organizationController.prototype.getManyPanel = async (optFilter) => {
 
     return await Organization.getManyPanel(optFilter)
         .catch(err => {
-            console.log("!!!Organization getAllPanel failed: ", err);
+            console.log("!!!Organization getManyPanel failed: ", err);
             throw err;
         });
 };
+
+/**
+ * Panel get an organization
+ *
+ * @return Organizations
+ */
+organizationController.prototype.getOnePanel = async (optFilter) => {
+
+    return await Organization.getOnePanel(optFilter)
+        .catch(err => {
+            console.log("!!!Organization getOnePanel failed: ", err);
+            throw err;
+        });
+};
+
+
+
 
 
 module.exports = new organizationController();
