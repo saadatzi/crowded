@@ -46,7 +46,7 @@ roleController.prototype.add = async (newRole) => {
  *
  * @return Role
  */
-roleController.prototype.get = async (optFilter, type = 'email') => {
+roleController.prototype.get = async (optFilter, type = 'id') => {
     if (!optFilter || optFilter instanceof Object) { //newRole instanceof Array
         return await Role.list(optFilter)
             .then(result => {
@@ -58,25 +58,16 @@ roleController.prototype.get = async (optFilter, type = 'email') => {
                 throw err;
             })
     } else {
-        if (type === 'email') {
-            return await Role.getByEmail(optFilter)
-                .then(result => result)
-                .catch(err => {
-                    console.log("!!!Role getByEmail failed: ", err);
-                    throw err;
-                })
-        } else {
-            console.log("***Role get by Id optFilter 3: ", optFilter);
-            return await Role.getById(optFilter)
-                .then(result => {
-                    console.log(`***Role get by id ${optFilter} result: `, result);
-                    return result;
-                })
-                .catch(err => {
-                    console.log("!!!Role get failed: ", err);
-                    throw err;
-                })
-        }
+        console.log("***Role get by Id optFilter 3: ", optFilter);
+        return await Role.getById(optFilter)
+            .then(result => {
+                console.log(`***Role get by id ${optFilter} result: `, result);
+                return result;
+            })
+            .catch(err => {
+                console.log("!!!Role get failed: ", err);
+                throw err;
+            })
     }
 };
 
@@ -176,7 +167,7 @@ roleController.prototype.authorize = async (userId, permissions) => {
     });
     return await Role.authorize(userId, permissions, perName, perValue)
         .then(result => {
-            console.log("***Role  authorize Controller: ", result);
+            console.log("***Role  authorize Controller: %j", result);
             return result;
         })
         .catch(err => {

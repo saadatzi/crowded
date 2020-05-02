@@ -54,7 +54,7 @@ router.post('/add', joiValidate(addSchema, 0), verifyTokenPanel(), authorization
  * @return status
  */
 //______________________Update Role_____________________//
-router.put('/update', joiValidate(updateSchema, 0), verifyTokenPanel(), async (req, res) => {
+router.put('/edit', joiValidate(updateSchema, 0), verifyTokenPanel(), async (req, res) => {
     console.info('API: update Role/init %j', {body: req.body});
 
     roleController.update(req.body.roleId, req.body.permissions)
@@ -104,20 +104,6 @@ router.get('/', verifyTokenPanel(), async (req, res) => {
         })
 });
 
-// router.get('/auth', verifyTokenPanel(), async (req, res) => {
-//     console.info('API: Authorize check/init');
-//
-//     roleController.authorize([{ROLE:['create']}])
-//         .then(roles => {
-//
-//             new NZ.Response({items: roles}).send(res);
-//         })
-//         .catch(err => {
-//             console.error("Role List Catch err:", err);
-//             new NZ.Response(null, err.message, err.code || 500).send(res);
-//         })
-// });
-
 
 /**
  *  Test Authorization
@@ -136,6 +122,24 @@ router.post('/authTest', verifyTokenPanel(), async (req, res) => {
         })
         .catch(err => {
             console.error("Role Test Authorization Catch err:", err)
+            new NZ.Response(null, err.message, err.code || 500).send(res);
+        })
+});
+
+/**
+ * Get Role Detail
+ * @return status
+ */
+//______________________Role Detail_____________________//
+router.get('/:id', verifyTokenPanel(), async (req, res) => {
+    console.info('API: Role Detail/init');
+
+    roleController.get(req.params.id)
+        .then(role => {
+            new NZ.Response(role).send(res);
+        })
+        .catch(err => {
+            console.error("Role Detail Catch err:", err)
             new NZ.Response(null, err.message, err.code || 500).send(res);
         })
 });

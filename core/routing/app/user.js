@@ -213,7 +213,7 @@ router.get('/', function (req, res) {
         })
         .catch(err => {
             console.error("Interest Get Catch err:", err)
-            // new NZ.Response(null, res.message, err.code || 500).send(res);
+            // new NZ.Response(null, err.message, err.code || 500).send(res);
         })
 });
 
@@ -273,7 +273,7 @@ router.get('/profile', verifyToken(true), function (req, res) {
         })
         .catch(err => {
             console.error("profile Get Catch err:", err)
-            // new NZ.Response(null, res.message, err.code || 500).send(res);
+            // new NZ.Response(null, err.message, err.code || 500).send(res);
         })
 });
 

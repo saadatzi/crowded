@@ -105,7 +105,7 @@ router.post('/add', joiValidate(addSchema, 0), verifyTokenPanel(), async (req, r
  * @return status
  */
 //______________________Update Admin_____________________//
-router.put('/update', joiValidate(updateSchema, 0), verifyTokenPanel(), async (req, res) => {
+router.put('/edit', joiValidate(updateSchema, 0), verifyTokenPanel(), async (req, res) => {
     console.info('API: update Admin/init %j', {body: req.body});
 
     adminController.update(req.body.adminId, req.body.permissions)

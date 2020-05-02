@@ -2,7 +2,9 @@
  * Module dependencies.
  */
 let User = require('../models/User');
-const settings = require('../utils/settings')
+const settings = require('../utils/settings');
+const eventController = require('./event');
+
 const userController = function () {
 };
 
@@ -61,7 +63,8 @@ userController.prototype.get = async (optFilter, type = 'email') => {
             return await User.getByEmail(optFilter)
                 .then(result => {
 
-                    return result})
+                    return result
+                })
                 .catch(err => {
                     console.log("!!!User getByEmail failed: ", err);
                     throw err;
@@ -76,6 +79,41 @@ userController.prototype.get = async (optFilter, type = 'email') => {
         }
     }
 };
+
+
+/**
+ * get Participants
+ *
+ * @param {Object} optFilter
+ * @param {Admin} admin
+ * @param {Object} auth
+ *
+ * @return Users
+ */
+userController.prototype.getParticipants = async (admin, optFilter, auth) => {
+    if (auth.accessLevel.EVENT[0].R.level === 'OWN' || auth.accessLevel.EVENT[0].R.level === 'GROUP') {
+        await eventController.get(optFilter.eventId)
+            .then(async event => {
+                if (!event) throw {code: 404, message: 'Event not found!'}
+                if (auth.accessLevel.EVENT[0].R.level === 'GROUP' && (event.orgId).toString() !== (admin.organizationId).toString())
+                    throw new {code: 403, message: 'You are not authorized to receive about this event!'}
+                if (auth.accessLevel.EVENT[0].R.level === 'OWN' && (event.owner).toString() !== (admin._id.toString()))
+                    throw {code: 403, message: 'You are not authorized to receive about this event!'}
+            })
+            .catch(err => {
+                console.error("!!!User getParticipants eventController failed: ", err);
+                throw err;
+            })
+    }
+    return await User.getAllInEvent(optFilter)
+        .then(result => result)
+        .catch(err => {
+            console.log("!!!User getAllInEvent failed: ", err);
+            throw err;
+        })
+
+};
+
 
 /**
  * remove User
@@ -170,7 +208,7 @@ const dto = user => {
         sex: user.sex,
         birthDate: user.birthDate,
         nationality: user.nationality,
-        image: user.image ? {url:`${settings.cdn_domain}${user.image}`} : null,
+        image: user.image ? {url: `${settings.cdn_domain}${user.image}`} : null,
     }
 };
 userController.prototype.dto = dto;

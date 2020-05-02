@@ -16,7 +16,7 @@ const {verifyTokenPanel, authorization} = require('../../utils/validation');
 const UserEvent = require('../../models/UserEvent');
 
 const locationSchema = Joi.object().keys({
-    coordinates: JoiConfigs.arrayLength(2,2, JoiConfigs.number)
+    coordinates: JoiConfigs.arrayLength(2, 2, JoiConfigs.number)
 });
 
 
@@ -27,40 +27,42 @@ const hasValidIdSchema = Joi.object().keys({
 });
 
 const addSchema = Joi.object().keys({
-    title_ar:           JoiConfigs.title,
-    title_en:           JoiConfigs.title,
-    desc_en:            JoiConfigs.description(),
-    desc_ar:            JoiConfigs.description(),
-    value:              JoiConfigs.price,
-    attendance:         JoiConfigs.number,
-    from:               JoiConfigs.timeStamp,
-    to:                 JoiConfigs.timeStamp,
-    allowedApplyTime:   JoiConfigs.timeStamp,
-    area:               JoiConfigs.isMongoId,
-    address_ar:         JoiConfigs.description(),
-    address_en:         JoiConfigs.description(),
-    lat:                JoiConfigs.price,
-    lng:                JoiConfigs.price,
-    interests:          JoiConfigs.arrayLength(1,100, JoiConfigs.isMongoId),
+    title_ar: JoiConfigs.title,
+    title_en: JoiConfigs.title,
+    desc_en: JoiConfigs.description(),
+    desc_ar: JoiConfigs.description(),
+    value: JoiConfigs.price,
+    attendance: JoiConfigs.number,
+    from: JoiConfigs.timeStamp,
+    to: JoiConfigs.timeStamp,
+    allowedApplyTime: JoiConfigs.timeStamp,
+    area: JoiConfigs.isMongoId,
+    address_ar: JoiConfigs.description(),
+    address_en: JoiConfigs.description(),
+    lat: JoiConfigs.price,
+    lng: JoiConfigs.price,
+    interests: JoiConfigs.arrayLength(1, 100, JoiConfigs.isMongoId),
+    allowedRadius: JoiConfigs.number,
 });
 
 const updateSchema = Joi.object().keys({
-    eventId:            JoiConfigs.isMongoId,
-    title_ar:           JoiConfigs.title,
-    title_en:           JoiConfigs.title,
-    desc_en:            JoiConfigs.description(),
-    desc_ar:            JoiConfigs.description(),
-    value:              JoiConfigs.price,
-    attendance:         JoiConfigs.number,
-    from:               JoiConfigs.timeStamp,
-    to:                 JoiConfigs.timeStamp,
-    allowedApplyTime:   JoiConfigs.timeStamp,
-    area:               JoiConfigs.isMongoId,
-    address_ar:         JoiConfigs.description(),
-    address_en:         JoiConfigs.description(),
-    lat:                JoiConfigs.price,
-    lng:                JoiConfigs.price,
-    interests:          JoiConfigs.arrayLength(1,100, JoiConfigs.isMongoId),
+    eventId: JoiConfigs.isMongoId,
+    title_ar: JoiConfigs.title,
+    title_en: JoiConfigs.title,
+    desc_en: JoiConfigs.description(),
+    desc_ar: JoiConfigs.description(),
+    value: JoiConfigs.price,
+    attendance: JoiConfigs.number,
+    from: JoiConfigs.timeStamp,
+    to: JoiConfigs.timeStamp,
+    allowedApplyTime: JoiConfigs.timeStamp,
+    area: JoiConfigs.isMongoId,
+    address_ar: JoiConfigs.description(),
+    address_en: JoiConfigs.description(),
+    lat: JoiConfigs.price,
+    lng: JoiConfigs.price,
+    interests: JoiConfigs.arrayLength(1, 100, JoiConfigs.isMongoId),
+    allowedRadius: JoiConfigs.number,
 });
 
 /**
@@ -83,7 +85,7 @@ router.post('/addImage', verifyTokenPanel(), uploader, async (req, res) => {
         })
         .catch(err => {
             console.error("Event Add Catch err:", err)
-            new NZ.Response(null, res.message, err.code || 500).send(res);
+            new NZ.Response(null, err.message, err.code || 500).send(res);
         })
 });
 
@@ -102,15 +104,16 @@ router.post('/add', uploader, joiValidate(addSchema), verifyTokenPanel(), async 
     }
 
     req.body.images = [{url: req._uploadPath + '/' + req._uploadFilename, order: 1}];
-    req.body.location = {coordinates: [req.body.lat,req.body.lng]};
+    req.body.location = {coordinates: [req.body.lat, req.body.lng]};
     req.body.owner = req.userId;
+    req.body.orgId = req.admin.organizationId;
     eventController.add(req.body)
         .then(event => {
             new NZ.Response({id: event._id}, 'Event add successful!').send(res);
         })
         .catch(err => {
-            console.error("Event Add Catch err:", err)
-            new NZ.Response(null, res.message, err.code || 500).send(res);
+            console.error("Event Add Catch err:", err);
+            new NZ.Response(null, err.message, err.code || 500).send(res);
         })
 });
 
@@ -133,7 +136,7 @@ router.put('/edit', joiValidate(updateSchema), verifyTokenPanel(), async (req, r
         })
         .catch(err => {
             console.error("Event Update Catch err:", err);
-            new NZ.Response(null, res.message, err.code || 500).send(res);
+            new NZ.Response(null, err.message, err.code || 500).send(res);
         })
 });
 
@@ -142,7 +145,7 @@ router.put('/edit', joiValidate(updateSchema), verifyTokenPanel(), async (req, r
  * @return Events
  */
 //______________________Get Event_____________________//
-router.post('/', verifyTokenPanel(), authorization([{EVENT:'R'}]), async (req, res) => {
+router.post('/', verifyTokenPanel(), authorization([{EVENT: 'R'}]), async (req, res) => {
     console.info('API: Get event/init %j', {body: req.body});
     console.info('API: Get event/init req.auth %j', req.auth);
 
@@ -152,33 +155,13 @@ router.post('/', verifyTokenPanel(), authorization([{EVENT:'R'}]), async (req, r
         })
         .catch(err => {
             console.error("Event Get Catch err:", err)
-            new NZ.Response(null, res.message, err.code || 500).send(res);
+            new NZ.Response(null, err.message, err.code || 500).send(res);
         })
 });
 
 
 /**
- * Get Event Detail
- */
-router.get('/:id', verifyTokenPanel(), async (req, res) => {
-    console.info('API: Get event Detail/init ', req.params);
-    let options = {
-        _id:req.params.id
-    };
-    eventController.getOnePanel(options)
-        .then(result => {
-            new NZ.Response(result).send(res);
-        })
-        .catch(err => {
-            console.error('API: Get event Detail catch ', err);
-            new NZ.Response(null, err.message, 500).send(res);
-        });
-
-});
-
-
-/**
- * Remove Interest
+ * Remove Event
  */
 router.delete('/', verifyTokenPanel(), joiValidate(hasValidIdSchema, 0), async (req, res) => {
 
@@ -202,5 +185,23 @@ router.delete('/', verifyTokenPanel(), joiValidate(hasValidIdSchema, 0), async (
 });
 
 
+/**
+ * Get Event Detail
+ */
+router.get('/:id', verifyTokenPanel(), async (req, res) => {
+    console.info('API: Get event Detail/init ', req.params);
+    let options = {
+        _id: req.params.id
+    };
+    eventController.getOnePanel(options)
+        .then(result => {
+            new NZ.Response(result).send(res);
+        })
+        .catch(err => {
+            console.error('API: Get event Detail catch ', err);
+            new NZ.Response(null, err.message, 500).send(res);
+        });
+
+});
 
 module.exports = router;

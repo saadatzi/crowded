@@ -93,8 +93,10 @@ module.exports = {
                 try {
                     let tokenObj = validation.verify(token, publicKEY, tokenOption);
                     if (!tokenObj) return new NZ.Response(null, 'invalid token ', 401).send(res);
-                    adminController.get(tokenObj.userId, 'id')
+                    return await adminController.get(tokenObj.userId, 'id')
                         .then(user => {
+                            req.admin = user;
+                            req.userId = tokenObj.userId;
                             // user.lastIp = req.headers['x-real-ip'];
                             // user.lastInteract =  new Date();
                             // user.save();
@@ -104,10 +106,10 @@ module.exports = {
                                 .catch(err => {
                                     console.error("!!!!!!!!Admin lastIp lastInteract update catch err: ", err);
                                 });
+                            return next();
+
                         })
                         .catch(err => console.error('!!!adminController get byId Failed!!! ', err));
-                    req.userId = tokenObj.userId;
-                    return next();
                 } catch (err) {
                     console.error('!!!Panel Verify Token Catch! Token: Authorization Failed!!! => API: %s', err);
                     return new NZ.Response(null, 'invalid token err: ' + err.message, 401).send(res);

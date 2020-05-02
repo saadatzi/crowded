@@ -26,8 +26,11 @@ const EventSchema = new Schema({
         type: {type: String, enum: ['Point', 'LineString', 'Polygon' /*& multi*/], default: 'Point'},
         coordinates: {type: [Number], default: [0, 0]}
     },
+    allowedRadius: {type: Number, default: 0},
     status: {type: Number, default: 0}, // 1 active, 0 deActive, 2 softDelete, 3 hardDelete
-    // allowedApplyTime: Date
+    //TODO why comment allowedApplyTime???!!
+    allowedApplyTime: Date,
+    orgId: {type: Schema.Types.ObjectId, ref: 'Organization'},
 }, {timestamps: true});
 
 //index for geo location
@@ -153,7 +156,7 @@ EventSchema.static({
                     getArea: {$first: `$getArea.childs.name_${lang}`}, //
                     _address: {$first: `$address_${lang}`},
                     coordinates: {$first: `$location.coordinates`},
-
+                    allowedRadius: {$first: `$allowedRadius`},
                 }
             },
             {
@@ -193,6 +196,7 @@ EventSchema.static({
                     },
                     address: isApproved ? {$concat: [{$arrayElemAt: ['$getArea', 0]}, ', ', "$_address"]} : {$arrayElemAt: ['$getArea', 0]},
                     coordinates: isApproved ? 1 : null,
+                    allowedRadius: isApproved ? 1 : null
                 }
             },
         ])
@@ -566,6 +570,7 @@ EventSchema.static({
                     from: 'admins',
                     let: {orgId: "$getAdmin.organizationId", owner: "$owner"},
                     pipeline: [
+
                         {$match: {$expr: {$eq: ["$$orgId", "$organizationId"]}}},
                         {$match: {$expr: {$eq: ["$$owner", "$_id"]}}},
                         // {$project: {_id: 0, status: "$status"}},

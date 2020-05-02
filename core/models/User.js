@@ -97,6 +97,53 @@ UserSchema.static({
             .catch(err => console.error("!!!!!!!!organization getAll catch err: ", err))
     },
 
+    /**
+     * List all User in Event
+     *
+     * @param {Object} optFilter
+     * @api private
+     */
+    //TODO add pagination & filter
+    async getAllInEvent(optFilter) {
+        const criteria = {status: 1};
+
+        return await this.aggregate([
+            {$match: criteria},
+            {
+                $lookup: {
+                    from: 'userevents',
+                    let: {primaryUserId: "$_id"},
+                    pipeline: [
+                        {$match: {eventId: mongoose.Types.ObjectId(optFilter.eventId)}},
+                        {$match: {$expr: {$eq: ["$$primaryUserId", "$userId"]}}},
+                        {$project: {_id: 0, status: "$status"}},
+                    ],
+                    as: 'getUserEvents'
+                }
+            },
+            {$unwind: {path: "$getUserEvents", preserveNullAndEmptyArrays: false}},
+            {$sort: {updatedAt: -1}},
+            {
+                $project: {
+                    _id: 0,
+                    id: "$_id",
+                    firstname: 1,
+                    lastname: 1,
+                    image: { url: {$concat: [settings.media_domain, "$image"]}},
+                    sex: 1,
+                    nationality: 1,
+                    status: '$getUserEvents.status'
+                }
+            },
+        ])
+            // .exec()
+            .then(users => {
+                console.log(">>>>>>>>>>> getAllInEvent events: ", users);
+                return users
+            })
+            .catch(err => console.error("getAllInEvent  Catch", err));
+    },
+
 
     /**
      * Checks to see if given interest is related to any user

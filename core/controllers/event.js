@@ -44,6 +44,7 @@ eventController.prototype.add = async (newEvent) => {
  * get Event
  *
  * @param {Object || ObjectId} optFilter
+ * @param {String} type
  *
  * @return Event
  */

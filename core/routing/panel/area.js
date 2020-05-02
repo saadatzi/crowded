@@ -40,7 +40,7 @@ router.post('/add', joiValidate(addSchema), verifyTokenPanel(), async (req, res)
         })
         .catch(err => {
             console.error("Area Add Catch err:", err)
-            new NZ.Response(null, res.message, err.code || 500).send(res);
+            new NZ.Response(null, err.message, err.code || 500).send(res);
         })
 });
 
@@ -59,7 +59,7 @@ router.post('/addMulti', joiValidate(addArraySchema), verifyTokenPanel(), async 
         })
         .catch(err => {
             console.error("Area Add Catch err:", err)
-            new NZ.Response(null, res.message, err.code || 500).send(res);
+            new NZ.Response(null, err.message, err.code || 500).send(res);
         })
 });
 
@@ -77,7 +77,7 @@ router.get('/', verifyTokenPanel(), async (req, res) => {
         })
         .catch(err => {
             console.error("Area Get Catch err:", err)
-            new NZ.Response(null, res.message, err.code || 500).send(res);
+            new NZ.Response(null, err.message, err.code || 500).send(res);
         })
 });
 

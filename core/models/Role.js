@@ -34,23 +34,12 @@ RoleSchema.static({
     /**
      * Find User by id
      *
-     * @param {ObjectId} _id
+     * @param {ObjectId} id
      * @api private
      */
-    getById: function (_id) {
-        return this.findById({_id})
-            .then(device => device)
-            .catch(err => console.log("!!!!!!!!User getById catch err: ", err))
-    },
-
-    /**
-     * Get All
-     *
-     * @param {String} token
-     * @api private
-     */
-    async list() {
+    async getById(id) {
         return await this.aggregate([
+            {$match: {_id: mongoose.Types.ObjectId(id)}},
             {$unwind: "$permissions"},
             {
                 $lookup: {
@@ -84,12 +73,68 @@ RoleSchema.static({
                     isActive: {$cond: {if: {$eq: ["$status", 1]}, then: true, else: false}},
                 }
             },
-            {$sort: {id: 1}},
         ])
             .then(result => {
                 result.map(r => {
                     r.permissions.map(rp => rp.accesssLevel = binLevel2Bool(rp.accessLevelNum))
                 });
+                return result[0];
+            })
+            .catch(err => console.error("Role getById  Catch", err));
+
+        // return this.findById({_id})
+        //     .populate('permissions.permissionId')
+        //     .then(role => role)
+        //     .catch(err => console.log("!!!!!!!!Role getById catch err: ", err))
+    },
+
+    /**
+     * Get All
+     *
+     * @param {String} token
+     * @api private
+     */
+    async list() {
+        return await this.aggregate([
+            // {$unwind: "$permissions"},
+            // {
+            //     $lookup: {
+            //         from: 'permissions',
+            //         localField: 'permissions.permissionId',
+            //         foreignField: '_id',
+            //         as: 'perName'
+            //     }
+            // },
+            // // {$replaceRoot: {newRoot: {$mergeObjects: [{$arrayElemAt: ["$perName", 0]}, "$$ROOT"]}}},
+            // {$unwind: "$perName"},
+            // {
+            //     $group: {
+            //         _id: "$_id",
+            //         permissions: {
+            //             $push: {
+            //                 title: '$perName.title',
+            //                 accessLevelNum: '$permissions.accessLevel',
+            //             }
+            //         },
+            //         name: {$first: `$name`},
+            //         status: {$first: `$status`},
+            //     }
+            // },
+            {
+                $project: {
+                    _id: 0,
+                    id: '$_id',
+                    name: 1,
+                    // permissions: 1,
+                    isActive: {$cond: {if: {$eq: ["$status", 1]}, then: true, else: false}},
+                }
+            },
+            {$sort: {id: 1}},
+        ])
+            .then(result => {
+                // result.map(r => {
+                //     r.permissions.map(rp => rp.accesssLevel = binLevel2Bool(rp.accessLevelNum))
+                // });
                 return result;
             })
             .catch(err => console.error("Role List  Catch", err));

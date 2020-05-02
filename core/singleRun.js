@@ -236,12 +236,12 @@ const permissionController = require('./controllers/permission');
     //             })
     //             .catch(err => {
     //                 console.error("session Add Catch err:", err)
-    //                 new NZ.Response(null, res.message, err.code || 500).send(res);
+    //                 new NZ.Response(null, err.message, err.code || 500).send(res);
     //             })*/
     //     })
     //     .catch(err => {
     //         console.error("Interest Add Catch err:", err)
-    //         new NZ.Response(null, res.message, err.code || 500).send(res);
+    //         new NZ.Response(null, err.message, err.code || 500).send(res);
     //     })
 
 
@@ -291,18 +291,17 @@ const permissionController = require('./controllers/permission');
             if (permissions.length === 0) {
                 console.log('...Attempting to seed Permission Model.');
                 const initPermission = [
-                    {title: "Agent",        access: 143},
+                    {title: "Admin",        access: 143},
                     // {title: "Area",         access: 143},
-                    {title: "User account", access: 143},
-                    {title: "Bank name",    access: 143},
-                    {title: "Device app",   access: 143},
+                    {title: "User", access: 175},
+                    {title: "Bank_name",    access: 143},
+                    {title: "Device_app",   access: 143},
                     {title: "Event",        access: 175}, //All
                     {title: "Interest",     access: 143},
                     {title: "Organization", access: 143},
                     {title: "Role",         access: 143},
                     {title: "Transaction",  access: 167},
-                    {title: "User Event(Approve-Reject)",   access: 166}, // All
-                    {title: "User",  access: 143}
+                    {title: "MANAGE_PARTICIPANTS",   access: 166}, // All
                 ];
                 return permissionController.add(initPermission)
                     .catch(err => {
