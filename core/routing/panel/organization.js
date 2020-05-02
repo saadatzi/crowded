@@ -41,7 +41,7 @@ const hasValidIdSchema = Joi.object().keys({
  * @return status
  */
 //______________________Add Organization_____________________//
-router.post('/add', uploader, joiValidate(addSchema), verifyTokenPanel(), async (req, res) => {
+router.post('/add', uploader, joiValidate(addSchema), verifyTokenPanel(), authorization([{ORGANIZATION: 'C'}]), async (req, res) => {
     console.info('API: Add Organization/init %j', { body: req.body });
 
     if (!req._uploadPath || !req._uploadFilename) {
@@ -66,7 +66,7 @@ router.post('/add', uploader, joiValidate(addSchema), verifyTokenPanel(), async 
  * -update Organization in db
  * @return status
  */
-router.put('/edit', uploader, joiValidate(updateSchema), verifyTokenPanel(), async (req, res) => {
+router.put('/edit', uploader, joiValidate(updateSchema), verifyTokenPanel(), authorization([{ORGANIZATION: 'RU'}]), async (req, res) => {
     console.info('API: update Organizationn %j', { body: req.body });
 
     if (req._uploadPath && req._uploadFilename) {
@@ -88,10 +88,10 @@ router.put('/edit', uploader, joiValidate(updateSchema), verifyTokenPanel(), asy
 });
 
 /**
- *  Get Organizations
+ *  Get List Organizations
  * @return Organizations
  */
-router.post('/', verifyTokenPanel(), async (req, res) => {
+router.post('/', verifyTokenPanel(), authorization([{ORGANIZATION: 'R'}]), async (req, res) => {
     console.info('API: Get Organization List/init');
 
     organizationController.getManyPanel(req.body)
@@ -108,7 +108,7 @@ router.post('/', verifyTokenPanel(), async (req, res) => {
  *  Get Organization
  * @return Organizations
  */
-router.get('/:id', verifyTokenPanel(), joiValidate(hasValidIdSchema, 2), async (req, res) => {
+router.get('/:id', verifyTokenPanel(), joiValidate(hasValidIdSchema, 2), authorization([{ORGANIZATION: 'R'}]), async (req, res) => {
     console.info('API: Get Organization');
 
     organizationController.getOnePanel({ _id: req.params.id })
@@ -122,9 +122,9 @@ router.get('/:id', verifyTokenPanel(), joiValidate(hasValidIdSchema, 2), async (
 });
 
 /**
- * Remove Interest
+ * Remove Organization
  */
-router.delete('/', verifyTokenPanel(), joiValidate(hasValidIdSchema, 0), async (req, res) => {
+router.delete('/', verifyTokenPanel(), joiValidate(hasValidIdSchema, 0), authorization([{ORGANIZATION: 'RD'}]), async (req, res) => {
 
     let id = req.body.id;
 

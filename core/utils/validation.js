@@ -95,7 +95,7 @@ module.exports = {
                     if (!tokenObj) return new NZ.Response(null, 'invalid token ', 401).send(res);
                     return await adminController.get(tokenObj.userId, 'id')
                         .then(user => {
-                            if (!user) throw {code: 404, message: 'User not found!'};
+                            if (!user) throw {code: 401, message: 'User not found!'};
                             req._admin = user;
                             req.userId = tokenObj.userId;
                             // user.lastIp = req.headers['x-real-ip'];
