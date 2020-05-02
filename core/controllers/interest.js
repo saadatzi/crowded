@@ -138,7 +138,7 @@ interestController.prototype.remove = async (id) => {
 interestController.prototype.update = async (payload) => {
     let toUpdate = {}
     payload.title_en ? toUpdate.title_en = payload.title_en : null;
-    payload.title_ar ? toUpdate.title_ar = payload.title_fa : null;
+    payload.title_ar ? toUpdate.title_ar = payload.title_ar : null;
     payload.order ? toUpdate.order = payload.order : null;
     payload.image ? toUpdate.image = payload.image : null;
     return await Interest.findByIdAndUpdate(payload.id, toUpdate)
