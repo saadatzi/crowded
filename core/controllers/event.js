@@ -201,7 +201,8 @@ eventController.prototype.getMyEvent = async (userId, lang, page = 0, isPrevious
  * @return Query
  */
 eventController.prototype.remove = async (id) => {
-    return await Event.findByIdAndRemove(id)
+    let newStatus = 2;
+    return await Event.setStatus(id,2,oldStatus=>oldStatus!==newStatus)
         .then(result => {
             console.log(`***Event Remove by id ${id} result: `, result);
             return result;
@@ -210,7 +211,6 @@ eventController.prototype.remove = async (id) => {
             console.log("!!!Event Remove failed: ", err);
             throw err;
         });
-
 
 };
 

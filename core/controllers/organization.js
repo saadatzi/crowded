@@ -72,35 +72,17 @@ organizationController.prototype.get = async (optFilter, type = 'id') => {
  *
  * @return Query
  */
-organizationController.prototype.remove = async (optFilter) => {
-    if (optFilter) {
-        if (optFilter instanceof Object) { //instanceof mongoose.Types.ObjectId
-
-            return await Organization.remove(optFilter)
-                .then(result => {
-                    console.log("***Organization  Remove many result: ", result);
-                    return result;
-                })
-                .catch(err => {
-                    console.log("!!!Organization Remove failed: ", err);
-                    throw err;
-                })
-        } else {
-
-            return await Organization.findByIdAndRemove(optFilter)
-                .then(result => {
-                    console.log(`***Organization Remove by id ${optFilter} result: `, result);
-                    return result;
-                })
-                .catch(err => {
-                    console.log("!!!Organization Remove failed: ", err);
-                    throw err;
-                })
-        }
-    } else {
-        throw {errMessage: 'for remove Object conditions or Id is required!'}
-    }
-
+organizationController.prototype.remove = async (id) => {
+    let newStatus = 2;
+    return await Organization.setStatus(id,2,oldStatus=>oldStatus!==newStatus)
+        .then(result => {
+            console.log(`***Organization Removed by id ${id} result: `, result);
+            return result;
+        })
+        .catch(err => {
+            console.log(`!!!Organization Remove failed for id ${id}: `, err);
+            throw err;
+        });
 
 };
 

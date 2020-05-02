@@ -27,7 +27,8 @@ const updateSchema = Joi.object().keys({
     id: JoiConfigs.isMongoId,
     title:           JoiConfigs.title.optional(),
     address:         JoiConfigs.title.optional(),
-    phones:             Joi.array().items(JoiConfigs.phone).optional(),
+    phones:          Joi.array().items(JoiConfigs.phone).optional(),
+    status:          Joi.number().optional(),   
 });
 
 const hasValidIdSchema = Joi.object().keys({

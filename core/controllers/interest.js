@@ -116,7 +116,8 @@ interestController.prototype.get = async (optFilter) => {
  *
  */
 interestController.prototype.remove = async (id) => {
-    return await Interest.findByIdAndRemove(id)
+    let newStatus = 2;
+    return await Interest.setStatus(id,2,oldStatus=>oldStatus!==newStatus)
         .then(result => {
             console.log(`***Interest Removed by id ${id} result: `, result);
             return result;
@@ -138,7 +139,7 @@ interestController.prototype.remove = async (id) => {
 interestController.prototype.update = async (payload) => {
     let toUpdate = {}
     payload.title_en ? toUpdate.title_en = payload.title_en : null;
-    payload.title_ar ? toUpdate.title_ar = payload.title_fa : null;
+    payload.title_ar ? toUpdate.title_ar = payload.title_ar : null;
     payload.order ? toUpdate.order = payload.order : null;
     payload.image ? toUpdate.image = payload.image : null;
     return await Interest.findByIdAndUpdate(payload.id, toUpdate)

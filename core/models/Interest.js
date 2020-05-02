@@ -3,17 +3,24 @@ const Schema = mongoose.Schema;
 const settings = require('../utils/settings');
 
 const InterestSchema = new Schema({
-    title_ar: { type: String, default: '', unique: true },
+    title_ar: { type: String, default: '' },
     title_en: { type: String, default: '' },
     image: { type: String, default: '' },
     order: { type: Number, default: 0 },
     status: { type: Number, default: 1 }, // 1 active, 0 deActive, 2 softDelete, 3 hardDelete
-}, { timestamps: true, toJSON: { virtuals: false, getters: false }, toObject: { virtuals: false } });
+}, { 
+    timestamps: true,
+    toJSON: { virtuals: false, getters: false },
+    toObject: { virtuals: false },
+    autoIndex: false 
+});
+
+
 
 
 
 // index for search
-InterestSchema.index({ title_en: 'text' });
+InterestSchema.index({ title_en: 'text' , title_ar: 'text'});
 
 
 // InterestSchema.index({ title_ar: 1, type: -1 });
@@ -101,20 +108,10 @@ InterestSchema.static({
             page: 0,
             limit: 12
         };
+        console.log(optFilter.search);
 
-        // TODO: do it the right way
-        // Absolutely not a rational decision - Kazem
-        // Didn't have time to do it the right way - Kazem
-        let total = await this.aggregate([
-            // { $match: { $text: { $search: optFilter.search } } },
-            { $match: optFilter.filters },
-            // { $sort: { score: { $meta: "textScore" } } },
-            { $count: 'total' },
-            { $project: { total: "$total" } }
-        ])
-            .catch(err => console.error(err));
-
-        let items = await this.aggregate([
+        
+        return this.aggregate([
             // { $match: { $text: { $search: optFilter.search } } },
             { $match: optFilter.filters },
             // { $sort: { score: { $meta: "textScore" } } },
@@ -130,13 +127,45 @@ InterestSchema.static({
                         url: { $concat: [settings.media_domain, "$image"] }
                     }
                 }
-            }
+            },
+            {
+                $group: {
+                    _id: null,
+                    items: { $push: '$$ROOT' },
+                }
+            },
+            {
+                $lookup: {
+                    from: 'interests',
+                    pipeline: [
+                        // { $match: { $text: { $search: optFilter.search } } },  
+                        { $match: optFilter.filters },
+                        { $count: 'total' },
+                    ],
+                    as: 'getTotal'
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    items: 1,
+                    total: { $arrayElemAt: ["$getTotal", 0] },
+                }
+            },
         ])
+        .then(result => {
+            let items = [],
+                total = 0;
+            if (result.length > 0) {
+                total = result[0].total.total;
+                delete result[0].total;
+                items = result[0].items;
+            }
+            optFilter.pagination.total = total;
+            return { explain: optFilter, items };
+        })
             .catch(err => console.error(err));
 
-        optFilter.pagination.total = total[0].total;
-
-        return { explain: optFilter, items };
 
     },
 
@@ -168,8 +197,37 @@ InterestSchema.static({
             }
         ]).catch(err => console.error(err));
 
+    },
+
+    /**
+     * 
+     * @param {String} id - id of the record
+     * @param {Number} newStatus - new status you want to set
+     * @param {Number} validateCurrent - a function returning a boolean checking old status
+     */
+    async setStatus(id, newStatus, validateCurrent = function(old){return true}) {
+        let record = await this.findOne({_id:id}).catch(err=>console.error(err));
+        let currentState = record.status;
+        if (!validateCurrent(currentState)) throw {message:"Changing status not permitted!"};
+        record.status = newStatus;
+        return record.save();
     }
 });
 
 const Interest = mongoose.model('Interest', InterestSchema);
+
+Interest.createIndexes()
+.then(()=>{
+    return Interest.collection.getIndexes({full: true});
+})
+.then(indexes => {
+    console.log("indexes:", indexes);
+    // ...
+}).catch(console.error);
+
+//shit 
+// Interest.collection.dropIndexes({full:true})
+// Promise.resolve(true)
+
+
 module.exports = Interest;
