@@ -427,6 +427,20 @@ AdminSchema.static({
                 throw err;
             });
         return result.length != 0;
+    },
+    
+    /**
+     * 
+     * @param {String} id - id of the record
+     * @param {Number} newStatus - new status you want to set
+     * @param {Number} validateCurrent - a function returning a boolean checking old status
+     */
+    async setStatus(id, newStatus, validateCurrent = function(old){return true}) {
+        let record = await this.findOne({_id:id}).catch(err=>console.error(err));
+        let currentState = record.status;
+        if (!validateCurrent(currentState)) throw {message:"Changing status not permitted!"};
+        record.status = newStatus;
+        return record.save();
     }
 
 });
