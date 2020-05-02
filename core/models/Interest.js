@@ -3,17 +3,24 @@ const Schema = mongoose.Schema;
 const settings = require('../utils/settings');
 
 const InterestSchema = new Schema({
-    title_ar: { type: String, default: '', unique: true },
+    title_ar: { type: String, default: '' },
     title_en: { type: String, default: '' },
     image: { type: String, default: '' },
     order: { type: Number, default: 0 },
     status: { type: Number, default: 1 }, // 1 active, 0 deActive, 2 softDelete, 3 hardDelete
-}, { timestamps: true, toJSON: { virtuals: false, getters: false }, toObject: { virtuals: false } });
+}, { 
+    timestamps: true,
+    toJSON: { virtuals: false, getters: false },
+    toObject: { virtuals: false },
+    autoIndex: false 
+});
+
+
 
 
 
 // index for search
-InterestSchema.index({ title_en: 'text' });
+InterestSchema.index({ title_en: 'text' , title_ar: 'text'});
 
 
 // InterestSchema.index({ title_ar: 1, type: -1 });
@@ -101,6 +108,7 @@ InterestSchema.static({
             page: 0,
             limit: 12
         };
+        console.log(optFilter.search);
 
         
         return this.aggregate([
@@ -189,8 +197,37 @@ InterestSchema.static({
             }
         ]).catch(err => console.error(err));
 
+    },
+
+    /**
+     * 
+     * @param {String} id - id of the record
+     * @param {Number} newStatus - new status you want to set
+     * @param {Number} validateCurrent - a function returning a boolean checking old status
+     */
+    async setStatus(id, newStatus, validateCurrent = function(old){return true}) {
+        let record = await this.findOne({_id:id}).catch(err=>console.error(err));
+        let currentState = record.status;
+        if (!validateCurrent(currentState)) throw {message:"Changing status not permitted!"};
+        record.status = newStatus;
+        return record.save();
     }
 });
 
 const Interest = mongoose.model('Interest', InterestSchema);
+
+Interest.createIndexes()
+.then(()=>{
+    return Interest.collection.getIndexes({full: true});
+})
+.then(indexes => {
+    console.log("indexes:", indexes);
+    // ...
+}).catch(console.error);
+
+//shit 
+// Interest.collection.dropIndexes({full:true})
+// Promise.resolve(true)
+
+
 module.exports = Interest;

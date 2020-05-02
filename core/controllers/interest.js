@@ -116,7 +116,8 @@ interestController.prototype.get = async (optFilter) => {
  *
  */
 interestController.prototype.remove = async (id) => {
-    return await Interest.findByIdAndRemove(id)
+    let newStatus = 2;
+    return await Interest.setStatus(id,2,oldStatus=>oldStatus!==newStatus)
         .then(result => {
             console.log(`***Interest Removed by id ${id} result: `, result);
             return result;
