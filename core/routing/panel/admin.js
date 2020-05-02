@@ -118,6 +118,39 @@ router.put('/edit', joiValidate(updateSchema, 0), verifyTokenPanel(), authorizat
         })
 });
 
+
+/**
+ *  List Admins
+ */
+router.post('/', verifyTokenPanel(), async (req, res) => {
+    console.info('API: List Admin/init %j', {body: req.body});
+
+    adminController.getManyPanel(req.body)
+        .then(result => {
+            new NZ.Response(result).send(res);
+        })
+        .catch(err => {
+            console.error("List Admin Catch err:", err);
+            new NZ.Response(null, err.message, err.code || 500).send(res);
+        })
+});
+
+/**
+ *  Admin Detail
+ */
+router.get('/:id', verifyTokenPanel(), async (req, res) => {
+    console.info('API:  Admin Detail/init %j', {params: req.params});
+
+    adminController.getOnePanel({_id:req.params.id})
+        .then(result => {
+            new NZ.Response(result).send(res);
+        })
+        .catch(err => {
+            console.error("Admin Detail Catch err:", err);
+            new NZ.Response(null, err.message, err.code || 500).send(res);
+        })
+});
+
 /**
  *  Forgot Password
  */
