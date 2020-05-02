@@ -5,7 +5,7 @@ const { uploader } = require('../../utils/fileManager');
 // Instantiate the Device Model
 const organizationController = require('../../controllers/organization');
 const NZ = require('../../utils/nz');
-const { verifyTokenPanel } = require('../../utils/validation');
+const { verifyTokenPanel, authorization } = require('../../utils/validation');
 
 const Joi = require('@hapi/joi');
 const JoiConfigs = require('./../joiConfigs');

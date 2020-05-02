@@ -5,7 +5,7 @@ const express = require('express')
 const adminController = require('../../controllers/admin');
 const userController = require('../../controllers/user');
 const NZ = require('../../utils/nz');
-const {sign, verifyTokenPanel} = require('../../utils/validation');
+const {sign, verifyTokenPanel, authorization} = require('../../utils/validation');
 
 const Joi = require('@hapi/joi');
 const JoiConfigs = require('./../joiConfigs');

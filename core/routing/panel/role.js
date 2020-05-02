@@ -91,7 +91,7 @@ router.get('/permissions', verifyTokenPanel(), async (req, res) => {
  * @return status
  */
 //______________________Role List_____________________//
-router.get('/', verifyTokenPanel(), async (req, res) => {
+router.get('/', verifyTokenPanel(), authorization([{ROLE: 'R'}]), async (req, res) => {
     console.info('API: Role List/init');
 
     roleController.get({})
@@ -131,7 +131,7 @@ router.post('/authTest', verifyTokenPanel(), async (req, res) => {
  * @return status
  */
 //______________________Role Detail_____________________//
-router.get('/:id', verifyTokenPanel(), async (req, res) => {
+router.get('/:id', verifyTokenPanel(), authorization([{ROLE: 'R'}]), async (req, res) => {
     console.info('API: Role Detail/init');
 
     roleController.get(req.params.id)
