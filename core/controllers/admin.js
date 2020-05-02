@@ -100,6 +100,25 @@ adminController.prototype.get = async (optFilter, type = 'email') => {
 };
 
 /**
+ * Admin getManyPanel
+ *
+ * @param {Object} optFilter
+ *
+ * @return {Object} {explain + items}
+ */
+adminController.prototype.getManyPanel = async (optFilter) => {
+    return await Admin.getManyPanel(optFilter)
+        .then(result => {
+            console.log(`***Admin getManyPanel ${optFilter} result: `, result);
+            return result;
+        })
+        .catch(err => {
+            console.log("!!!Admin getManyPanel failed: ", err);
+            throw err;
+        });
+};
+
+/**
  * remove Admin
  *
  * @param {Object || ObjectId} optFilter
@@ -132,7 +151,7 @@ adminController.prototype.remove = async (optFilter) => {
                 })
         }
     } else {
-        throw {errMessage: 'for remove Object conditions or Id is required!'}
+        throw { errMessage: 'for remove Object conditions or Id is required!' }
     }
 
 
@@ -170,7 +189,7 @@ adminController.prototype.update = async (optFilter, newValue) => {
                 })
         }
     } else {
-        throw {errMessage: 'for Update Object conditions or Id is required!'}
+        throw { errMessage: 'for Update Object conditions or Id is required!' }
     }
 
 

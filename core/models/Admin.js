@@ -248,6 +248,83 @@ AdminSchema.static({
     },
 
     /**
+     * Get Many Admins
+     * @param {Object} optFilter
+     */
+    async getManyPanel (optFilter) {
+
+         // TODO: enable search
+         optFilter.search = optFilter.search || "";
+         optFilter.filters = optFilter.filters || {
+            //  status: 1
+         };
+         optFilter.sorts = optFilter.sorts || {
+             createdAt: 1
+         };
+         optFilter.pagination = optFilter.pagination || {
+             page: 0,
+             limit: 12
+         };
+
+ 
+        return this.aggregate([
+             // { $match: { $text: { $search: optFilter.search } } },
+             { $match: optFilter.filters },
+             // { $sort: { score: { $meta: "textScore" } } },
+             { $sort: optFilter.sorts },
+             { $skip: optFilter.pagination.page * optFilter.pagination.limit },
+             { $limit: optFilter.pagination.limit },
+             {
+                 $project: {
+                     _id: 0,
+                     id: '$_id',
+                     name: 1,
+                     isActive: {$toBool: "$status"}
+                 }
+             },
+             {
+                $group: {
+                    _id: null,
+                    items: {$push: '$$ROOT'},
+                }
+            },
+            {
+                $lookup: {
+                    from: 'admins',
+                    pipeline: [
+                        // { $match: { $text: { $search: optFilter.search } } },  
+                        {$match: optFilter.filters},
+                        {$count: 'total'},
+                    ],
+                    as: 'getTotal'
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    items: 1,
+                    total: {$arrayElemAt: ["$getTotal", 0]},
+                }
+            },
+         ])
+         .then(result => {
+            let items = [],
+                total = 0;
+            if (result.length > 0) {
+                total = result[0].total.total;
+                delete result[0].total;
+                items = result[0].items;
+            }
+            optFilter.pagination.total = total;
+            return {explain: optFilter, items};
+        })
+             .catch(err => console.error(err));
+ 
+ 
+    },
+
+
+    /**
      * Checks to see if given organization is related to any admin
      *
      * @param {String} id
@@ -263,7 +340,7 @@ AdminSchema.static({
             });
         return result.length != 0;
     }
-    
+
 });
 
 const Admin = mongoose.model('Admin', AdminSchema);
