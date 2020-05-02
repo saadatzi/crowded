@@ -28,6 +28,9 @@ const updateSchema = Joi.object().keys({
     permissions:    JoiConfigs.arrayLength(1, 50, permissionSchema),
 });
 
+const deleteSchema = Joi.object().keys({
+    roleId:       	JoiConfigs.isMongoId,
+});
 
 /**
  *  Add Role
@@ -143,5 +146,22 @@ router.get('/:id', verifyTokenPanel(), authorization([{ROLE: 'R'}]), async (req,
             new NZ.Response(null, err.message, err.code || 500).send(res);
         })
 });
+
+/**
+ * Remove Role
+ */
+router.delete('/', verifyTokenPanel(), joiValidate(deleteSchema), authorization([{ROLE: 'RD'}]), async (req, res) => {
+    //Soft delete
+    roleController.remove(req.body.roleId)
+            .then(result => {
+                new NZ.Response(null, "Role removed successfully.").send(res);
+            })
+            .catch(err => {
+                new NZ.Response(null, err.message, 500).send(res);
+            });
+    // }
+
+});
+
 
 module.exports = router;
