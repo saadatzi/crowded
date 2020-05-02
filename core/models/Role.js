@@ -145,10 +145,11 @@ RoleSchema.static({
      *
      * @param {ObjectId} userId
      * @param {Array} needPermissions
-     * @param {Array} perNameNeed
      * @api private
      */
-    async authorize(userId, needPermissions, perNameNeed) {
+    async authorize(userId, needPermissions) {
+        let perNames = [];
+        needPermissions.map(per => {perNames.push((Object.keys(per)[0]).toUpperCase());});
         return await this.aggregate([
             {$match: {status: 1}},
             {
@@ -165,33 +166,34 @@ RoleSchema.static({
                 }
             },
             {$unwind: {path: "$getUser", preserveNullAndEmptyArrays: false}},
+            {$unwind: "$permissions"},
             {
                 $lookup: {
                     from: 'permissions',
-                    let: {primaryPermissions: '$permissions'},
+                    let: {primaryPermissions: '$permissions.permissionId'},
                     pipeline: [
-                        {$match: {title: {$in: perNameNeed}}},
-                        // {$match: {$expr: {$eq: ["$_id", '$$primaryPermissions']}}},
+                        {$match: {title: {$in: perNames}}},
+                        {$match: {$expr: {$eq: ["$_id", '$$primaryPermissions']}}},
                         {$project: {_id: 0, perId: "$_id", title: 1}},
                     ],
                     as: 'getPermissionsId'
                 }
             },
-            {$unwind: "$permissions"},
-            {$unwind: "$getPermissionsId"},
-            {
-                $redact: {
-                    $cond: [{
-                        $eq: [
-                            "$permissions.permissionId",
-                            "$getPermissionsId.perId",
-                        ]
-                    },
-                        "$$KEEP",
-                        "$$PRUNE",
-                    ]
-                }
-            },
+            {$unwind: {path: "$getPermissionsId", preserveNullAndEmptyArrays: false}},
+            // {$unwind: "$getPermissionsId"},
+            // {
+            //     $redact: {
+            //         $cond: [{
+            //             $eq: [
+            //                 "$permissions.permissionId",
+            //                 "$getPermissionsId.perId",
+            //             ]
+            //         },
+            //             "$$KEEP",
+            //             "$$PRUNE",
+            //         ]
+            //     }
+            // },
             {$sort: {"permissions.accessLevel": -1}},
             {
                 $project: {
@@ -215,10 +217,12 @@ RoleSchema.static({
             {$sort: {_id: 1}}
         ])
             .then(permissions => {
+                // console.log(">>>>>>>>>>>>>>>>>>%j<<<<<<<<<<<<<<<<", perNames);
+                // return permissions
                 let resultAccess = [];
                 let accessLevel = {};
                 needPermissions.map(np => {
-                    const perName = Object.keys(np)[0];
+                    const perName = (Object.keys(np)[0]).toUpperCase();
                     const perValue = Object.values(np)[0];
                     const arrValue = perValue.toUpperCase().split('');
                     const valueMap = {C: 4, R: 3, U: 2, D: 1};
