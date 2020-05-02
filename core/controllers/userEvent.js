@@ -153,7 +153,7 @@ userEventController.prototype.setStatus = async (userId, eventId, status, newVal
  * @return Users
  */
 userEventController.prototype.manageParticipant = async (admin, reqInfo, auth) => {
-    const mpLevel = auth.accessLevel.MANAGE_PARTICIPANTS[0].U.level;
+    const mpLevel = auth.accessLevel.PARTICIPANTS[0].U.level;
     if (mpLevel === 'OWN' || mpLevel === 'GROUP') {
         await eventController.get(reqInfo.eventId)
             .then(async event => {

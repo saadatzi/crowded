@@ -294,14 +294,14 @@ const permissionController = require('./controllers/permission');
                     {title: "Admin",        access: 143},
                     // {title: "Area",         access: 143},
                     {title: "User", access: 175},
-                    {title: "Bank_name",    access: 143},
-                    {title: "Device_app",   access: 143},
+                    {title: "Bank",    access: 143},
+                    {title: "Device",   access: 143},
                     {title: "Event",        access: 175}, //All
                     {title: "Interest",     access: 143},
                     {title: "Organization", access: 143},
                     {title: "Role",         access: 143},
                     {title: "Transaction",  access: 167},
-                    {title: "MANAGE_PARTICIPANTS",   access: 166}, // All
+                    {title: "PARTICIPANTS",   access: 166}, // All
                 ];
                 return permissionController.add(initPermission)
                     .catch(err => {
