@@ -5,7 +5,7 @@ const express = require('express')
 const adminController = require('../../controllers/admin');
 const userController = require('../../controllers/user');
 const NZ = require('../../utils/nz');
-const {sign, verifyTokenPanel} = require('../../utils/validation');
+const {sign, verifyTokenPanel, authorization} = require('../../utils/validation');
 
 const Joi = require('@hapi/joi');
 const JoiConfigs = require('./../joiConfigs');
@@ -86,7 +86,7 @@ router.get('/logout', verifyTokenPanel(), async (req, res) => {
  * @return status 5e9fa191c12938e496a23480
  */
 //______________________Add Admin_____________________//
-router.post('/add', joiValidate(addSchema, 0), verifyTokenPanel(), async (req, res) => {
+router.post('/add', joiValidate(addSchema, 0), verifyTokenPanel(), authorization([{ADMIN: 'C'}]), async (req, res) => {
     console.info('API: Add Admin/init %j', {body: req.body});
 
     adminController.add(req.body)
@@ -105,7 +105,7 @@ router.post('/add', joiValidate(addSchema, 0), verifyTokenPanel(), async (req, r
  * @return status
  */
 //______________________Update Admin_____________________//
-router.put('/edit', joiValidate(updateSchema, 0), verifyTokenPanel(), async (req, res) => {
+router.put('/edit', joiValidate(updateSchema, 0), verifyTokenPanel(), authorization([{ADMIN: 'RU'}]), async (req, res) => {
     console.info('API: update Admin/init %j', {body: req.body});
 
     adminController.update(req.body.adminId, req.body.permissions)

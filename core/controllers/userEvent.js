@@ -105,11 +105,9 @@ userEventController.prototype.getByUserEvent = async (userId, eventId) => {
 userEventController.prototype.setStatus = async (userId, eventId, status, newValue = null) => {
     let updateValue = {status};
     if (newValue) Object.assign(updateValue, newValue);
-    console.log(">>>>>>>>>> updateValue: ", updateValue);
     if (status === 'ACTIVE' || status === 'PAUSED' || status === 'CONTINUE') {
         await UserEvent.getOne({userId, eventId})
             .then(async userEvent => {
-                console.log(">>>>>>>>>> setStatus userEvent: ", userEvent.status);
                 if (!userEvent) throw {code: 404, message: 'Not found!'}
                 if (status === 'ACTIVE'  && userEvent.status !== 'APPROVED') throw {code: 406, message: 'Active status mismatch!'};
                 if (status === 'PAUSED'  && (userEvent.status !== 'ACTIVE' && userEvent.status !== 'CONTINUE')) throw {code: 406, message: 'Paused status mismatch!'};
@@ -121,6 +119,7 @@ userEventController.prototype.setStatus = async (userId, eventId, status, newVal
             })
     }
     // must be event from =< current && current < to
+    //TODO for test and can developer to active disable this check
     // if (status === 'ACTIVE' && status === 'CONTINUE') {
     //     await eventController.get(eventId, 'validActiveEvent')
     //         .then(event => {
@@ -141,6 +140,51 @@ userEventController.prototype.setStatus = async (userId, eventId, status, newVal
             throw err;
         })
 };
+
+
+
+/**
+ * manage Participants
+ *
+ * @param {Admin} admin
+ * @param {Object} reqInfo
+ * @param {Object} auth
+ *
+ * @return Users
+ */
+userEventController.prototype.manageParticipant = async (admin, reqInfo, auth) => {
+    const mpLevel = auth.accessLevel.PARTICIPANTS[0].U.level;
+    if (mpLevel === 'OWN' || mpLevel === 'GROUP') {
+        await eventController.get(reqInfo.eventId)
+            .then(async event => {
+                if (!event) throw {code: 404, message: 'Event not found!'}
+                if (mpLevel === 'GROUP' && (event.orgId).toString() !== (admin.organizationId).toString())
+                    throw new {code: 403, message: 'You are not authorized to manage participants for this event!'};
+                if (mpLevel === 'OWN' && (event.owner).toString() !== (admin._id).toString())
+                    throw {code: 403, message: 'You are not authorized to manage participants for this event!'}
+            })
+            .catch(err => {
+                console.error("!!!User getParticipants eventController failed: ", err);
+                throw err;
+            })
+    }
+
+    await UserEvent.getOne({userId: reqInfo.userId, eventId: reqInfo.eventId})
+        .then(async userEvent => {
+            if (!userEvent) throw {code: 404, message: 'Not found!'};
+            if (reqInfo.isApproved && (userEvent.status !== 'ACTIVE' && userEvent.status !== 'REJECTED')) throw {code: 406, message: 'request Approved has status mismatch!'};
+            if (!reqInfo.isApproved  && (userEvent.status !== 'ACTIVE' && userEvent.status !== 'APPROVED')) throw {code: 406, message: 'request Rejected has status mismatch!'};
+            userEvent.status = reqInfo.isApproved ? 'APPROVED' : 'REJECTED';
+            userEvent.save();
+        })
+        .catch(err => {
+            console.log("!!!UserEvent getOne check Approved failed: ", err);
+            throw err;
+        })
+
+};
+
+
 
 /**
  * add Attendance elapsed UserEvent

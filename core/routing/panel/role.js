@@ -35,7 +35,7 @@ const updateSchema = Joi.object().keys({
  * @return status
  */
 //______________________Add Role_____________________//
-router.post('/add', joiValidate(addSchema, 0), verifyTokenPanel(), authorization({ROLE: ['Create']}), async (req, res) => {
+router.post('/add', joiValidate(addSchema, 0), verifyTokenPanel(), authorization([{ROLE: 'C'}]), async (req, res) => {
     console.info('API: Add Role/init %j', {body: req.body});
 
     roleController.add(req.body)
@@ -54,7 +54,7 @@ router.post('/add', joiValidate(addSchema, 0), verifyTokenPanel(), authorization
  * @return status
  */
 //______________________Update Role_____________________//
-router.put('/edit', joiValidate(updateSchema, 0), verifyTokenPanel(), async (req, res) => {
+router.put('/edit', joiValidate(updateSchema, 0), verifyTokenPanel(), authorization([{ROLE: 'RU'}]), async (req, res) => {
     console.info('API: update Role/init %j', {body: req.body});
 
     roleController.update(req.body.roleId, req.body.permissions)
@@ -91,7 +91,7 @@ router.get('/permissions', verifyTokenPanel(), async (req, res) => {
  * @return status
  */
 //______________________Role List_____________________//
-router.get('/', verifyTokenPanel(), async (req, res) => {
+router.get('/', verifyTokenPanel(), authorization([{ROLE: 'R'}]), async (req, res) => {
     console.info('API: Role List/init');
 
     roleController.get({})
@@ -131,7 +131,7 @@ router.post('/authTest', verifyTokenPanel(), async (req, res) => {
  * @return status
  */
 //______________________Role Detail_____________________//
-router.get('/:id', verifyTokenPanel(), async (req, res) => {
+router.get('/:id', verifyTokenPanel(), authorization([{ROLE: 'R'}]), async (req, res) => {
     console.info('API: Role Detail/init');
 
     roleController.get(req.params.id)

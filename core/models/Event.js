@@ -462,9 +462,7 @@ EventSchema.static({
             //TODO s.mahdi: dont need in panel
             //// status: 1
         };
-        optFilter.sorts = optFilter.sorts || {
-            title_en: 1
-        };
+        optFilter.sorts = optFilter.sorts || {createdAt: -1};
         optFilter.pagination = optFilter.pagination || {
             page: 0,
             limit: 12

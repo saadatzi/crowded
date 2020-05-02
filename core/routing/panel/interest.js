@@ -7,9 +7,9 @@ const interestController = require('../../controllers/interest');
 const userController = require('../../controllers/user');
 const deviceController = require('../../controllers/device');
 const NZ = require('../../utils/nz');
-const { uploader } = require('../../utils/fileManager');
-const { verifyTokenPanel } = require('../../utils/validation');
-const { joiValidate } = require('../utils');
+const {uploader} = require('../../utils/fileManager');
+const {verifyTokenPanel, authorization} = require('../../utils/validation');
+const {joiValidate} = require('../utils');
 const JoiConfigs = require('../joiConfigs');
 
 // Models
@@ -39,7 +39,7 @@ const editSchema = Joi.object().keys({
  * @return status
  */
 //______________________Add Interest_____________________//
-router.post('/add', verifyTokenPanel(), uploader, async (req, res) => {
+router.post('/add', verifyTokenPanel(), uploader, authorization([{INTEREST: 'C'}]), async (req, res) => {
     console.info('API: Add interest/init %j', {body: req.body});
 
     if (!req._uploadPath || !req._uploadFilename) {
@@ -61,7 +61,7 @@ router.post('/add', verifyTokenPanel(), uploader, async (req, res) => {
 /**
  * Edit Interest
  */
-router.put('/edit', verifyTokenPanel(), uploader, joiValidate(editSchema, 0), async (req, res) => {
+router.put('/edit', verifyTokenPanel(), uploader, joiValidate(editSchema, 0), authorization([{INTEREST: 'RU'}]), async (req, res) => {
     if (req._uploadPath && req._uploadFilename) req.body.image = req._uploadPath + '/' + req._uploadFilename;
     interestController.update(req.body)
         .then(result => {
@@ -75,7 +75,7 @@ router.put('/edit', verifyTokenPanel(), uploader, joiValidate(editSchema, 0), as
 /**
  * Remove Interest
  */
-router.delete('/', verifyTokenPanel(), joiValidate(hasValidIdSchema, 0), async (req, res) => {
+router.delete('/', verifyTokenPanel(), joiValidate(hasValidIdSchema, 0), authorization([{INTEREST: 'RD'}]), async (req, res) => {
 
     let id = req.body.id;
     let flag = false;
@@ -104,9 +104,6 @@ router.delete('/', verifyTokenPanel(), joiValidate(hasValidIdSchema, 0), async (
 });
 
 
-
-
-
 /**
  * Get Interests for panel
  * @return list of interests
@@ -129,7 +126,7 @@ router.post('/', verifyTokenPanel(), async function (req, res) {
  */
 router.get('/:id', verifyTokenPanel(), async function (req, res) {
     let options = {
-        _id:req.params.id
+        _id: req.params.id
     };
     interestController.getOnePanel(options)
         .then(result => {

@@ -71,7 +71,7 @@ const updateSchema = Joi.object().keys({
  * @return status
  */
 //______________________Add Event_____________________//
-router.post('/addImage', verifyTokenPanel(), uploader, async (req, res) => {
+router.post('/addImage', verifyTokenPanel(), uploader, authorization([{EVENT: 'RU'}]), async (req, res) => {
     console.info('API: addImage event/init %j', {body: req.body});
     if (!req._uploadPath || !req._uploadFilename) {
         return new NZ.Response(null, 'fileUpload is Empty!', 400).send(res);
@@ -96,7 +96,7 @@ router.post('/addImage', verifyTokenPanel(), uploader, async (req, res) => {
  * @return status
  */
 //______________________Add Event_____________________//
-router.post('/add', uploader, joiValidate(addSchema), verifyTokenPanel(), async (req, res) => {
+router.post('/add', uploader, joiValidate(addSchema), verifyTokenPanel(), authorization([{EVENT: 'C'}]), async (req, res) => {
     console.info('API: Add event/init %j', {body: req.body});
 
     if (!req._uploadPath || !req._uploadFilename) {
@@ -106,7 +106,7 @@ router.post('/add', uploader, joiValidate(addSchema), verifyTokenPanel(), async 
     req.body.images = [{url: req._uploadPath + '/' + req._uploadFilename, order: 1}];
     req.body.location = {coordinates: [req.body.lat, req.body.lng]};
     req.body.owner = req.userId;
-    req.body.orgId = req.admin.organizationId;
+    req.body.orgId = req._admin.organizationId;
     eventController.add(req.body)
         .then(event => {
             new NZ.Response({id: event._id}, 'Event add successful!').send(res);
@@ -124,7 +124,7 @@ router.post('/add', uploader, joiValidate(addSchema), verifyTokenPanel(), async 
  * @return status
  */
 //______________________Add Event_____________________//
-router.put('/edit', joiValidate(updateSchema), verifyTokenPanel(), async (req, res) => {
+router.put('/edit', joiValidate(updateSchema), verifyTokenPanel(), authorization([{EVENT: 'RU'}]), async (req, res) => {
     console.info('API: Add event/init %j', {body: req.body});
 
 
@@ -145,6 +145,7 @@ router.put('/edit', joiValidate(updateSchema), verifyTokenPanel(), async (req, r
  * @return Events
  */
 //______________________Get Event_____________________//
+//TODO JOI Validation
 router.post('/', verifyTokenPanel(), authorization([{EVENT: 'R'}]), async (req, res) => {
     console.info('API: Get event/init %j', {body: req.body});
     console.info('API: Get event/init req.auth %j', req.auth);
@@ -163,7 +164,7 @@ router.post('/', verifyTokenPanel(), authorization([{EVENT: 'R'}]), async (req, 
 /**
  * Remove Event
  */
-router.delete('/', verifyTokenPanel(), joiValidate(hasValidIdSchema, 0), async (req, res) => {
+router.delete('/', verifyTokenPanel(), joiValidate(hasValidIdSchema, 0), authorization([{EVENT: 'RD'}]), async (req, res) => {
 
     let id = req.body.id;
 
@@ -188,7 +189,7 @@ router.delete('/', verifyTokenPanel(), joiValidate(hasValidIdSchema, 0), async (
 /**
  * Get Event Detail
  */
-router.get('/:id', verifyTokenPanel(), async (req, res) => {
+router.get('/:id', verifyTokenPanel(), authorization([{EVENT: 'R'}]), async (req, res) => {
     console.info('API: Get event Detail/init ', req.params);
     let options = {
         _id: req.params.id
