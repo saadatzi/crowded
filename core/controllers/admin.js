@@ -118,6 +118,26 @@ adminController.prototype.getManyPanel = async (optFilter) => {
         });
 };
 
+
+
+/**
+ * Admin getOnePanel
+ *
+ * @param {Object} optFilter
+ *
+ */
+adminController.prototype.getOnePanel = async (optFilter) => {
+    return await Admin.getOnePanel(optFilter)
+        .then(result => {
+            console.log(`***Admin getOnePanel ${optFilter} result: `, result);
+            return result;
+        })
+        .catch(err => {
+            console.log("!!!Admin getOnePanel failed: ", err);
+            throw err;
+        });
+};
+
 /**
  * remove Admin
  *

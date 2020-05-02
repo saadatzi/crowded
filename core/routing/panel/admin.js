@@ -122,7 +122,6 @@ router.put('/edit', joiValidate(updateSchema, 0), verifyTokenPanel(), async (req
 /**
  *  List Admins
  */
-//______________________Add Admin_____________________//
 router.post('/', verifyTokenPanel(), async (req, res) => {
     console.info('API: List Admin/init %j', {body: req.body});
 
@@ -131,7 +130,23 @@ router.post('/', verifyTokenPanel(), async (req, res) => {
             new NZ.Response(result).send(res);
         })
         .catch(err => {
-            console.error("List Add Catch err:", err);
+            console.error("List Admin Catch err:", err);
+            new NZ.Response(null, err.message, err.code || 500).send(res);
+        })
+});
+
+/**
+ *  Admin Detail
+ */
+router.get('/:id', verifyTokenPanel(), async (req, res) => {
+    console.info('API:  Admin Detail/init %j', {params: req.params});
+
+    adminController.getOnePanel({_id:req.params.id})
+        .then(result => {
+            new NZ.Response(result).send(res);
+        })
+        .catch(err => {
+            console.error("Admin Detail Catch err:", err);
             new NZ.Response(null, err.message, err.code || 500).send(res);
         })
 });
