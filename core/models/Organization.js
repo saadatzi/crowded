@@ -88,7 +88,7 @@ OrganizationSchema.static({
         ])
             .catch(err => console.error(err));
 
-        let items = await this.aggregate([
+        return this.aggregate([
             // { $match: { $text: { $search: optFilter.search } } },
             { $match: optFilter.filters },
             // { $sort: { score: { $meta: "textScore" } } },
@@ -109,12 +109,44 @@ OrganizationSchema.static({
                         ]
                     }
                 }
-            }
+            },
+            {
+                $group: {
+                    _id: null,
+                    items: {$push: '$$ROOT'},
+                }
+            },
+            {
+                $lookup: {
+                    from: 'admins',
+                    pipeline: [
+                        // { $match: { $text: { $search: optFilter.search } } },  
+                        {$match: optFilter.filters},
+                        {$count: 'total'},
+                    ],
+                    as: 'getTotal'
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    items: 1,
+                    total: {$arrayElemAt: ["$getTotal", 0]},
+                }
+            },
         ])
-            .catch(err => console.error(err));
-
-        optFilter.pagination.total = total[0].total;
-        return { explain: optFilter, items };
+        .then(result => {
+            let items = [],
+                total = 0;
+            if (result.length > 0) {
+                total = result[0].total.total;
+                delete result[0].total;
+                items = result[0].items;
+            }
+            optFilter.pagination.total = total;
+            return {explain: optFilter, items};
+        })
+             .catch(err => console.error(err));
     },
 
     /**
