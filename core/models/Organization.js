@@ -76,17 +76,7 @@ OrganizationSchema.static({
             limit: 12
         };
 
-        // TODO: do it the right way
-        // Absolutely not a rational decision - Kazem
-        // Didn't have time to do it the right way - Kazem
-        let total = await this.aggregate([
-            // { $match: { $text: { $search: optFilter.search } } },
-            { $match: optFilter.filters },
-            // { $sort: { score: { $meta: "textScore" } } },
-            { $count: 'total' },
-            { $project: { total: "$total" } }
-        ])
-            .catch(err => console.error(err));
+
 
         return this.aggregate([
             // { $match: { $text: { $search: optFilter.search } } },
@@ -118,7 +108,7 @@ OrganizationSchema.static({
             },
             {
                 $lookup: {
-                    from: 'admins',
+                    from: 'organizations',
                     pipeline: [
                         // { $match: { $text: { $search: optFilter.search } } },  
                         {$match: optFilter.filters},
@@ -133,7 +123,7 @@ OrganizationSchema.static({
                     items: 1,
                     total: {$arrayElemAt: ["$getTotal", 0]},
                 }
-            },
+            }
         ])
         .then(result => {
             let items = [],
@@ -185,6 +175,20 @@ OrganizationSchema.static({
             .then(org => org[0])
             .catch(err => console.error(err));
 
+    },
+
+     /**
+     * 
+     * @param {String} id - id of the record
+     * @param {Number} newStatus - new status you want to set
+     * @param {Number} validateCurrent - a function returning a boolean checking old status
+     */
+    async setStatus(id, newStatus, validateCurrent = function(old){return true}) {
+        let record = await this.findOne({_id:id}).catch(err=>console.error(err));
+        let currentState = record.status;
+        if (!validateCurrent(currentState)) throw {message:"Changing status not permitted!"};
+        record.status = newStatus;
+        return record.save();
     }
 
 
