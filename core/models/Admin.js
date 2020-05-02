@@ -72,7 +72,6 @@ AdminSchema.pre('save', function (next) {
  */
 AdminSchema.method({
     async comparePassword(candidatePassword) {
-        console.log("!!!!!!!!Admin comparePassword candidatePassword: ", candidatePassword);
         return await bcrypt.compare(candidatePassword, this.password)
             .then(isMatch => isMatch)
             .catch(err => console.log("!!!!!!!!comparePassword bcrypt.compare getById catch err: ", err));
@@ -143,8 +142,6 @@ AdminSchema.static({
         return await this.findOne({ email: email })
             .populate('organizationId', 'name')
             .then(async user => {
-                console.log("!!!!!!!!Admin getAuthenticated user: ", user);
-
                 // make sure the user exists
                 if (!user) {
                     throw { code: 404, message: "User not found!" }
