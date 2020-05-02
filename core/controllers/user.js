@@ -95,10 +95,10 @@ userController.prototype.getParticipants = async (admin, optFilter, auth) => {
         await eventController.get(optFilter.eventId)
             .then(async event => {
                 if (!event) throw {code: 404, message: 'Event not found!'}
-                if (auth.accessLevel.EVENT[0].R.level === 'GROUP' && (event.orgId).toString() !== (admin.organizationId).toString())
-                    throw new {code: 403, message: 'You are not authorized to receive about this event!'}
                 if (auth.accessLevel.EVENT[0].R.level === 'OWN' && (event.owner).toString() !== (admin._id.toString()))
                     throw {code: 403, message: 'You are not authorized to receive about this event!'}
+                if (auth.accessLevel.EVENT[0].R.level === 'GROUP' && (event.orgId).toString() !== (admin.organizationId).toString())
+                    throw new {code: 403, message: 'You are not authorized to receive about this event!'}
             })
             .catch(err => {
                 console.error("!!!User getParticipants eventController failed: ", err);

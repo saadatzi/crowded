@@ -106,7 +106,7 @@ router.post('/add', uploader, joiValidate(addSchema), verifyTokenPanel(), async 
     req.body.images = [{url: req._uploadPath + '/' + req._uploadFilename, order: 1}];
     req.body.location = {coordinates: [req.body.lat, req.body.lng]};
     req.body.owner = req.userId;
-    req.body.orgId = req.admin.organizationId;
+    req.body.orgId = req._admin.organizationId;
     eventController.add(req.body)
         .then(event => {
             new NZ.Response({id: event._id}, 'Event add successful!').send(res);

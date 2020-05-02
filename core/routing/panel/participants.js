@@ -31,7 +31,7 @@ const locationSchema = Joi.object().keys({
 router.post('/', verifyTokenPanel(), authorization([{EVENT: 'R'}, {USER: 'R'}, {MANAGE_PARTICIPANTS: 'R'}]), async (req, res) => {
     console.info('API: Get Participants event/init %j', {body: req.body});
 
-    userController.getParticipants(req.admin, req.body, req.auth)
+    userController.getParticipants(req._admin, req.body, req.auth)
         .then(items => {
             new NZ.Response({items}).send(res);
         })
@@ -47,10 +47,10 @@ router.post('/', verifyTokenPanel(), authorization([{EVENT: 'R'}, {USER: 'R'}, {
  * @return Boolean
  */
 //______________________Get Participants Event_____________________//
-router.post('/manage', verifyTokenPanel(), authorization([{EVENT: 'R'}, {USER: 'R'},{MANAGE_PARTICIPANTS: 'U'}]), async (req, res) => {
+router.post('/manage', verifyTokenPanel(), authorization([{EVENT: 'R'}, {USER: 'R'}, {MANAGE_PARTICIPANTS: 'U'}]), async (req, res) => {
     console.info('API: Get Participants event/init %j', {body: req.body});
 
-    userEventController.manageParticipant(req.admin, req.body, req.auth)
+    userEventController.manageParticipant(req._admin, req.body, req.auth)
         .then(item => {
             new NZ.Response(true, 'Your request has been successfully submitted').send(res);
         })
