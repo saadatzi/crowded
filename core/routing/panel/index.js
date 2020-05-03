@@ -17,6 +17,7 @@ app.use('/role', 		require('./role'));
 app.use('/org', 		require('./organization'));
 app.use('/admin', 		require('./admin'));
 app.use('/participants',require('./participants'));
+app.use('/transaction',require('./transaction'));
 app.use('/static',      require('./static'));
 app.use('/setting',      require('./setting'));
 

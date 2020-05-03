@@ -30,7 +30,7 @@ const locationSchema = Joi.object().keys({
 router.post('/', verifyTokenPanel(), authorization([{TRANSACTION: 'R'}]), async (req, res) => {
     console.info('API: Get Transaction event/init %j', {body: req.body});
 
-    transactionController.getPanelTransaction(req._admin, req.body, req.auth)
+    transactionController.getPanelTransaction(req.body)
         .then(items => {
             new NZ.Response({items}).send(res);
         })

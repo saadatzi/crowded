@@ -96,6 +96,7 @@ router.post('/', verifyToken(), async function (req, res) {
     if (setInterestValidation.error)
         return new NZ.Response(setInterestValidation.error, 'You must choose at least one interest.', 400).send(res);
 
+    //TODO when must to merge?!
     //Added
     // let lastInterests;
     // if (req.userId)
