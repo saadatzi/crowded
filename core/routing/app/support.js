@@ -26,7 +26,7 @@ router.post('/add', verifyToken(true), async (req, res) => {
  * @return list of support
  */
 //______________________Get Support_____________________//
-router.get('/faq', verifyToken(true), async function (req, res) {
+router.get('/faq', verifyToken(), async function (req, res) {
     console.info('API: Get support/init');
 
     const mockSupport = [

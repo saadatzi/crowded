@@ -265,6 +265,69 @@ TransactionSchema.static({
     },
 
     /**
+     * List All Transaction
+     *
+     * @param {Object} optFilter
+     */
+    getPanel: async function (optFilter) {
+        const criteria = {isDebtor: true};
+
+        optFilter.filters = optFilter.filters || {
+            //TODO s.mahdi: dont need in panel
+            //// status: 1
+        };
+        optFilter.sorts = optFilter.sorts || {createdAt: -1};
+        optFilter.pagination = optFilter.pagination || {
+            page: 0,
+            limit: 12
+        };
+
+        return await this.aggregate([
+            {$match: criteria},
+            {$match: optFilter.filters},
+            {$sort: optFilter.sorts},
+            {$skip: optFilter.pagination.page * optFilter.pagination.limit},
+            {$limit: optFilter.pagination.limit},
+            {
+                $project: {
+                    _id: 0,
+                    id: "$_id",
+                    title: {$toString: `$title_${lang}`},
+                    price: {$toString: "$price"},
+                    eventDate: {$dateToString: {format: "%Y/%m/%d", date: "$eventDate", timezone: "Asia/Kuwait"}},
+                    isDebtor: 1,
+                    transactionId: 1
+                },
+            },
+            {
+                $group: {
+                    _id: null,
+                    items: {$push: '$$ROOT'},
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    nextPage: {$cond: {if: {$gt: [{$size: "$items"}, limit]}, then: page + 1, else: null}},
+                    items: {$slice: ["$items", limit]},
+
+                }
+            },
+            {
+                $project: {
+                    items: 1,
+                    nextPage: 1,
+                }
+            }
+        ])
+            .then(async transactions => {
+                console.log(">>>>>>>>>>>> getMyTransaction transaction: ", transactions);
+                return transactions[0]
+            })
+            .catch(err => console.error("getMyTransaction  Catch", err));
+    },
+
+    /**
      * List all Transaction
      *
      * @param {Object} options

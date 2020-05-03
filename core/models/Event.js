@@ -442,10 +442,7 @@ EventSchema.static({
             {$sort: {id: -1}},
         ])
             // .exec()
-            .then(events => {
-                console.log(">>>>>>>>>>> getAllMyEvent events: ", events);
-                return events
-            })
+            .then(events => events)
             .catch(err => console.error("getAllMyEvent  Catch", err));
     },
 
@@ -472,26 +469,25 @@ EventSchema.static({
             regexMatch = {
                 $or: [
                     {
-                        title_en: { $regex: regex, $options: "i" }
+                        title_en: {$regex: regex, $options: "i"}
                     },
                     {
-                        title_ar: { $regex: regex, $options: "i" }
+                        title_ar: {$regex: regex, $options: "i"}
                     },
                     {
-                        desc_en: { $regex: regex, $options: "i" }
+                        desc_en: {$regex: regex, $options: "i"}
                     },
                     {
-                        desc_ar: { $regex: regex, $options: "i" }
+                        desc_ar: {$regex: regex, $options: "i"}
                     }
                 ]
             };
         }
 
 
-
         return await this.aggregate([
             {$match: ownAny},
-            { $match: regexMatch },
+            {$match: regexMatch},
             {$match: optFilter.filters},
             {$sort: optFilter.sorts},
             {$skip: optFilter.pagination.page * optFilter.pagination.limit},
@@ -510,7 +506,7 @@ EventSchema.static({
                 $project: {
                     _id: 0,
                     id: "$_id",
-                    title_en:1,
+                    title_en: 1,
                     image: 1
                 },
             },
@@ -525,7 +521,7 @@ EventSchema.static({
                     from: 'events',
                     pipeline: [
                         {$match: ownAny},
-                        { $match: regexMatch },
+                        {$match: regexMatch},
                         {$match: optFilter.filters},
                         {$count: 'total'},
                     ],
@@ -574,16 +570,16 @@ EventSchema.static({
             regexMatch = {
                 "$or": [
                     {
-                        title_en: { $regex: regex, $options: "i" }
+                        title_en: {$regex: regex, $options: "i"}
                     },
                     {
-                        title_ar: { $regex: regex, $options: "i" }
+                        title_ar: {$regex: regex, $options: "i"}
                     },
                     {
-                        desc_en: { $regex: regex, $options: "i" }
+                        desc_en: {$regex: regex, $options: "i"}
                     },
                     {
-                        desc_ar: { $regex: regex, $options: "i" }
+                        desc_ar: {$regex: regex, $options: "i"}
                     }
                 ]
             };
@@ -591,7 +587,7 @@ EventSchema.static({
 
 
         return await this.aggregate([
-            { $match: regexMatch },
+            {$match: regexMatch},
             {$match: optFilter.filters},
             {
                 $lookup: {
@@ -635,7 +631,7 @@ EventSchema.static({
                 $project: {
                     _id: 0,
                     id: "$_id",
-                    title_en:1,
+                    title_en: 1,
                     image: 1
                 },
             },
@@ -650,7 +646,7 @@ EventSchema.static({
                 $lookup: {
                     from: 'events',
                     pipeline: [
-                        { $match: regexMatch },
+                        {$match: regexMatch},
                         {$match: optFilter.filters},
                         {$count: 'total'},
                     ],
@@ -791,7 +787,7 @@ EventSchema.static({
                     createdAt: {$first: `$createdAt`},
                     updatedAt: {$first: `$updatedAt`},
                     interests: {$first: "$interests"},
-                    owner: {$first: {$arrayElemAt: ["$_owner", 0] }}
+                    owner: {$first: {$arrayElemAt: ["$_owner", 0]}}
                 }
             },
             //TODO kazem clean interests show only title(_en), image(correct link), id
@@ -808,7 +804,7 @@ EventSchema.static({
                 $project: {
                     createdAt: 1,
                     updatedAt: 1,
-                    owner:  "$owner.name",
+                    owner: "$owner.name",
                     isActive: "$isActive",
                     _id: 0,
                     id: "$_id",
@@ -842,15 +838,17 @@ EventSchema.static({
     },
 
     /**
-     * 
+     *
      * @param {String} id - id of the record
      * @param {Number} newStatus - new status you want to set
      * @param {Number} validateCurrent - a function returning a boolean checking old status
      */
-    async setStatus(id, newStatus, validateCurrent = function(old){return true}) {
-        let record = await this.findOne({_id:id}).catch(err=>console.error(err));
+    async setStatus(id, newStatus, validateCurrent = function (old) {
+        return true
+    }) {
+        let record = await this.findOne({_id: id}).catch(err => console.error(err));
         let currentState = record.status;
-        if (!validateCurrent(currentState)) throw {message:"Changing status not permitted!"};
+        if (!validateCurrent(currentState)) throw {message: "Changing status not permitted!"};
         record.status = newStatus;
         return record.save();
     }
