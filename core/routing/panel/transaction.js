@@ -6,8 +6,7 @@ const JoiConfigs = require('../joiConfigs');
 const {joiValidate} = require('../utils');
 
 // Instantiate the Device Model
-const userController = require('../../controllers/transaction');
-const userController = require('../../controllers/user');
+const transactionController = require('../../controllers/transaction');
 const deviceController = require('../../controllers/device');
 const NZ = require('../../utils/nz');
 const {uploader, multiUploader} = require('../../utils/fileManager');
@@ -31,7 +30,7 @@ const locationSchema = Joi.object().keys({
 router.post('/', verifyTokenPanel(), authorization([{TRANSACTION: 'R'}]), async (req, res) => {
     console.info('API: Get Transaction event/init %j', {body: req.body});
 
-    userController.getTransaction(req._admin, req.body, req.auth)
+    transactionController.getTransaction(req._admin, req.body, req.auth)
         .then(items => {
             new NZ.Response({items}).send(res);
         })

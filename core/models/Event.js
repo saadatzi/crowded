@@ -470,7 +470,7 @@ EventSchema.static({
         if (optFilter.search) {
             let regex = new RegExp(optFilter.search);
             regexMatch = {
-                "$or": [
+                $or: [
                     {
                         title_en: { $regex: regex, $options: "i" }
                     },
@@ -740,7 +740,7 @@ EventSchema.static({
 
     /**
      *
-     * @param {String} id
+     * @param {String} options
      */
     async getOnePanel(options) {
         if (!options) throw {message: "Missing criteria for Event.getOnePanel!"};
@@ -757,6 +757,14 @@ EventSchema.static({
                         {$match: {$expr: {$eq: ["$childs._id", "$$primaryArea"]}}}
                     ],
                     as: 'getArea'
+                }
+            },
+            {
+                $lookup: {
+                    from: "admins",
+                    localField: "owner",
+                    foreignField: "_id",
+                    as: "_owner"
                 }
             },
             {$unwind: "$images"},
@@ -783,17 +791,10 @@ EventSchema.static({
                     createdAt: {$first: `$createdAt`},
                     updatedAt: {$first: `$updatedAt`},
                     interests: {$first: "$interests"},
-                    owner: {$first: "$owner"}
+                    owner: {$first: {$arrayElemAt: ["$_owner", 0] }}
                 }
             },
-            {
-                $lookup: {
-                    from: "admins",
-                    localField: "owner",
-                    foreignField: "_id",
-                    as: "_owner"
-                }
-            },
+            //TODO kazem clean interests show only title(_en), image(correct link), id
             {
                 $lookup:
                     {
@@ -807,7 +808,7 @@ EventSchema.static({
                 $project: {
                     createdAt: 1,
                     updatedAt: 1,
-                    owner: "$_owner",
+                    owner:  "$owner.name",
                     isActive: "$isActive",
                     _id: 0,
                     id: "$_id",
@@ -817,7 +818,8 @@ EventSchema.static({
                     desc_ar: 1,
                     title_en: 1,
                     title_ar: 1,
-                    area: {$arrayElemAt: ['$getArea', 0]},
+                    area_en: {$arrayElemAt: ['$getArea_en', 0]},
+                    area_ar: {$arrayElemAt: ['$getArea_ar', 0]},
                     value: 1,
                     attendance: 1,
                     allowedApplyTime: "$_allowedApplyTime",
