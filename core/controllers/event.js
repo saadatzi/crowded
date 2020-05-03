@@ -152,10 +152,7 @@ eventController.prototype.getByIdAggregate = async (id, lang, userId = null) => 
  */
 eventController.prototype.getOnePanel = async (optFilter) => {
     return await Event.getOnePanel(optFilter)
-        .then(result => {
-            console.log(`***Event get by id ${optFilter} result: `, result);
-            return result;
-        })
+        .then(result => result)
         .catch(err => {
             console.log("!!!Event get failed: ", err);
             throw err;

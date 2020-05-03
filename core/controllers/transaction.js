@@ -88,7 +88,6 @@ transactionController.prototype.myTransactionTotal = async (userId) => {
 };
 
 
-
 /**
  * withdraw Transaction
  *
@@ -118,8 +117,13 @@ transactionController.prototype.requestWithdraw = async (userId, bankId, total) 
                 return Transaction.create(addNewTransaction)
                     .then(transaction => {
                         console.log("***Transaction withdraw save success transaction", transaction);
-                        const updateFilter = {status: 1, userId: mongoose.Types.ObjectId(userId), situation: "UNPAID", isDebtor: false};
-                        const updateValue = {situation: "PENDING"};
+                        const updateFilter = {
+                            status: 1,
+                            userId: mongoose.Types.ObjectId(userId),
+                            situation: "UNPAID",
+                            isDebtor: false
+                        };
+                        const updateValue = {situation: "PAID"};
                         return newTransactionController.update(updateFilter, updateValue)
                             .then(result => {
                                 console.log("***Transaction  withdraw Update: ", result);
@@ -145,28 +149,20 @@ transactionController.prototype.requestWithdraw = async (userId, bankId, total) 
 };
 
 /**
- * get Transaction
+ * get Panel Transaction
  *
- * @param {Object || ObjectId} optFilter
+ * @param {Object} optFilter
  *
  * @return List Transaction
  */
-transactionController.prototype.get = async (optFilter, type = 'id') => {
-    if (!optFilter || optFilter instanceof Object) { //newEvent instanceof Array
-        return await Transaction.getAllMyInterestEvent(optFilter)
-            .then(events => events)
-            .catch(err => {
-                console.error("!!!Transaction getAll failed: ", err);
-                throw err;
-            })
-    } else {
-        return await Transaction.getById(optFilter)
-            .then(result => result)
-            .catch(err => {
-                console.log("!!!Transaction get failed: ", err);
-                throw err;
-            })
-    }
+transactionController.prototype.getPanelTransaction = async (optFilter) => {
+    return await Transaction.getPanel(optFilter)
+        .then(transactions => transactions)
+        .catch(err => {
+            console.error("!!!Transaction getAll failed: ", err);
+            throw err;
+        })
+
 };
 
 

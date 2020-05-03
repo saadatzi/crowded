@@ -272,11 +272,8 @@ TransactionSchema.static({
     getPanel: async function (optFilter) {
         const criteria = {isDebtor: true};
 
-        optFilter.filters = optFilter.filters || {
-            //TODO s.mahdi: dont need in panel
-            //// status: 1
-        };
-        optFilter.sorts = optFilter.sorts || {createdAt: -1};
+        optFilter.filters = optFilter.filters || {};
+        optFilter.sorts = (Object.keys(optFilter.sorts).length === 0 && optFilter.sorts.constructor === Object) ? {updatedAt: -1} : optFilter.sorts;
         optFilter.pagination = optFilter.pagination || {
             page: 0,
             limit: 12
