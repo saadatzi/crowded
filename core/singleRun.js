@@ -27,10 +27,10 @@ const permissionController = require('./controllers/permission');
     //     in_app: true
     // }]);
     
-    // Setting.create([{
-	// 	key: 	 'support-email',
-	// 	value: 'sup@nizek.com',
-	// }]);
+    Setting.create([{
+		key: 	 'support-email',
+		value:  'sup@nizek.com',
+	}]);
 
     googleStaticImage(35.7485728, 51.4080562);
     if (settings.initDataDB) {
