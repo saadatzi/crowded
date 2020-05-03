@@ -141,40 +141,21 @@ adminController.prototype.getOnePanel = async (optFilter) => {
 /**
  * remove Admin
  *
- * @param {Object || ObjectId} optFilter
+ * @param {ObjectId} id
  *
  * @return Query
  */
-adminController.prototype.remove = async (optFilter) => {
-    if (optFilter) {
-        if (optFilter instanceof Object) { //instanceof mongoose.Types.ObjectId
-
-            return await Admin.remove(optFilter)
-                .then(result => {
-                    console.log("***Admin  Remove many result: ", result);
-                    return result;
-                })
-                .catch(err => {
-                    console.log("!!!Admin Remove failed: ", err);
-                    throw err;
-                })
-        } else {
-
-            return await Admin.findByIdAndRemove(optFilter)
-                .then(result => {
-                    console.log(`***Admin Remove by id ${optFilter} result: `, result);
-                    return result;
-                })
-                .catch(err => {
-                    console.log("!!!Admin Remove failed: ", err);
-                    throw err;
-                })
-        }
-    } else {
-        throw { errMessage: 'for remove Object conditions or Id is required!' }
-    }
-
-
+adminController.prototype.remove = async (id) => {
+    let newStatus = 2;
+    return await Admin.setStatus(id,2,oldStatus=>oldStatus!==newStatus)
+        .then(result => {
+            console.log(`***Admin Removed by id ${id} result: `, result);
+            return result;
+        })
+        .catch(err => {
+            console.log(`!!!Admin Remove failed for id ${id}: `, err);
+            throw err;
+        });
 };
 
 /**

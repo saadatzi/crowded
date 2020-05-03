@@ -11,6 +11,8 @@ const Joi = require('@hapi/joi');
 const JoiConfigs = require('./../joiConfigs');
 const {joiValidate} = require('./../utils');
 
+const Event = require('../../models/Event');
+
 const {getForgotHash} = require('../../utils/cacheLayer')
 
 const callSchema = Joi.object().keys({
@@ -38,6 +40,11 @@ const updateSchema = Joi.object().keys({
     call: JoiConfigs.array(false, callSchema),
     organizationId: JoiConfigs.isMongoId
 });
+
+const hasValidIdSchema = Joi.object().keys({
+    id: JoiConfigs.isMongoId
+});
+
 
 const loginSchema = Joi.object().keys({
     email: JoiConfigs.email(),
@@ -150,6 +157,31 @@ router.get('/:id', verifyTokenPanel(), async (req, res) => {
             new NZ.Response(null, err.message, err.code || 500).send(res);
         })
 });
+
+/**
+ * Remove Admin
+ */
+router.delete('/', verifyTokenPanel(), joiValidate(hasValidIdSchema, 0), authorization([{ADMIN: 'D'}]), async (req, res) => {
+
+    let id = req.body.id;
+
+    // await check events
+    let flag = await Event.adminIsRelated(id);
+
+
+    if (flag) {
+        return new NZ.Response(null, "Couldn`t remove the Admin due to its relation to other collections", 400).send(res);
+    } else {
+        adminController.remove(id)
+            .then(result => {
+                new NZ.Response(null, "Admin removed successfully.").send(res);
+            })
+            .catch(err => {
+                new NZ.Response(null, err.message, 500).send(res);
+            });
+    }
+});
+
 
 /**
  *  Forgot Password
