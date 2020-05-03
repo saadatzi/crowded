@@ -36,9 +36,6 @@ const EventSchema = new Schema({
 //index for geo location
 EventSchema.index({location: '2dsphere'});
 
-// index for search
-EventSchema.index({title_en: 'text'});
-
 
 /**
  * Pre-remove hook
@@ -835,6 +832,23 @@ EventSchema.static({
             .then(event => event[0])
             .catch(err => console.error(err));
 
+    },
+    
+    /**
+     * Checks to see if given admin is related to any event
+     *
+     * @param {String} id
+     * @api private
+     */
+    adminIsRelated: async function (id) {
+        let result = await this.aggregate([
+            { $match: { owner: mongoose.Types.ObjectId(id) } }
+        ])
+            .catch(err => {
+                console.error(`Event adminIsRelated check failed with criteria id:${id}`, err);
+                throw err;
+            });
+        return result.length != 0;
     },
 
     /**

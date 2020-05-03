@@ -19,13 +19,6 @@ const InterestSchema = new Schema({
 
 
 
-// index for search
-InterestSchema.index({ title_en: 'text' , title_ar: 'text'});
-
-
-// InterestSchema.index({ title_ar: 1, type: -1 });
-// InterestSchema.index({ title_en: 1, type: -1 });
-
 // function imageClient(image) {
 //     return {url: settings.media_domain+image}
 // };
@@ -227,18 +220,6 @@ InterestSchema.static({
 
 const Interest = mongoose.model('Interest', InterestSchema);
 
-Interest.createIndexes()
-.then(()=>{
-    return Interest.collection.getIndexes({full: true});
-})
-.then(indexes => {
-    console.log("indexes:", indexes);
-    // ...
-}).catch(console.error);
-
-//shit 
-// Interest.collection.dropIndexes({full:true})
-// Promise.resolve(true)
 
 
 module.exports = Interest;
