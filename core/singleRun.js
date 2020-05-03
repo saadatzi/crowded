@@ -22,7 +22,8 @@ const permissionController = require('./controllers/permission');
 	// 	name_en: 'About us',
 	// 	name_ar: 'About USS',
 	// 	html_en: 'somehtmlhere',
-	// 	html_ar: 'YOYO'
+    //     html_ar: 'YOYO',
+    //     in_app: true
 	// }]);
 
     googleStaticImage(35.7485728, 51.4080562);

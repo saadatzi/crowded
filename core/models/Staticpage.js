@@ -57,6 +57,14 @@ StaticpageSchema.static({
     },
 
     list(optFilter) {
+        optFilter.filters = optFilter.filters || {
+        };
+        optFilter.sorts = optFilter.sorts || {
+        };
+        optFilter.pagination = optFilter.pagination || {
+            page: 0,
+            limit: 12
+        };
         return this.aggregate([
             { $match: {} },
             {

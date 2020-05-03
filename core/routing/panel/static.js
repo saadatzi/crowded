@@ -3,14 +3,14 @@ const express = require('express')
 
 const Joi = require('@hapi/joi');
 const JoiConfigs = require('./../joiConfigs');
-const {joiValidate} = require('./../utils');
+const { joiValidate } = require('./../utils');
 
 // Instantiate the Device Model
 const staticController = require('../../controllers/static');
 const userController = require('../../controllers/user');
 const deviceController = require('../../controllers/device');
 const NZ = require('../../utils/nz');
-const {verifyTokenPanel} = require('../../utils/validation');
+const { verifyTokenPanel } = require('../../utils/validation');
 
 
 
@@ -21,7 +21,7 @@ const {verifyTokenPanel} = require('../../utils/validation');
  * @return List Static
  */
 router.post('/', verifyTokenPanel(), async (req, res) => {
-    console.info('API: Get Static list %j', {body: req.body});
+    console.info('API: Get Static list %j', { body: req.body });
 
     staticController.list(req.body)
         .then(result => {
@@ -37,12 +37,12 @@ router.post('/', verifyTokenPanel(), async (req, res) => {
  * Edit Static
  * @return Static
  */
-router.put('/', verifyTokenPanel(), async (req, res) => {
-    console.info('API: Edit Static %j', {body: req.body});
+router.put('/edit', verifyTokenPanel(), async (req, res) => {
+    console.info('API: Edit Static %j', { body: req.body });
 
     staticController.update(req.body)
         .then(result => {
-            new NZ.Response(result).send(res);
+            new NZ.Response(null, "Static page succefully edited", 200).send(res);
         })
         .catch(err => {
             console.error("Static Get Catch err:", err)
@@ -55,7 +55,7 @@ router.put('/', verifyTokenPanel(), async (req, res) => {
  * @return List Static
  */
 router.get('/:id', verifyTokenPanel(), async (req, res) => {
-    console.info('API: Get Static detail %j', {body: req.params});
+    console.info('API: Get Static detail %j', { body: req.params });
 
     staticController.getById(req.params.id)
         .then(result => {
