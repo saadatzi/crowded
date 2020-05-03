@@ -1,13 +1,9 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const StaticpageSchema = new Schema({
-    alias: { type: String, required: true, unique:true},
-    name_en: { type: String, required: true },
-    name_ar: { type: String, required: true },
-    html_en: { type: String, required: true },
-    html_ar: { type: String, required: true },
-    in_app: {type: Boolean, required: true}
+const SettingSchema = new Schema({
+    key: { type: String, required: true, unique: true },
+    value: { type: String, required: true },
 },
     {
         timestamps: true
@@ -18,13 +14,13 @@ const StaticpageSchema = new Schema({
 /**
  * Methods
  */
-StaticpageSchema.method({
+SettingSchema.method({
 });
 
 /**
  * Statics
  */
-StaticpageSchema.static({
+SettingSchema.static({
     /**
     * Find Staicpage
     *
@@ -38,22 +34,17 @@ StaticpageSchema.static({
                 $project: {
                     _id: 0,
                     id: '$_id',
-                    alias: 1,
-                    name_en: 1,
-                    name_ar: 1,
-                    html_en: 1,
-                    html_ar: 1,
-                    in_app: 1,
+                    key: 1,
+                    value: 1,
                 }
             }
         ])
             .catch(err => console.error(err));
     },
 
-    getByAlias(alias) {
-        return this.findOne({ alias })
-            .then(staticpage => staticpage)
-            .catch(err => console.log("!!!!!!!! getByAlias catch err: ", err));
+    getByKey(key) {
+        return this.findOne({ key })
+            .catch(err => console.log("!!!!!!!! Setting getByKey catch err: ", err));
     },
 
     list(optFilter) {
@@ -71,12 +62,8 @@ StaticpageSchema.static({
                 $project: {
                     _id: 0,
                     id: '$_id',
-                    alias: 1,
-                    name_en: 1,
-                    name_ar: 1,
-                    html_en: 1,
-                    html_ar: 1,
-                    in_app: 1,
+                    key: 1,
+                    value: 1,
                 }
             },
             {
@@ -87,7 +74,7 @@ StaticpageSchema.static({
             },
             {
                 $lookup: {
-                    from: 'staticpages',
+                    from: 'settings',
                     pipeline: [
                         { $count: 'total' },
                     ],
@@ -118,6 +105,6 @@ StaticpageSchema.static({
 
 });
 
-const Staticpage = mongoose.model('Staticpage', StaticpageSchema);
+const Setting = mongoose.model('Setting', SettingSchema);
 
-module.exports = Staticpage;
+module.exports = Setting;

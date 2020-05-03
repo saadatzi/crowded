@@ -9,6 +9,7 @@ const roleController = require('./controllers/role');
 const bankNameController = require('./controllers/bankName');
 const BankName = require('./models/BankName');
 const Staticpage = require('./models/Staticpage');
+const Setting = require('./models/Setting');
 
 const permissionController = require('./controllers/permission');
 
@@ -22,7 +23,13 @@ const permissionController = require('./controllers/permission');
 	// 	name_en: 'About us',
 	// 	name_ar: 'About USS',
 	// 	html_en: 'somehtmlhere',
-	// 	html_ar: 'YOYO'
+    //     html_ar: 'YOYO',
+    //     in_app: true
+    // }]);
+    
+    // Setting.create([{
+	// 	key: 	 'support-email',
+	// 	value: 'sup@nizek.com',
 	// }]);
 
     googleStaticImage(35.7485728, 51.4080562);
