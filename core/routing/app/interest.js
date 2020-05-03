@@ -89,7 +89,6 @@ router.get('/', verifyToken(), async function (req, res) {
 //______________________Set Interest_____________________//
 router.post('/', verifyToken(), async function (req, res) {
     console.info('API: Set interest/init %j', {body: req.body});
-    console.info('API: Set interest/init UserId', req.userId);
     const setInterestSchema = Joi.object().keys({
         selected: Joi.array().min(1).required()
     });
@@ -98,16 +97,16 @@ router.post('/', verifyToken(), async function (req, res) {
         return new NZ.Response(setInterestValidation.error, 'You must choose at least one interest.', 400).send(res);
 
     //Added
-    let lastInterests;
-    if (req.userId)
-        lastInterests = await userController.get(req.userId, 'interest');
-    else
-        lastInterests = await deviceController.get(req.deviceId, 'id');
-    const uniqueInterests = Array.from(new Set([...lastInterests.interests.map(item => item.toString()), ...req.body.selected]));
-    console.info('API: Set interest/lastInterests %j', lastInterests);
-    console.info('API: Set interest/uniqueInterests %j', uniqueInterests);
+    // let lastInterests;
+    // if (req.userId)
+    //     lastInterests = await userController.get(req.userId, 'interest');
+    // else
+    //     lastInterests = await deviceController.get(req.deviceId, 'id');
+    // const uniqueInterests = Array.from(new Set([...lastInterests.interests.map(item => item.toString()), ...req.body.selected]));
+    // console.info('API: Set interest/lastInterests %j', lastInterests);
+    // console.info('API: Set interest/uniqueInterests %j', uniqueInterests);
     //Replace req.body.selected
-    const updateValue = {interests: uniqueInterests};
+    const updateValue = {interests: req.body.selected};
 
 
     if (req.userId) {
