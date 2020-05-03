@@ -127,7 +127,6 @@ TransactionSchema.static({
             }
         ])
             .then(async transactions => {
-                console.log(">>>>>>>>>>>> getMyTransaction transaction: ", transactions);
                 return transactions[0]
             })
             .catch(err => console.error("getMyTransaction  Catch", err));
@@ -241,7 +240,6 @@ TransactionSchema.static({
             }
         ])
             .then(async transactions => {
-                console.log(">>>>>>>>>>>> getMyTransaction transaction: ", transactions);
                 return transactions[0]
             })
             .catch(err => console.error("getMyTransaction  Catch", err));
@@ -318,7 +316,6 @@ TransactionSchema.static({
             }
         ])
             .then(async transactions => {
-                console.log(">>>>>>>>>>>> getMyTransaction transaction: ", transactions);
                 return transactions[0]
             })
             .catch(err => console.error("getMyTransaction  Catch", err));

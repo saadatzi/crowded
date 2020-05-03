@@ -88,7 +88,7 @@ router.get('/', verifyToken(), async function (req, res) {
  */
 //______________________Set Interest_____________________//
 router.post('/', verifyToken(), async function (req, res) {
-
+    console.info('API: Set interest/init %j', {body: req.body});
     const setInterestSchema = Joi.object().keys({
         selected: Joi.array().min(1).required()
     });
@@ -103,7 +103,8 @@ router.post('/', verifyToken(), async function (req, res) {
     else
         lastInterests = await deviceController.get(req.deviceId, 'id');
     const uniqueInterests = Array.from(new Set([...lastInterests.interests.map(item => item.toString()), ...req.body.selected]));
-
+    console.info('API: Set interest/lastInterests %j', lastInterests);
+    console.info('API: Set interest/uniqueInterests %j', uniqueInterests);
     //Replace req.body.selected
     const updateValue = {interests: uniqueInterests};
 
