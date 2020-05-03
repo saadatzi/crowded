@@ -96,8 +96,6 @@ InterestSchema.static({
      */
     async getManyPanel(optFilter) {
 
-        // TODO: enable search
-        optFilter.search = optFilter.search || "";
         optFilter.filters = optFilter.filters || {
             status: 1
         };
@@ -108,13 +106,26 @@ InterestSchema.static({
             page: 0,
             limit: 12
         };
-        console.log(optFilter.search);
+        
+        let regexMatch = {};
+        if (optFilter.search) {
+            let regex = new RegExp(optFilter.search);
+            regexMatch = {
+                "$or": [
+                    {
+                        title_en: { $regex: regex, $options: "i" }
+                    },
+                    {
+                        title_ar: { $regex: regex, $options: "i" }
+                    }
+                ]
+            };
+        }
 
         
         return this.aggregate([
-            // { $match: { $text: { $search: optFilter.search } } },
+            { $match: regexMatch },
             { $match: optFilter.filters },
-            // { $sort: { score: { $meta: "textScore" } } },
             { $sort: optFilter.sorts },
             { $skip: optFilter.pagination.page * optFilter.pagination.limit },
             { $limit: optFilter.pagination.limit },
@@ -138,7 +149,7 @@ InterestSchema.static({
                 $lookup: {
                     from: 'interests',
                     pipeline: [
-                        // { $match: { $text: { $search: optFilter.search } } },  
+                        { $match: regexMatch },  
                         { $match: optFilter.filters },
                         { $count: 'total' },
                     ],

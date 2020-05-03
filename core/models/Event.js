@@ -456,8 +456,6 @@ EventSchema.static({
 
         const ownAny = accessLevel === 'OWN' ? {owner: mongoose.Types.ObjectId(userId)} : {};
 
-        // TODO: enable search
-        optFilter.search = optFilter.search || "";
         optFilter.filters = optFilter.filters || {
             //TODO s.mahdi: dont need in panel
             //// status: 1
@@ -468,12 +466,33 @@ EventSchema.static({
             limit: 12
         };
 
+        let regexMatch = {};
+        if (optFilter.search) {
+            let regex = new RegExp(optFilter.search);
+            regexMatch = {
+                "$or": [
+                    {
+                        title_en: { $regex: regex, $options: "i" }
+                    },
+                    {
+                        title_ar: { $regex: regex, $options: "i" }
+                    },
+                    {
+                        desc_en: { $regex: regex, $options: "i" }
+                    },
+                    {
+                        desc_ar: { $regex: regex, $options: "i" }
+                    }
+                ]
+            };
+        }
+
+
 
         return await this.aggregate([
             {$match: ownAny},
-            // { $match: { $text: { $search: optFilter.search } } },
+            { $match: regexMatch },
             {$match: optFilter.filters},
-            // { $sort: { score: { $meta: "textScore" } } },
             {$sort: optFilter.sorts},
             {$skip: optFilter.pagination.page * optFilter.pagination.limit},
             {$limit: optFilter.pagination.limit},
@@ -506,6 +525,7 @@ EventSchema.static({
                     from: 'events',
                     pipeline: [
                         {$match: ownAny},
+                        { $match: regexMatch },
                         {$match: optFilter.filters},
                         {$count: 'total'},
                     ],
@@ -539,8 +559,6 @@ EventSchema.static({
      */
     async listGroup(userId, optFilter) {
 
-        // TODO: enable search
-        optFilter.search = optFilter.search || "";
         optFilter.filters = optFilter.filters || {};
         optFilter.sorts = optFilter.sorts || {
             _id: -1
@@ -550,8 +568,30 @@ EventSchema.static({
             limit: 12
         };
 
+        let regexMatch = {};
+        if (optFilter.search) {
+            let regex = new RegExp(optFilter.search);
+            regexMatch = {
+                "$or": [
+                    {
+                        title_en: { $regex: regex, $options: "i" }
+                    },
+                    {
+                        title_ar: { $regex: regex, $options: "i" }
+                    },
+                    {
+                        desc_en: { $regex: regex, $options: "i" }
+                    },
+                    {
+                        desc_ar: { $regex: regex, $options: "i" }
+                    }
+                ]
+            };
+        }
+
+
         return await this.aggregate([
-            // { $match: { $text: { $search: optFilter.search } } },
+            { $match: regexMatch },
             {$match: optFilter.filters},
             {
                 $lookup: {
@@ -610,6 +650,7 @@ EventSchema.static({
                 $lookup: {
                     from: 'events',
                     pipeline: [
+                        { $match: regexMatch },
                         {$match: optFilter.filters},
                         {$count: 'total'},
                     ],
