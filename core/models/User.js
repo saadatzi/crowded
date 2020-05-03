@@ -68,6 +68,21 @@ UserSchema.static({
     },
 
     /**
+     * Find User by id
+     *
+     * @param {ObjectId} id
+     * @api private
+     */
+    async getByIdInterest(id) {
+        return await this.aggregate([
+            {$match: {_id: mongoose.Types.ObjectId(id)}},
+            {$project: {interests: 1}}
+        ])
+            .then(user => user[0])
+            .catch(err => console.log("!!!!!!!!User getById catch err: ", err))
+    },
+
+    /**
      * Find use by email
      *
      * @param {String} email
