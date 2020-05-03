@@ -316,7 +316,7 @@ TransactionSchema.static({
             // }
         ])
             .then(async transactions => {
-                return transactions[0]
+                return transactions
             })
             .catch(err => console.error("getMyTransaction  Catch", err));
     },
