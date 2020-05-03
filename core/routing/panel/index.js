@@ -18,6 +18,7 @@ app.use('/org', 		require('./organization'));
 app.use('/admin', 		require('./admin'));
 app.use('/participants',require('./participants'));
 app.use('/static',      require('./static'));
+app.use('/setting',      require('./setting'));
 
 app.get('/reset-password-app', (req, res) => {
     NZ.setDomainOnLocals(res);
