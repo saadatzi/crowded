@@ -173,7 +173,7 @@ userEventController.prototype.manageParticipant = async (admin, reqInfo, auth) =
         .then(async userEvent => {
             if (!userEvent) throw {code: 404, message: 'Not found!'};
             if (reqInfo.isApproved && (userEvent.status !== 'ACTIVE' && userEvent.status !== 'REJECTED')) throw {code: 406, message: 'request Approved has status mismatch!'};
-            if (!reqInfo.isApproved  && (userEvent.status !== 'ACTIVE' && userEvent.status !== 'APPROVED')) throw {code: 406, message: 'request Rejected has status mismatch!'};
+            if (!reqInfo.isApproved  && userEvent.status !== 'ACTIVE') throw {code: 406, message: 'request Rejected has status mismatch!'};
             userEvent.status = reqInfo.isApproved ? 'APPROVED' : 'REJECTED';
             userEvent.save();
         })

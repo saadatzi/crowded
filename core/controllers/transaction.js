@@ -90,7 +90,7 @@ transactionController.prototype.myTransactionTotal = async (userId) => {
 
 
 /**
- * get Transaction
+ * withdraw Transaction
  *
  * @param {ObjectId} userId
  * @param {ObjectId} bankId

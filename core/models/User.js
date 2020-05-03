@@ -106,16 +106,18 @@ UserSchema.static({
     //TODO add pagination & filter
     async getAllInEvent(optFilter) {
 
+        const criteria = {status: {$in: [0, 1]}};
         // TODO: enable search
         optFilter.search = optFilter.search || "";
-        optFilter.filters = optFilter.filters || {status: {$in: [0, 1]}};
-        optFilter.sorts = optFilter.sorts || {updatedAt: -1};
+        optFilter.filters = optFilter.filters || {};
+        optFilter.sorts = (Object.keys(optFilter.sorts).length === 0 && optFilter.sorts.constructor === Object) ? {updatedAt: -1} : optFilter.sorts;
         optFilter.pagination = optFilter.pagination || {
             page: 0,
             limit: 12
         };
 
         return await this.aggregate([
+            {$match: criteria},
             {
                 $lookup: {
                     from: 'userevents',

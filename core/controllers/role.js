@@ -74,41 +74,21 @@ roleController.prototype.get = async (optFilter, type = 'id') => {
 /**
  * remove Role
  *
- * @param {Object || ObjectId} optFilter
- *
- * @return Query
+ * @param {ObjectId} roleId
  */
-roleController.prototype.remove = async (optFilter) => {
-    if (optFilter) {
-        if (optFilter instanceof Object) { //instanceof mongoose.Types.ObjectId
-
-            return await Role.remove(optFilter)
-                .then(result => {
-                    console.log("***Role  Remove many result: ", result);
-                    return result;
-                })
-                .catch(err => {
-                    console.log("!!!Role Remove failed: ", err);
-                    throw err;
-                })
-        } else {
-
-            return await Role.findByIdAndRemove(optFilter)
-                .then(result => {
-                    console.log(`***Role Remove by id ${optFilter} result: `, result);
-                    return result;
-                })
-                .catch(err => {
-                    console.log("!!!Role Remove failed: ", err);
-                    throw err;
-                })
-        }
-    } else {
-        throw {errMessage: 'for remove Object conditions or Id is required!'}
-    }
-
-
+roleController.prototype.remove = async (roleId) => {
+    let newStatus = 2;
+    return await Role.setStatus(roleId,2,oldStatus=>oldStatus!==newStatus)
+        .then(result => {
+            console.log(`***Role Remove by id ${roleId} result: `, result);
+            return result;
+        })
+        .catch(err => {
+            console.error("!!!Role Remove failed: ", err);
+            throw err;
+        });
 };
+
 
 /**
  * Update Role
@@ -158,16 +138,9 @@ roleController.prototype.update = async (optFilter, newValue) => {
  * @return {Boolean} hsaRoleTrueFalse
  */
 roleController.prototype.authorize = async (userId, permissions) => {
-    let conceptualization = [];
-    let perName = [];
-    let perValue = [];
-    permissions.map(per => {
-        perName.push(Object.keys(per)[0]);
-        perValue.push(Object.values(per)[0])
-    });
-    return await Role.authorize(userId, permissions, perName, perValue)
+    return await Role.authorize(userId, permissions)
         .then(result => {
-            console.log("***Role  authorize Controller: %j", result);
+            console.log(">>>>>>>>>>>>>>>>>Need Role => %j result => %j", permissions, result);
             return result;
         })
         .catch(err => {
