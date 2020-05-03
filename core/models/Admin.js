@@ -251,8 +251,6 @@ AdminSchema.static({
      */
     async getManyPanel(optFilter) {
 
-        // TODO: enable search
-        optFilter.search = optFilter.search || "";
         optFilter.filters = optFilter.filters || {
             //  status: 1
         };
@@ -264,11 +262,25 @@ AdminSchema.static({
             limit: 12
         };
 
+        let regexMatch = {};
+        if (optFilter.search) {
+            let regex = new RegExp(optFilter.search);
+            regexMatch = {
+                "$or": [
+                    {
+                        email: { $regex: regex, $options: "i" }
+                    },
+                    {
+                        name: { $regex: regex, $options: "i" }
+                    }
+                ]
+            };
+        }
+
 
         return this.aggregate([
-            // { $match: { $text: { $search: optFilter.search } } },
+            { $match: regexMatch },
             { $match: optFilter.filters },
-            // { $sort: { score: { $meta: "textScore" } } },
             { $sort: optFilter.sorts },
             { $skip: optFilter.pagination.page * optFilter.pagination.limit },
             { $limit: optFilter.pagination.limit },
@@ -290,7 +302,7 @@ AdminSchema.static({
                 $lookup: {
                     from: 'admins',
                     pipeline: [
-                        // { $match: { $text: { $search: optFilter.search } } },  
+                        { $match: regexMatch },
                         { $match: optFilter.filters },
                         { $count: 'total' },
                     ],
@@ -428,7 +440,7 @@ AdminSchema.static({
             });
         return result.length != 0;
     },
-    
+
     /**
      * 
      * @param {String} id - id of the record
