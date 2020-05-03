@@ -70,6 +70,7 @@ staticController.prototype.update = async (payload) => {
     payload.name_ar ? toUpdate.name_ar = payload.name_ar : null;
     payload.html_en ? toUpdate.html_en = payload.html_en : null;
     payload.html_ar ? toUpdate.html_ar = payload.html_ar : null;
+    payload.in_app !== undefined ? toUpdate.in_app = payload.in_app : null;
 
     return await Staticpage.findByIdAndUpdate(payload.id, toUpdate)
         .catch(err => {
