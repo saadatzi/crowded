@@ -802,6 +802,7 @@ EventSchema.static({
                     createdAt: {$first: `$createdAt`},
                     updatedAt: {$first: `$updatedAt`},
                     interests: {$first: "$interests"},
+                    allowedRadius: {$first: "$allowedRadius"},
                     owner: {$first: {$arrayElemAt: ["$_owner", 0]}}
                 }
             },
@@ -843,6 +844,7 @@ EventSchema.static({
                     // __interests: 1 ,
                     // rawInterests: "$interests",
                     interests: 1,
+                    allowedRadius: 1
                 }
             },
         ])
