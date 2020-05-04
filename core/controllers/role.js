@@ -3,6 +3,8 @@
  */
 let Role = require('../models/Role');
 
+const adminController = require('./admin');
+
 const roleController = function () {
 };
 
@@ -66,11 +68,16 @@ roleController.prototype.get = async (optFilter, type = 'id') => {
  * @param {ObjectId} roleId
  */
 roleController.prototype.remove = async (roleId) => {
-    let newStatus = 2;
-    return await Role.setStatus(roleId,2,oldStatus=>oldStatus!==newStatus)
-        .then(result => {
-            console.log(`***Role Remove by id ${roleId} result: `, result);
-            return result;
+    return await adminController.checkAssign(roleId)
+        .then(async isAssigned => {
+            if (isAssigned) throw {code: 400, message: 'Couldn`t remove! this role assigned to Admin.'};
+            let newStatus = 2;
+            return await Role.setStatus(roleId,2,oldStatus=>oldStatus!==newStatus)
+                // .then(result => result)
+                .catch(err => {
+                    console.error("!!!Role Remove failed: ", err);
+                    throw err;
+                });
         })
         .catch(err => {
             console.error("!!!Role Remove failed: ", err);

@@ -157,7 +157,7 @@ router.delete('/', verifyTokenPanel(), joiValidate(deleteSchema), authorization(
                 new NZ.Response(null, "Role removed successfully.").send(res);
             })
             .catch(err => {
-                new NZ.Response(null, err.message, 500).send(res);
+                new NZ.Response(null, err.message, err.code || 500).send(res);
             });
     // }
 

@@ -192,7 +192,8 @@ router.delete('/', verifyTokenPanel(), joiValidate(hasValidIdSchema), authorizat
 
     let id = req.body.id;
 
-    // await check UserEvent relation 
+    // await check UserEvent relation
+    //TODO s.mahdi: best practice only controller depend to Model
     let flag = await UserEvent.eventIsRelated(id);
 
     if (flag) {

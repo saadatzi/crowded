@@ -19,8 +19,12 @@ const locationSchema = Joi.object().keys({
 });
 
 
-// Joi valdiator schemas
-//TODO add validation JOI
+// Joi validator schemas
+const manageSchema = Joi.object().keys({
+    userId: JoiConfigs.isMongoId,
+    eventId: JoiConfigs.isMongoId,
+    isApproved: JoiConfigs.booleanVal
+});
 
 /**
  * Get  Transaction
@@ -45,8 +49,9 @@ router.post('/', verifyTokenPanel(), authorization([{TRANSACTION: 'R'}]), async 
  * Set  Transaction
  * @return Boolean
  */
+//TODO ManageSchema not fix
 //______________________Get Transaction _____________________//
-router.post('/manage', verifyTokenPanel(), authorization([{EVENT: 'R'}, {USER: 'R'}, {PARTICIPANTS: 'U'}]), async (req, res) => {
+router.post('/manage', joiValidate(manageSchema), verifyTokenPanel(), authorization([{TRANSACTION: 'RU'}]), async (req, res) => {
     console.info('API: Get Transaction event/init %j', {body: req.body});
 
     userController.manageParticipant(req._admin, req.body, req.auth)
