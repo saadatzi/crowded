@@ -166,7 +166,6 @@ UserSchema.static({
         ])
             // .exec()
             .then(users => {
-                console.log(">>>>>>>>>>> getAllInEvent events: ", users);
                 return users
             })
             .catch(err => console.error("getAllInEvent  Catch", err));
