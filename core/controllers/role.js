@@ -16,20 +16,14 @@ const roleController = function () {
 roleController.prototype.add = async (newRole) => {
     if (Array.isArray(newRole)) { //newRole instanceof Array
         return await Role.insertMany(newRole)
-            .then(result => {
-                console.log("***Role many save success result", result);
-                return result;
-            })
+            .then(result => result)
             .catch(err => {
-                console.log("!!!Role many save failed: ", err);
+                console.error("!!!Role many save failed: ", err);
                 throw err;
             })
     } else {
         return await Role.create(newRole)
-            .then(role => {
-                console.log("*** Role save success role", role);
-                return role;
-            })
+            .then(role => role)
             .catch(err => {
                 console.log("!!!Role save failed: ", err);
                 if (err.code === 11000) throw {message: "The entered title is duplicate!", code: 424};
@@ -49,12 +43,9 @@ roleController.prototype.add = async (newRole) => {
 roleController.prototype.get = async (optFilter, type = 'id') => {
     if (!optFilter || optFilter instanceof Object) { //newRole instanceof Array
         return await Role.list(optFilter)
-            .then(result => {
-                console.log("***Role get All result: ", result);
-                return result;
-            })
+            .then(result => result)
             .catch(err => {
-                console.log("!!!Role getAll failed: ", err);
+                console.error("!!!Role getAll failed: ", err);
                 throw err;
             })
     } else {
@@ -65,7 +56,7 @@ roleController.prototype.get = async (optFilter, type = 'id') => {
                 return result;
             })
             .catch(err => {
-                console.log("!!!Role get failed: ", err);
+                console.error("!!!Role get failed: ", err);
                 throw err;
             })
     }
@@ -107,7 +98,7 @@ roleController.prototype.update = async (optFilter, newValue) => {
                     return result;
                 })
                 .catch(err => {
-                    console.log("!!!Role updateMany failed: ", err);
+                    console.error("!!!Role updateMany failed: ", err);
                     throw err;
                 })
         } else {
@@ -118,7 +109,7 @@ roleController.prototype.update = async (optFilter, newValue) => {
                     return result;
                 })
                 .catch(err => {
-                    console.log("!!!Role Update by id failed: ", err);
+                    console.error("!!!Role Update by id failed: ", err);
                     throw err;
                 })
         }
@@ -140,11 +131,11 @@ roleController.prototype.update = async (optFilter, newValue) => {
 roleController.prototype.authorize = async (userId, permissions) => {
     return await Role.authorize(userId, permissions)
         .then(result => {
-            console.log(">>>>>>>>>>>>>>>>>Need Role => %j result => %j", permissions, result);
+            console.warn(">>>>>>>>>>>>>>>>>Need Role => %j result => %j", permissions, result);
             return result;
         })
         .catch(err => {
-            console.log("!!!Role Authorize failed: ", err);
+            console.error("!!!Role Authorize failed: ", err);
             throw err;
         });
 };

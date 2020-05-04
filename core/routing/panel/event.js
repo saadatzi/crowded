@@ -26,6 +26,11 @@ const hasValidIdSchema = Joi.object().keys({
     id: JoiConfigs.isMongoId
 });
 
+const deleteImageSchema = Joi.object().keys({
+    eventId: JoiConfigs.isMongoId,
+    imageId: JoiConfigs.isMongoId,
+});
+
 const addSchema = Joi.object().keys({
     title_ar: JoiConfigs.title,
     title_en: JoiConfigs.title,
@@ -88,6 +93,25 @@ router.post('/addImage', verifyTokenPanel(), uploader, authorization([{EVENT: 'R
             new NZ.Response(null, err.message, err.code || 500).send(res);
         })
 });
+//TODO Image ORDER need API!!!
+
+/**
+ *  Remove Event Image
+ * - image pull
+ * @return status
+ */
+//______________________Add Event_____________________//
+router.delete('/image', joiValidate(deleteImageSchema), verifyTokenPanel(), authorization([{EVENT: 'RU'}]), async (req, res) => {
+    console.info('API: DelImage event/init %j', {body: req.body});
+    eventController.removeImage(req.body.eventId, req.body.imageId)
+        .then(event => {
+            new NZ.Response(true, 'Event delete image successfully!').send(res);
+        })
+        .catch(err => {
+            console.error("Event delete Image Catch err:", err)
+            new NZ.Response(null, err.message, err.code || 500).send(res);
+        })
+});
 
 /**
  *  Add Event
@@ -141,7 +165,7 @@ router.put('/edit', joiValidate(updateSchema), verifyTokenPanel(), authorization
 });
 
 /**
- * Get Event
+ * Get Event List
  * @return Events
  */
 //______________________Get Event_____________________//
@@ -164,7 +188,7 @@ router.post('/', verifyTokenPanel(), authorization([{EVENT: 'R'}]), async (req, 
 /**
  * Remove Event
  */
-router.delete('/', verifyTokenPanel(), joiValidate(hasValidIdSchema, 0), authorization([{EVENT: 'RD'}]), async (req, res) => {
+router.delete('/', verifyTokenPanel(), joiValidate(hasValidIdSchema), authorization([{EVENT: 'RD'}]), async (req, res) => {
 
     let id = req.body.id;
 

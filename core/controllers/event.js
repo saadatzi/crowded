@@ -3,7 +3,7 @@
  */
 const mongoose = require('mongoose');
 const Event = require('../models/Event');
-const { googleStaticImage } = require('../utils/map');
+const {googleStaticImage} = require('../utils/map');
 const moment = require('moment-timezone');
 
 const eventController = function () {
@@ -133,7 +133,7 @@ eventController.prototype.getByIdAggregate = async (id, lang, userId = null) => 
     const isApproved = ['APPROVED', 'ACTIVE', 'LEFT', 'PAUSED', 'SUCCESS'].includes(userEventStatus);
     return await Event.getByIdAggregate(id, lang, isApproved, userEventStatus)
         .then(async event => {
-            if (isApproved) event = Object.assign(event, { map: isApproved ? { url: await googleStaticImage(event.coordinates[0], event.coordinates[1]) } : null });
+            if (isApproved) event = Object.assign(event, {map: isApproved ? {url: await googleStaticImage(event.coordinates[0], event.coordinates[1])} : null});
             return event
         })
         .catch(err => {
@@ -199,13 +199,34 @@ eventController.prototype.getMyEvent = async (userId, lang, page = 0, isPrevious
  */
 eventController.prototype.remove = async (id) => {
     let newStatus = 2;
-    return await Event.setStatus(id,2,oldStatus=>oldStatus!==newStatus)
+    return await Event.setStatus(id, 2, oldStatus => oldStatus !== newStatus)
         .then(result => {
             console.log(`***Event Remove by id ${id} result: `, result);
             return result;
         })
         .catch(err => {
             console.log("!!!Event Remove failed: ", err);
+            throw err;
+        });
+
+};
+
+/**
+ * remove Event
+ *
+ * @param {ObjectId} eventId
+ * @param {ObjectId} imageId
+ *
+ * @return Query
+ */
+eventController.prototype.removeImage = async (eventId, imageId) => {
+    return await Event.findByIdAndUpdate(eventId, {$pull: {images: {_id: mongoose.Types.ObjectId(imageId)}}})
+        .then(result => {
+            console.log(`***Event Remove Image result: `, result);
+            return result;
+        })
+        .catch(err => {
+            console.error("!!!Event Remove Image failed: ", err);
             throw err;
         });
 
@@ -245,7 +266,7 @@ eventController.prototype.update = async (optFilter, newValue) => {
                 })
         }
     } else {
-        throw { errMessage: 'for Update Object conditions or Id is required!' }
+        throw {errMessage: 'for Update Object conditions or Id is required!'}
     }
 
 

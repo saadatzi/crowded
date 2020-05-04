@@ -24,8 +24,15 @@ const hasValidIdSchema = Joi.object().keys({
     id: JoiConfigs.isMongoId
 });
 
+const addSchema = Joi.object().keys({
+    title_en: JoiConfigs.title,
+    title_ar: JoiConfigs.title,
+    order: JoiConfigs.number,
+});
+
 const editSchema = Joi.object().keys({
     id: JoiConfigs.isMongoId,
+    //TODO s.Mahdi: why Optional?
     title_en: JoiConfigs.strOptional,
     title_ar: JoiConfigs.strOptional,
     order: JoiConfigs.strOptional,
@@ -39,7 +46,7 @@ const editSchema = Joi.object().keys({
  * @return status
  */
 //______________________Add Interest_____________________//
-router.post('/add', verifyTokenPanel(), uploader, authorization([{INTEREST: 'C'}]), async (req, res) => {
+router.post('/add', joiValidate(addSchema), verifyTokenPanel(), uploader, authorization([{INTEREST: 'C'}]), async (req, res) => {
     console.info('API: Add interest/init %j', {body: req.body});
 
     if (!req._uploadPath || !req._uploadFilename) {
@@ -61,7 +68,7 @@ router.post('/add', verifyTokenPanel(), uploader, authorization([{INTEREST: 'C'}
 /**
  * Edit Interest
  */
-router.put('/edit', verifyTokenPanel(), uploader, joiValidate(editSchema, 0), authorization([{INTEREST: 'RU'}]), async (req, res) => {
+router.put('/edit', joiValidate(editSchema), verifyTokenPanel(), uploader, authorization([{INTEREST: 'RU'}]), async (req, res) => {
     if (req._uploadPath && req._uploadFilename) req.body.image = req._uploadPath + '/' + req._uploadFilename;
     interestController.update(req.body)
         .then(result => {
@@ -121,7 +128,7 @@ router.post('/', verifyTokenPanel(), async function (req, res) {
 
 
 /**
- * Get Interest for panel
+ * Get Interest for panel Detail
  * @return list of interests
  */
 router.get('/:id', verifyTokenPanel(), async function (req, res) {

@@ -553,9 +553,7 @@ EventSchema.static({
     async listGroup(userId, optFilter) {
 
         optFilter.filters = optFilter.filters || {};
-        optFilter.sorts = optFilter.sorts || {
-            _id: -1
-        };
+        optFilter.sorts =  (Object.keys(optFilter.sorts).length === 0 && optFilter.sorts.constructor === Object) ? {_id: -1} : optFilter.sorts;
         optFilter.pagination = optFilter.pagination || {
             page: 0,
             limit: 12
@@ -614,7 +612,7 @@ EventSchema.static({
             {$sort: optFilter.sorts},
             {$skip: optFilter.pagination.page * optFilter.pagination.limit},
             {$limit: optFilter.pagination.limit},
-            {$unwind: "$images"},
+            {$unwind: {path: "$images", preserveNullAndEmptyArrays: true}},
             {$sort: {'images.order': 1}},
             {
                 $group: {
@@ -740,18 +738,37 @@ EventSchema.static({
         options._id = mongoose.Types.ObjectId(options._id);
         return await this.aggregate([
             {$match: options},
+            //get Area & clean
             {
                 $lookup: {
                     from: 'areas',
                     let: {'primaryArea': '$area'},
                     pipeline: [
                         {$match: {$expr: {$in: ["$$primaryArea", "$childs._id"]}}},
+                        {
+                            $project: {
+                                _id: 0, id: '$_id', name_en: 1, name_ar: 1,
+                                childs: {
+                                    $map: {
+                                        input: "$childs",
+                                        as: "child",
+                                        in: {
+                                            _id: 0,
+                                            id: '$$child._id',
+                                            name_en: '$$child.name_en',
+                                            name_ar: '$$child.name_ar'
+                                        }
+                                    }
+                                }
+                            }
+                        },
                         {$unwind: "$childs"},
-                        {$match: {$expr: {$eq: ["$childs._id", "$$primaryArea"]}}}
+                        {$match: {$expr: {$eq: ["$childs.id", "$$primaryArea"]}}},
                     ],
                     as: 'getArea'
                 }
             },
+            //get Owner
             {
                 $lookup: {
                     from: "admins",
@@ -760,13 +777,13 @@ EventSchema.static({
                     as: "_owner"
                 }
             },
-            {$unwind: "$images"},
+            {$unwind: {path: "$images", preserveNullAndEmptyArrays: true}},
             {$sort: {'images.order': 1}},
             {
                 $group: {
                     _id: "$_id",
                     isActive: {$first: "$status"},
-                    images: {$push: {url: {$concat: [settings.media_domain, "$images.url"]}, order: "$images.order"}}, //$push
+                    images: {$push: {id: '$images._id',url: {$concat: [settings.media_domain, "$images.url"]}, order: "$images.order"}}, //$push
                     title_en: {$first: `$title_en`},
                     title_ar: {$first: `$title_ar`},
                     desc_en: {$first: `$desc_en`},
@@ -775,8 +792,9 @@ EventSchema.static({
                     attendance: {$first: `$attendance`},
                     from: {$first: `$from`},
                     to: {$first: `$to`},
-                    getArea_en: {$first: `$getArea.childs.name_en`}, //
-                    getArea_ar: {$first: `$getArea.childs.name_ar`}, //
+                    area: {$first: `$getArea`},
+                    getArea_en: {$first: `$getArea.childs.name_en`},
+                    getArea_ar: {$first: `$getArea.childs.name_ar`},
                     _address_en: {$first: `$address_en`},
                     _address_ar: {$first: `$address_ar`},
                     _allowedApplyTime: {$first: `$allowedApplyTime`},
@@ -788,6 +806,7 @@ EventSchema.static({
                 }
             },
             //TODO kazem clean interests show only title(_en), image(correct link), id
+            //get Interest list & clean
             {
                 $lookup:
                     {
@@ -811,15 +830,14 @@ EventSchema.static({
                     desc_ar: 1,
                     title_en: 1,
                     title_ar: 1,
-                    area_en: {$arrayElemAt: ['$getArea_en', 0]},
-                    area_ar: {$arrayElemAt: ['$getArea_ar', 0]},
+                    area: {$arrayElemAt: ['$area', 0]},
                     value: 1,
                     attendance: 1,
                     allowedApplyTime: "$_allowedApplyTime",
                     from: 1,
                     to: 1,
-                    address_en: {$concat: [{$arrayElemAt: ['$getArea_en', 0]}, "$_address_en"]},
-                    address_ar: {$concat: [{$arrayElemAt: ['$getArea_ar', 0]}, "$_address_ar"]},
+                    address_en: {$concat: [{$arrayElemAt: ['$getArea_en', 0]}, ', ', "$_address_en"]},
+                    address_ar: {$concat: [{$arrayElemAt: ['$getArea_ar', 0]}, '، ', "$_address_ar"]},
                     lat: {$arrayElemAt: ["$coordinates", 0]},
                     lng: {$arrayElemAt: ["$coordinates", 1]},
                     // __interests: 1 ,
@@ -833,7 +851,7 @@ EventSchema.static({
             .catch(err => console.error(err));
 
     },
-    
+
     /**
      * Checks to see if given admin is related to any event
      *
@@ -842,7 +860,7 @@ EventSchema.static({
      */
     adminIsRelated: async function (id) {
         let result = await this.aggregate([
-            { $match: { owner: mongoose.Types.ObjectId(id) } }
+            {$match: {owner: mongoose.Types.ObjectId(id)}}
         ])
             .catch(err => {
                 console.error(`Event adminIsRelated check failed with criteria id:${id}`, err);
