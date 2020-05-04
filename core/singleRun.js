@@ -19,8 +19,7 @@ const permissionController = require('./controllers/permission');
 (async () => {
 	console.log("******* single run **********");
 
-    eventController.update({}, {$set: {allowedRadius: 200}});
-
+    // eventController.update({}, {$set: {allowedRadius: 200}});
 
 	// Staticpage.create([{
 	// 	alias: 	 'about-us',
