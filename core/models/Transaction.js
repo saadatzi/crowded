@@ -17,6 +17,7 @@ const TransactionSchema = new Schema({
     },
     status: {type: Number, default: 1}, // 1 active, 0 deActive, 2 softDelete, 3 hardDelete
     eventDate: Date,
+    accountId: {type: Schema.ObjectId, ref: 'BankAccount'},
 }, {timestamps: true});
 TransactionSchema.index({userId: 1, eventId: 1}, {unique: true});
 TransactionSchema.plugin(AutoIncrement, {inc_field: 'transactionId'});
@@ -140,7 +141,7 @@ TransactionSchema.static({
     getMyTransactionTotal: async function (userId) {
         const criteria = {status: 1, userId: mongoose.Types.ObjectId(userId)};
 
-        const monthAgo = new Date(new Date().getTime()-2678400000);//31*24*60*60*1000
+        const monthAgo = new Date(new Date().getTime() - 2678400000);//31*24*60*60*1000
 
         console.log("!!!!!!!! getMyTransaction userId: ", userId)
         console.log("!!!!!!!! getMyTransaction criteria: ", criteria);
@@ -153,7 +154,19 @@ TransactionSchema.static({
                     pipeline: [
                         {$match: criteria},
                         {$match: {isDebtor: false, createdAt: {$gt: monthAgo}}},
-                        {$project: {_id: 0, price: {$toString: "$price"}, eventDate: {$dateToString: {format: "%Y/%m/%d", date: "$eventDate", timezone: "Asia/Kuwait"}}}},
+                        {
+                            $project: {
+                                _id: 0,
+                                price: {$toString: "$price"},
+                                eventDate: {
+                                    $dateToString: {
+                                        format: "%Y/%m/%d",
+                                        date: "$eventDate",
+                                        timezone: "Asia/Kuwait"
+                                    }
+                                }
+                            }
+                        },
                     ],
                     as: 'getMonthAgo'
                 }
@@ -271,7 +284,10 @@ TransactionSchema.static({
         const criteria = {isDebtor: true};
 
         optFilter.filters = optFilter.filters || {};
-        optFilter.sorts = (Object.keys(optFilter.sorts).length === 0 && optFilter.sorts.constructor === Object) ? {situation: -1, updatedAt: -1} : optFilter.sorts;
+        optFilter.sorts = (Object.keys(optFilter.sorts).length === 0 && optFilter.sorts.constructor === Object) ? {
+            situation: -1,
+            updatedAt: -1
+        } : optFilter.sorts;
         optFilter.pagination = optFilter.pagination || {
             page: 0,
             limit: 12
@@ -283,17 +299,71 @@ TransactionSchema.static({
             {$sort: optFilter.sorts},
             {$skip: optFilter.pagination.page * optFilter.pagination.limit},
             {$limit: optFilter.pagination.limit},
-            // {
-            //     $project: {
-            //         _id: 0,
-            //         id: "$_id",
-            //         title: {$toString: `$title_${lang}`},
-            //         price: {$toString: "$price"},
-            //         eventDate: {$dateToString: {format: "%Y/%m/%d", date: "$eventDate", timezone: "Asia/Kuwait"}},
-            //         isDebtor: 1,
-            //         transactionId: 1
-            //     },
-            // },
+            //get user info
+            {
+                $lookup: {
+                    from: 'users',
+                    let: {primaryUserId: "$userId"},
+                    pipeline: [
+                        {$match: {$expr: {$eq: ["$$primaryUserId", "$_id"]}}},
+                        {
+                            $project: {
+                                _id: 0,
+                                id: '$_id',
+                                fullName: {$concat: ['$firstname',' ', '$lastname']},
+                                sex: 1,
+                                nationality: 1,
+                                image: {url: {$concat: [settings.media_domain, "$image"]}},
+                                isActive: {$toBool: "$status"}
+                            }
+                        },
+                    ],
+                    as: 'getUser'
+                }
+            },
+            //get Account info
+            {
+                $lookup: {
+                    from: 'bankaccounts',
+                    let: {primaryAccountId: "$accountId"},
+                    pipeline: [
+                        {$match: {$expr: {$eq: ["$$primaryAccountId", "$_id"]}}},
+                        {
+                            $lookup: {
+                                from: 'banknames',
+                                foreignField: '_id',
+                                localField: 'bankNameId',
+                                as: "getBankName"
+                            }
+                        },
+                        //get bank name
+                        {
+                            $project: {
+                                _id: 0,
+                                id: '$_id',
+                                fullName: {$concat: ['$firstname',' ', '$lastname']},
+                                IBAN: 1,
+                                civilId: 1,
+                                bankName: {$arrayElemAt: ['$getBankName.name_en', 0]}
+                            }
+                        },
+                    ],
+                    as: 'getAccount'
+                }
+            },
+
+            {
+                $project: {
+                    _id: 0,
+                    id: "$_id",
+                    user: '$getUser',
+                    account: '$getAccount',
+                    situation: 1,
+                    price: {$toString: "$price"},
+                    date: {$dateToString: {/*format: "%Y/%m/%d %H:%M:%S",*/ date: "$eventDate", timezone: "Asia/Kuwait"}},
+                    transactionId: 1
+                },
+            },
             // {
             //     $group: {
             //         _id: null,

@@ -3,6 +3,8 @@
  */
 let Role = require('../models/Role');
 
+const adminController = require('./admin');
+
 const roleController = function () {
 };
 
@@ -16,20 +18,14 @@ const roleController = function () {
 roleController.prototype.add = async (newRole) => {
     if (Array.isArray(newRole)) { //newRole instanceof Array
         return await Role.insertMany(newRole)
-            .then(result => {
-                console.log("***Role many save success result", result);
-                return result;
-            })
+            .then(result => result)
             .catch(err => {
-                console.log("!!!Role many save failed: ", err);
+                console.error("!!!Role many save failed: ", err);
                 throw err;
             })
     } else {
         return await Role.create(newRole)
-            .then(role => {
-                console.log("*** Role save success role", role);
-                return role;
-            })
+            .then(role => role)
             .catch(err => {
                 console.log("!!!Role save failed: ", err);
                 if (err.code === 11000) throw {message: "The entered title is duplicate!", code: 424};
@@ -49,23 +45,18 @@ roleController.prototype.add = async (newRole) => {
 roleController.prototype.get = async (optFilter, type = 'id') => {
     if (!optFilter || optFilter instanceof Object) { //newRole instanceof Array
         return await Role.list(optFilter)
-            .then(result => {
-                console.log("***Role get All result: ", result);
-                return result;
-            })
+            .then(result => result)
             .catch(err => {
-                console.log("!!!Role getAll failed: ", err);
+                console.error("!!!Role getAll failed: ", err);
                 throw err;
             })
     } else {
-        console.log("***Role get by Id optFilter 3: ", optFilter);
         return await Role.getById(optFilter)
             .then(result => {
-                console.log(`***Role get by id ${optFilter} result: `, result);
                 return result;
             })
             .catch(err => {
-                console.log("!!!Role get failed: ", err);
+                console.error("!!!Role get failed: ", err);
                 throw err;
             })
     }
@@ -77,11 +68,16 @@ roleController.prototype.get = async (optFilter, type = 'id') => {
  * @param {ObjectId} roleId
  */
 roleController.prototype.remove = async (roleId) => {
-    let newStatus = 2;
-    return await Role.setStatus(roleId,2,oldStatus=>oldStatus!==newStatus)
-        .then(result => {
-            console.log(`***Role Remove by id ${roleId} result: `, result);
-            return result;
+    return await adminController.checkAssign(roleId)
+        .then(async isAssigned => {
+            if (isAssigned) throw {code: 400, message: 'Couldn`t remove! this role assigned to Admin.'};
+            let newStatus = 2;
+            return await Role.setStatus(roleId,2,oldStatus=>oldStatus!==newStatus)
+                // .then(result => result)
+                .catch(err => {
+                    console.error("!!!Role Remove failed: ", err);
+                    throw err;
+                });
         })
         .catch(err => {
             console.error("!!!Role Remove failed: ", err);
@@ -107,7 +103,7 @@ roleController.prototype.update = async (optFilter, newValue) => {
                     return result;
                 })
                 .catch(err => {
-                    console.log("!!!Role updateMany failed: ", err);
+                    console.error("!!!Role updateMany failed: ", err);
                     throw err;
                 })
         } else {
@@ -118,7 +114,7 @@ roleController.prototype.update = async (optFilter, newValue) => {
                     return result;
                 })
                 .catch(err => {
-                    console.log("!!!Role Update by id failed: ", err);
+                    console.error("!!!Role Update by id failed: ", err);
                     throw err;
                 })
         }
@@ -140,11 +136,11 @@ roleController.prototype.update = async (optFilter, newValue) => {
 roleController.prototype.authorize = async (userId, permissions) => {
     return await Role.authorize(userId, permissions)
         .then(result => {
-            console.log(">>>>>>>>>>>>>>>>>Need Role => %j result => %j", permissions, result);
+            console.warn(">>>>>>>>>>>>>>>>>Need Role => %j result => %j", permissions, result);
             return result;
         })
         .catch(err => {
-            console.log("!!!Role Authorize failed: ", err);
+            console.error("!!!Role Authorize failed: ", err);
             throw err;
         });
 };

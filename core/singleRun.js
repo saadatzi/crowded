@@ -7,6 +7,7 @@ const roleController = require('./controllers/role');
 
 // DEV-TEMPORARY
 const bankNameController = require('./controllers/bankName');
+const eventController = require('./controllers/event');
 const BankName = require('./models/BankName');
 const Staticpage = require('./models/Staticpage');
 const Setting = require('./models/Setting');
@@ -17,7 +18,9 @@ const permissionController = require('./controllers/permission');
 
 (async () => {
 	console.log("******* single run **********");
-	
+
+    // eventController.update({}, {$set: {allowedRadius: 200}});
+
 	// Staticpage.create([{
 	// 	alias: 	 'about-us',
 	// 	name_en: 'About us',
@@ -293,7 +296,7 @@ const permissionController = require('./controllers/permission');
         });
 
     /*Init Permissions*/
-    permissionController.get({})
+    /*permissionController.get({})
         .then(permissions => {
             if (permissions.length === 0) {
                 console.log('...Attempting to seed Permission Model.');
@@ -328,7 +331,7 @@ const permissionController = require('./controllers/permission');
         })
         .catch(err=>{
             console.error('Oops!',err);
-        });
+        });*/
 
     /* !-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-! */
     /* !-!-!-!-!-!-!-DEV-TEMPORARY-!-!-!-!-!-!-!-!-! */

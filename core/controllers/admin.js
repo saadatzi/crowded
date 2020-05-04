@@ -118,6 +118,21 @@ adminController.prototype.getManyPanel = async (optFilter) => {
         });
 };
 
+/**
+ * Check role Assign
+ *
+ * @param {ObjectId} roleId
+ *
+ * @return {Boolean} isAssigned
+ */
+adminController.prototype.checkAssign = async (roleId) => {
+    return await Admin.roleIsRelated(roleId)
+        .then(result => result)
+        .catch(err => {
+            console.log("!!!Admin checkAssign failed: ", err);
+            throw err;
+        });
+};
 
 
 /**

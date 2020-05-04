@@ -159,8 +159,8 @@ RoleSchema.static({
                     let: {primaryRole: '$_id'},
                     pipeline: [
                         {$match: {_id: mongoose.Types.ObjectId(userId)}},
-                        {$unwind: "$role"},
-                        {$match: {$expr: {$eq: ['$$primaryRole', "$role"]}}},
+                        {$unwind: "$roles"},
+                        {$match: {$expr: {$eq: ['$$primaryRole', "$roles"]}}},
                         {$project: {_id: 0, status: '$status', name: '$name'}},
                     ],
                     as: 'getUser'

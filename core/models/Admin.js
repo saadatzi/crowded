@@ -13,7 +13,7 @@ const AdminSchema = new Schema({
     name: String,
     password: { type: String, required: true },
     status: { type: Number, default: 1 },
-    role: [{ type: Schema.ObjectId, ref: 'Role' }],
+    roles: [{ type: Schema.ObjectId, ref: 'Role' }],
     call: [
         {
             type: String,
@@ -350,7 +350,7 @@ AdminSchema.static({
                 $lookup: {
                     from: 'roles',
                     foreignField: '_id',
-                    localField: 'role',
+                    localField: 'roles',
                     as: "role"
                 }
             },
@@ -388,7 +388,7 @@ AdminSchema.static({
                     id: 1,
                     name: 1,
                     email: 1,
-                    role: {
+                    roles: {
                         id: { $arrayElemAt: ["$role._id", 0] },
                         name: { $arrayElemAt: ["$role.name", 0] },
                         permissions: { $arrayElemAt: ["$role.permissions", 0] }
@@ -453,7 +453,24 @@ AdminSchema.static({
         if (!validateCurrent(currentState)) throw {message:"Changing status not permitted!"};
         record.status = newStatus;
         return record.save();
-    }
+    },
+
+    /**
+     * Checks to see if given role is related to any admin
+     *
+     * @param {String} id
+     * @api private
+     */
+    roleIsRelated: async function (id) {
+        return await this.aggregate([
+            {$match: {roles: mongoose.Types.ObjectId(id)}}
+        ])
+            .then(result => result.length !== 0)
+            .catch(err => {
+                console.error(`Event interestIsRelated check failed with criteria id:${id}`, err);
+                throw err;
+            });
+    },
 
 });
 
