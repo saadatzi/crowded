@@ -299,6 +299,7 @@ TransactionSchema.static({
             {$sort: optFilter.sorts},
             {$skip: optFilter.pagination.page * optFilter.pagination.limit},
             {$limit: optFilter.pagination.limit},
+            //get user info
             {
                 $lookup: {
                     from: 'users',
@@ -320,6 +321,7 @@ TransactionSchema.static({
                     as: 'getUser'
                 }
             },
+            //get Account info
             {
                 $lookup: {
                     from: 'bankaccounts',
@@ -327,46 +329,41 @@ TransactionSchema.static({
                     pipeline: [
                         {$match: {$expr: {$eq: ["$$primaryAccountId", "$_id"]}}},
                         {
+                            $lookup: {
+                                from: 'banknames',
+                                foreignField: '_id',
+                                localField: 'bankNameId',
+                                as: "getBankName"
+                            }
+                        },
+                        //get bank name
+                        {
                             $project: {
                                 _id: 0,
                                 id: '$_id',
                                 fullName: {$concat: ['$firstname',' ', '$lastname']},
                                 IBAN: 1,
                                 civilId: 1,
-                                image: {url: {$concat: [settings.media_domain, "$image"]}},
-                                isActive: {$toBool: "$status"}
+                                bankName: {$arrayElemAt: ['$getBankName.name_en', 0]}
                             }
                         },
-
-                        /*{
-                        "_id": "5ea1347736a0e52712e5d3be",
-                        "status": 1,
-                        "userId": "5e9576668061fc5d3ba9caeb",
-                        "firstname": "Jane",
-                        "lastname": "Black",
-                        "bankNameId": "5ea1329ce9974425baf1c9c9",
-                        "IBAN": "DE234643722324234627382",
-                        "civilId": "239462438",
-                        "createdAt": "2020-04-23T06:23:51.240Z",
-                        "updatedAt": "2020-04-23T06:23:51.240Z",
-                        "__v": 0
-                    }*/
                     ],
                     as: 'getAccount'
                 }
             },
 
-            // {
-            //     $project: {
-            //         _id: 0,
-            //         id: "$_id",
-            //         title: {$toString: `$title_${lang}`},
-            //         price: {$toString: "$price"},
-            //         eventDate: {$dateToString: {format: "%Y/%m/%d", date: "$eventDate", timezone: "Asia/Kuwait"}},
-            //         isDebtor: 1,
-            //         transactionId: 1
-            //     },
-            // },
+            {
+                $project: {
+                    _id: 0,
+                    id: "$_id",
+                    user: '$getUser',
+                    account: '$getAccount',
+                    situation: 1,
+                    price: {$toString: "$price"},
+                    date: {$dateToString: {/*format: "%Y/%m/%d %H:%M:%S",*/ date: "$eventDate", timezone: "Asia/Kuwait"}},
+                    transactionId: 1
+                },
+            },
             // {
             //     $group: {
             //         _id: null,

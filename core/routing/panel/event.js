@@ -68,6 +68,7 @@ const updateSchema = Joi.object().keys({
     lng: JoiConfigs.price,
     interests: JoiConfigs.arrayLength(1, 100, JoiConfigs.isMongoId),
     allowedRadius: JoiConfigs.number,
+    isActive: JoiConfigs.boolInt,
 });
 
 /**
