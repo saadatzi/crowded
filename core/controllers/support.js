@@ -2,6 +2,9 @@
  * Module dependencies.
  */
 let Support = require('../models/Support');
+let Setting = require('../models/Setting');
+
+let controllerUtils = require('./utils')
 
 const supportController = function () {
 };
@@ -14,28 +17,13 @@ const supportController = function () {
  * @return {ObjectId} interestId
  */
 supportController.prototype.add = async (newSupport) => {
-    if (Array.isArray(newSupport)) { //newSupport instanceof Array
-        return await Support.insertMany(newSupport)
-            .then(result => {
-                console.log("***Support many save success result", result);
-                return result;
-            })
-            .catch(err => {
-                console.log("!!!Support many save failed: ", err);
-                throw err;
-            })
-    } else {
-        return await Support.create(newSupport)
-            .then(support => {
-                console.log("*** Support save success support", support);
-                return support;
-            })
-            .catch(err => {
-                console.log("!!!Support save failed: ", err);
-                if (err.code === 11000) throw {message: "The entered title is duplicate!", code: 424};
-                throw err;
-            })
-    }
+
+    let supportEmail = (await Setting.getByKey('support-email')).value;
+
+    return controllerUtils.sendEmail(supportEmail, 'Support message', 'contactForm', {
+            email: newSupport.email,
+            message: newSupport.message
+    });
 };
 
 /**

@@ -1,6 +1,7 @@
 const settings = require('../utils/settings');
 const path = require('path');
 const uuid = require('node-uuid');
+const engine = require('express-dot-engine');
 const nodemailer = require('nodemailer');
 const moment_tz = require('moment-timezone');
 const moment = require('moment');
@@ -43,10 +44,9 @@ const sendEmail = async (to, subject, page, options) => {
 		from: `"${settings.mail.from_name}" <${settings.mail.from}>`,
 		to,
 		subject,
-		//TODO text: "Hello world?", // plain text body
-		// html: engine.render(path.join(process.cwd(), `/templates/email/${page}.dot`), {
-		// 	...options
-		// })
+		html: engine.render(path.join(process.cwd(), `/templates/email/${page}.dot`), {
+			...options
+		})
 	});
 
 	return info.messageId;
