@@ -7,6 +7,7 @@ const roleController = require('./controllers/role');
 
 // DEV-TEMPORARY
 const bankNameController = require('./controllers/bankName');
+const eventController = require('./controllers/event');
 const BankName = require('./models/BankName');
 const Staticpage = require('./models/Staticpage');
 const Setting = require('./models/Setting');
@@ -17,7 +18,10 @@ const permissionController = require('./controllers/permission');
 
 (async () => {
 	console.log("******* single run **********");
-	
+
+    eventController.update({}, {$set: {allowedRadius: 200}});
+
+
 	// Staticpage.create([{
 	// 	alias: 	 'about-us',
 	// 	name_en: 'About us',

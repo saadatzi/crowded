@@ -92,15 +92,14 @@ transactionController.prototype.myTransactionTotal = async (userId) => {
  * withdraw Transaction
  *
  * @param {ObjectId} userId
- * @param {ObjectId} bankId
+ * @param {ObjectId} accountId
  * @param {Number} total
  *
  * @return List Transaction
  */
-transactionController.prototype.requestWithdraw = async (userId, bankId, total) => {
+transactionController.prototype.requestWithdraw = async (userId, accountId, total) => {
     return await Transaction.getTotalUnpaid(userId)
         .then(totalUnpaid => {
-            //TODO duplicate
             console.log(">>>>>>>>>>>>>>>>>>>>>> requestWithdraw get totalUnpaid: %j, total: %s", totalUnpaid, total)
             if (Number(totalUnpaid.total) === Number(total)) {
                 const addNewTransaction = {
@@ -111,7 +110,8 @@ transactionController.prototype.requestWithdraw = async (userId, bankId, total) 
                     userId: userId,
                     eventId: null,
                     situation: "PENDING",
-                    isDebtor: true
+                    isDebtor: true,
+                    accountId: accountId
                 };
                 //Create new Transaction negative for withdrawn
                 return Transaction.create(addNewTransaction)
