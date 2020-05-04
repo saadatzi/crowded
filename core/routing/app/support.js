@@ -21,7 +21,7 @@ const User = require('../../models/User');
 
 const addSchema = Joi.object().keys({
     message: JoiConfigs.strOptional,
-    name: JoiConfigs.title,
+    email: JoiConfigs.email(false)
 });
 
 /**
@@ -30,11 +30,10 @@ const addSchema = Joi.object().keys({
  * @return status
  */
 //______________________Add Support_____________________//
-router.post('/add', verifyToken(),  async (req, res) => {
+router.post('/add', verifyToken(), joiValidate(addSchema,0), async (req, res) => {
     console.info('API: Add support/init %j', {body: req.body});
     let payload = {
         message: req.body.message,
-        name: req.body.name,
         email: req.body.email
     }
     if(req.userId){
@@ -47,11 +46,10 @@ router.post('/add', verifyToken(),  async (req, res) => {
     if(!payload.email) return new NZ.Response(null, "Please include your email address!", 400).send(res);
 
     return supportController.add(payload)
-        .then((ha)=>{
+        .then(()=>{
             new NZ.Response(null, 'Your message has been successfully submitted!').send(res);
         })
         .catch(err=>{
-            return console.error(err);
             new NZ.Response(null, err.message, err.code).send(res);
         });
     
