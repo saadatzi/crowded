@@ -326,17 +326,31 @@ TransactionSchema.static({
                     let: {primaryAccountId: "$accountId"},
                     pipeline: [
                         {$match: {$expr: {$eq: ["$$primaryAccountId", "$_id"]}}},
-                        // {
-                        //     $project: {
-                        //         _id: 0,
-                        //         id: '$_id',
-                        //         fullName: {$concat: ['$firstname',' ', '$lastname']},
-                        //         sex: 1,
-                        //         nationality: 1,
-                        //         image: {url: {$concat: [settings.media_domain, "$image"]}},
-                        //         isActive: {$toBool: "$status"}
-                        //     }
-                        // },
+                        {
+                            $project: {
+                                _id: 0,
+                                id: '$_id',
+                                fullName: {$concat: ['$firstname',' ', '$lastname']},
+                                IBAN: 1,
+                                civilId: 1,
+                                image: {url: {$concat: [settings.media_domain, "$image"]}},
+                                isActive: {$toBool: "$status"}
+                            }
+                        },
+
+                        /*{
+                        "_id": "5ea1347736a0e52712e5d3be",
+                        "status": 1,
+                        "userId": "5e9576668061fc5d3ba9caeb",
+                        "firstname": "Jane",
+                        "lastname": "Black",
+                        "bankNameId": "5ea1329ce9974425baf1c9c9",
+                        "IBAN": "DE234643722324234627382",
+                        "civilId": "239462438",
+                        "createdAt": "2020-04-23T06:23:51.240Z",
+                        "updatedAt": "2020-04-23T06:23:51.240Z",
+                        "__v": 0
+                    }*/
                     ],
                     as: 'getAccount'
                 }

@@ -33,51 +33,44 @@ module.exports = {
                 token = token.slice(7, token.length);
             }
             if (token) {
-                try {
-                    //TODO from validation
-                    //// let tokenObj = validation.verify(token, publicKEY, tokenOption);
-                    // if (!tokenObj) throw {errCode: 401};
-                    //
-                    // req.deviceId = tokenObj.deviceId;
-                    // if (tokenObj.userId) req.userId = tokenObj.userId;
-                    req.deviceId = null;
-                    req.userId = null;
-                    deviceController.get(token, 'token')
-                        .then(device => {
-                            if (device) {
-                                console.log('>>>>>>> JWT userId: %s ---- deviceId: %s ', device.userId, device._id);
-                                // console.log('<<<<<<>>>>>>>>>>>>> JWT device:  ', device);
-                                device.lastInteract = new Date();
-                                device.save();
-                                req.deviceId = (device._id).toString();
+                //TODO from validation
+                //// let tokenObj = validation.verify(token, publicKEY, tokenOption);
+                // if (!tokenObj) throw {errCode: 401};
+                //
+                // req.deviceId = tokenObj.deviceId;
+                // if (tokenObj.userId) req.userId = tokenObj.userId;
+                req.deviceId = null;
+                req.userId = null;
+                deviceController.get(token, 'token')
+                    .then(device => {
+                        if (device) {
+                            console.log('>>>>>>> JWT userId: %s ---- deviceId: %s ', device.userId, device._id);
+                            // console.log('<<<<<<>>>>>>>>>>>>> JWT device:  ', device);
+                            device.lastInteract = new Date();
+                            device.save();
+                            req.deviceId = (device._id).toString();
 
-                                req.userId = null;
-                                if (device.userId)
-                                    req.userId = (device.userId).toString();
+                            req.userId = null;
+                            if (device.userId)
+                                req.userId = (device.userId).toString();
 
-                                if (isSecure && !device.userId)
-                                    return new NZ.Response(null, 'must be user', 401).send(res);
+                            if (isSecure && !device.userId)
+                                return new NZ.Response(null, '', 401).send(res);
 
-                                return next();
+                            return next();
 
-                            } else {
-                                throw {message: 'token not valid!'}
-                            }
+                        } else {
+                            throw {message: 'token not valid!'}
+                        }
 
-                        })
-                        .catch(err => {
-                            console.error('!!! Device getByToken Catch err ', err);
-                            return new NZ.Response(null, 'invalid token err: ' + err.message, 403).send(res);
-                        });
-
-
-                } catch (err) {
-                    console.error('!!!Verify Token Catch! Token: Authorization Failed!!! => API: %s', err);
-                    return new NZ.Response(null, 'invalid token err: ' + err.message, 403).send(res);
-                }
+                    })
+                    .catch(err => {
+                        console.error('!!! Device getByToken Catch err ', err);
+                        return new NZ.Response(null, '', 403).send(res);
+                    });
             } else {
                 console.error('!!!Verify Token not have Token: Authorization Failed!!! => API: %s', req.originalUrl);
-                return new NZ.Response(null, 'invalid token', 403).send(res);
+                return new NZ.Response(null, '', 403).send(res);
             }
 
         }
