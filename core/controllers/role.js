@@ -49,10 +49,8 @@ roleController.prototype.get = async (optFilter, type = 'id') => {
                 throw err;
             })
     } else {
-        console.log("***Role get by Id optFilter 3: ", optFilter);
         return await Role.getById(optFilter)
             .then(result => {
-                console.log(`***Role get by id ${optFilter} result: `, result);
                 return result;
             })
             .catch(err => {
