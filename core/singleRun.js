@@ -296,7 +296,7 @@ const permissionController = require('./controllers/permission');
         });
 
     /*Init Permissions*/
-    permissionController.get({})
+    /*permissionController.get({})
         .then(permissions => {
             if (permissions.length === 0) {
                 console.log('...Attempting to seed Permission Model.');
@@ -331,7 +331,7 @@ const permissionController = require('./controllers/permission');
         })
         .catch(err=>{
             console.error('Oops!',err);
-        });
+        });*/
 
     /* !-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-! */
     /* !-!-!-!-!-!-!-DEV-TEMPORARY-!-!-!-!-!-!-!-!-! */

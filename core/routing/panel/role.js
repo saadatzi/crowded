@@ -38,7 +38,7 @@ const deleteSchema = Joi.object().keys({
  * @return status
  */
 //______________________Add Role_____________________//
-router.post('/add', joiValidate(addSchema, 0), verifyTokenPanel(), /*authorization([{ROLE: 'C'}]),*/ async (req, res) => {
+router.post('/add', joiValidate(addSchema, 0), verifyTokenPanel(), authorization([{ROLE: 'C'}]), async (req, res) => {
     console.info('API: Add Role/init %j', {body: req.body});
 
     roleController.add(req.body)
