@@ -4,6 +4,7 @@
 const mongoose = require('mongoose');
 const Transaction = require('../models/Transaction');
 const eventController = require('./event');
+const accountController = require('./bankAccount');
 const settings = require('../utils/settings');
 
 const transactionController = function () {
@@ -101,46 +102,51 @@ transactionController.prototype.requestWithdraw = async (userId, accountId, tota
     return await Transaction.getTotalUnpaid(userId)
         .then(totalUnpaid => {
             console.log(">>>>>>>>>>>>>>>>>>>>>> requestWithdraw get totalUnpaid: %j, total: %s", totalUnpaid, total)
-            if (Number(totalUnpaid.total) === Number(total)) {
-                const addNewTransaction = {
-                    title_ar: settings.wallet.withdrawTitle_ar,
-                    title_en: settings.wallet.withdrawTitle_en,
-                    price: -Math.abs(totalUnpaid.total),
-                    eventDate: new Date(),
-                    userId: userId,
-                    eventId: null,
-                    situation: "PENDING",
-                    isDebtor: true,
-                    accountId: accountId
-                };
-                //Create new Transaction negative for withdrawn
-                return Transaction.create(addNewTransaction)
-                    .then(transaction => {
-                        console.log("***Transaction withdraw save success transaction", transaction);
-                        const updateFilter = {
-                            status: 1,
-                            userId: mongoose.Types.ObjectId(userId),
-                            situation: "UNPAID",
-                            isDebtor: false
-                        };
-                        const updateValue = {situation: "PAID"};
-                        return newTransactionController.update(updateFilter, updateValue)
-                            .then(result => {
-                                console.log("***Transaction  withdraw Update: ", result);
-                                return result;
-                            })
-                            .catch(err => {
-                                console.error("!!!Transaction withdraw Update failed: ", err);
-                                throw err;
-                            })
-                    })
-                    .catch(err => {
-                        console.error("!!!Transaction withdraw save failed: ", err);
-                        throw err;
-                    })
-            } else {
-                throw {code: 406, message: 'Your request has security issues!'}
-            }
+            if (totalUnpaid && Number(totalUnpaid.total) !== Number(total)) throw {code: 406, message: 'Your request has security issues!'}
+            accountController.validation(userId, accountId)
+                .then(validation => {
+                    if (!validation) throw {code: 406, message: 'Account selected is incorrect!'}
+                    const addNewTransaction = {
+                        title_ar: settings.wallet.withdrawTitle_ar,
+                        title_en: settings.wallet.withdrawTitle_en,
+                        price: -Math.abs(totalUnpaid.total),
+                        eventDate: new Date(),
+                        userId: userId,
+                        eventId: null,
+                        situation: "PENDING",
+                        isDebtor: true,
+                        accountId: accountId
+                    };
+                    //Create new Transaction negative for withdrawn
+                    return Transaction.create(addNewTransaction)
+                        .then(transaction => {
+                            console.log("***Transaction withdraw save success transaction", transaction);
+                            const updateFilter = {
+                                status: 1,
+                                userId: mongoose.Types.ObjectId(userId),
+                                situation: "UNPAID",
+                                isDebtor: false
+                            };
+                            const updateValue = {situation: "PAID"};
+                            return newTransactionController.update(updateFilter, updateValue)
+                                .then(result => {
+                                    console.log("***Transaction  withdraw Update: ", result);
+                                    return result;
+                                })
+                                .catch(err => {
+                                    console.error("!!!Transaction withdraw Update failed: ", err);
+                                    throw err;
+                                })
+                        })
+                        .catch(err => {
+                            console.error("!!!Transaction withdraw save failed: ", err);
+                            throw err;
+                        })
+                })
+                .catch(err => {
+                    console.error("!!!Transaction manageTransaction failed: ", err);
+                    throw err;
+                })
         })
         .catch(err => {
             console.error("!!!Transaction getAll failed: ", err);
@@ -166,7 +172,7 @@ transactionController.prototype.manageTransaction = async (transactionId, isPaid
                 console.error("!!!Transaction manageTransaction failed: ", err);
                 throw err;
             })
-    } else throw {code:400, message: 'R&D validation payment?!'}
+    } else throw {code: 400, message: 'R&D validation payment?!'}
 };
 
 

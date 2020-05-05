@@ -33,11 +33,12 @@ bankAccountController.prototype.add = async (userId, newBankAccount) => {
 
 /**
  * Get bank Account(s)
- *
+ * @param {Object || ObjectId} optFilter
  * @return {Array} bankAccountId
  */
 bankAccountController.prototype.get = async (optFilter) => {
-    // TODO: figure out how to pass lang for single fetch
+    //TODO: figure out how to pass lang for single fetch
+    // S.Mahdi: this is a global. ipm new method.
     if (!optFilter || optFilter instanceof Object) {
         return await BankAccount.getMany(optFilter)
             .then(result => {
@@ -59,6 +60,22 @@ bankAccountController.prototype.get = async (optFilter) => {
                 throw err;
             })
     }
+};
+
+
+/**
+ * Validation Account
+ * @param {ObjectId} userId
+ * @param {ObjectId} accountId
+ * @return {Boolean} valid account for user
+ */
+bankAccountController.prototype.validation = async (userId, accountId) => {
+    return await BankAccount.findOne({_id: mongoose.Types.ObjectId(accountId), userId: mongoose.Types.ObjectId(userId)})
+        .then(result => !!result)
+        .catch(err => {
+            console.error("!!!BankAccount getById failed: ", err);
+            throw err;
+        })
 };
 
 /**
