@@ -63,12 +63,9 @@ OrganizationSchema.static({
 
     async getManyPanel(optFilter) {
         const baseCriteria = {status: {$in: [0, 1]}};
-        optFilter.filters = optFilter.filters || {
-            status: 1
-        };
-        optFilter.sorts = optFilter.sorts || {
-            title: 1
-        };
+        optFilter.filters = optFilter.filters || {};
+        optFilter.sorts = (Object.keys(optFilter.sorts).length === 0 && optFilter.sorts.constructor === Object) ? {_id: -1} : optFilter.sorts;
+
         optFilter.pagination = optFilter.pagination || {
             page: 0,
             limit: settings.panel.defaultLimitPage
@@ -157,7 +154,6 @@ OrganizationSchema.static({
         console.log(optFilter);
         return await this.aggregate([
             {$match: baseCriteria},
-            {$match: optFilter},
             {
                 $project: {
                     _id: 0,
