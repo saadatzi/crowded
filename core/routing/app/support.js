@@ -50,7 +50,7 @@ router.post('/add', verifyToken(), joiValidate(addSchema,0), async (req, res) =>
             new NZ.Response(null, 'Your message has been successfully submitted!').send(res);
         })
         .catch(err=>{
-            new NZ.Response(null, err.message, err.code).send(res);
+            new NZ.Response(null, err.message, 500).send(res);
         });
     
    

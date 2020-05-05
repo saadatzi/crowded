@@ -3,6 +3,7 @@
  */
 let Support = require('../models/Support');
 let Setting = require('../models/Setting');
+const settings = require('../utils/settings');
 
 let controllerUtils = require('./utils')
 
@@ -22,7 +23,17 @@ supportController.prototype.add = async (newSupport) => {
 
     return controllerUtils.sendEmail(supportEmail, 'Support message', 'contactForm', {
             email: newSupport.email,
-            message: newSupport.message
+            message: newSupport.message,
+            cdn_domain:		settings.cdn_domain,
+            logo:			settings.email_logo,
+            primary_domain:	settings.primary_domain,
+            contact_email:	settings.contact.email,
+            contact_phone:	settings.contact.phone,
+            contact_address:settings.contact.address,
+            contact_copy:	settings.contact.copyright,
+            contact_project:settings.project_name,
+            contact_privacy:settings.contact.privacy,
+            contact_terms:	settings.contact.terms,
     });
 };
 
