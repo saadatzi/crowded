@@ -131,13 +131,14 @@ interestController.prototype.remove = async (id) => {
 /**
  * Update Interest
  *
- * @param {Object || ObjectId} optFilter
+ * @param {Object || ObjectId} payload
  * @param {Object} newValue
  *
  * @return Query
  */
 interestController.prototype.update = async (payload) => {
     let toUpdate = {}
+    //TODO s.mahdi: why null? Cause exception in app
     payload.title_en ? toUpdate.title_en = payload.title_en : null;
     payload.title_ar ? toUpdate.title_ar = payload.title_ar : null;
     payload.order ? toUpdate.order = payload.order : null;

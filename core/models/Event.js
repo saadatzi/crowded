@@ -448,7 +448,7 @@ EventSchema.static({
      */
     async listOwnAny(userId, optFilter, accessLevel) {
 
-        const ownAny = accessLevel === 'OWN' ? {owner: mongoose.Types.ObjectId(userId)} : {};
+        const ownAny = accessLevel === 'OWN' ? {owner: mongoose.Types.ObjectId(userId), status: {$in: [0, 1]}} : {};
 
         optFilter.filters = optFilter.filters || {
             //TODO s.mahdi: dont need in panel
@@ -551,7 +551,7 @@ EventSchema.static({
      * Event list Group
      */
     async listGroup(userId, optFilter) {
-
+        const group = {staus: {$in: [0, 1]}};
         optFilter.filters = optFilter.filters || {};
         optFilter.sorts =  (Object.keys(optFilter.sorts).length === 0 && optFilter.sorts.constructor === Object) ? {_id: -1} : optFilter.sorts;
         optFilter.pagination = optFilter.pagination || {
@@ -582,6 +582,7 @@ EventSchema.static({
 
 
         return await this.aggregate([
+            {$match: group},
             {$match: regexMatch},
             {$match: optFilter.filters},
             {

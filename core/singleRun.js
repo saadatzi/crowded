@@ -296,22 +296,23 @@ const permissionController = require('./controllers/permission');
         });
 
     /*Init Permissions*/
-    /*permissionController.get({})
+    permissionController.get({})
         .then(permissions => {
             if (permissions.length === 0) {
                 console.log('...Attempting to seed Permission Model.');
                 const initPermission = [
-                    {title: "Admin",        access: 143},
+                    {title: "Admin",        access: 143, order: 1},
                     // {title: "Area",         access: 143},
-                    {title: "User", access: 175},
-                    {title: "Bank",    access: 143},
-                    {title: "Device",   access: 143},
-                    {title: "Organization", access: 143},
-                    {title: "Role",         access: 143},
-                    {title: "Transaction",  access: 167},
-                    {title: "Interest",     access: 143},
-                    {title: "Event",        access: 175}, //All
-                    {title: "PARTICIPANTS",   access: 166}, // All
+                    {title: "User", access: 175, order: 2},
+                    {title: "Bank",    access: 143, order: 3},
+                    {title: "Device",   access: 143, order: 4},
+                    {title: "Organization", access: 143, order: 5},
+                    {title: "Role",         access: 143, order: 6},
+                    {title: "Transaction",  access: 167, order: 7},
+                    {title: "FAQ",   access: 166, order: 8}, // All
+                    {title: "Interest",     access: 143, order: 9},
+                    {title: "Event",        access: 175, order: 10}, //All
+                    {title: "PARTICIPANTS",   access: 166, order: 11}, // All
                 ];
                 return permissionController.add(initPermission)
                     .catch(err => {
@@ -331,7 +332,7 @@ const permissionController = require('./controllers/permission');
         })
         .catch(err=>{
             console.error('Oops!',err);
-        });*/
+        });
 
     /* !-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-! */
     /* !-!-!-!-!-!-!-DEV-TEMPORARY-!-!-!-!-!-!-!-!-! */
