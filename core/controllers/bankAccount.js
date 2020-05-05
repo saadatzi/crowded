@@ -1,6 +1,7 @@
 /**
  * Module dependencies.
  */
+const mongoose = require('mongoose');
 const BankAccount = require('../models/BankAccount');
 
 
