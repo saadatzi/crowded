@@ -286,7 +286,7 @@ TransactionSchema.static({
         optFilter.filters = optFilter.filters || {};
         optFilter.sorts = (Object.keys(optFilter.sorts).length === 0 && optFilter.sorts.constructor === Object) ? {
             situation: -1,
-            updatedAt: -1
+            createdAt: -1
         } : optFilter.sorts;
         optFilter.pagination = optFilter.pagination || {
             page: 0,
@@ -364,29 +364,41 @@ TransactionSchema.static({
                     transactionId: 1
                 },
             },
-            // {
-            //     $group: {
-            //         _id: null,
-            //         items: {$push: '$$ROOT'},
-            //     }
-            // },
-            // {
-            //     $project: {
-            //         _id: 0,
-            //         nextPage: {$cond: {if: {$gt: [{$size: "$items"}, limit]}, then: page + 1, else: null}},
-            //         items: {$slice: ["$items", limit]},
-            //
-            //     }
-            // },
-            // {
-            //     $project: {
-            //         items: 1,
-            //         nextPage: 1,
-            //     }
-            // }
+            {
+                $group: {
+                    _id: null,
+                    items: {$push: '$$ROOT'},
+                }
+            },
+            {
+                $lookup: {
+                    from: 'transactions',
+                    pipeline: [
+                        {$match: criteria},
+                        {$match: optFilter.filters},
+                        {$count: 'total'},
+                    ],
+                    as: 'getTotal'
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    items: 1,
+                    total: {$arrayElemAt: ["$getTotal", 0]},
+                }
+            },
         ])
-            .then(async transactions => {
-                return transactions
+            .then(async result => {
+                let items = [],
+                    total = 0;
+                if (result.length > 0) {
+                    total = result[0].total.total;
+                    delete result[0].total;
+                    items = result[0].items;
+                }
+                optFilter.pagination.total = total;
+                return {explain: optFilter, items};
             })
             .catch(err => console.error("getMyTransaction  Catch", err));
     },

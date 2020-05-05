@@ -21,9 +21,8 @@ const locationSchema = Joi.object().keys({
 
 // Joi validator schemas
 const manageSchema = Joi.object().keys({
-    userId: JoiConfigs.isMongoId,
-    eventId: JoiConfigs.isMongoId,
-    isApproved: JoiConfigs.booleanVal
+    transactionId: JoiConfigs.isMongoId,
+    isPaid: JoiConfigs.booleanVal
 });
 
 /**
@@ -35,8 +34,8 @@ router.post('/', verifyTokenPanel(), authorization([{TRANSACTION: 'R'}]), async 
     console.info('API: Get Transaction event/init %j', {body: req.body});
 
     transactionController.getPanelTransaction(req.body)
-        .then(items => {
-            new NZ.Response({items}).send(res);
+        .then(result => {
+            new NZ.Response(result).send(res);
         })
         .catch(err => {
             console.error("Get Transaction Catch err:", err);
@@ -49,12 +48,11 @@ router.post('/', verifyTokenPanel(), authorization([{TRANSACTION: 'R'}]), async 
  * Set  Transaction
  * @return Boolean
  */
-//TODO ManageSchema not fix
 //______________________Get Transaction _____________________//
 router.post('/manage', joiValidate(manageSchema), verifyTokenPanel(), authorization([{TRANSACTION: 'RU'}]), async (req, res) => {
     console.info('API: Get Transaction event/init %j', {body: req.body});
 
-    userController.manageParticipant(req._admin, req.body, req.auth)
+    transactionController.manageTransaction(req.body.transactionId, req.body.isPaid, req._admin)
         .then(item => {
             new NZ.Response(true, 'Your request has been successfully submitted').send(res);
         })

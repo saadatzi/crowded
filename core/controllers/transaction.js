@@ -148,6 +148,28 @@ transactionController.prototype.requestWithdraw = async (userId, accountId, tota
         })
 };
 
+
+/**
+ * manage Transaction (Paid/Unpaid)
+ *
+ * @param {ObjectId} transactionId
+ * @param {Boolean} isPaid
+ *
+ * @return List Transaction
+ */
+transactionController.prototype.manageTransaction = async (transactionId, isPaid) => {
+    //TODO payment Validation?!
+    if (isPaid) {
+        return await newTransactionController.update(transactionId, {situation: 'PAID'})
+            .then(result => result)
+            .catch(err => {
+                console.error("!!!Transaction manageTransaction failed: ", err);
+                throw err;
+            })
+    } else throw {code:400, message: 'R&D validation payment?!'}
+};
+
+
 /**
  * get Panel Transaction
  *
