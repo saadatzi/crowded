@@ -33,9 +33,9 @@ const addSchema = Joi.object().keys({
 const editSchema = Joi.object().keys({
     id: JoiConfigs.isMongoId,
     //TODO s.Mahdi: why Optional?
-    title_en: JoiConfigs.strOptional,
-    title_ar: JoiConfigs.strOptional,
-    order: JoiConfigs.strOptional,
+    title_en: JoiConfigs.title,
+    title_ar: JoiConfigs.title,
+    order: JoiConfigs.number,
 });
 
 
