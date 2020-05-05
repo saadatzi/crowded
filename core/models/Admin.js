@@ -338,7 +338,6 @@ AdminSchema.static({
 
         return await this.aggregate([
             {$match: baseCriteria},
-            {$match: optFilter},
             {
                 $lookup: {
                     from: 'roles',

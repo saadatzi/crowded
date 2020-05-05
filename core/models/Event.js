@@ -736,9 +736,9 @@ EventSchema.static({
      */
     async getOnePanel(options) {
         if (!options) throw {message: "Missing criteria for Event.getOnePanel!"};
-        options._id = mongoose.Types.ObjectId(options._id);
+        const baseCriteria = {status: {$in: [0, 1]}, _id: mongoose.Types.ObjectId(options._id)};
         return await this.aggregate([
-            {$match: options},
+            {$match: baseCriteria},
             //get Area & clean
             {
                 $lookup: {
