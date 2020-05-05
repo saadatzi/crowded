@@ -102,8 +102,8 @@ transactionController.prototype.requestWithdraw = async (userId, accountId, tota
     return await Transaction.getTotalUnpaid(userId)
         .then(totalUnpaid => {
             console.log(">>>>>>>>>>>>>>>>>>>>>> requestWithdraw get totalUnpaid: %j, total: %s", totalUnpaid, total)
-            if (totalUnpaid) {
-                if (Number(totalUnpaid.total) !== Number(total)) throw {code: 406, message: 'Your request has security issues!'}
+            if (true) {
+                // if (Number(totalUnpaid.total) !== Number(total)) throw {code: 406, message: 'Your request has security issues!'}
                 accountController.validation(userId, accountId)
                     .then(validation => {
                         if (!validation) throw {code: 406, message: 'Account selected is incorrect!'}
