@@ -56,7 +56,7 @@ const forgotSchema = Joi.object().keys({
 });
 
 const activateSchema = Joi.object().keys({
-    eventId: JoiConfigs.isMongoId,
+    adminId: JoiConfigs.isMongoId,
     isActive: JoiConfigs.boolInt,
 });
 
