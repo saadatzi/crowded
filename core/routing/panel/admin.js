@@ -55,6 +55,11 @@ const forgotSchema = Joi.object().keys({
     email: JoiConfigs.email(),
 });
 
+const activateSchema = Joi.object().keys({
+    eventId: JoiConfigs.isMongoId,
+    isActive: JoiConfigs.boolInt,
+});
+
 /**
  *  login Panel
  */
@@ -121,6 +126,26 @@ router.put('/edit', joiValidate(updateSchema, 0), verifyTokenPanel(), authorizat
         })
         .catch(err => {
             console.error("Admin update Catch err:", err);
+            new NZ.Response(null, err.message, err.code || 500).send(res);
+        })
+});
+
+
+/**
+ *  Activation ADMIN
+ * -UPDATE Admin status in db
+ * @return status
+ */
+//______________________Add Event_____________________//
+router.put('/activate', joiValidate(activateSchema), verifyTokenPanel(), authorization([{ADMIN: 'RU'}]), async (req, res) => {
+    console.info('API: Activation event/init %j', {body: req.body});
+
+    eventController.update(req.body.eventId, {status: req.body.isActive ? 1 : 0})
+        .then(event => {
+            new NZ.Response(!!event, event ? 'Event Update successful!' : 'Not Found!').send(res);
+        })
+        .catch(err => {
+            console.error("Event Update Catch err:", err);
             new NZ.Response(null, err.message, err.code || 500).send(res);
         })
 });

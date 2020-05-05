@@ -25,6 +25,7 @@ const addSchema = Joi.object().keys({
 
 const updateSchema = Joi.object().keys({
     roleId:       	JoiConfigs.isMongoId,
+    name:           JoiConfigs.strOptional,
     permissions:    JoiConfigs.arrayLength(1, 50, permissionSchema),
 });
 
