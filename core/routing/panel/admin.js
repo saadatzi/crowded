@@ -25,7 +25,7 @@ const addSchema = Joi.object().keys({
     name: JoiConfigs.title,
     password: JoiConfigs.password,
     role: JoiConfigs.arrayLength(1, 50, JoiConfigs.isMongoId),
-    lastIp: JoiConfigs.strOptional,
+    // lastIp: JoiConfigs.strOptional,
     call: JoiConfigs.array(false, callSchema),
     organizationId: JoiConfigs.isMongoId
 });
@@ -34,9 +34,9 @@ const addSchema = Joi.object().keys({
 const updateSchema = Joi.object().keys({
     adminId: JoiConfigs.isMongoId,
     name: JoiConfigs.title,
-    password: JoiConfigs.password,
+    // password: JoiConfigs.password,
     role: JoiConfigs.arrayLength(1, 50, JoiConfigs.isMongoId),
-    lastIp: JoiConfigs.strOptional,
+    // lastIp: JoiConfigs.strOptional,
     call: JoiConfigs.array(false, callSchema),
     organizationId: JoiConfigs.isMongoId
 });

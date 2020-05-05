@@ -68,6 +68,11 @@ const updateSchema = Joi.object().keys({
     lng: JoiConfigs.price,
     interests: JoiConfigs.arrayLength(1, 100, JoiConfigs.isMongoId),
     allowedRadius: JoiConfigs.number,
+    // isActive: JoiConfigs.boolInt,
+});
+
+const activateSchema = Joi.object().keys({
+    eventId: JoiConfigs.isMongoId,
     isActive: JoiConfigs.boolInt,
 });
 
@@ -144,7 +149,6 @@ router.post('/add', uploader, joiValidate(addSchema), verifyTokenPanel(), author
 
 /**
  *  Update Event
- * -upload image and save in req._uploadPath
  * -add Event in db
  * @return status
  */
@@ -165,6 +169,30 @@ router.put('/edit', joiValidate(updateSchema), verifyTokenPanel(), authorization
             new NZ.Response(null, err.message, err.code || 500).send(res);
         })
 });
+
+/**
+ *  Activation Event
+ * -add Event in db
+ * @return status
+ */
+//______________________Add Event_____________________//
+router.put('/activate', joiValidate(activateSchema), verifyTokenPanel(), authorization([{EVENT: 'RU'}]), async (req, res) => {
+    console.info('API: Activation event/init %j', {body: req.body});
+
+
+    const eventId = req.body.eventId;
+    delete req.body.eventId;
+    req.body.location = {coordinates: [req.body.lat, req.body.lng]};
+    eventController.update(eventId, req.body)
+        .then(event => {
+            new NZ.Response(!!event, event ? 'Event Update successful!' : 'Not Found!').send(res);
+        })
+        .catch(err => {
+            console.error("Event Update Catch err:", err);
+            new NZ.Response(null, err.message, err.code || 500).send(res);
+        })
+});
+
 
 /**
  * Get Event List

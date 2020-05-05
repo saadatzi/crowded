@@ -56,9 +56,9 @@ SupportSchema.static({
      * @api private
      */
     async panelList() {
-        const criteria = {status: {$in: [0, 1]}}
+        const baseCriteria = {status: {$in: [0, 1]}}
         return await this.aggregate([
-            {$match: criteria},
+            {$match: baseCriteria},
             {$sort: {order: 1}},
             {
                 $project: {
@@ -82,9 +82,9 @@ SupportSchema.static({
      * @api private
      */
     async appList() {
-        const criteria = {status: 1};
+        const baseCriteria = {status: 1};
         return await this.aggregate([
-            {$match: criteria},
+            {$match: baseCriteria},
             {$sort: {order: 1}},
             {
                 $project: {

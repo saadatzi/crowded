@@ -38,8 +38,9 @@ RoleSchema.static({
      * @api private
      */
     async getById(id) {
+        const baseCriteria = {status: {$in: [0, 1]}, _id: mongoose.Types.ObjectId(id)};
         return await this.aggregate([
-            {$match: {_id: mongoose.Types.ObjectId(id)}},
+            {$match: baseCriteria},
             {$unwind: "$permissions"},
             {
                 $lookup: {
@@ -95,8 +96,9 @@ RoleSchema.static({
      * @api private
      */
     async list() {
+        const baseCriteria = {status: {$in: [0, 1]}};
         return await this.aggregate([
-            {$match: {status: {$in: [0, 1]}}},
+            {$match: baseCriteria},
             // {$unwind: "$permissions"},
             // {
             //     $lookup: {

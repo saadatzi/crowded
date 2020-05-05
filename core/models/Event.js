@@ -448,7 +448,7 @@ EventSchema.static({
      */
     async listOwnAny(userId, optFilter, accessLevel) {
 
-        const ownAny = accessLevel === 'OWN' ? {owner: mongoose.Types.ObjectId(userId), status: {$in: [0, 1]}} : {};
+        const ownAny = accessLevel === 'OWN' ? {owner: mongoose.Types.ObjectId(userId), status: {$in: [0, 1]}} : {status: {$in: [0, 1]}};
 
         optFilter.filters = optFilter.filters || {
             //TODO s.mahdi: dont need in panel

@@ -73,7 +73,9 @@ InterestSchema.static({
      * Interest list
      */
     list: async function () {
-        return await this.find({ status: 1 })
+        const baseCriteria = {status: 1};
+
+        return await this.find(baseCriteria)
             // .select({id: 1, title: 1, image: 1})
             .sort({ order: 1 })
             .exec()
@@ -88,10 +90,8 @@ InterestSchema.static({
      * @api private
      */
     async getManyPanel(optFilter) {
-
-        optFilter.filters = optFilter.filters || {
-            status: 1
-        };
+        const baseCriteria = {status: {$in: [0, 1]}};
+        optFilter.filters = optFilter.filters || {};
         optFilter.sorts = optFilter.sorts || {
             title_en: 1
         };
@@ -117,6 +117,7 @@ InterestSchema.static({
 
         
         return this.aggregate([
+            { $match: baseCriteria },
             { $match: regexMatch },
             { $match: optFilter.filters },
             { $sort: optFilter.sorts },
@@ -178,12 +179,11 @@ InterestSchema.static({
      * @param {Object} options
      */
     async getOnePanel(options) {
+        const baseCriteria = {status: {$in: [0, 1]}, _id: mongoose.Types.ObjectId(options._id)};
         if (!options) throw { message: "Missing criteria for Interest.getOnePanel!" };
-        options._id = mongoose.Types.ObjectId(options._id);
         return await this.aggregate([
-            {
-                $match: options
-            },
+            {$match: baseCriteria},
+            {$match: options},
             {
                 $project: {
                     _id: 0,

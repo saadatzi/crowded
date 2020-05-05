@@ -70,6 +70,22 @@ router.get('/faq', verifyToken(), async function (req, res) {
         .catch(err=>{
             new NZ.Response(null, err.message, 500).send(res);
         });
+
+    /*
+    * const mockSupport = [
+        {
+            question: 'How does Crowded work?',
+            answer: 'Crowded works with your GPS. As you press I’m in there button we submit your location and will change the status if you were in mentioned area.'
+        },
+        {
+            question: 'How would I get paid?',
+            answer: 'Crowded works with your GPS. As you press I’m in there button we submit your location and will change the status if you were in mentioned area.'
+        },
+        {
+            question: 'Can I bring a friend with myself?',
+                answer: 'Crowded works with your GPS. As you press I’m in there button we submit your location and will change the status if you were in mentioned area.'
+        }
+    ]*/
 });
 
 module.exports = router;

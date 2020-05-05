@@ -9,24 +9,24 @@ const SALT_WORK_FACTOR = 10,
     LOCK_TIME = 2 * 60 * 60 * 1000;
 
 const AdminSchema = new Schema({
-    email: { type: String, index: true, lowercase: true, unique: true, required: [true, "can't be blank"] },
+    email: {type: String, index: true, lowercase: true, unique: true, required: [true, "can't be blank"]},
     name: String,
-    password: { type: String, required: true },
-    status: { type: Number, default: 1 },
-    roles: [{ type: Schema.ObjectId, ref: 'Role' }],
+    password: {type: String, required: true},
+    roles: [{type: Schema.ObjectId, ref: 'Role'}],
     call: [
         {
             type: String,
             value: String
         }
     ],
-    organizationId: { type: Schema.ObjectId, ref: 'Organization', required: [true, "Organization can't be blank"] },
+    organizationId: {type: Schema.ObjectId, ref: 'Organization', required: [true, "Organization can't be blank"]},
+    status: {type: Number, default: 1},
     lastIp: String,
     lastLogin: Date,
     lastInteract: Date,
-    loginAttempts: { type: Number, required: true, default: 0 },
+    loginAttempts: {type: Number, required: true, default: 0},
     lockUntil: Number,
-}, { timestamps: true });
+}, {timestamps: true});
 
 AdminSchema.virtual('isLocked').get(function () {
     // check for a future lockUntil timestamp
@@ -81,8 +81,8 @@ AdminSchema.method({
         //// if we have a previous lock that has expired, restart at 1
         if (this.lockUntil && this.lockUntil < Date.now()) {
             return this.updateOne({
-                $set: { loginAttempts: 1 },
-                $unset: { lockUntil: 1 }
+                $set: {loginAttempts: 1},
+                $unset: {lockUntil: 1}
             })
                 .catch(err => {
                     console.error("!!!!!!!!Admin incLoginAttempts lock expired catch err: ", err);
@@ -90,10 +90,10 @@ AdminSchema.method({
                 });
         }
         // otherwise we're incrementing
-        var updates = { $inc: { loginAttempts: 1 } };
+        var updates = {$inc: {loginAttempts: 1}};
         // lock the account if we've reached max attempts and it's not locked already
         if (this.loginAttempts + 1 >= MAX_LOGIN_ATTEMPTS && !this.isLocked) {
-            updates.$set = { lockUntil: Date.now() + LOCK_TIME };
+            updates.$set = {lockUntil: Date.now() + LOCK_TIME};
         }
         return this.updateOne(updates)
             .catch(err => {
@@ -125,7 +125,7 @@ AdminSchema.static({
      * @api private
      */
     async getById(_id) {
-        return await this.findById({ _id })
+        return await this.findById({_id})
             .then(admin => admin)
             .catch(err => console.error("!!!!!!!!Admin getById catch err: ", err))
     },
@@ -139,12 +139,12 @@ AdminSchema.static({
      */
 
     getAuthenticated: async function (email, password) {
-        return await this.findOne({ email: email })
+        return await this.findOne({email: email})
             .populate('organizationId', 'name')
             .then(async user => {
                 // make sure the user exists
                 if (!user) {
-                    throw { code: 404, message: "User not found!" }
+                    throw {code: 404, message: "User not found!"}
                 }
 
                 // check if the account is currently locked
@@ -152,7 +152,7 @@ AdminSchema.static({
                     // just increment login attempts if account is already locked
                     return await user.incLoginAttempts()
                         .then(inc => {
-                            throw { code: 401, message: "Max Attempts!" }
+                            throw {code: 401, message: "Max Attempts!"}
                         })
                         .catch(err => {
                             console.error("!!!!!!!!Admin getAuthenticated user.isLocked getById catch err: ", err);
@@ -167,12 +167,12 @@ AdminSchema.static({
                         if (isMatch) {
                             // if there's no lock or failed attempts, just return the user
                             if (!user.loginAttempts && !user.lockUntil) {
-                                return await user.updateOne({ $set: { lastLogin: new Date() } })
+                                return await user.updateOne({$set: {lastLogin: new Date()}})
                                     .then(resUpdate => user.dto())
                                     .catch(err => console.error("!!!!!!!!DTO, Admin update lastLogin  catch err: ", err));
                             }
                             // reset attempts and lock info
-                            return await user.updateOne({ $set: { loginAttempts: 0 }, $unset: { lockUntil: 1 } })
+                            return await user.updateOne({$set: {loginAttempts: 0}, $unset: {lockUntil: 1}})
                                 .then(resUpdate => {
                                     return user.dto();
                                 })
@@ -186,7 +186,7 @@ AdminSchema.static({
                         // password is incorrect, so increment login attempts before responding
                         await user.incLoginAttempts()
                             .then(inc => {
-                                throw { code: 401, message: "Password is incorrect!" }
+                                throw {code: 401, message: "Password is incorrect!"}
                             })
                             .catch(err => {
                                 console.error("!!!!!!!!Admin incLoginAttempts getById catch err: ", err);
@@ -206,15 +206,6 @@ AdminSchema.static({
             });
     },
 
-
-    function(email, password, cb) {
-        this.findOne({ email: email }, function (err, user) {
-            if (err) return cb(err);
-
-
-        });
-    },
-
     /**
      * Find use by email
      *
@@ -222,7 +213,7 @@ AdminSchema.static({
      * @api private
      */
     getByEmail: async function (email) {
-        return await this.findOne({ email: email })
+        return await this.findOne({email: email})
             .then(user => user)
             .catch(err => console.error("!!!!!!!! getByEmail catch err: ", err));
     },
@@ -239,7 +230,7 @@ AdminSchema.static({
         const page = options.page || 0;
         const limit = options.limit || 50;
         return this.find(criteria)
-            .sort({ createdAt: -1 })
+            .sort({createdAt: -1})
             .limit(limit)
             .skip(limit * page)
             .catch(err => console.error("!!!!!!!!organization getAll catch err: ", err))
@@ -250,10 +241,8 @@ AdminSchema.static({
      * @param {Object} optFilter
      */
     async getManyPanel(optFilter) {
-
-        optFilter.filters = optFilter.filters || {
-            //  status: 1
-        };
+        const baseCriteria = {status: {$in: [0, 1]}};
+        optFilter.filters = optFilter.filters || {};
         optFilter.sorts = optFilter.sorts || {
             createdAt: 1
         };
@@ -268,10 +257,10 @@ AdminSchema.static({
             regexMatch = {
                 "$or": [
                     {
-                        email: { $regex: regex, $options: "i" }
+                        email: {$regex: regex, $options: "i"}
                     },
                     {
-                        name: { $regex: regex, $options: "i" }
+                        name: {$regex: regex, $options: "i"}
                     }
                 ]
             };
@@ -279,32 +268,33 @@ AdminSchema.static({
 
 
         return this.aggregate([
-            { $match: regexMatch },
-            { $match: optFilter.filters },
-            { $sort: optFilter.sorts },
-            { $skip: optFilter.pagination.page * optFilter.pagination.limit },
-            { $limit: optFilter.pagination.limit },
+            {$match: baseCriteria},
+            {$match: regexMatch},
+            {$match: optFilter.filters},
+            {$sort: optFilter.sorts},
+            {$skip: optFilter.pagination.page * optFilter.pagination.limit},
+            {$limit: optFilter.pagination.limit},
             {
                 $project: {
                     _id: 0,
                     id: '$_id',
                     name: 1,
-                    isActive: { $toBool: "$status" }
+                    isActive: {$toBool: "$status"}
                 }
             },
             {
                 $group: {
                     _id: null,
-                    items: { $push: '$$ROOT' },
+                    items: {$push: '$$ROOT'},
                 }
             },
             {
                 $lookup: {
                     from: 'admins',
                     pipeline: [
-                        { $match: regexMatch },
-                        { $match: optFilter.filters },
-                        { $count: 'total' },
+                        {$match: regexMatch},
+                        {$match: optFilter.filters},
+                        {$count: 'total'},
                     ],
                     as: 'getTotal'
                 }
@@ -313,7 +303,7 @@ AdminSchema.static({
                 $project: {
                     _id: 0,
                     items: 1,
-                    total: { $arrayElemAt: ["$getTotal", 0] },
+                    total: {$arrayElemAt: ["$getTotal", 0]},
                 }
             },
         ])
@@ -326,7 +316,7 @@ AdminSchema.static({
                     items = result[0].items;
                 }
                 optFilter.pagination.total = total;
-                return { explain: optFilter, items };
+                return {explain: optFilter, items};
             })
             .catch(err => console.error(err));
 
@@ -341,11 +331,14 @@ AdminSchema.static({
      * @api private
      */
     async getOnePanel(optFilter) {
-        if (!optFilter) throw { message: "Missing criteria for Admin.getOnePanel!" };
-        optFilter._id = mongoose.Types.ObjectId(optFilter._id);
+        if (!optFilter) throw {message: "Missing criteria for Admin.getOnePanel!"};
+
+        const baseCriteria = {status: {$in: [0, 1]}, _id: mongoose.Types.ObjectId(optFilter._id)};
+
 
         return await this.aggregate([
-            { $match: optFilter },
+            {$match: baseCriteria},
+            {$match: optFilter},
             {
                 $lookup: {
                     from: 'roles',
@@ -363,45 +356,45 @@ AdminSchema.static({
                 }
             },
             {
-                $group:{
+                $group: {
                     organization: {$first: '$organization'},
                     role: {$first: "$role"},
                     _id: 0,
-                    id: {$first:'$_id'},
-                    name: {$first:"$name"},
-                    email: {$first:"$email"},
-                    call: {$first:"$call"},
-                    lastIp: {$first:"$lastIp"},
-                    lastLogin: {$first:"$lastLogin"},
-                    lastInteract: {$first:"$lastInteract"},
-                    loginAttempts: {$first:"$loginAttempts"},
-                    lockUntil: {$first:"$lockUntil"},
-                    address: {$first:"$address"},
-                    createdAt: {$first:"$createdAt"},
-                    updatedAt: {$first:"$updatedAt"},
-                    isActive: { $first: "$status" },
+                    id: {$first: '$_id'},
+                    name: {$first: "$name"},
+                    email: {$first: "$email"},
+                    call: {$first: "$call"},
+                    lastIp: {$first: "$lastIp"},
+                    lastLogin: {$first: "$lastLogin"},
+                    lastInteract: {$first: "$lastInteract"},
+                    loginAttempts: {$first: "$loginAttempts"},
+                    lockUntil: {$first: "$lockUntil"},
+                    address: {$first: "$address"},
+                    createdAt: {$first: "$createdAt"},
+                    updatedAt: {$first: "$updatedAt"},
+                    isActive: {$first: "$status"},
                 }
             },
             {
                 $project: {
-                    _id:0,
+                    _id: 0,
                     id: 1,
                     name: 1,
                     email: 1,
                     roles: {
-                        id: { $arrayElemAt: ["$role._id", 0] },
-                        name: { $arrayElemAt: ["$role.name", 0] },
-                        permissions: { $arrayElemAt: ["$role.permissions", 0] }
+                        id: {$arrayElemAt: ["$role._id", 0]},
+                        name: {$arrayElemAt: ["$role.name", 0]},
+                        permissions: {$arrayElemAt: ["$role.permissions", 0]}
                     },
                     call: 1,
                     organization: {
-                        id: { $arrayElemAt: ["$organization._id", 0] },
-                        title: { $arrayElemAt: ["$organization.title", 0] },
+                        id: {$arrayElemAt: ["$organization._id", 0]},
+                        title: {$arrayElemAt: ["$organization.title", 0]},
                         // image: { $arrayElemAt: ["$organization.image", 0] },
-                        image:{
-                            $cond:[
-                                {$ne : [{ $arrayElemAt: ["$organization.image", 0] },""]},
-                                {$concat: [settings.media_domain,{ $arrayElemAt: ["$organization.image", 0] }]},
+                        image: {
+                            $cond: [
+                                {$ne: [{$arrayElemAt: ["$organization.image", 0]}, ""]},
+                                {$concat: [settings.media_domain, {$arrayElemAt: ["$organization.image", 0]}]},
                                 null
                             ]
                         }
@@ -414,7 +407,7 @@ AdminSchema.static({
                     address: 1,
                     createdAt: 1,
                     updatedAt: 1,
-                    isActive: { $toBool: "$isActive" },
+                    isActive: {$toBool: "$isActive"},
                 }
             }
         ])
@@ -432,7 +425,7 @@ AdminSchema.static({
      */
     organizationIsRelated: async function (id) {
         let result = await this.aggregate([
-            { $match: { organizationId: mongoose.Types.ObjectId(id) } }
+            {$match: {organizationId: mongoose.Types.ObjectId(id)}}
         ])
             .catch(err => {
                 console.error(`Event interestIsRelated check failed with criteria id:${id}`, err);
@@ -442,15 +435,17 @@ AdminSchema.static({
     },
 
     /**
-     * 
+     *
      * @param {String} id - id of the record
      * @param {Number} newStatus - new status you want to set
      * @param {Number} validateCurrent - a function returning a boolean checking old status
      */
-    async setStatus(id, newStatus, validateCurrent = function(old){return true}) {
-        let record = await this.findOne({_id:id}).catch(err=>console.error(err));
+    async setStatus(id, newStatus, validateCurrent = function (old) {
+        return true
+    }) {
+        let record = await this.findOne({_id: id}).catch(err => console.error(err));
         let currentState = record.status;
-        if (!validateCurrent(currentState)) throw {message:"Changing status not permitted!"};
+        if (!validateCurrent(currentState)) throw {message: "Changing status not permitted!"};
         record.status = newStatus;
         return record.save();
     },
