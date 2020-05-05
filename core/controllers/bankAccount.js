@@ -72,10 +72,7 @@ bankAccountController.prototype.get = async (optFilter) => {
  */
 bankAccountController.prototype.validation = async (userId, accountId) => {
     return await BankAccount.findOne({_id: mongoose.Types.ObjectId(accountId), userId: mongoose.Types.ObjectId(userId)})
-        .then(result => {
-            console.log(">>>>>>>>>>>>>>>>>>>>> account validation: ", result);
-            return !!result
-        })
+        .then(result => !!result)
         .catch(err => {
             console.error("!!!BankAccount getById failed: ", err);
             throw err;
