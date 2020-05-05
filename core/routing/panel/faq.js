@@ -19,7 +19,7 @@ const User = require('../../models/User');
 // Joi valdiator schemas
 
 const hasValidIdSchema = Joi.object().keys({
-    id: JoiConfigs.isMongoId
+    faqId: JoiConfigs.isMongoId
 });
 
 const addSchema = Joi.object().keys({
@@ -89,9 +89,9 @@ router.delete('/', verifyTokenPanel(), joiValidate(hasValidIdSchema, 0), authori
  * @return list of faq
  */
 router.get('/', verifyTokenPanel(), authorization([{FAQ: 'R'}]), async function (req, res) {
-    faqController.getManyPanel()
-        .then(result => {
-            new NZ.Response(result).send(res);
+    faqController.getPanel({}, 'panel')
+        .then(items => {
+            new NZ.Response({items}).send(res);
         })
         .catch(err => {
             new NZ.Response(null, err.message, 500).send(res);
@@ -105,10 +105,8 @@ router.get('/', verifyTokenPanel(), authorization([{FAQ: 'R'}]), async function 
  * @return list of faqs
  */
 router.get('/:id', verifyTokenPanel(), authorization([{FAQ: 'R'}]), async function (req, res) {
-    let options = {
-        _id: req.params.id
-    };
-    faqController.getOnePanel(options)
+
+    faqController.getPanel(req.params.id)
         .then(result => {
             new NZ.Response(result).send(res);
         })

@@ -19,7 +19,18 @@ SupportSchema.pre('remove', function (next) {
 /**
  * Methods
  */
-SupportSchema.method({});
+SupportSchema.method({
+    toJSON() {
+        return {
+            id: this._id,
+            question: this.question,
+            answer: this.answer,
+            lastname: this.lastname,
+            order: this.order,
+            isActive: this.status === 1,
+        }
+    }
+});
 
 /**
  * Statics
@@ -39,38 +50,58 @@ SupportSchema.static({
     },
 
     /**
-     * Get All
+     * Get All panel
      *
      * @param {String} token
      * @api private
      */
-    async list() {
+    async panelList() {
         const criteria = {status: {$in: [0, 1]}}
         return await this.aggregate([
             {$match: criteria},
+            {$sort: {order: 1}},
             {
                 $project: {
                     _id: 0,
                     id: '$_id',
                     question: 1,
                     answer: 1,
-                    // permissions: 1,
                     isActive: {$cond: {if: {$eq: ["$status", 1]}, then: true, else: false}},
                 }
             },
-            {$sort: {id: 1}},
         ])
             .then(result => {
-                // result.map(r => {
-                //     r.permissions.map(rp => rp.accesssLevel = binLevel2Bool(rp.accessLevelNum))
-                // });
+                return result;
+            })
+            .catch(err => console.error("Faq List  Catch", err));
+    },
+
+    /**
+     * Get All App
+     *
+     * @api private
+     */
+    async appList() {
+        const criteria = {status: 1};
+        return await this.aggregate([
+            {$match: criteria},
+            {$sort: {order: 1}},
+            {
+                $project: {
+                    _id: 0,
+                    question: 1,
+                    answer: 1,
+                }
+            },
+        ])
+            .then(result => {
                 return result;
             })
             .catch(err => console.error("Faq List  Catch", err));
     },
 
 
-    /**
+    /** appList
      * List all Faq
      *
      * @param {Object} options

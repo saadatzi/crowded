@@ -9,8 +9,7 @@ const {joiValidate} = require('../utils');
 
 // Instantiate the Device Model
 const supportController = require('../../controllers/support');
-const userController = require('../../controllers/user');
-const deviceController = require('../../controllers/device');
+const faqController = require('../../controllers/faq');
 const NZ = require('../../utils/nz');
 const {verifyToken} = require('../../utils/validation');
 
@@ -64,21 +63,13 @@ router.post('/add', verifyToken(), joiValidate(addSchema,0), async (req, res) =>
 router.get('/faq', verifyToken(), async function (req, res) {
     console.info('API: Get support/init');
 
-    const mockSupport = [
-        {
-            question: 'How does Crowded work?',
-            answer: 'Crowded works with your GPS. As you press I’m in there button we submit your location and will change the status if you were in mentioned area.'
-        },
-        {
-            question: 'How would I get paid?',
-            answer: 'Crowded works with your GPS. As you press I’m in there button we submit your location and will change the status if you were in mentioned area.'
-        },
-        {
-            question: 'Can I bring a friend with myself?',
-            answer: 'Crowded works with your GPS. As you press I’m in there button we submit your location and will change the status if you were in mentioned area.'
-        }
-    ]
-    new NZ.Response({items:  mockSupport}).send(res);
+    faqController.getApp({})
+        .then(items => {
+            new NZ.Response({items}).send(res);
+        })
+        .catch(err=>{
+            new NZ.Response(null, err.message, 500).send(res);
+        });
 });
 
 module.exports = router;
