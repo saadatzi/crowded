@@ -60,23 +60,6 @@ faqController.prototype.getOnePanel = async (optFilter) => {
 
 
 /**
- * Panel get all faqs
- *
- * @return Faq
- */
-faqController.prototype.getManyPanel = async (optFilter) => {
-
-    return await Faq.getManyPanel(optFilter)
-        .then(result => {
-            return result;
-        })
-        .catch(err => {
-            console.error("!!!Faq getAllPanel failed: ", err);
-            throw err;
-        });
-};
-
-/**
  * get Faq
  *
  * @param {Object || ObjectId} optFilter

@@ -88,8 +88,8 @@ router.delete('/', verifyTokenPanel(), joiValidate(hasValidIdSchema, 0), authori
  * Get Faqs
  * @return list of faq
  */
-router.post('/', verifyTokenPanel(), authorization([{FAQ: 'R'}]), async function (req, res) {
-    faqController.getManyPanel(req.body)
+router.get('/', verifyTokenPanel(), authorization([{FAQ: 'R'}]), async function (req, res) {
+    faqController.getManyPanel()
         .then(result => {
             new NZ.Response(result).send(res);
         })

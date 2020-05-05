@@ -45,36 +45,15 @@ SupportSchema.static({
      * @api private
      */
     async list() {
+        const criteria = {status: {$in: [0, 1]}}
         return await this.aggregate([
-            // {$unwind: "$permissions"},
-            // {
-            //     $lookup: {
-            //         from: 'permissions',
-            //         localField: 'permissions.permissionId',
-            //         foreignField: '_id',
-            //         as: 'perName'
-            //     }
-            // },
-            // // {$replaceRoot: {newRoot: {$mergeObjects: [{$arrayElemAt: ["$perName", 0]}, "$$ROOT"]}}},
-            // {$unwind: "$perName"},
-            // {
-            //     $group: {
-            //         _id: "$_id",
-            //         permissions: {
-            //             $push: {
-            //                 title: '$perName.title',
-            //                 accessLevelNum: '$permissions.accessLevel',
-            //             }
-            //         },
-            //         name: {$first: `$name`},
-            //         status: {$first: `$status`},
-            //     }
-            // },
+            {$match: criteria},
             {
                 $project: {
                     _id: 0,
                     id: '$_id',
-                    name: 1,
+                    question: 1,
+                    answer: 1,
                     // permissions: 1,
                     isActive: {$cond: {if: {$eq: ["$status", 1]}, then: true, else: false}},
                 }
