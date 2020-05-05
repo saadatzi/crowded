@@ -100,12 +100,13 @@ transactionController.prototype.myTransactionTotal = async (userId) => {
  */
 transactionController.prototype.requestWithdraw = async (userId, accountId, total) => {
     return await Transaction.getTotalUnpaid(userId)
-        .then(totalUnpaid => {
+        .then(async totalUnpaid => {
             console.log(">>>>>>>>>>>>>>>>>>>>>> requestWithdraw get totalUnpaid: %j, total: %s", totalUnpaid, total)
             if (true) {
                 // if (Number(totalUnpaid.total) !== Number(total)) throw {code: 406, message: 'Your request has security issues!'}
-                accountController.validation(userId, accountId)
+                return await accountController.validation(userId, accountId)
                     .then(validation => {
+                        console.log("<<<<<<<<<<<<<<<<<<<<<< requestWithdraw validation: %j, total: %s", validation)
                         if (!validation) throw {code: 406, message: 'Account selected is incorrect!'}
                         const addNewTransaction = {
                             title_ar: settings.wallet.withdrawTitle_ar,
