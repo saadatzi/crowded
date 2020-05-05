@@ -1,7 +1,7 @@
 /**
  * Module dependencies.
  */
-let Support = require('../models/Support');
+let Support = require('../models/Faq');
 let Setting = require('../models/Setting');
 const settings = require('../utils/settings');
 
