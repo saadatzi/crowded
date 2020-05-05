@@ -178,8 +178,8 @@ router.put('/edit', joiValidate(updateSchema), verifyTokenPanel(), authorization
 //______________________Add Event_____________________//
 router.put('/activate', joiValidate(activateSchema), verifyTokenPanel(), authorization([{EVENT: 'RU'}]), async (req, res) => {
     console.info('API: Activation event/init %j', {body: req.body});
-    if (req.auth.accessLevel.EVENT[0].R.level !== 'ANY') throw {code: 403, message: 'You are not allowed to activate the event!'};
-    eventController.update(req.body.eventId, {status: req.body.isActive ? 1 : 0})
+    if (req.auth.accessLevel.EVENT[1].U.level !== 'ANY') return new NZ.Response(null, 'You are not allowed to activate the event!', 403).send(res);
+    eventController.update(req.body.eventId, {status: req.body.isActive})
         .then(event => {
             new NZ.Response(!!event, event ? 'Event Activation successful!' : 'Not Found!').send(res);
         })

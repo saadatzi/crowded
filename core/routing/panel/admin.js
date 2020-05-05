@@ -140,7 +140,7 @@ router.put('/edit', joiValidate(updateSchema, 0), verifyTokenPanel(), authorizat
 router.put('/activate', joiValidate(activateSchema), verifyTokenPanel(), authorization([{ADMIN: 'RU'}]), async (req, res) => {
     console.info('API: Activation event/init %j', {body: req.body});
 
-    eventController.update(req.body.eventId, {status: req.body.isActive ? 1 : 0})
+    eventController.update(req.body.eventId, {status: req.body.isActive})
         .then(event => {
             new NZ.Response(!!event, event ? 'Event Update successful!' : 'Not Found!').send(res);
         })

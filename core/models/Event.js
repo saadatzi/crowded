@@ -551,7 +551,7 @@ EventSchema.static({
      * Event list Group
      */
     async listGroup(userId, optFilter) {
-        const group = {staus: {$in: [0, 1]}};
+        const group = {status: {$in: [0, 1]}};
         optFilter.filters = optFilter.filters || {};
         optFilter.sorts =  (Object.keys(optFilter.sorts).length === 0 && optFilter.sorts.constructor === Object) ? {_id: -1} : optFilter.sorts;
         optFilter.pagination = optFilter.pagination || {
@@ -823,7 +823,7 @@ EventSchema.static({
                     createdAt: 1,
                     updatedAt: 1,
                     owner: "$owner.name",
-                    isActive: "$isActive",
+                    isActive: {$cond: {if: {$eq: ["$isActive", 1]}, then: true, else: false}},
                     _id: 0,
                     id: "$_id",
                     title: 1,
