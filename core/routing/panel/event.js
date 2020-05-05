@@ -155,6 +155,7 @@ router.put('/edit', joiValidate(updateSchema), verifyTokenPanel(), authorization
 
     const eventId = req.body.eventId;
     delete req.body.eventId;
+    req.body.location = {coordinates: [req.body.lat, req.body.lng]};
     eventController.update(eventId, req.body)
         .then(event => {
             new NZ.Response(!!event, event ? 'Event Update successful!' : 'Not Found!').send(res);

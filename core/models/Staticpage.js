@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+const settings = require('../utils/settings');
 
 const StaticpageSchema = new Schema({
     alias: { type: String, required: true, unique:true},
@@ -53,7 +54,7 @@ StaticpageSchema.static({
     getByAlias(alias) {
         return this.findOne({ alias })
             .then(staticpage => staticpage)
-            .catch(err => console.log("!!!!!!!! getByAlias catch err: ", err));
+            .catch(err => console.error("!!!!!!!! getByAlias catch err: ", err));
     },
 
     list(optFilter) {
@@ -63,7 +64,7 @@ StaticpageSchema.static({
         };
         optFilter.pagination = optFilter.pagination || {
             page: 0,
-            limit: 12
+            limit: settings.panel.defaultLimitPage
         };
         return this.aggregate([
             { $match: {} },

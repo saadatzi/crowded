@@ -4,6 +4,7 @@
 const mongoose = require('mongoose');
 const Transaction = require('../models/Transaction');
 const eventController = require('./event');
+const accountController = require('./bankAccount');
 const settings = require('../utils/settings');
 
 const transactionController = function () {
@@ -33,12 +34,12 @@ transactionController.prototype.add = async (userId, eventId) => {
                     return transaction;
                 })
                 .catch(err => {
-                    console.log("!!!Transaction save failed: ", err);
+                    console.error("!!!Transaction save failed: ", err);
                     throw err;
                 })
         })
         .catch(err => {
-            console.log("!!!Event get failed: ", err);
+            console.error("!!!Event get failed: ", err);
             throw err;
         });
 };
@@ -99,54 +100,83 @@ transactionController.prototype.myTransactionTotal = async (userId) => {
  */
 transactionController.prototype.requestWithdraw = async (userId, accountId, total) => {
     return await Transaction.getTotalUnpaid(userId)
-        .then(totalUnpaid => {
-            console.log(">>>>>>>>>>>>>>>>>>>>>> requestWithdraw get totalUnpaid: %j, total: %s", totalUnpaid, total)
-            if (Number(totalUnpaid.total) === Number(total)) {
-                const addNewTransaction = {
-                    title_ar: settings.wallet.withdrawTitle_ar,
-                    title_en: settings.wallet.withdrawTitle_en,
-                    price: -Math.abs(totalUnpaid.total),
-                    eventDate: new Date(),
-                    userId: userId,
-                    eventId: null,
-                    situation: "PENDING",
-                    isDebtor: true,
-                    accountId: accountId
-                };
-                //Create new Transaction negative for withdrawn
-                return Transaction.create(addNewTransaction)
-                    .then(transaction => {
-                        console.log("***Transaction withdraw save success transaction", transaction);
-                        const updateFilter = {
-                            status: 1,
-                            userId: mongoose.Types.ObjectId(userId),
-                            situation: "UNPAID",
-                            isDebtor: false
+        .then(async totalUnpaid => {
+            if (totalUnpaid) {
+                if (Number(totalUnpaid.total) !== Number(total)) throw {code: 406, message: 'Your request has security issues!'}
+                return await accountController.validation(userId, accountId)
+                    .then(validation => {
+                        if (!validation) throw {code: 406, message: 'Account selected is incorrect!'}
+                        const addNewTransaction = {
+                            title_ar: settings.wallet.withdrawTitle_ar,
+                            title_en: settings.wallet.withdrawTitle_en,
+                            price: -Math.abs(totalUnpaid.total),
+                            eventDate: new Date(),
+                            userId: userId,
+                            eventId: null,
+                            situation: "PENDING",
+                            isDebtor: true,
+                            accountId: accountId
                         };
-                        const updateValue = {situation: "PAID"};
-                        return newTransactionController.update(updateFilter, updateValue)
-                            .then(result => {
-                                console.log("***Transaction  withdraw Update: ", result);
-                                return result;
+                        //Create new Transaction negative for withdrawn
+                        return Transaction.create(addNewTransaction)
+                            .then(transaction => {
+                                console.log("***Transaction withdraw save success transaction", transaction);
+                                const updateFilter = {
+                                    status: 1,
+                                    userId: mongoose.Types.ObjectId(userId),
+                                    situation: "UNPAID",
+                                    isDebtor: false
+                                };
+                                const updateValue = {situation: "PAID"};
+                                return newTransactionController.update(updateFilter, updateValue)
+                                    .then(result => {
+                                        console.log("***Transaction  withdraw Update: ", result);
+                                        return result;
+                                    })
+                                    .catch(err => {
+                                        console.error("!!!Transaction withdraw Update failed: ", err);
+                                        throw err;
+                                    })
                             })
                             .catch(err => {
-                                console.log("!!!Transaction withdraw Update failed: ", err);
+                                console.error("!!!Transaction withdraw save failed: ", err);
                                 throw err;
                             })
                     })
                     .catch(err => {
-                        console.log("!!!Transaction withdraw save failed: ", err);
+                        console.error("!!!Transaction manageTransaction failed: ", err);
                         throw err;
                     })
-            } else {
-                throw {code: 406, message: 'Your request has security issues!'}
-            }
+            } else throw {code: 404, message: 'You have no creditors'};
+
         })
         .catch(err => {
             console.error("!!!Transaction getAll failed: ", err);
             throw err;
         })
 };
+
+
+/**
+ * manage Transaction (Paid/Unpaid)
+ *
+ * @param {ObjectId} transactionId
+ * @param {Boolean} isPaid
+ *
+ * @return List Transaction
+ */
+transactionController.prototype.manageTransaction = async (transactionId, isPaid) => {
+    //TODO payment Validation?!
+    if (isPaid) {
+        return await newTransactionController.update(transactionId, {situation: 'PAID'})
+            .then(result => result)
+            .catch(err => {
+                console.error("!!!Transaction manageTransaction failed: ", err);
+                throw err;
+            })
+    } else throw {code: 400, message: 'R&D validation payment?!'}
+};
+
 
 /**
  * get Panel Transaction
@@ -183,7 +213,7 @@ transactionController.prototype.remove = async (optFilter) => {
                     return result;
                 })
                 .catch(err => {
-                    console.log("!!!Transaction Remove failed: ", err);
+                    console.error("!!!Transaction Remove failed: ", err);
                     throw err;
                 })
         } else {
@@ -194,7 +224,7 @@ transactionController.prototype.remove = async (optFilter) => {
                     return result;
                 })
                 .catch(err => {
-                    console.log("!!!Transaction Remove failed: ", err);
+                    console.error("!!!Transaction Remove failed: ", err);
                     throw err;
                 })
         }
@@ -222,7 +252,7 @@ transactionController.prototype.update = async (optFilter, newValue) => {
                     return result;
                 })
                 .catch(err => {
-                    console.log("!!!Transaction Update failed: ", err);
+                    console.error("!!!Transaction Update failed: ", err);
                     throw err;
                 })
         } else {
@@ -232,7 +262,7 @@ transactionController.prototype.update = async (optFilter, newValue) => {
                     return result;
                 })
                 .catch(err => {
-                    console.log("!!!Transaction Update failed: ", err);
+                    console.error("!!!Transaction Update failed: ", err);
                     throw err;
                 })
         }

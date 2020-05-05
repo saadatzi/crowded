@@ -306,16 +306,16 @@ const permissionController = require('./controllers/permission');
                     {title: "User", access: 175},
                     {title: "Bank",    access: 143},
                     {title: "Device",   access: 143},
-                    {title: "Event",        access: 175}, //All
-                    {title: "Interest",     access: 143},
                     {title: "Organization", access: 143},
                     {title: "Role",         access: 143},
                     {title: "Transaction",  access: 167},
+                    {title: "Interest",     access: 143},
+                    {title: "Event",        access: 175}, //All
                     {title: "PARTICIPANTS",   access: 166}, // All
                 ];
                 return permissionController.add(initPermission)
                     .catch(err => {
-                        console.log("!!!Permission many save failed: ", err);
+                        console.error("!!!Permission many save failed: ", err);
                         throw err
                     })
             } else {

@@ -106,7 +106,7 @@ EventSchema.static({
     getById: function (_id) {
         return this.findById({_id})
             .then(event => event)
-            .catch(err => console.log("!!!!!!!! Event getById catch err: ", err))
+            .catch(err => console.error("!!!!!!!! Event getById catch err: ", err))
     },
 
 
@@ -121,7 +121,7 @@ EventSchema.static({
      */
     getByIdAggregate: async function (id, lang, isApproved, userEventState = null) {
         const criteria = {_id: mongoose.Types.ObjectId(id)};
-        console.log("!!!!!!!! getEvent criteria: ", criteria);
+        console.error("!!!!!!!! getEvent criteria: ", criteria);
         return await this.aggregate([
             // {$lookup: {from: 'areas', localField: 'area', foreignField: `childs._id`, as: 'getArea'}}, //from: collection Name  of mongoDB
             {
@@ -457,7 +457,7 @@ EventSchema.static({
         optFilter.sorts = optFilter.sorts || {createdAt: -1};
         optFilter.pagination = optFilter.pagination || {
             page: 0,
-            limit: 12
+            limit: settings.panel.defaultLimitPage
         };
 
         let regexMatch = {};
@@ -556,7 +556,7 @@ EventSchema.static({
         optFilter.sorts =  (Object.keys(optFilter.sorts).length === 0 && optFilter.sorts.constructor === Object) ? {_id: -1} : optFilter.sorts;
         optFilter.pagination = optFilter.pagination || {
             page: 0,
-            limit: 12
+            limit: settings.panel.defaultLimitPage
         };
 
         let regexMatch = {};
@@ -679,7 +679,7 @@ EventSchema.static({
      * @api private
      */
     getAll: async function (options) {
-        console.log("!!!!!!!! getAll Event options: ", options)
+        console.error("!!!!!!!! getAll Event options: ", options)
         const criteria = options.criteria || {};
         const page = options.page || 0;
         const limit = options.limit || 30;
@@ -691,7 +691,7 @@ EventSchema.static({
             .skip(limit * page)
             .exec()
             .then(events => events)
-            .catch(err => console.log("Event getAll Catch", err));
+            .catch(err => console.error("Event getAll Catch", err));
     },
 
     /**
@@ -717,7 +717,7 @@ EventSchema.static({
     async validApplyEvent(id) {
         return await this.findOne({_id: id, allowedApplyTime: {$gt: new Date()}})
             .then(events => events)
-            .catch(err => console.log("Interest getAll Catch", err));
+            .catch(err => console.error("Interest getAll Catch", err));
     },
 
     /**
@@ -726,7 +726,7 @@ EventSchema.static({
     async validActiveEvent(id) {
         return await this.findOne({_id: id, from: {$lte: new Date()}, to: {$gt: new Date()}})
             .then(events => events)
-            .catch(err => console.log("Interest getAll Catch", err));
+            .catch(err => console.error("Interest getAll Catch", err));
     },
 
     /**

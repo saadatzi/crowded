@@ -22,7 +22,7 @@ interestController.prototype.add = async (newInterest) => {
                 return result;
             })
             .catch(err => {
-                console.log("!!!Interest many save failed: ", err);
+                console.error("!!!Interest many save failed: ", err);
                 throw err;
             })
     } else {
@@ -32,7 +32,7 @@ interestController.prototype.add = async (newInterest) => {
                 return result;
             })
             .catch(err => {
-                console.log("!!!Interest save failed: ", err);
+                console.error("!!!Interest save failed: ", err);
                 throw err;
             })
     }
@@ -53,7 +53,7 @@ interestController.prototype.getOnePanel = async (optFilter) => {
             return result;
         })
         .catch(err => {
-            console.log("!!!Interest get failed: ", err);
+            console.error("!!!Interest get failed: ", err);
             throw err;
         })
 };
@@ -71,7 +71,7 @@ interestController.prototype.getManyPanel = async (optFilter) => {
             return result;
         })
         .catch(err => {
-            console.log("!!!Interest getAllPanel failed: ", err);
+            console.error("!!!Interest getAllPanel failed: ", err);
             throw err;
         });
 };
@@ -92,7 +92,7 @@ interestController.prototype.get = async (optFilter) => {
                 return returnedInterests;
             })
             .catch(err => {
-                console.log("!!!Interest getAll failed: ", err);
+                console.error("!!!Interest getAll failed: ", err);
                 throw err;
             })
     } else {
@@ -102,7 +102,7 @@ interestController.prototype.get = async (optFilter) => {
                 return result;
             })
             .catch(err => {
-                console.log("!!!Interest get failed: ", err);
+                console.error("!!!Interest get failed: ", err);
                 throw err;
             })
     }
@@ -148,7 +148,7 @@ interestController.prototype.update = async (payload) => {
             return result;
         })
         .catch(err => {
-            console.log("!!!Interest Update failed: ", err);
+            console.error("!!!Interest Update failed: ", err);
             throw err;
         });
 

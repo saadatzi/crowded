@@ -16,13 +16,13 @@ organizationController.prototype.add = async (newOrganization) => {
     if (Array.isArray(newOrganization)) { //newOrganization instanceof Array
         return await Organization.insertMany(newOrganization)
             .catch(err => {
-                console.log("!!!Organization many save failed: ", err);
+                console.error("!!!Organization many save failed: ", err);
                 throw err;
             })
     } else {
         return await Organization.create(newOrganization)
             .catch(err => {
-                console.log("!!!Organization save failed: ", err);
+                console.error("!!!Organization save failed: ", err);
                 if (err.code === 11000) throw {message: "The entered title is duplicated!", code: 424};
                 throw err;
             })
@@ -46,7 +46,7 @@ organizationController.prototype.get = async (optFilter, type = 'id') => {
                 return result;
             })
             .catch(err => {
-                console.log("!!!Organization getAll failed: ", err);
+                console.error("!!!Organization getAll failed: ", err);
                 throw err;
             })
     } else {
@@ -58,7 +58,7 @@ organizationController.prototype.get = async (optFilter, type = 'id') => {
                     return result;
                 })
                 .catch(err => {
-                    console.log("!!!Organization get failed: ", err);
+                    console.error("!!!Organization get failed: ", err);
                     throw err;
                 })
         }
@@ -103,7 +103,7 @@ organizationController.prototype.update = async (optFilter, newValue) => {
                     return result;
                 })
                 .catch(err => {
-                    console.log("!!!Organization Update failed: ", err);
+                    console.error("!!!Organization Update failed: ", err);
                     throw err;
                 })
         } else {
@@ -113,7 +113,7 @@ organizationController.prototype.update = async (optFilter, newValue) => {
                     return result;
                 })
                 .catch(err => {
-                    console.log("!!!Organization Update failed: ", err);
+                    console.error("!!!Organization Update failed: ", err);
                     throw err;
                 })
         }
@@ -134,7 +134,7 @@ organizationController.prototype.getManyPanel = async (optFilter) => {
 
     return await Organization.getManyPanel(optFilter)
         .catch(err => {
-            console.log("!!!Organization getManyPanel failed: ", err);
+            console.error("!!!Organization getManyPanel failed: ", err);
             throw err;
         });
 };
@@ -148,7 +148,7 @@ organizationController.prototype.getOnePanel = async (optFilter) => {
 
     return await Organization.getOnePanel(optFilter)
         .catch(err => {
-            console.log("!!!Organization getOnePanel failed: ", err);
+            console.error("!!!Organization getOnePanel failed: ", err);
             throw err;
         });
 };

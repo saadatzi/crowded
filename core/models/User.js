@@ -64,7 +64,7 @@ UserSchema.static({
     async getById(_id) {
         return await this.findById({_id})
             .then(user => user)
-            .catch(err => console.log("!!!!!!!!User getById catch err: ", err))
+            .catch(err => console.error("!!!!!!!!User getById catch err: ", err))
     },
 
     /**
@@ -79,7 +79,7 @@ UserSchema.static({
             {$project: {interests: 1}}
         ])
             .then(user => user[0])
-            .catch(err => console.log("!!!!!!!!User getById catch err: ", err))
+            .catch(err => console.error("!!!!!!!!User getById catch err: ", err))
     },
 
     /**
@@ -91,7 +91,7 @@ UserSchema.static({
     getByEmail: async (email) => {
         return await User.findOne({email: email})
             .then(user => user)
-            .catch(err => console.log("!!!!!!!! getByEmail catch err: ", err));
+            .catch(err => console.error("!!!!!!!! getByEmail catch err: ", err));
     },
 
     /**
@@ -122,14 +122,33 @@ UserSchema.static({
     async getAllInEvent(optFilter) {
 
         const criteria = {status: {$in: [0, 1]}};
-        // TODO: enable search
-        optFilter.search = optFilter.search || "";
         optFilter.filters = optFilter.filters || {};
         optFilter.sorts = (Object.keys(optFilter.sorts).length === 0 && optFilter.sorts.constructor === Object) ? {updatedAt: -1} : optFilter.sorts;
         optFilter.pagination = optFilter.pagination || {
             page: 0,
-            limit: 12
+            limit: settings.panel.defaultLimitPage
         };
+
+        let regexMatch = {};
+        if (optFilter.search) {
+            let regex = new RegExp(optFilter.search);
+            regexMatch = {
+                $or: [
+                    {
+                        title_en: {$regex: regex, $options: "i"}
+                    },
+                    {
+                        title_ar: {$regex: regex, $options: "i"}
+                    },
+                    {
+                        desc_en: {$regex: regex, $options: "i"}
+                    },
+                    {
+                        desc_ar: {$regex: regex, $options: "i"}
+                    }
+                ]
+            };
+        }
 
         return await this.aggregate([
             {$match: criteria},
@@ -146,7 +165,7 @@ UserSchema.static({
                 }
             },
             {$unwind: {path: "$getUserEvents", preserveNullAndEmptyArrays: false}},
-            // { $match: { $text: { $search: optFilter.search } } },
+            {$match: regexMatch},
             {$match: optFilter.filters},
             {$sort: optFilter.sorts},
             {$skip: optFilter.pagination.page * optFilter.pagination.limit},
@@ -163,10 +182,57 @@ UserSchema.static({
                     status: '$getUserEvents.status'
                 }
             },
+            {
+                $group: {
+                    _id: null,
+                    items: {$push: '$$ROOT'},
+                }
+            },
+            //Get total
+            {
+                $lookup: {
+                    from: 'users',
+                    pipeline: [
+                        {$match: criteria},
+                        {
+                            $lookup: {
+                                from: 'userevents',
+                                let: {primaryUserId: "$_id"},
+                                pipeline: [
+                                    {$match: {eventId: mongoose.Types.ObjectId(optFilter.eventId)}},
+                                    {$match: {$expr: {$eq: ["$$primaryUserId", "$userId"]}}},
+                                    {$project: {_id: 0, status: "$status"}},
+                                ],
+                                as: 'getCountUserEvents'
+                            }
+                        },
+                        {$unwind: {path: "$getCountUserEvents", preserveNullAndEmptyArrays: false}},
+                        {$match: regexMatch},
+                        {$match: optFilter.filters},
+                        {$count: 'total'},
+                    ],
+                    as: 'getTotal'
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    items: 1,
+                    total: {$arrayElemAt: ["$getTotal", 0]},
+                }
+            },
         ])
             // .exec()
-            .then(users => {
-                return users
+            .then(result => {
+                let items = [],
+                    total = 0;
+                if (result.length > 0) {
+                    total = result[0].total.total;
+                    delete result[0].total;
+                    items = result[0].items;
+                }
+                optFilter.pagination.total = total;
+                return {explain: optFilter, items};
             })
             .catch(err => console.error("getAllInEvent  Catch", err));
     },

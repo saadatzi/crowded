@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+const settings = require('../utils/settings');
 
 const SettingSchema = new Schema({
     key: { type: String, required: true, unique: true },
@@ -44,7 +45,7 @@ SettingSchema.static({
 
     getByKey(key) {
         return this.findOne({ key })
-            .catch(err => console.log("!!!!!!!! Setting getByKey catch err: ", err));
+            .catch(err => console.error("!!!!!!!! Setting getByKey catch err: ", err));
     },
 
     list(optFilter) {
@@ -54,7 +55,7 @@ SettingSchema.static({
         };
         optFilter.pagination = optFilter.pagination || {
             page: 0,
-            limit: 12
+            limit: settings.panel.defaultLimitPage
         };
         return this.aggregate([
             { $match: {} },

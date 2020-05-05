@@ -46,7 +46,7 @@ LogSchema.static({
             console.log("########## getById device: ", log);
             return log
         })
-        .catch(err => console.log("!!!!!!!! Log getById catch err: ", err)),
+        .catch(err => console.error("!!!!!!!! Log getById catch err: ", err)),
     // get: (_id) => this.findById({_id}).exec(),
 
 

@@ -33,7 +33,7 @@ userEventController.prototype.add = async (eventId, userId) => {
                         return event;
                     })
                     .catch(err => {
-                        console.log("!!!UserEvent save failed: ", err);
+                        console.error("!!!UserEvent save failed: ", err);
                         if (err.code === 11000) throw {message: "You have already registered for this event", code: 424};
                         throw err;
                     })
@@ -41,7 +41,7 @@ userEventController.prototype.add = async (eventId, userId) => {
             throw {code: 400, message: 'Event not valid! or Expired allow apply time!'};
         })
         .catch(err => {
-            console.log("!!!Get validEvent failed: ", err);
+            console.error("!!!Get validEvent failed: ", err);
             throw err;
         })
 };
@@ -63,7 +63,7 @@ userEventController.prototype.getCurrent = async (userId, lang) => {
                 return await eventController.getByIdAggregate(result.eventId, lang, userId)
                     .then(result => result)
                     .catch(err => {
-                        console.log("!!!UserEvent current then getByIdAggregate failed: ", err);
+                        console.error("!!!UserEvent current then getByIdAggregate failed: ", err);
                         throw err;
                     })
             } else {
@@ -72,7 +72,7 @@ userEventController.prototype.getCurrent = async (userId, lang) => {
 
         })
         .catch(err => {
-            console.log("!!!UserEvent current failed: ", err);
+            console.error("!!!UserEvent current failed: ", err);
             throw err;
         })
 };
@@ -88,7 +88,7 @@ userEventController.prototype.getByUserEvent = async (userId, eventId) => {
     return await UserEvent.getOne({userId, eventId})
         .then(async result => result)
         .catch(err => {
-            console.log("!!!UserEvent getByUserEvent failed: ", err);
+            console.error("!!!UserEvent getByUserEvent failed: ", err);
             throw err;
         })
 };
@@ -114,7 +114,7 @@ userEventController.prototype.setStatus = async (userId, eventId, status, newVal
                 if (status === 'CONTINUE'  && userEvent.status !== 'PAUSED') throw {code: 406, message: 'Active again status mismatch!'}
             })
             .catch(err => {
-                console.log("!!!UserEvent getOne check Approved failed: ", err);
+                console.error("!!!UserEvent getOne check Approved failed: ", err);
                 throw err;
             })
     }
@@ -126,7 +126,7 @@ userEventController.prototype.setStatus = async (userId, eventId, status, newVal
     //             if (!event) throw {code: 400, message: 'The event has not started or ended!'};
     //         })
     //         .catch(err => {
-    //             console.log("!!!validActiveEvent failed: ", err);
+    //             console.error("!!!validActiveEvent failed: ", err);
     //             throw err;
     //         })
     // }
@@ -136,7 +136,7 @@ userEventController.prototype.setStatus = async (userId, eventId, status, newVal
             return result
         })
         .catch(err => {
-            console.log("!!!UserEvent getByUserEvent failed: ", err);
+            console.error("!!!UserEvent getByUserEvent failed: ", err);
             throw err;
         })
 };
@@ -178,7 +178,7 @@ userEventController.prototype.manageParticipant = async (admin, reqInfo, auth) =
             userEvent.save();
         })
         .catch(err => {
-            console.log("!!!UserEvent getOne check Approved failed: ", err);
+            console.error("!!!UserEvent getOne check Approved failed: ", err);
             throw err;
         })
 
@@ -218,12 +218,12 @@ userEventController.prototype.addElapsed = async (userId, eventId, elapsed, coor
                                                 return true
                                             })
                                             .catch(err => {
-                                                console.log("!!!UserEvent transactionController Add failed: ", err);
+                                                console.error("!!!UserEvent transactionController Add failed: ", err);
                                                 throw err;
                                             })
                                     })
                                     .catch(err => {
-                                        console.log("!!!UserEvent setStatus SUCCESS failed: ", err);
+                                        console.error("!!!UserEvent setStatus SUCCESS failed: ", err);
                                         throw err;
                                     })
                             } else {
@@ -231,7 +231,7 @@ userEventController.prototype.addElapsed = async (userId, eventId, elapsed, coor
                             }
                         })
                         .catch(err => {
-                            console.log("!!!UserEvent get elapsed Event failed: ", err);
+                            console.error("!!!UserEvent get elapsed Event failed: ", err);
                             throw err;
                         })
                 } else {
@@ -243,7 +243,7 @@ userEventController.prototype.addElapsed = async (userId, eventId, elapsed, coor
 
         })
         .catch(err => {
-            console.log("!!!UserEvent getByUserEvent elapsed failed: ", err);
+            console.error("!!!UserEvent getByUserEvent elapsed failed: ", err);
             throw err;
         })
 };
@@ -282,7 +282,7 @@ userEventController.prototype.remove = async (optFilter) => {
                     return result;
                 })
                 .catch(err => {
-                    console.log("!!!UserEvent Remove failed: ", err);
+                    console.error("!!!UserEvent Remove failed: ", err);
                     throw err;
                 })
         } else {
@@ -293,7 +293,7 @@ userEventController.prototype.remove = async (optFilter) => {
                     return result;
                 })
                 .catch(err => {
-                    console.log("!!!UserEvent Remove failed: ", err);
+                    console.error("!!!UserEvent Remove failed: ", err);
                     throw err;
                 })
         }
@@ -321,7 +321,7 @@ userEventController.prototype.update = async (optFilter, newValue) => {
                     return result;
                 })
                 .catch(err => {
-                    console.log("!!!UserEvent Update failed: ", err);
+                    console.error("!!!UserEvent Update failed: ", err);
                     throw err;
                 })
         } else {
@@ -331,7 +331,7 @@ userEventController.prototype.update = async (optFilter, newValue) => {
                     return result;
                 })
                 .catch(err => {
-                    console.log("!!!UserEvent Update failed: ", err);
+                    console.error("!!!UserEvent Update failed: ", err);
                     throw err;
                 })
         }

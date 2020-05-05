@@ -71,7 +71,7 @@ OrganizationSchema.static({
         };
         optFilter.pagination = optFilter.pagination || {
             page: 0,
-            limit: 12
+            limit: settings.panel.defaultLimitPage
         };
 
         let regexMatch = {};

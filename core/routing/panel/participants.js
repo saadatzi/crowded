@@ -28,8 +28,8 @@ router.post('/', verifyTokenPanel(), authorization([{EVENT: 'R'}, {USER: 'R'}, {
     console.info('API: Get Participants event/init %j', {body: req.body});
 
     userController.getParticipants(req._admin, req.body, req.auth)
-        .then(items => {
-            new NZ.Response({items}).send(res);
+        .then(result => {
+            new NZ.Response(result).send(res);
         })
         .catch(err => {
             console.error("Get Participants Catch err:", err);

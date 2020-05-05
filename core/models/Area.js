@@ -58,7 +58,7 @@ AreaSchema.static({
     getById: function (_id) {
         return this.findById({_id})
             .then(area => area)
-            .catch(err => console.log("!!!!!!!! Event getById catch err: ", err))
+            .catch(err => console.error("!!!!!!!! Event getById catch err: ", err))
     },
 
     /**
@@ -70,7 +70,7 @@ AreaSchema.static({
     list() {
         return Area.find({})
             .then(area => area)
-            .catch(err => console.log("!!!!!!!! get all Area catch err: ", err));
+            .catch(err => console.error("!!!!!!!! get all Area catch err: ", err));
         // console.log("########## getByIdentifier area: ", area)
         // if (err) {
         // }

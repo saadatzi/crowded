@@ -112,10 +112,10 @@ router.delete('/', verifyTokenPanel(), joiValidate(hasValidIdSchema, 0), authori
 
 
 /**
- * Get Interests for panel
+ * Get Interests
  * @return list of interests
  */
-router.post('/', verifyTokenPanel(), async function (req, res) {
+router.post('/', verifyTokenPanel(), authorization([{INTEREST: 'R'}]), async function (req, res) {
     interestController.getManyPanel(req.body)
         .then(result => {
             new NZ.Response(result).send(res);
@@ -131,7 +131,7 @@ router.post('/', verifyTokenPanel(), async function (req, res) {
  * Get Interest for panel Detail
  * @return list of interests
  */
-router.get('/:id', verifyTokenPanel(), async function (req, res) {
+router.get('/:id', verifyTokenPanel(), authorization([{INTEREST: 'R'}]), async function (req, res) {
     let options = {
         _id: req.params.id
     };

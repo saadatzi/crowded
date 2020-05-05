@@ -22,7 +22,7 @@ permissionController.prototype.add = async (newPermission) => {
                 return result;
             })
             .catch(err => {
-                console.log("!!!Permission many save failed: ", err);
+                console.error("!!!Permission many save failed: ", err);
                 throw err;
             })
     } else {
@@ -32,7 +32,7 @@ permissionController.prototype.add = async (newPermission) => {
                 return result;
             })
             .catch(err => {
-                console.log("!!!Permission save failed: ", err);
+                console.error("!!!Permission save failed: ", err);
                 throw err;
             })
     }
@@ -50,7 +50,7 @@ permissionController.prototype.get = async (optFilter) => {
         return await Permission.list()
             .then(permissions => permissions)
             .catch(err => {
-                console.log("!!!Permission getAll failed: ", err);
+                console.error("!!!Permission getAll failed: ", err);
                 throw err;
             })
     } else {
@@ -60,7 +60,7 @@ permissionController.prototype.get = async (optFilter) => {
                 return result;
             })
             .catch(err => {
-                console.log("!!!Permission get failed: ", err);
+                console.error("!!!Permission get failed: ", err);
                 throw err;
             })
     }
@@ -83,7 +83,7 @@ permissionController.prototype.remove = async (optFilter) => {
                     return result;
                 })
                 .catch(err => {
-                    console.log("!!!Permission Remove failed: ", err);
+                    console.error("!!!Permission Remove failed: ", err);
                     throw err;
                 })
         } else {
@@ -94,7 +94,7 @@ permissionController.prototype.remove = async (optFilter) => {
                     return result;
                 })
                 .catch(err => {
-                    console.log("!!!Permission Remove failed: ", err);
+                    console.error("!!!Permission Remove failed: ", err);
                     throw err;
                 })
         }
@@ -123,7 +123,7 @@ permissionController.prototype.update = async (optFilter, newValue) => {
                     return result;
                 })
                 .catch(err => {
-                    console.log("!!!Permission Update failed: ", err);
+                    console.error("!!!Permission Update failed: ", err);
                     throw err;
                 })
         } else {
@@ -134,7 +134,7 @@ permissionController.prototype.update = async (optFilter, newValue) => {
                     return result;
                 })
                 .catch(err => {
-                    console.log("!!!Permission Update failed: ", err);
+                    console.error("!!!Permission Update failed: ", err);
                     throw err;
                 })
         }

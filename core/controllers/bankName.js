@@ -46,7 +46,7 @@ bankNameController.prototype.get = async (optFilter) => {
     if (!optFilter || optFilter instanceof Object) { //newBankName instanceof Array
         return await BankName.getMany(optFilter)
             .catch(err => {
-                console.log("!!!Interest getAll failed: ", err);
+                console.error("!!!Interest getAll failed: ", err);
                 throw err;
             })
     } else {

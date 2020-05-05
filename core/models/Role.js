@@ -85,7 +85,7 @@ RoleSchema.static({
         // return this.findById({_id})
         //     .populate('permissions.permissionId')
         //     .then(role => role)
-        //     .catch(err => console.log("!!!!!!!!Role getById catch err: ", err))
+        //     .catch(err => console.error("!!!!!!!!Role getById catch err: ", err))
     },
 
     /**

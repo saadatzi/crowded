@@ -3,7 +3,8 @@ const Schema = mongoose.Schema;
 
 const PermissionSchema = new Schema({
     title: {type: String, index: true, uppercase: true, unique: true, required: [true, "can't be blank"]},
-    access: {type: Number, default: 0}
+    access: {type: Number, default: 0},
+    order: Number
 });
 
 
@@ -101,7 +102,7 @@ PermissionSchema.static({
     getById: function (_id) {
         return this.findById({_id})
             .then(device => device)
-            .catch(err => console.log("!!!!!!!!User getById catch err: ", err))
+            .catch(err => console.error("!!!!!!!!User getById catch err: ", err))
     },
 
     /**
@@ -109,8 +110,9 @@ PermissionSchema.static({
      */
     list: async function () {
         return await this.find({})
+            .sort({order: 1})
             .then(permissions => permissions)
-            .catch(err => console.log("permissions getAll Catch", err));
+            .catch(err => console.error("permissions getAll Catch", err));
     },
 
     /**

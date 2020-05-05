@@ -67,7 +67,7 @@ TransactionSchema.static({
     getById: function (_id) {
         return this.findById({_id})
             .then(transaction => transaction)
-            .catch(err => console.log("!!!!!!!! Transaction getById catch err: ", err))
+            .catch(err => console.error("!!!!!!!! Transaction getById catch err: ", err))
     },
 
 
@@ -88,8 +88,8 @@ TransactionSchema.static({
 
         const limit = settings.wallet.limitPage;
 
-        console.log("!!!!!!!! getMyTransaction userId: ", userId)
-        console.log("!!!!!!!! getMyTransaction criteria: ", criteria)
+        console.error("!!!!!!!! getMyTransaction userId: ", userId)
+        console.error("!!!!!!!! getMyTransaction criteria: ", criteria)
         return await this.aggregate([
             {$match: criteria},
             {$sort: {createdAt: -1}},
@@ -143,8 +143,8 @@ TransactionSchema.static({
 
         const monthAgo = new Date(new Date().getTime() - 2678400000);//31*24*60*60*1000
 
-        console.log("!!!!!!!! getMyTransaction userId: ", userId)
-        console.log("!!!!!!!! getMyTransaction criteria: ", criteria);
+        console.error("!!!!!!!! getMyTransaction userId: ", userId)
+        console.error("!!!!!!!! getMyTransaction criteria: ", criteria);
         return await this.aggregate([
             {$match: criteria},
             //Get one month ago
@@ -286,11 +286,11 @@ TransactionSchema.static({
         optFilter.filters = optFilter.filters || {};
         optFilter.sorts = (Object.keys(optFilter.sorts).length === 0 && optFilter.sorts.constructor === Object) ? {
             situation: -1,
-            updatedAt: -1
+            createdAt: -1
         } : optFilter.sorts;
         optFilter.pagination = optFilter.pagination || {
             page: 0,
-            limit: 12
+            limit: settings.panel.defaultLimitPage
         };
 
         return await this.aggregate([
@@ -364,29 +364,41 @@ TransactionSchema.static({
                     transactionId: 1
                 },
             },
-            // {
-            //     $group: {
-            //         _id: null,
-            //         items: {$push: '$$ROOT'},
-            //     }
-            // },
-            // {
-            //     $project: {
-            //         _id: 0,
-            //         nextPage: {$cond: {if: {$gt: [{$size: "$items"}, limit]}, then: page + 1, else: null}},
-            //         items: {$slice: ["$items", limit]},
-            //
-            //     }
-            // },
-            // {
-            //     $project: {
-            //         items: 1,
-            //         nextPage: 1,
-            //     }
-            // }
+            {
+                $group: {
+                    _id: null,
+                    items: {$push: '$$ROOT'},
+                }
+            },
+            {
+                $lookup: {
+                    from: 'transactions',
+                    pipeline: [
+                        {$match: criteria},
+                        {$match: optFilter.filters},
+                        {$count: 'total'},
+                    ],
+                    as: 'getTotal'
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    items: 1,
+                    total: {$arrayElemAt: ["$getTotal", 0]},
+                }
+            },
         ])
-            .then(async transactions => {
-                return transactions
+            .then(async result => {
+                let items = [],
+                    total = 0;
+                if (result.length > 0) {
+                    total = result[0].total.total;
+                    delete result[0].total;
+                    items = result[0].items;
+                }
+                optFilter.pagination.total = total;
+                return {explain: optFilter, items};
             })
             .catch(err => console.error("getMyTransaction  Catch", err));
     },
@@ -407,7 +419,7 @@ TransactionSchema.static({
             .skip(limit * page)
             .exec()
             .then(result => result)
-            .catch(err => console.log("Transaction getAll Catch", err));
+            .catch(err => console.error("Transaction getAll Catch", err));
     }
 })
 ;
