@@ -19,11 +19,10 @@ adminController.prototype.auth = async (email, pass) => {
 
     return await Admin.getAuthenticated(email, pass)
         .then(admin => {
-            console.log("***Login Admin success admin", admin);
             return admin;
         })
         .catch(err => {
-            console.log("!!!Login Admin failed: ", err);
+            console.error("!!!Login Admin failed: ", err);
             throw err;
         })
 };
@@ -40,11 +39,10 @@ adminController.prototype.add = async (newAdmin) => {
     if (Array.isArray(newAdmin)) { //newAdmin instanceof Array
         return await Admin.insertMany(newAdmin)
             .then(result => {
-                console.log("***Admin many save success result", result);
                 return result;
             })
             .catch(err => {
-                console.log("!!!Admin many save failed: ", err);
+                console.error("!!!Admin many save failed: ", err);
                 throw err;
             })
     } else {
@@ -54,7 +52,7 @@ adminController.prototype.add = async (newAdmin) => {
                 return admin;
             })
             .catch(err => {
-                console.log("!!!Admin save failed: ", err);
+                console.error("!!!Admin save failed: ", err);
                 throw err;
             })
     }
@@ -69,15 +67,13 @@ adminController.prototype.add = async (newAdmin) => {
  * @return Admin
  */
 adminController.prototype.get = async (optFilter, type = 'email') => {
-    console.log("***Admin get by Id optFilter 2: ", optFilter);
     if (!optFilter || optFilter instanceof Object) { //newAdmin instanceof Array
         return await Admin.getAll(optFilter)
             .then(result => {
-                console.log("***Admin get All result: ", result);
                 return result;
             })
             .catch(err => {
-                console.log("!!!Admin getAll failed: ", err);
+                console.error("!!!Admin getAll failed: ", err);
                 throw err;
             })
     } else {
@@ -85,14 +81,14 @@ adminController.prototype.get = async (optFilter, type = 'email') => {
             return await Admin.getByEmail(optFilter)
                 .then(result => result)
                 .catch(err => {
-                    console.log("!!!Admin getByEmail failed: ", err);
+                    console.error("!!!Admin getByEmail failed: ", err);
                     throw err;
                 })
         } else {
             return await Admin.getById(optFilter)
                 .then(result => result)
                 .catch(err => {
-                    console.log("!!!Admin get failed: ", err);
+                    console.error("!!!Admin get failed: ", err);
                     throw err;
                 })
         }
@@ -109,11 +105,10 @@ adminController.prototype.get = async (optFilter, type = 'email') => {
 adminController.prototype.getManyPanel = async (optFilter) => {
     return await Admin.getManyPanel(optFilter)
         .then(result => {
-            console.log(`***Admin getManyPanel ${optFilter} result: `, result);
             return result;
         })
         .catch(err => {
-            console.log("!!!Admin getManyPanel failed: ", err);
+            console.error("!!!Admin getManyPanel failed: ", err);
             throw err;
         });
 };
@@ -129,7 +124,7 @@ adminController.prototype.checkAssign = async (roleId) => {
     return await Admin.roleIsRelated(roleId)
         .then(result => result)
         .catch(err => {
-            console.log("!!!Admin checkAssign failed: ", err);
+            console.error("!!!Admin checkAssign failed: ", err);
             throw err;
         });
 };
@@ -144,11 +139,10 @@ adminController.prototype.checkAssign = async (roleId) => {
 adminController.prototype.getOnePanel = async (optFilter) => {
     return await Admin.getOnePanel(optFilter)
         .then(result => {
-            console.log(`***Admin getOnePanel ${optFilter} result: `, result);
             return result;
         })
         .catch(err => {
-            console.log("!!!Admin getOnePanel failed: ", err);
+            console.error("!!!Admin getOnePanel failed: ", err);
             throw err;
         });
 };
@@ -164,11 +158,10 @@ adminController.prototype.remove = async (id) => {
     let newStatus = 2;
     return await Admin.setStatus(id,2,oldStatus=>oldStatus!==newStatus)
         .then(result => {
-            console.log(`***Admin Removed by id ${id} result: `, result);
             return result;
         })
         .catch(err => {
-            console.log(`!!!Admin Remove failed for id ${id}: `, err);
+            console.error(`!!!Admin Remove failed for id ${id}: `, err);
             throw err;
         });
 };
@@ -186,21 +179,19 @@ adminController.prototype.update = async (optFilter, newValue) => {
         if (optFilter instanceof Object) { //instanceof mongoose.Types.ObjectId
             return await Admin.updateMany(optFilter, newValue)
                 .then(result => {
-                    console.log("***Admin  Update many result: ", result);
                     return result;
                 })
                 .catch(err => {
-                    console.log("!!!Admin Update failed: ", err);
+                    console.error("!!!Admin Update failed: ", err);
                     throw err;
                 })
         } else {
             return await Admin.findByIdAndUpdate(optFilter, newValue)
                 .then(result => {
-                    console.log(`***Admin Update by id ${optFilter} result: `, result);
                     return result;
                 })
                 .catch(err => {
-                    console.log("!!!Admin Update failed: ", err);
+                    console.error("!!!Admin Update failed: ", err);
                     throw err;
                 })
         }

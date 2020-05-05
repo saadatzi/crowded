@@ -53,7 +53,7 @@ UserEventSchema.static({
     getById: function (_id) {
         return this.findById({ _id })
             .then(userEvent => userEvent)
-            .catch(err => console.log("!!!!!!!! Event getById catch err: ", err))
+            .catch(err => console.error("!!!!!!!! Event getById catch err: ", err))
     },
 
 
@@ -66,7 +66,7 @@ UserEventSchema.static({
     getOne: function (criteria) {
         return this.findOne(criteria)
             .then(userEvent => userEvent)
-            .catch(err => console.log("!!!!!!!! Event getCurrent catch err: ", err))
+            .catch(err => console.error("!!!!!!!! Event getCurrent catch err: ", err))
     },
 
 
@@ -77,7 +77,7 @@ UserEventSchema.static({
      * @api private
      */
     getAll: async function (options) {
-        console.log("!!!!!!!! getAll Event options: ", options)
+        console.error("!!!!!!!! getAll Event options: ", options)
         const criteria = options.criteria || {};
         const page = options.page || 0;
         const limit = options.limit || 30;
@@ -89,7 +89,7 @@ UserEventSchema.static({
             .skip(limit * page)
             .exec()
             .then(userEvents => userEvents)
-            .catch(err => console.log("Event getAll Catch", err));
+            .catch(err => console.error("Event getAll Catch", err));
     },
 
     /**

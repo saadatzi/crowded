@@ -27,7 +27,7 @@ roleController.prototype.add = async (newRole) => {
         return await Role.create(newRole)
             .then(role => role)
             .catch(err => {
-                console.log("!!!Role save failed: ", err);
+                console.error("!!!Role save failed: ", err);
                 if (err.code === 11000) throw {message: "The entered title is duplicate!", code: 424};
                 throw err;
             })

@@ -22,7 +22,7 @@ deviceController.prototype.add = async function (newDevice) {
                 return device;
             })
             .catch(err => {
-                console.log("!!!device many save failed: ", err);
+                console.error("!!!device many save failed: ", err);
                 throw err;
             })
     } else {
@@ -32,7 +32,7 @@ deviceController.prototype.add = async function (newDevice) {
                 return device;
             })
             .catch(err => {
-                console.log("!!!device save failed: ", err);
+                console.error("!!!device save failed: ", err);
                 throw err;
             })
     }
@@ -54,7 +54,7 @@ deviceController.prototype.get = async (optFilter, type = 'identifier') => {
                 return result;
             })
             .catch(err => {
-                console.log("!!!Device getAll failed: ", err);
+                console.error("!!!Device getAll failed: ", err);
                 throw err;
             })
     } else {
@@ -65,21 +65,21 @@ deviceController.prototype.get = async (optFilter, type = 'identifier') => {
                     return result;
                 })
                 .catch(err => {
-                    console.log("!!!Device get failed: ", err);
+                    console.error("!!!Device get failed: ", err);
                     throw err;
                 });
         } else if (type === 'id') {
             return await Device.getById(optFilter)
                 .then(result => result)
                 .catch(err => {
-                    console.log("!!!Device get failed: ", err);
+                    console.error("!!!Device get failed: ", err);
                     throw err;
                 })
         } else if (type === 'token') {
             return await Device.getByToken(optFilter)
                 .then(result => result)
                 .catch(err => {
-                    console.log("!!!Device get byToken failed: ", err);
+                    console.error("!!!Device get byToken failed: ", err);
                     throw err;
                 })
         }
@@ -102,7 +102,7 @@ deviceController.prototype.remove = async (optFilter) => {
                     return result;
                 })
                 .catch(err => {
-                    console.log("!!!Device Remove failed: ", err);
+                    console.error("!!!Device Remove failed: ", err);
                     throw err;
                 })
         } else {
@@ -112,7 +112,7 @@ deviceController.prototype.remove = async (optFilter) => {
                     return result;
                 })
                 .catch(err => {
-                    console.log("!!!Device Remove failed: ", err);
+                    console.error("!!!Device Remove failed: ", err);
                     throw err;
                 })
         }
@@ -140,14 +140,14 @@ deviceController.prototype.update = async (optFilter, newValue) => {
                     return result;
                 })
                 .catch(err => {
-                    console.log("!!!Device Update many failed: ", err);
+                    console.error("!!!Device Update many failed: ", err);
                     throw err;
                 })
         } else {
             return await Device.findByIdAndUpdate(optFilter, newValue)
                 .then(result => result)
                 .catch(err => {
-                    console.log("!!!Device Update failed: ", err);
+                    console.error("!!!Device Update failed: ", err);
                     throw err;
                 })
         }

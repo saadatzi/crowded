@@ -315,7 +315,7 @@ const permissionController = require('./controllers/permission');
                 ];
                 return permissionController.add(initPermission)
                     .catch(err => {
-                        console.log("!!!Permission many save failed: ", err);
+                        console.error("!!!Permission many save failed: ", err);
                         throw err
                     })
             } else {

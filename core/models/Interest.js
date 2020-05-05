@@ -78,7 +78,7 @@ InterestSchema.static({
             .sort({ order: 1 })
             .exec()
             .then(interests => interests)
-            .catch(err => console.log("Interest getAll Catch", err));
+            .catch(err => console.error("Interest getAll Catch", err));
     },
 
     /**
@@ -97,7 +97,7 @@ InterestSchema.static({
         };
         optFilter.pagination = optFilter.pagination || {
             page: 0,
-            limit: 12
+            limit: settings.panel.defaultLimitPage
         };
         
         let regexMatch = {};

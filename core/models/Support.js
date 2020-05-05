@@ -34,7 +34,7 @@ SupportSchema.static({
     getById: function (_id) {
         return this.findById({_id})
             .then(device => device)
-            .catch(err => console.log("!!!!!!!!User getById catch err: ", err))
+            .catch(err => console.error("!!!!!!!!User getById catch err: ", err))
     },
 
     /**

@@ -50,7 +50,7 @@ DeviceSchema.static({
     getById: function (_id) {
         return this.findById({ _id })
             .then(device => device)
-            .catch(err => console.log("!!!!!!!! getById catch err: ", err))
+            .catch(err => console.error("!!!!!!!! getById catch err: ", err))
     },
 
     /**
@@ -62,7 +62,7 @@ DeviceSchema.static({
     getByIdentifier: (identifier) => {
         return Device.findOne({ identifier: identifier })
             .then(device => device)
-            .catch(err => console.log("!!!!!!!! getByIdentifier catch err: ", err));
+            .catch(err => console.error("!!!!!!!! getByIdentifier catch err: ", err));
         // console.log("########## getByIdentifier device: ", device)
         // if (err) {
         // }
@@ -85,7 +85,7 @@ DeviceSchema.static({
     getByToken: (token) => {
         return Device.findOne({ token: token })
             .then(device => device)
-            .catch(err => console.log("!!!!!!!! getByToken catch err: ", err));
+            .catch(err => console.error("!!!!!!!! getByToken catch err: ", err));
     },
 
     /**

@@ -67,7 +67,7 @@ TransactionSchema.static({
     getById: function (_id) {
         return this.findById({_id})
             .then(transaction => transaction)
-            .catch(err => console.log("!!!!!!!! Transaction getById catch err: ", err))
+            .catch(err => console.error("!!!!!!!! Transaction getById catch err: ", err))
     },
 
 
@@ -88,8 +88,8 @@ TransactionSchema.static({
 
         const limit = settings.wallet.limitPage;
 
-        console.log("!!!!!!!! getMyTransaction userId: ", userId)
-        console.log("!!!!!!!! getMyTransaction criteria: ", criteria)
+        console.error("!!!!!!!! getMyTransaction userId: ", userId)
+        console.error("!!!!!!!! getMyTransaction criteria: ", criteria)
         return await this.aggregate([
             {$match: criteria},
             {$sort: {createdAt: -1}},
@@ -143,8 +143,8 @@ TransactionSchema.static({
 
         const monthAgo = new Date(new Date().getTime() - 2678400000);//31*24*60*60*1000
 
-        console.log("!!!!!!!! getMyTransaction userId: ", userId)
-        console.log("!!!!!!!! getMyTransaction criteria: ", criteria);
+        console.error("!!!!!!!! getMyTransaction userId: ", userId)
+        console.error("!!!!!!!! getMyTransaction criteria: ", criteria);
         return await this.aggregate([
             {$match: criteria},
             //Get one month ago
@@ -290,7 +290,7 @@ TransactionSchema.static({
         } : optFilter.sorts;
         optFilter.pagination = optFilter.pagination || {
             page: 0,
-            limit: 12
+            limit: settings.panel.defaultLimitPage
         };
 
         return await this.aggregate([
@@ -407,7 +407,7 @@ TransactionSchema.static({
             .skip(limit * page)
             .exec()
             .then(result => result)
-            .catch(err => console.log("Transaction getAll Catch", err));
+            .catch(err => console.error("Transaction getAll Catch", err));
     }
 })
 ;

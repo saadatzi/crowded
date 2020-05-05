@@ -19,7 +19,7 @@ areaController.prototype.add = async (newArea) => {
         return await Area.insertMany(newArea)
             .then(result => result)
             .catch(err => {
-                console.log("!!!Area many save failed: ", err);
+                console.error("!!!Area many save failed: ", err);
                 throw err;
             })
     } else {
@@ -29,7 +29,7 @@ areaController.prototype.add = async (newArea) => {
                 return result;
             })
             .catch(err => {
-                console.log("!!!Area save failed: ", err);
+                console.error("!!!Area save failed: ", err);
                 throw err;
             })
     }
@@ -47,7 +47,7 @@ areaController.prototype.get = async (optFilter) => {
         return await Area.list()
             .then(areas => areas)
             .catch(err => {
-                console.log("!!!Area getAll failed: ", err);
+                console.error("!!!Area getAll failed: ", err);
                 throw err;
             })
     } else {
@@ -57,7 +57,7 @@ areaController.prototype.get = async (optFilter) => {
                 return result;
             })
             .catch(err => {
-                console.log("!!!Area get failed: ", err);
+                console.error("!!!Area get failed: ", err);
                 throw err;
             })
     }
@@ -79,7 +79,7 @@ areaController.prototype.remove = async (optFilter) => {
                     return result;
                 })
                 .catch(err => {
-                    console.log("!!!Area Remove failed: ", err);
+                    console.error("!!!Area Remove failed: ", err);
                     throw err;
                 })
         } else {
@@ -89,7 +89,7 @@ areaController.prototype.remove = async (optFilter) => {
                     return result;
                 })
                 .catch(err => {
-                    console.log("!!!Area Remove failed: ", err);
+                    console.error("!!!Area Remove failed: ", err);
                     throw err;
                 })
         }
@@ -118,7 +118,7 @@ areaController.prototype.update = async (optFilter, newValue) => {
                     return result;
                 })
                 .catch(err => {
-                    console.log("!!!Area Update failed: ", err);
+                    console.error("!!!Area Update failed: ", err);
                     throw err;
                 })
         } else {
@@ -129,7 +129,7 @@ areaController.prototype.update = async (optFilter, newValue) => {
                     return result;
                 })
                 .catch(err => {
-                    console.log("!!!Area Update failed: ", err);
+                    console.error("!!!Area Update failed: ", err);
                     throw err;
                 })
         }

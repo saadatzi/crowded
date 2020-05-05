@@ -129,4 +129,7 @@ module.exports = {
 		class: 2,
 		search: 2
 	},
+	panel: {
+		defaultLimitPage: 20
+	}
 }

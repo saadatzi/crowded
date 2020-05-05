@@ -45,7 +45,7 @@ bankAccountController.prototype.get = async (optFilter) => {
                 return result;
             })
             .catch(err => {
-                console.log("!!!BankAccount getAll failed: ", err);
+                console.error("!!!BankAccount getAll failed: ", err);
                 throw err;
             })
     } else {
@@ -55,7 +55,7 @@ bankAccountController.prototype.get = async (optFilter) => {
                 return result;
             })
             .catch(err => {
-                console.log("!!!BankAccount getById failed: ", err);
+                console.error("!!!BankAccount getById failed: ", err);
                 throw err;
             })
     }
@@ -73,7 +73,7 @@ bankAccountController.prototype.changeStatus = async (id, newStatus) => {
             return result;
         })
         .catch(err => {
-            console.log("!!!BankAccount delete failed: ", err);
+            console.error("!!!BankAccount delete failed: ", err);
             throw err;
         })
 };

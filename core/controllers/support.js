@@ -53,7 +53,7 @@ supportController.prototype.get = async (optFilter, type = 'id') => {
                 return result;
             })
             .catch(err => {
-                console.log("!!!Support getAll failed: ", err);
+                console.error("!!!Support getAll failed: ", err);
                 throw err;
             })
     } else {
@@ -64,7 +64,7 @@ supportController.prototype.get = async (optFilter, type = 'id') => {
                 return result;
             })
             .catch(err => {
-                console.log("!!!Support get failed: ", err);
+                console.error("!!!Support get failed: ", err);
                 throw err;
             })
     }
@@ -87,7 +87,7 @@ supportController.prototype.remove = async (optFilter) => {
                     return result;
                 })
                 .catch(err => {
-                    console.log("!!!Support Remove failed: ", err);
+                    console.error("!!!Support Remove failed: ", err);
                     throw err;
                 })
         } else {
@@ -98,7 +98,7 @@ supportController.prototype.remove = async (optFilter) => {
                     return result;
                 })
                 .catch(err => {
-                    console.log("!!!Support Remove failed: ", err);
+                    console.error("!!!Support Remove failed: ", err);
                     throw err;
                 })
         }
@@ -126,7 +126,7 @@ supportController.prototype.update = async (optFilter, newValue) => {
                     return result;
                 })
                 .catch(err => {
-                    console.log("!!!Support updateMany failed: ", err);
+                    console.error("!!!Support updateMany failed: ", err);
                     throw err;
                 })
         } else {
@@ -137,7 +137,7 @@ supportController.prototype.update = async (optFilter, newValue) => {
                     return result;
                 })
                 .catch(err => {
-                    console.log("!!!Support Update by id failed: ", err);
+                    console.error("!!!Support Update by id failed: ", err);
                     throw err;
                 })
         }
@@ -170,7 +170,7 @@ supportController.prototype.authorize = async (userId, permissions) => {
             return result;
         })
         .catch(err => {
-            console.log("!!!Support Authorize failed: ", err);
+            console.error("!!!Support Authorize failed: ", err);
             throw err;
         });
 };

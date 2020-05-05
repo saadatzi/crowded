@@ -64,7 +64,7 @@ UserSchema.static({
     async getById(_id) {
         return await this.findById({_id})
             .then(user => user)
-            .catch(err => console.log("!!!!!!!!User getById catch err: ", err))
+            .catch(err => console.error("!!!!!!!!User getById catch err: ", err))
     },
 
     /**
@@ -79,7 +79,7 @@ UserSchema.static({
             {$project: {interests: 1}}
         ])
             .then(user => user[0])
-            .catch(err => console.log("!!!!!!!!User getById catch err: ", err))
+            .catch(err => console.error("!!!!!!!!User getById catch err: ", err))
     },
 
     /**
@@ -91,7 +91,7 @@ UserSchema.static({
     getByEmail: async (email) => {
         return await User.findOne({email: email})
             .then(user => user)
-            .catch(err => console.log("!!!!!!!! getByEmail catch err: ", err));
+            .catch(err => console.error("!!!!!!!! getByEmail catch err: ", err));
     },
 
     /**
@@ -126,7 +126,7 @@ UserSchema.static({
         optFilter.sorts = (Object.keys(optFilter.sorts).length === 0 && optFilter.sorts.constructor === Object) ? {updatedAt: -1} : optFilter.sorts;
         optFilter.pagination = optFilter.pagination || {
             page: 0,
-            limit: 12
+            limit: settings.panel.defaultLimitPage
         };
 
         let regexMatch = {};

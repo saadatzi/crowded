@@ -74,7 +74,7 @@ AdminSchema.method({
     async comparePassword(candidatePassword) {
         return await bcrypt.compare(candidatePassword, this.password)
             .then(isMatch => isMatch)
-            .catch(err => console.log("!!!!!!!!comparePassword bcrypt.compare getById catch err: ", err));
+            .catch(err => console.error("!!!!!!!!comparePassword bcrypt.compare getById catch err: ", err));
     },
     async incLoginAttempts() {
         //TODO add log Attempts to Array{ip, time, ...}
@@ -127,7 +127,7 @@ AdminSchema.static({
     async getById(_id) {
         return await this.findById({ _id })
             .then(admin => admin)
-            .catch(err => console.log("!!!!!!!!Admin getById catch err: ", err))
+            .catch(err => console.error("!!!!!!!!Admin getById catch err: ", err))
     },
 
     /**
@@ -155,7 +155,7 @@ AdminSchema.static({
                             throw { code: 401, message: "Max Attempts!" }
                         })
                         .catch(err => {
-                            console.log("!!!!!!!!Admin getAuthenticated user.isLocked getById catch err: ", err);
+                            console.error("!!!!!!!!Admin getAuthenticated user.isLocked getById catch err: ", err);
                             throw err;
                         })
                 }
@@ -189,19 +189,19 @@ AdminSchema.static({
                                 throw { code: 401, message: "Password is incorrect!" }
                             })
                             .catch(err => {
-                                console.log("!!!!!!!!Admin incLoginAttempts getById catch err: ", err);
+                                console.error("!!!!!!!!Admin incLoginAttempts getById catch err: ", err);
                                 throw err;
                             })
 
                     })
                     .catch(err => {
-                        console.log("!!!!!!!!Admin getAuthenticated comparePassword getById catch err: ", err);
+                        console.error("!!!!!!!!Admin getAuthenticated comparePassword getById catch err: ", err);
                         throw err;
                     })
 
             })
             .catch(err => {
-                console.log("!!!!!!!! getAuthenticated catch err: ", err)
+                console.error("!!!!!!!! getAuthenticated catch err: ", err)
                 throw err;
             });
     },
@@ -224,7 +224,7 @@ AdminSchema.static({
     getByEmail: async function (email) {
         return await this.findOne({ email: email })
             .then(user => user)
-            .catch(err => console.log("!!!!!!!! getByEmail catch err: ", err));
+            .catch(err => console.error("!!!!!!!! getByEmail catch err: ", err));
     },
 
     /**
@@ -259,7 +259,7 @@ AdminSchema.static({
         };
         optFilter.pagination = optFilter.pagination || {
             page: 0,
-            limit: 12
+            limit: settings.panel.defaultLimitPage
         };
 
         let regexMatch = {};

@@ -20,21 +20,19 @@ eventController.prototype.add = async (newEvent) => {
     if (Array.isArray(newEvent)) { //newEvent instanceof Array
         return await Event.insertMany(newEvent)
             .then(result => {
-                console.log("***Event many save success result", result);
                 return result;
             })
             .catch(err => {
-                console.log("!!!Event many save failed: ", err);
+                console.error("!!!Event many save failed: ", err);
                 throw err;
             })
     } else {
         return await Event.create(newEvent)
             .then(event => {
-                console.log("***Event save success event", event);
                 return event;
             })
             .catch(err => {
-                console.log("!!!Event save failed: ", err);
+                console.error("!!!Event save failed: ", err);
                 throw err;
             })
     }
@@ -61,21 +59,21 @@ eventController.prototype.get = async (optFilter, type = 'id') => {
             return await Event.getById(optFilter)
                 .then(result => result)
                 .catch(err => {
-                    console.log("!!!Event get failed: ", err);
+                    console.error("!!!Event get failed: ", err);
                     throw err;
                 })
         } else if (type === 'validApplyEvent') {
             return await Event.validApplyEvent(optFilter)
                 .then(result => result)
                 .catch(err => {
-                    console.log("!!!validEvent get failed: ", err);
+                    console.error("!!!validEvent get failed: ", err);
                     throw err;
                 })
         } else if (type === 'validActiveEvent') {
             return await Event.validActiveEvent(optFilter)
                 .then(result => result)
                 .catch(err => {
-                    console.log("!!!validActiveEvent get failed: ", err);
+                    console.error("!!!validActiveEvent get failed: ", err);
                     throw err;
                 })
         }
@@ -154,7 +152,7 @@ eventController.prototype.getOnePanel = async (optFilter) => {
     return await Event.getOnePanel(optFilter)
         .then(result => result)
         .catch(err => {
-            console.log("!!!Event get failed: ", err);
+            console.error("!!!Event get failed: ", err);
             throw err;
         });
 };
@@ -205,7 +203,7 @@ eventController.prototype.remove = async (id) => {
             return result;
         })
         .catch(err => {
-            console.log("!!!Event Remove failed: ", err);
+            console.error("!!!Event Remove failed: ", err);
             throw err;
         });
 
@@ -250,7 +248,7 @@ eventController.prototype.update = async (optFilter, newValue) => {
                     return result;
                 })
                 .catch(err => {
-                    console.log("!!!Event Update failed: ", err);
+                    console.error("!!!Event Update failed: ", err);
                     throw err;
                 })
         } else {
@@ -261,7 +259,7 @@ eventController.prototype.update = async (optFilter, newValue) => {
                     return result;
                 })
                 .catch(err => {
-                    console.log("!!!Event Update failed: ", err);
+                    console.error("!!!Event Update failed: ", err);
                     throw err;
                 })
         }

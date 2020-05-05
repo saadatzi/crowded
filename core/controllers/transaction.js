@@ -33,12 +33,12 @@ transactionController.prototype.add = async (userId, eventId) => {
                     return transaction;
                 })
                 .catch(err => {
-                    console.log("!!!Transaction save failed: ", err);
+                    console.error("!!!Transaction save failed: ", err);
                     throw err;
                 })
         })
         .catch(err => {
-            console.log("!!!Event get failed: ", err);
+            console.error("!!!Event get failed: ", err);
             throw err;
         });
 };
@@ -130,12 +130,12 @@ transactionController.prototype.requestWithdraw = async (userId, accountId, tota
                                 return result;
                             })
                             .catch(err => {
-                                console.log("!!!Transaction withdraw Update failed: ", err);
+                                console.error("!!!Transaction withdraw Update failed: ", err);
                                 throw err;
                             })
                     })
                     .catch(err => {
-                        console.log("!!!Transaction withdraw save failed: ", err);
+                        console.error("!!!Transaction withdraw save failed: ", err);
                         throw err;
                     })
             } else {
@@ -183,7 +183,7 @@ transactionController.prototype.remove = async (optFilter) => {
                     return result;
                 })
                 .catch(err => {
-                    console.log("!!!Transaction Remove failed: ", err);
+                    console.error("!!!Transaction Remove failed: ", err);
                     throw err;
                 })
         } else {
@@ -194,7 +194,7 @@ transactionController.prototype.remove = async (optFilter) => {
                     return result;
                 })
                 .catch(err => {
-                    console.log("!!!Transaction Remove failed: ", err);
+                    console.error("!!!Transaction Remove failed: ", err);
                     throw err;
                 })
         }
@@ -222,7 +222,7 @@ transactionController.prototype.update = async (optFilter, newValue) => {
                     return result;
                 })
                 .catch(err => {
-                    console.log("!!!Transaction Update failed: ", err);
+                    console.error("!!!Transaction Update failed: ", err);
                     throw err;
                 })
         } else {
@@ -232,7 +232,7 @@ transactionController.prototype.update = async (optFilter, newValue) => {
                     return result;
                 })
                 .catch(err => {
-                    console.log("!!!Transaction Update failed: ", err);
+                    console.error("!!!Transaction Update failed: ", err);
                     throw err;
                 })
         }
