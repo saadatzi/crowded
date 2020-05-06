@@ -141,16 +141,16 @@ AdminSchema.static({
     getAuthenticated: async function (email, password) {
         return await this.findOne({email: email})
             .populate('organizationId', 'name')
-            .then(async user => {
+            .then(async admin => {
                 // make sure the user exists
-                if (!user) {
+                if (!admin) {
                     throw {code: 404, message: "User not found!"}
                 }
 
                 // check if the account is currently locked
-                if (user.isLocked) {
+                if (admin.isLocked) {
                     // just increment login attempts if account is already locked
-                    return await user.incLoginAttempts()
+                    return await admin.incLoginAttempts()
                         .then(inc => {
                             throw {code: 401, message: "Max Attempts!"}
                         })
@@ -161,20 +161,20 @@ AdminSchema.static({
                 }
 
                 // test for a matching password
-                return await user.comparePassword(password)
+                return await admin.comparePassword(password)
                     .then(async isMatch => {
                         // check if the password was a match
                         if (isMatch) {
                             // if there's no lock or failed attempts, just return the user
-                            if (!user.loginAttempts && !user.lockUntil) {
-                                return await user.updateOne({$set: {lastLogin: new Date()}})
-                                    .then(resUpdate => user.dto())
+                            if (!admin.loginAttempts && !admin.lockUntil) {
+                                return await admin.updateOne({$set: {lastLogin: new Date()}})
+                                    .then(resUpdate => admin.dto())
                                     .catch(err => console.error("!!!!!!!!DTO, Admin update lastLogin  catch err: ", err));
                             }
                             // reset attempts and lock info
-                            return await user.updateOne({$set: {loginAttempts: 0}, $unset: {lockUntil: 1}})
+                            return await admin.updateOne({$set: {loginAttempts: 0}, $unset: {lockUntil: 1}})
                                 .then(resUpdate => {
-                                    return user.dto();
+                                    return admin.dto();
                                 })
                                 .catch(err => {
                                     console.error("!!!!!!!!Admin isMatch user.updateOne getById catch err: ", err);
@@ -184,7 +184,7 @@ AdminSchema.static({
                         }
 
                         // password is incorrect, so increment login attempts before responding
-                        await user.incLoginAttempts()
+                        await admin.incLoginAttempts()
                             .then(inc => {
                                 throw {code: 401, message: "Password is incorrect!"}
                             })
