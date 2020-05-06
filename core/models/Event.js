@@ -552,7 +552,7 @@ EventSchema.static({
      * Event list Group
      */
     async listGroup(userId, optFilter) {
-        const group = {status: {$in: [0, 1]}};
+        const baseCriteria = {status: {$in: [0, 1]}};
         optFilter.filters = optFilter.filters || {};
         optFilter.sorts =  (Object.keys(optFilter.sorts).length === 0 && optFilter.sorts.constructor === Object) ? {_id: -1} : optFilter.sorts;
         optFilter.pagination = optFilter.pagination || {
@@ -583,7 +583,7 @@ EventSchema.static({
 
 
         return await this.aggregate([
-            {$match: group},
+            {$match: baseCriteria},
             {$match: regexMatch},
             {$match: optFilter.filters},
             {
@@ -644,6 +644,7 @@ EventSchema.static({
                 $lookup: {
                     from: 'events',
                     pipeline: [
+                        {$match: baseCriteria},
                         {$match: regexMatch},
                         {$match: optFilter.filters},
                         {$count: 'total'},
