@@ -182,6 +182,7 @@ UserSchema.static({
                     status: '$getUserEvents.status'
                 }
             },
+            {$sort: {status: 1}},
             {
                 $group: {
                     _id: null,
