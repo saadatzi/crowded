@@ -283,9 +283,9 @@ TransactionSchema.static({
         const criteria = {isDebtor: true};
 
         optFilter.filters = optFilter.filters || {};
-        optFilter.sorts = (Object.keys(optFilter.sorts).length === 0 && optFilter.sorts.constructor === Object) ? {
+        optFilter.sorts = (!optFilter.sorts || (Object.keys(optFilter.sorts).length === 0 && optFilter.sorts.constructor === Object)) ? {
             situation: 1,
-            createdAt: -1
+            eventDate: -1
         } : optFilter.sorts;
         optFilter.pagination = optFilter.pagination || {
             page: 0,
