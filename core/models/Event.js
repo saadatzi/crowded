@@ -454,7 +454,7 @@ EventSchema.static({
             //TODO s.mahdi: dont need in panel
             //// status: 1
         };
-        optFilter.sorts = optFilter.sorts || {createdAt: -1};
+        optFilter.sorts =  (Object.keys(optFilter.sorts).length === 0 && optFilter.sorts.constructor === Object) ? {_id: -1} : optFilter.sorts;
         optFilter.pagination = optFilter.pagination || {
             page: 0,
             limit: settings.panel.defaultLimitPage
@@ -621,7 +621,7 @@ EventSchema.static({
                     _id: "$_id",
                     image: {$first: {url: {$concat: [settings.media_domain, "$images.url"]}}},
                     title_en: {$first: `$title_en`},
-                    //  value: {$first: {$toString: "$value"}},
+                    isActive: {$cond: {if: {$eq: ["$status", 1]}, then: true, else: false}},
                 }
             },
             {
@@ -629,7 +629,8 @@ EventSchema.static({
                     _id: 0,
                     id: "$_id",
                     title_en: 1,
-                    image: 1
+                    image: 1,
+                    isActive: 1
                 },
             },
             {
