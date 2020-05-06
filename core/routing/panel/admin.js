@@ -11,6 +11,9 @@ const Joi = require('@hapi/joi');
 const JoiConfigs = require('./../joiConfigs');
 const {joiValidate} = require('./../utils');
 
+const settings = require('../../utils/settings');
+
+
 const Event = require('../../models/Event');
 
 const {getForgotHash} = require('../../utils/cacheLayer')
@@ -54,6 +57,14 @@ const loginSchema = Joi.object().keys({
 const forgotSchema = Joi.object().keys({
     email: JoiConfigs.email(),
 });
+
+
+const listSchema = JoiConfigs.schemas.list({
+    filters:{
+        status: Joi.number().valid(0, 1, 2).default(1),
+    }
+});
+
 
 /**
  *  login Panel
@@ -129,10 +140,10 @@ router.put('/edit', joiValidate(updateSchema, 0), verifyTokenPanel(), authorizat
 /**
  *  List Admins
  */
-router.post('/', verifyTokenPanel(), async (req, res) => {
-    console.info('API: List Admin/init %j', {body: req.body});
+router.post('/', verifyTokenPanel(), joiValidate(listSchema,0), async (req, res) => {
+    console.info('API: List Admin/init %j', {body: req._body});
 
-    adminController.getManyPanel(req.body)
+    adminController.getManyPanel(req._body)
         .then(result => {
             new NZ.Response(result).send(res);
         })

@@ -41,35 +41,15 @@ const editSchema = Joi.object().keys({
 });
 
 
-const listSchema = Joi.object().keys({
-    search: 
-        Joi.string().optional().default(""),
-    filters:
-        Joi.object().optional()
-            .keys({
-                status: Joi.number().valid(0, 1, 2).default(1)
-            })
-            .default(),
-    pagination:
-        Joi.object().optional()
-            .keys({
-                page: Joi.number().greater(-1).default(0),
-                limit: Joi.number().greater(0).default(settings.panel.defaultLimitPage),
-            })
-            .default(),
-    sorts:
-        Joi.object().optional()
-            .keys({
-                title_en: Joi.number().optional().valid(-1, 1),
-                title_ar: Joi.number().optional().valid(-1, 1),
-                createdAt: Joi.number().optional().valid(-1, 1).default(sorts => {
-                    if (Object.keys(sorts).length === 0) return 1;
-                    return undefined;
-                }),
-                updatedAt: Joi.number().optional().valid(-1, 1),
-            })
-            .min(1)
-            .default()
+
+const listSchema = JoiConfigs.schemas.list({
+    filters:{
+        status: Joi.number().valid(0, 1, 2).default(1)
+    },
+    sorts:{
+        title_en: Joi.number().optional().valid(-1, 1),
+        title_ar: Joi.number().optional().valid(-1, 1),
+    }
 });
 
 
@@ -80,7 +60,7 @@ const listSchema = Joi.object().keys({
  * @return status
  */
 //______________________Add Interest_____________________//
-router.post('/add', joiValidate(addSchema), verifyTokenPanel(), uploader, authorization([{INTEREST: 'C'}]), async (req, res) => {
+router.post('/add',  verifyTokenPanel(), uploader, joiValidate(addSchema),  authorization([{INTEREST: 'C'}]), async (req, res) => {
     console.info('API: Add interest/init %j', {body: req.body});
 
     if (!req._uploadPath || !req._uploadFilename) {
@@ -149,7 +129,7 @@ router.delete('/', verifyTokenPanel(), joiValidate(hasValidIdSchema, 0), authori
  * Get Interests
  * @return list of interests
  */
-router.post('/', verifyTokenPanel(), authorization([{INTEREST: 'R'}]), joiValidate(listSchema, 0),async function (req, res) {
+router.post('/', verifyTokenPanel(), authorization([{INTEREST: 'R'}]), joiValidate(listSchema, 0), async function (req, res) {
     // !! NOTE that joi-filtered data is now in req._body not req.body !!
     interestController.getManyPanel(req._body)
         .then(result => {

@@ -71,6 +71,20 @@ const updateSchema = Joi.object().keys({
     isActive: JoiConfigs.boolInt,
 });
 
+
+
+const listSchema = JoiConfigs.schemas.list({
+    filters:{
+        status: Joi.number().valid(0, 1, 2).default(1)
+    },
+    sorts:{
+        title_en: Joi.number().optional().valid(-1, 1),
+        title_ar: Joi.number().optional().valid(-1, 1),
+    }
+});
+
+
+
 /**
  *  Add Event Image
  * -upload image callback path&name
@@ -172,11 +186,11 @@ router.put('/edit', joiValidate(updateSchema), verifyTokenPanel(), authorization
  */
 //______________________Get Event_____________________//
 //TODO JOI Validation
-router.post('/', verifyTokenPanel(), authorization([{EVENT: 'R'}]), async (req, res) => {
+router.post('/', verifyTokenPanel(),  authorization([{EVENT: 'R'}]), joiValidate(listSchema,0), async (req, res) => {
     console.info('API: Get event/init %j', {body: req.body});
     console.info('API: Get event/init req.auth %j', req.auth);
 
-    eventController.list(req.userId, req.body, req.auth.accessLevel.EVENT[0].R.level)
+    eventController.list(req.userId, req._body, req.auth.accessLevel.EVENT[0].R.level)
         .then(result => {
             new NZ.Response(result).send(res);
         })

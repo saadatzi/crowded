@@ -25,15 +25,22 @@ const manageSchema = Joi.object().keys({
     isPaid: JoiConfigs.booleanVal
 });
 
+
+const listSchema = JoiConfigs.schemas.list({
+    filters:{
+        status: Joi.number().valid(0, 1, 2).default(1),
+    }
+});
+
 /**
  * Get  Transaction
  * @return Users
  */
 //______________________Get Transaction _____________________//
-router.post('/', verifyTokenPanel(), authorization([{TRANSACTION: 'R'}]), async (req, res) => {
+router.post('/', verifyTokenPanel(), authorization([{TRANSACTION: 'R'}]), joiValidate(listSchema,0), async (req, res) => {
     console.info('API: Get Transaction event/init %j', {body: req.body});
 
-    transactionController.getPanelTransaction(req.body)
+    transactionController.getPanelTransaction(req._body)
         .then(result => {
             new NZ.Response(result).send(res);
         })

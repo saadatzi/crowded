@@ -14,20 +14,24 @@ const { verifyTokenPanel } = require('../../utils/validation');
 
 
 
-const editSettingSchema = Joi.object().keys({
+const editSchema = Joi.object().keys({
     id: JoiConfigs.isMongoId,
     value: Joi.string().required()
 });
+
+const listSchema = JoiConfigs.schemas.list({});
+
+
 
 
 /**
  * Get Settings
  * @return List Setting
  */
-router.post('/', verifyTokenPanel(), async (req, res) => {
-    console.info('API: Get Setting list %j', { body: req.body });
+router.post('/', verifyTokenPanel(), joiValidate(listSchema,0), async (req, res) => {
+    console.info('API: Get Setting list %j', { body: req._body });
 
-    settingController.list(req.body)
+    settingController.list(req._body)
         .then(result => {
             new NZ.Response(result).send(res);
         })
@@ -41,7 +45,7 @@ router.post('/', verifyTokenPanel(), async (req, res) => {
  * Edit Setting
  * @return Setting
  */
-router.put('/edit', verifyTokenPanel(), joiValidate(editSettingSchema,0), async (req, res) => {
+router.put('/edit', verifyTokenPanel(), joiValidate(editSchema,0), async (req, res) => {
     console.info('API: Edit Setting %j', { body: req.body });
 
     settingController.update(req.body)

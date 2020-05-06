@@ -15,12 +15,13 @@ const { verifyTokenPanel } = require('../../utils/validation');
 
 
 
+const listSchema = JoiConfigs.schemas.list({});
 
 /**
  * Get Statics
  * @return List Static
  */
-router.post('/', verifyTokenPanel(), async (req, res) => {
+router.post('/', verifyTokenPanel(), joiValidate(listSchema,0), async (req, res) => {
     console.info('API: Get Static list %j', { body: req.body });
 
     staticController.list(req.body)

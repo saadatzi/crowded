@@ -35,6 +35,14 @@ const hasValidIdSchema = Joi.object().keys({
     id: JoiConfigs.isMongoId
 });
 
+const listSchema = JoiConfigs.schemas.list({
+    filters:{
+        status: Joi.number().valid(0, 1, 2).default(1)
+    },
+    sorts:{
+        title: Joi.number().optional().valid(-1, 1),
+    }
+});
 
 /**
  *  Add Organization
@@ -92,10 +100,10 @@ router.put('/edit', uploader, joiValidate(updateSchema), verifyTokenPanel(), aut
  *  Get List Organizations
  * @return Organizations
  */
-router.post('/', verifyTokenPanel(), authorization([{ORGANIZATION: 'R'}]), async (req, res) => {
+router.post('/', verifyTokenPanel(), authorization([{ORGANIZATION: 'R'}]), joiValidate(listSchema,0) ,async (req, res) => {
     console.info('API: Get Organization List/init');
 
-    organizationController.getManyPanel(req.body)
+    organizationController.getManyPanel(req._body)
         .then(result => {
             new NZ.Response(result).send(res);
         })

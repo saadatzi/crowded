@@ -49,14 +49,6 @@ SettingSchema.static({
     },
 
     list(optFilter) {
-        optFilter.filters = optFilter.filters || {
-        };
-        optFilter.sorts = optFilter.sorts || {
-        };
-        optFilter.pagination = optFilter.pagination || {
-            page: 0,
-            limit: settings.panel.defaultLimitPage
-        };
         return this.aggregate([
             { $match: {} },
             {

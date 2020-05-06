@@ -251,16 +251,6 @@ AdminSchema.static({
      */
     async getManyPanel(optFilter) {
 
-        optFilter.filters = optFilter.filters || {
-            //  status: 1
-        };
-        optFilter.sorts = optFilter.sorts || {
-            createdAt: 1
-        };
-        optFilter.pagination = optFilter.pagination || {
-            page: 0,
-            limit: settings.panel.defaultLimitPage
-        };
 
         let regexMatch = {};
         if (optFilter.search) {
