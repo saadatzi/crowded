@@ -102,7 +102,45 @@ BankAccountSchema.static({
             .catch(err => {
                 throw err;
             });
+    },
+
+        
+    /**
+     * Checks to see if given bankNameId is related to any bankAccount
+     *
+     * @param {String} id
+     * @api private
+     */
+    bankNameIsRelated: async function (id) {
+        let result = await this.aggregate([
+            {$match: {bankNameId: mongoose.Types.ObjectId(id)}}
+        ])
+            .catch(err => {
+                console.error(`BankAccount bankNameIsRelated check failed with criteria id:${id}`, err);
+                throw err;
+            });
+        return result.length != 0;
+    },
+
+    /**
+     * Checks to see if given bankNameId is related to any bankAccount
+     *
+     * @param {String} id
+     * @api private
+     */
+    deleteRelatedBankAccounts: async function (bankNameId) {
+        let criteria = {
+            bankNameId: bankNameId
+        };
+        return this.updateMany(criteria, {status:2})
+            .catch(err => {
+                console.error(`BankAccount deleteRelatedBankAccounts failed with criteria id:${id}`, err);
+                throw err;
+            });
+            
+       
     }
+
 });
 
 const BankAccount = mongoose.model('BankAccount', BankAccountSchema);
