@@ -496,7 +496,7 @@ EventSchema.static({
                     _id: "$_id",
                     image: {$first: {url: {$concat: [settings.media_domain, "$images.url"]}}},
                     title_en: {$first: `$title_en`},
-                    isActive: {$cond: {if: {$eq: ["$status", 1]}, then: true, else: false}},
+                    status: {$first: `$status`},
                 }
             },
             {
@@ -505,7 +505,7 @@ EventSchema.static({
                     id: "$_id",
                     title_en: 1,
                     image: 1,
-                    isActive: 1
+                    isActive: {$cond: {if: {$eq: ["$status", 1]}, then: true, else: false}},
                 },
             },
             {
@@ -621,7 +621,7 @@ EventSchema.static({
                     _id: "$_id",
                     image: {$first: {url: {$concat: [settings.media_domain, "$images.url"]}}},
                     title_en: {$first: `$title_en`},
-                    isActive: {$cond: {if: {$eq: ["$status", 1]}, then: true, else: false}},
+                    status: {$first: `$status`},
                 }
             },
             {
@@ -630,7 +630,7 @@ EventSchema.static({
                     id: "$_id",
                     title_en: 1,
                     image: 1,
-                    isActive: 1
+                    isActive: {$cond: {if: {$eq: ["$status", 1]}, then: true, else: false}}
                 },
             },
             {
