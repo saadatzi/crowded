@@ -455,7 +455,7 @@ EventSchema.static({
             //// status: 1
         };
         optFilter.sorts =  (!optFilter.sorts || (Object.keys(optFilter.sorts).length === 0 && optFilter.sorts.constructor === Object)) ?
-            {status: -1, from: 1,  _id: -1} : optFilter.sorts;
+            {status: -1, from: 1} : optFilter.sorts;
         optFilter.pagination = optFilter.pagination || {
             page: 0,
             limit: settings.panel.defaultLimitPage
@@ -556,7 +556,7 @@ EventSchema.static({
         const baseCriteria = {status: {$in: [0, 1]}};
         optFilter.filters = optFilter.filters || {};
         optFilter.sorts =  (!optFilter.sorts || (Object.keys(optFilter.sorts).length === 0 && optFilter.sorts.constructor === Object)) ?
-            {status: -1, from: 1,  _id: -1} : optFilter.sorts;
+            {status: -1, from: 1} : optFilter.sorts;
         optFilter.pagination = optFilter.pagination || {
             page: 0,
             limit: settings.panel.defaultLimitPage
