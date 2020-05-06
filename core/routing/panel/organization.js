@@ -93,7 +93,7 @@ router.put('/edit', uploader, joiValidate(updateSchema), verifyTokenPanel(), aut
  * @return Organizations
  */
 router.post('/', verifyTokenPanel(), authorization([{ORGANIZATION: 'R'}]), async (req, res) => {
-    console.info('API: Get Organization List/init');
+    console.info('API: Get Organization List/init', {body: req.body});
 
     organizationController.getManyPanel(req.body)
         .then(result => {
