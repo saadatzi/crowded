@@ -45,7 +45,7 @@ const editSchema = Joi.object().keys({
  * @return status
  */
 //______________________Add Interest_____________________//
-router.post('/add', uploader, joiValidate(addSchema), verifyTokenPanel(), authorization([{INTEREST: 'C'}]), async (req, res) => {
+router.post('/add', verifyTokenPanel(), uploader, joiValidate(addSchema), authorization([{INTEREST: 'C'}]), async (req, res) => {
     console.info('API: Add interest/init %j', {body: req.body});
 
     if (!req._uploadPath || !req._uploadFilename) {

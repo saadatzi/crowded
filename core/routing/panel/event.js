@@ -198,7 +198,6 @@ router.put('/activate', joiValidate(activateSchema), verifyTokenPanel(), authori
 //TODO JOI Validation
 router.post('/', verifyTokenPanel(), authorization([{EVENT: 'R'}]), async (req, res) => {
     console.info('API: Get event/init %j', {body: req.body});
-    console.info('API: Get event/init req.auth %j', req.auth);
 
     eventController.list(req.userId, req.body, req.auth.accessLevel.EVENT[0].R.level)
         .then(result => {
