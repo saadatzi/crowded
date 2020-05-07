@@ -31,6 +31,11 @@ const deleteImageSchema = Joi.object().keys({
     imageId: JoiConfigs.isMongoId,
 });
 
+const addImageSchema = Joi.object().keys({
+    eventId: JoiConfigs.isMongoId,
+    order: JoiConfigs.number,
+});
+
 const addSchema = Joi.object().keys({
     title_ar: JoiConfigs.title,
     title_en: JoiConfigs.title,
@@ -105,7 +110,7 @@ const listSchema = JoiConfigs.schemas.list({
  * @return status
  */
 //______________________Add Event_____________________//
-router.post('/addImage', verifyTokenPanel(), uploader, authorization([{EVENT: 'RU'}]), async (req, res) => {
+router.post('/addImage', verifyTokenPanel(), uploader, joiValidate(addImageSchema), authorization([{EVENT: 'RU'}]), async (req, res) => {
     console.info('API: addImage event/init %j', {body: req.body});
     if (!req._uploadPath || !req._uploadFilename) {
         return new NZ.Response(null, 'fileUpload is Empty!', 400).send(res);
@@ -113,7 +118,7 @@ router.post('/addImage', verifyTokenPanel(), uploader, authorization([{EVENT: 'R
 
     eventController.get(req.body.eventId)
         .then(event => {
-            event.images.push({url: req._uploadPath + '/' + req._uploadFilename, order: null});
+            event.images.push({url: req._uploadPath + '/' + req._uploadFilename, order: req.body.order || null});
             event.save();
             new NZ.Response(true, 'Event add image successful!').send(res);
         })
