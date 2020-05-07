@@ -307,7 +307,7 @@ EventSchema.static({
                     // address: 1
                 }
             },
-            {$sort: {value: -1}}
+            // {$sort: {value: -1}}
             // {$sort: {id: -1}},
         ])
             // .exec()
