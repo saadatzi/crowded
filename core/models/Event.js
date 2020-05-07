@@ -231,13 +231,10 @@ EventSchema.static({
 
 
         return await this.aggregate([
-            // {$lookup: {from: 'areas', localField: 'area', foreignField: `childs._id`, as: 'getArea'}}, //from: collection Name  of mongoDB
             sortNearDate,
             {$match: criteria},
             {$skip: limit * page},
             {$limit: limit},
-            {$unwind: "$images"},
-            {$sort: {'images.order': 1}},
             //get Area name
             {
                 $lookup: {
@@ -251,8 +248,9 @@ EventSchema.static({
                     as: 'getArea'
                 }
             },
-            // {$replaceRoot: { newRoot: { $mergeObjects: [ { $arrayElemAt: [ "$area", 0 ] }, "$$ROOT" ] } }},
-            // {$sort: {value: -1}},
+            {$sort: {value: -1}},
+            {$unwind: "$images"},
+            {$sort: {'images.order': 1}},
             {
                 $group: {
                     _id: "$_id",
