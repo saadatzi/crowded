@@ -52,7 +52,7 @@ router.get('/', verifyToken(), async function (req, res) {
             if (result.length > settings.event.limitPage) {
                 nextPage = page + 1;
                 const x = result.pop();
-                // console.log(">>>>>>>>>>>>>>> x.pop:", x);
+                console.log("##################### x.pop:", x);
             }
             new NZ.Response({items: result, nextPage,}).send(res);
         })

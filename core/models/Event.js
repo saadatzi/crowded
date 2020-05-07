@@ -225,7 +225,7 @@ EventSchema.static({
                 },
                 distanceField: "distance",
                 maxDistance: 3000000,
-                spherical: true
+                // spherical: true
             }
         } : {$sort: {value: -1}};
 
@@ -238,6 +238,7 @@ EventSchema.static({
             {$limit: limit + 1},
             {$unwind: "$images"},
             {$sort: {'images.order': 1}},
+            //get Area name
             {
                 $lookup: {
                     from: 'areas',
