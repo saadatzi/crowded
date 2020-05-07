@@ -85,7 +85,7 @@ const activateSchema = Joi.object().keys({
 
 const listSchema = JoiConfigs.schemas.list({
     filters:{
-        status: Joi.number().valid(0, 1, 2).default(1)
+        status: Joi.number().valid(0, 1).optional()
     },
     sorts:{
         status: Joi.number().optional().valid(-1, 1).default(sorts => {
