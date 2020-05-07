@@ -309,9 +309,6 @@ TransactionSchema.static({
         return await this.aggregate([
             {$match: criteria},
             {$match: optFilter.filters},
-            {$sort: optFilter.sorts},
-            {$skip: optFilter.pagination.page * optFilter.pagination.limit},
-            {$limit: optFilter.pagination.limit},
             //get user info
             {
                 $lookup: {
@@ -366,7 +363,9 @@ TransactionSchema.static({
                     as: 'getAccount'
                 }
             },
-
+            {$sort: optFilter.sorts},
+            {$skip: optFilter.pagination.page * optFilter.pagination.limit},
+            {$limit: optFilter.pagination.limit},
             {
                 $project: {
                     _id: 0,
@@ -383,14 +382,28 @@ TransactionSchema.static({
                 $group: {
                     _id: null,
                     items: {$push: '$$ROOT'},
+                    total: {$sum: 1}
                 }
             },
+            //get Total
             {
                 $lookup: {
                     from: 'transactions',
                     pipeline: [
                         {$match: criteria},
                         {$match: optFilter.filters},
+                        {
+                            $lookup: {
+                                from: 'users',
+                                let: {primaryUserId: "$userId"},
+                                pipeline: [
+                                    {$match: {$expr: {$eq: ["$$primaryUserId", "$_id"]}}},
+                                    {$match: regexMatch},
+                                ],
+                                as: 'getUser'
+                            }
+                        },
+                        {$unwind: {path: "$getUser", preserveNullAndEmptyArrays: false}},
                         {$count: 'total'},
                     ],
                     as: 'getTotal'
