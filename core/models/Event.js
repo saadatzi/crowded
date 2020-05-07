@@ -217,7 +217,7 @@ EventSchema.static({
         criteria.status = 1;
         criteria.allowedApplyTime = {$gt: new Date()};
 
-        const sortNearDate = options.lat ? {
+        const geoNear = options.lat ? {
             $geoNear: {
                 near: {
                     type: "Point",
@@ -227,11 +227,13 @@ EventSchema.static({
                 maxDistance: 3000000,
                 // spherical: true
             }
-        } : {$sort: {value: -1}};
+        } : {$addFields: {empty: ''}};
+
+        const sortValue = !options.lat ? {$sort: {value: -1}} : {$addFields: {empty: ''}};
 
 
         return await this.aggregate([
-            sortNearDate,
+            geoNear,
             {$match: criteria},
             //get Area name
             {
@@ -268,9 +270,9 @@ EventSchema.static({
 
                 }
             },
-            {$sort: {sortKey:{value: -1}, limit: limit}},
+            sortValue,
             {$skip: limit * page},
-            // {$limit: limit},
+            {$limit: limit},
             {
                 $project: {
                     _id: 0,
