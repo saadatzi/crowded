@@ -329,10 +329,11 @@ TransactionSchema.static({
                             }
                         },
                     ],
-                    as: 'getUser'
+                    as: 'getUser',
+                    unwinding: { preserveNullAndEmptyArrays: false }
                 }
             },
-            {$unwind: {path: "$getUser", preserveNullAndEmptyArrays: false}},
+            // {$unwind: {path: "$getUser", preserveNullAndEmptyArrays: false}},
             //get Account info
             {
                 $lookup: {
