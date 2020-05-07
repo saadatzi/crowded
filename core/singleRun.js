@@ -305,7 +305,7 @@ const permissionController = require('./controllers/permission');
                     // {title: "Area",         access: 143},
                     {title: "User", access: 175, order: 2},
                     {title: "Bank",    access: 143, order: 3},
-                    {title: "Device",   access: 143, order: 4},
+                    // {title: "Device",   access: 143, order: 4},
                     {title: "Organization", access: 143, order: 5},
                     {title: "Role",         access: 143, order: 6},
                     {title: "Transaction",  access: 167, order: 7},
