@@ -307,8 +307,8 @@ TransactionSchema.static({
         }
 
         return await this.aggregate([
-            {$match: criteria},
-            {$match: optFilter.filters},
+            {$match: {$and: [criteria, optFilter.filters]}}, //Optimization
+            // {$match: optFilter.filters},
             //get user info
             {
                 $lookup: {

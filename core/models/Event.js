@@ -231,10 +231,8 @@ EventSchema.static({
 
 
         return await this.aggregate([
-            // sortNearDate,
+            sortNearDate,
             {$match: criteria},
-            {$skip: limit * page},
-            {$limit: limit},
             //get Area name
             {
                 $lookup: {
@@ -270,7 +268,9 @@ EventSchema.static({
 
                 }
             },
-            {$sort: {value: -1}},
+            {$sort: {sortKey:{value: -1}, limit: limit}},
+            {$skip: limit * page},
+            // {$limit: limit},
             {
                 $project: {
                     _id: 0,
