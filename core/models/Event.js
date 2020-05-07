@@ -212,7 +212,7 @@ EventSchema.static({
     getAllMyInterestEvent: async function (options) {
         const criteria = options.criteria || {};
         const page = options.page || 0;
-        const limit = settings.event.limitPage + 1;
+        const limit = settings.event.limitPage;
 
         criteria.status = 1;
         criteria.allowedApplyTime = {$gt: new Date()};
@@ -272,7 +272,7 @@ EventSchema.static({
             },
             sortValue,
             {$skip: limit * page},
-            {$limit: limit},
+            {$limit: limit + 1},
             {
                 $project: {
                     _id: 0,

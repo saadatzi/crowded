@@ -51,8 +51,7 @@ router.get('/', verifyToken(), async function (req, res) {
             let nextPage = null;
             if (result.length > settings.event.limitPage) {
                 nextPage = page + 1;
-                const x = result.pop();
-                console.log("##################### x.pop:", x);
+                result.pop();
             }
             new NZ.Response({items: result, nextPage,}).send(res);
         })
