@@ -78,7 +78,6 @@ TransactionSchema.static({
      * @param {String} lang
      * @param {Date} dateFilter
      * @param {Number} page
-     * @param {Boolean} isPrevious
      */
     getMyTransaction: async function (userId, lang, page, dateFilter) {
         const criteria = {status: 1, userId: mongoose.Types.ObjectId(userId)};
@@ -275,7 +274,7 @@ TransactionSchema.static({
     },
 
     /**
-     * List All Transaction
+     * Panel List All Transaction
      *
      * @param {Object} optFilter
      */
@@ -292,6 +291,21 @@ TransactionSchema.static({
             limit: settings.panel.defaultLimitPage
         };
 
+        let regexMatch = {};
+        if (optFilter.search) {
+            let regex = new RegExp(optFilter.search);
+            regexMatch = {
+                $or: [
+                    {
+                        firstname: {$regex: regex, $options: "i"}
+                    },
+                    {
+                        lastname: {$regex: regex, $options: "i"}
+                    }
+                ]
+            };
+        }
+
         return await this.aggregate([
             {$match: criteria},
             {$match: optFilter.filters},
@@ -305,6 +319,7 @@ TransactionSchema.static({
                     let: {primaryUserId: "$userId"},
                     pipeline: [
                         {$match: {$expr: {$eq: ["$$primaryUserId", "$_id"]}}},
+                        {$match: regexMatch},
                         {
                             $project: {
                                 _id: 0,
@@ -320,6 +335,7 @@ TransactionSchema.static({
                     as: 'getUser'
                 }
             },
+            {$unwind: {path: "$getUser", preserveNullAndEmptyArrays: false}},
             //get Account info
             {
                 $lookup: {
