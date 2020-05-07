@@ -212,7 +212,7 @@ EventSchema.static({
     getAllMyInterestEvent: async function (options) {
         const criteria = options.criteria || {};
         const page = options.page || 0;
-        const limit = settings.event.limitPage;
+        const limit = settings.event.limitPage + 1;
 
         criteria.status = 1;
         criteria.allowedApplyTime = {$gt: new Date()};
@@ -235,7 +235,7 @@ EventSchema.static({
             sortNearDate,
             {$match: criteria},
             {$skip: limit * page},
-            {$limit: limit + 1},
+            {$limit: limit},
             {$unwind: "$images"},
             {$sort: {'images.order': 1}},
             //get Area name
