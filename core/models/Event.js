@@ -248,7 +248,6 @@ EventSchema.static({
                     as: 'getArea'
                 }
             },
-            {$sort: {value: -1}},
             {$unwind: "$images"},
             {$sort: {'images.order': 1}},
             {
@@ -257,7 +256,7 @@ EventSchema.static({
                     image: {$first: {url: {$concat: [settings.media_domain, "$images.url"]}}}, //$push
                     title: {$first: `$title_${options.lang}`},
                     // dec: {$first: `$desc_${options.lang}`},
-                    value: {$first: {$toString: "$value"}},
+                    value: {$first: "$value"},
                     // attendance: {$first: `$attendance`},
                     from: {$first: `$from`},
                     to: {$first: `$to`},
@@ -271,6 +270,7 @@ EventSchema.static({
 
                 }
             },
+            {$sort: {value: -1}},
             {
                 $project: {
                     _id: 0,
@@ -279,7 +279,7 @@ EventSchema.static({
                     image: 1,
                     // dec: 1,
                     area: {$arrayElemAt: ['$getArea', 0]},
-                    value: 1,
+                    value: {$toString: "$value"},
                     count: 1,
                     // attendance: 1,
                     //{$dateToString: {date: `$to`, timezone: "Asia/Kuwait", format: "%m-%d"}}
@@ -305,7 +305,6 @@ EventSchema.static({
                     // address: 1
                 }
             },
-            // {$sort: {value: -1}}
             // {$sort: {id: -1}},
         ])
             // .exec()
