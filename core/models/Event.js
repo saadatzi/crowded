@@ -248,6 +248,7 @@ EventSchema.static({
                     as: 'getArea'
                 }
             },
+            {$sort: {value: -1}},
             {$unwind: "$images"},
             {$sort: {'images.order': 1}},
             {
@@ -270,8 +271,6 @@ EventSchema.static({
 
                 }
             },
-            {$sort: {value: -1}},
-
             {
                 $project: {
                     _id: 0,
