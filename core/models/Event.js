@@ -217,7 +217,7 @@ EventSchema.static({
         criteria.status = 1;
         criteria.allowedApplyTime = {$gt: new Date()};
 
-        const sortNearDate = options.lat ? {
+        const geoNear = options.lat ? {
             $geoNear: {
                 near: {
                     type: "Point",
@@ -225,19 +225,17 @@ EventSchema.static({
                 },
                 distanceField: "distance",
                 maxDistance: 3000000,
-                spherical: true
+                // spherical: true
             }
-        } : {$sort: {value: -1}};
+        } : {$addFields: {empty: ''}};
+
+        const sortValue = !options.lat ? {$sort: {value: -1}} : {$addFields: {empty: ''}};
 
 
         return await this.aggregate([
-            // {$lookup: {from: 'areas', localField: 'area', foreignField: `childs._id`, as: 'getArea'}}, //from: collection Name  of mongoDB
-            sortNearDate,
+            geoNear,
             {$match: criteria},
-            {$skip: limit * page},
-            {$limit: limit + 1},
-            {$unwind: "$images"},
-            {$sort: {'images.order': 1}},
+            //get Area name
             {
                 $lookup: {
                     from: 'areas',
@@ -250,15 +248,15 @@ EventSchema.static({
                     as: 'getArea'
                 }
             },
-            // {$replaceRoot: { newRoot: { $mergeObjects: [ { $arrayElemAt: [ "$area", 0 ] }, "$$ROOT" ] } }},
-            // {$sort: {value: -1}},
+            {$unwind: "$images"},
+            {$sort: {'images.order': 1}},
             {
                 $group: {
                     _id: "$_id",
                     image: {$first: {url: {$concat: [settings.media_domain, "$images.url"]}}}, //$push
                     title: {$first: `$title_${options.lang}`},
                     // dec: {$first: `$desc_${options.lang}`},
-                    value: {$first: {$toString: "$value"}},
+                    value: {$first: "$value"},
                     // attendance: {$first: `$attendance`},
                     from: {$first: `$from`},
                     to: {$first: `$to`},
@@ -272,6 +270,9 @@ EventSchema.static({
 
                 }
             },
+            sortValue,
+            {$skip: limit * page},
+            {$limit: limit + 1},
             {
                 $project: {
                     _id: 0,
@@ -280,7 +281,7 @@ EventSchema.static({
                     image: 1,
                     // dec: 1,
                     area: {$arrayElemAt: ['$getArea', 0]},
-                    value: 1,
+                    value: {$toString: "$value"},
                     count: 1,
                     // attendance: 1,
                     //{$dateToString: {date: `$to`, timezone: "Asia/Kuwait", format: "%m-%d"}}
@@ -306,7 +307,6 @@ EventSchema.static({
                     // address: 1
                 }
             },
-            {$sort: {value: -1}}
             // {$sort: {id: -1}},
         ])
             // .exec()
@@ -448,7 +448,7 @@ EventSchema.static({
      */
     async listOwnAny(userId, optFilter, accessLevel) {
 
-        const ownAny = accessLevel === 'OWN' ? {owner: mongoose.Types.ObjectId(userId), status: {$in: [0, 1]}} : {};
+        const ownAny = accessLevel === 'OWN' ? {owner: mongoose.Types.ObjectId(userId), status: {$in: [0, 1]}} : {status: {$in: [0, 1]}};
 
         let regexMatch = {};
         if (optFilter.search) {
@@ -486,7 +486,7 @@ EventSchema.static({
                     _id: "$_id",
                     image: {$first: {url: {$concat: [settings.media_domain, "$images.url"]}}},
                     title_en: {$first: `$title_en`},
-                    //  value: {$first: {$toString: "$value"}},
+                    status: {$first: `$status`},
                 }
             },
             {
@@ -494,7 +494,8 @@ EventSchema.static({
                     _id: 0,
                     id: "$_id",
                     title_en: 1,
-                    image: 1
+                    image: 1,
+                    isActive: {$cond: {if: {$eq: ["$status", 1]}, then: true, else: false}},
                 },
             },
             {
@@ -541,7 +542,7 @@ EventSchema.static({
      * Event list Group
      */
     async listGroup(userId, optFilter) {
-        const group = {staus: {$in: [0, 1]}};
+        const baseCriteria = {status: {$in: [0, 1]}};
 
         let regexMatch = {};
         if (optFilter.search) {
@@ -566,7 +567,7 @@ EventSchema.static({
 
 
         return await this.aggregate([
-            {$match: group},
+            {$match: baseCriteria},
             {$match: regexMatch},
             {$match: optFilter.filters},
             {
@@ -604,7 +605,7 @@ EventSchema.static({
                     _id: "$_id",
                     image: {$first: {url: {$concat: [settings.media_domain, "$images.url"]}}},
                     title_en: {$first: `$title_en`},
-                    //  value: {$first: {$toString: "$value"}},
+                    status: {$first: `$status`},
                 }
             },
             {
@@ -612,7 +613,8 @@ EventSchema.static({
                     _id: 0,
                     id: "$_id",
                     title_en: 1,
-                    image: 1
+                    image: 1,
+                    isActive: {$cond: {if: {$eq: ["$status", 1]}, then: true, else: false}}
                 },
             },
             {
@@ -626,6 +628,7 @@ EventSchema.static({
                 $lookup: {
                     from: 'events',
                     pipeline: [
+                        {$match: baseCriteria},
                         {$match: regexMatch},
                         {$match: optFilter.filters},
                         {$count: 'total'},
@@ -720,9 +723,9 @@ EventSchema.static({
      */
     async getOnePanel(options) {
         if (!options) throw {message: "Missing criteria for Event.getOnePanel!"};
-        options._id = mongoose.Types.ObjectId(options._id);
+        const baseCriteria = {status: {$in: [0, 1]}, _id: mongoose.Types.ObjectId(options._id)};
         return await this.aggregate([
-            {$match: options},
+            {$match: baseCriteria},
             //get Area & clean
             {
                 $lookup: {
@@ -807,7 +810,7 @@ EventSchema.static({
                     createdAt: 1,
                     updatedAt: 1,
                     owner: "$owner.name",
-                    isActive: "$isActive",
+                    isActive: {$cond: {if: {$eq: ["$isActive", 1]}, then: true, else: false}},
                     _id: 0,
                     id: "$_id",
                     title: 1,

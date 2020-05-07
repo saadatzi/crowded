@@ -3,7 +3,7 @@ const accessors = {
 	0: {key: 'body'},
 	1: {
 		shouldParse:  true,
-		checkFiles:   true,
+		checkFiles:   false,
 		getFileArray: true,
 		fileCount:    1,
 		key:          'body.data'

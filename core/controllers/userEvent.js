@@ -119,17 +119,16 @@ userEventController.prototype.setStatus = async (userId, eventId, status, newVal
             })
     }
     // must be event from =< current && current < to
-    //TODO for test and can developer to active disable this check
-    // if (status === 'ACTIVE' && status === 'CONTINUE') {
-    //     await eventController.get(eventId, 'validActiveEvent')
-    //         .then(event => {
-    //             if (!event) throw {code: 400, message: 'The event has not started or ended!'};
-    //         })
-    //         .catch(err => {
-    //             console.error("!!!validActiveEvent failed: ", err);
-    //             throw err;
-    //         })
-    // }
+    if (status === 'ACTIVE' && status === 'CONTINUE') {
+        await eventController.get(eventId, 'validActiveEvent')
+            .then(event => {
+                if (!event) throw {code: 400, message: 'The event has not started or ended!'};
+            })
+            .catch(err => {
+                console.error("!!!validActiveEvent failed: ", err);
+                throw err;
+            })
+    }
     return await UserEvent.findOneAndUpdate({userId, eventId}, updateValue)
         .then(async result => {
             if (!result) throw {code: 404, message: 'Not found!'}

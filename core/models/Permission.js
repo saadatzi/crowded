@@ -45,32 +45,33 @@ PermissionSchema.method({
         let access = {};
         if (this.access > 160) {
             Object.assign(access, {
-                own: {
+                All: {
+                    read: !!arrayAccess[len - 3],
+                    update: !!arrayAccess[len - 2],
+                    delete: !!arrayAccess[len - 1]
+                },
+                Own: {
                     create: !!arrayAccess[len - 4],
                     read: !!arrayAccess[len - 3],
                     update: !!arrayAccess[len - 2],
                     delete: !!arrayAccess[len - 1]
                 },
-                group: {
+                Group: {
                     read: !!arrayAccess[len - 3],
                     update: !!arrayAccess[len - 2],
                     delete: !!arrayAccess[len - 1]
-                },
-                any: {
-                    read: !!arrayAccess[len - 3],
-                    update: !!arrayAccess[len - 2],
-                    delete: !!arrayAccess[len - 1]
-                },
+                }
+
             });
         } else if (this.access > 144) {
             Object.assign(access, {
-                own: {
+                Own: {
                     create: !!arrayAccess[len - 4],
                     read: !!arrayAccess[len - 3],
                     update: !!arrayAccess[len - 2],
                     delete: !!arrayAccess[len - 1]
                 },
-                group: {
+                Group: {
                     read: !!arrayAccess[len - 3],
                     update: !!arrayAccess[len - 2],
                     delete: !!arrayAccess[len - 1]

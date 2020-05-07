@@ -4,14 +4,14 @@ const settings = require('../utils/settings');
 
 
 const OrganizationSchema = new Schema({
-    title: { type: String, unique: true, required: [true, "can't be blank"] },
-    status: { type: Number, default: 1 },
-    image: { type: String, default: '' },
-    address: { type: String, default: '' },
+    title: {type: String, unique: true, required: [true, "can't be blank"]},
+    status: {type: Number, default: 1},
+    image: {type: String, default: ''},
+    address: {type: String, default: ''},
     phones: [{
         type: String
     }]
-}, { timestamps: true });
+}, {timestamps: true});
 
 
 /**
@@ -48,7 +48,7 @@ OrganizationSchema.static({
      * @api private
      */
     getByI(_id) {
-        return this.findById({ _id })
+        return this.findById({_id})
             .then(organization => organization)
             .catch(err => console.error("!!!!!!!!organization getById catch err: ", err))
     },
@@ -62,44 +62,33 @@ OrganizationSchema.static({
      */
 
     async getManyPanel(optFilter) {
-
-        optFilter.filters = optFilter.filters || {
-            status: 1
-        };
-        optFilter.sorts = optFilter.sorts || {
-            title: 1
-        };
-        optFilter.pagination = optFilter.pagination || {
-            page: 0,
-            limit: settings.panel.defaultLimitPage
-        };
+        const baseCriteria = {status: {$in: [0, 1]}};
 
         let regexMatch = {};
         if (optFilter.search) {
             let regex = new RegExp(optFilter.search);
             regexMatch = {
-                title: { $regex: regex, $options: "i" }
+                title: {$regex: regex, $options: "i"}
             };
         }
 
 
-
-
         return this.aggregate([
-            { $match: regexMatch },
-            { $match: optFilter.filters },
-            { $sort: optFilter.sorts },
-            { $skip: optFilter.pagination.page * optFilter.pagination.limit },
-            { $limit: optFilter.pagination.limit },
+            {$match: baseCriteria},
+            {$match: regexMatch},
+            {$match: optFilter.filters},
+            {$sort: optFilter.sorts},
+            {$skip: optFilter.pagination.page * optFilter.pagination.limit},
+            {$limit: optFilter.pagination.limit},
             {
                 $project: {
                     _id: 0,
                     id: '$_id',
                     title: 1,
-                    isActive: { $toBool: "$status" },
+                    isActive: {$toBool: "$status"},
                     image: {
-                        $cond:[
-                            {$ne : ["$image",""]},
+                        $cond: [
+                            {$ne: ["$image", ""]},
                             {$concat: [settings.media_domain, "$image"]},
                             null
                         ]
@@ -116,7 +105,7 @@ OrganizationSchema.static({
                 $lookup: {
                     from: 'organizations',
                     pipeline: [
-                        { $match: regexMatch },
+                        {$match: regexMatch},
                         {$match: optFilter.filters},
                         {$count: 'total'},
                     ],
@@ -131,18 +120,18 @@ OrganizationSchema.static({
                 }
             }
         ])
-        .then(result => {
-            let items = [],
-                total = 0;
-            if (result.length > 0) {
-                total = result[0].total.total;
-                delete result[0].total;
-                items = result[0].items;
-            }
-            optFilter.pagination.total = total;
-            return {explain: optFilter, items};
-        })
-             .catch(err => console.error(err));
+            .then(result => {
+                let items = [],
+                    total = 0;
+                if (result.length > 0) {
+                    total = result[0].total.total;
+                    delete result[0].total;
+                    items = result[0].items;
+                }
+                optFilter.pagination.total = total;
+                return {explain: optFilter, items};
+            })
+            .catch(err => console.error(err));
     },
 
     /**
@@ -152,12 +141,12 @@ OrganizationSchema.static({
      * @api private
      */
     async getOnePanel(optFilter) {
-        if (!optFilter) throw { message: "Missing criteria for Organization.getOnePanel!" };
-        optFilter._id = mongoose.Types.ObjectId(optFilter._id);
+        const baseCriteria = {_id:  mongoose.Types.ObjectId(optFilter._id), status: {$in: [0, 1]}};
+        if (!optFilter) throw {message: "Missing criteria for Organization.getOnePanel!"};
 
         console.log(optFilter);
         return await this.aggregate([
-            { $match: optFilter },
+            {$match: baseCriteria},
             {
                 $project: {
                     _id: 0,
@@ -167,10 +156,10 @@ OrganizationSchema.static({
                     createdAt: 1,
                     updatedAt: 1,
                     phones: 1,
-                    isActive: { $toBool: "$status" },
+                    isActive: {$toBool: "$status"},
                     image: {
-                        $cond:[
-                            {$ne : ["$image",""]},
+                        $cond: [
+                            {$ne: ["$image", ""]},
                             {$concat: [settings.media_domain, "$image"]},
                             null
                         ]
@@ -183,20 +172,21 @@ OrganizationSchema.static({
 
     },
 
-     /**
-     * 
+    /**
+     *
      * @param {String} id - id of the record
      * @param {Number} newStatus - new status you want to set
      * @param {Number} validateCurrent - a function returning a boolean checking old status
      */
-    async setStatus(id, newStatus, validateCurrent = function(old){return true}) {
-        let record = await this.findOne({_id:id}).catch(err=>console.error(err));
+    async setStatus(id, newStatus, validateCurrent = function (old) {
+        return true
+    }) {
+        let record = await this.findOne({_id: id}).catch(err => console.error(err));
         let currentState = record.status;
-        if (!validateCurrent(currentState)) throw {message:"Changing status not permitted!"};
+        if (!validateCurrent(currentState)) throw {message: "Changing status not permitted!"};
         record.status = newStatus;
         return record.save();
     }
-
 
 
 });

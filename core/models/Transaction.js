@@ -78,7 +78,6 @@ TransactionSchema.static({
      * @param {String} lang
      * @param {Date} dateFilter
      * @param {Number} page
-     * @param {Boolean} isPrevious
      */
     getMyTransaction: async function (userId, lang, page, dateFilter) {
         const criteria = {status: 1, userId: mongoose.Types.ObjectId(userId)};
@@ -275,7 +274,7 @@ TransactionSchema.static({
     },
 
     /**
-     * List All Transaction
+     * Panel List All Transaction
      *
      * @param {Object} optFilter
      */
@@ -283,21 +282,33 @@ TransactionSchema.static({
         const criteria = {isDebtor: true};
 
         optFilter.filters = optFilter.filters || {};
-        optFilter.sorts = (Object.keys(optFilter.sorts).length === 0 && optFilter.sorts.constructor === Object) ? {
-            situation: -1,
-            createdAt: -1
+        optFilter.sorts = (!optFilter.sorts || (Object.keys(optFilter.sorts).length === 0 && optFilter.sorts.constructor === Object)) ? {
+            situation: 1,
+            eventDate: -1
         } : optFilter.sorts;
         optFilter.pagination = optFilter.pagination || {
             page: 0,
             limit: settings.panel.defaultLimitPage
         };
 
+        let regexMatch = {};
+        if (optFilter.search) {
+            let regex = new RegExp(optFilter.search);
+            regexMatch = {
+                $or: [
+                    {
+                        firstname: {$regex: regex, $options: "i"}
+                    },
+                    {
+                        lastname: {$regex: regex, $options: "i"}
+                    }
+                ]
+            };
+        }
+
         return await this.aggregate([
-            {$match: criteria},
-            {$match: optFilter.filters},
-            {$sort: optFilter.sorts},
-            {$skip: optFilter.pagination.page * optFilter.pagination.limit},
-            {$limit: optFilter.pagination.limit},
+            {$match: {$and: [criteria, optFilter.filters]}}, //Optimization
+            // {$match: optFilter.filters},
             //get user info
             {
                 $lookup: {
@@ -305,6 +316,7 @@ TransactionSchema.static({
                     let: {primaryUserId: "$userId"},
                     pipeline: [
                         {$match: {$expr: {$eq: ["$$primaryUserId", "$_id"]}}},
+                        {$match: regexMatch},
                         {
                             $project: {
                                 _id: 0,
@@ -320,6 +332,7 @@ TransactionSchema.static({
                     as: 'getUser'
                 }
             },
+            {$unwind: {path: "$getUser", preserveNullAndEmptyArrays: false}},
             //get Account info
             {
                 $lookup: {
@@ -350,7 +363,9 @@ TransactionSchema.static({
                     as: 'getAccount'
                 }
             },
-
+            {$sort: optFilter.sorts},
+            {$skip: optFilter.pagination.page * optFilter.pagination.limit},
+            {$limit: optFilter.pagination.limit},
             {
                 $project: {
                     _id: 0,
@@ -367,14 +382,28 @@ TransactionSchema.static({
                 $group: {
                     _id: null,
                     items: {$push: '$$ROOT'},
+                    total: {$sum: 1}
                 }
             },
+            //get Total
             {
                 $lookup: {
                     from: 'transactions',
                     pipeline: [
                         {$match: criteria},
                         {$match: optFilter.filters},
+                        {
+                            $lookup: {
+                                from: 'users',
+                                let: {primaryUserId: "$userId"},
+                                pipeline: [
+                                    {$match: {$expr: {$eq: ["$$primaryUserId", "$_id"]}}},
+                                    {$match: regexMatch},
+                                ],
+                                as: 'getUser'
+                            }
+                        },
+                        {$unwind: {path: "$getUser", preserveNullAndEmptyArrays: false}},
                         {$count: 'total'},
                     ],
                     as: 'getTotal'

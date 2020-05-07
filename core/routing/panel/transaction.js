@@ -38,7 +38,7 @@ const listSchema = JoiConfigs.schemas.list({
  */
 //______________________Get Transaction _____________________//
 router.post('/', verifyTokenPanel(), authorization([{TRANSACTION: 'R'}]), joiValidate(listSchema,0), async (req, res) => {
-    console.info('API: Get Transaction event/init %j', {body: req.body});
+    console.info('API: Get Transaction event/init %j', {body: req._body});
 
     transactionController.getPanelTransaction(req._body)
         .then(result => {

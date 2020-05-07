@@ -22,9 +22,9 @@ const listSchema = JoiConfigs.schemas.list({});
  * @return List Static
  */
 router.post('/', verifyTokenPanel(), joiValidate(listSchema,0), async (req, res) => {
-    console.info('API: Get Static list %j', { body: req.body });
+    console.info('API: Get Static list %j', { body: req._body });
 
-    staticController.list(req.body)
+    staticController.list(req._body)
         .then(result => {
             new NZ.Response(result).send(res);
         })

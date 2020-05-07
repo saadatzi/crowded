@@ -39,23 +39,32 @@ faqController.prototype.add = async (updateValue) => {
 };
 
 
-
 /**
- * Panel get one faq
+ * get Faq
+ *
+ * @param {Object || ObjectId} optFilter
  *
  * @return Faq
  */
-faqController.prototype.getOnePanel = async (optFilter) => {
-
-    return await Faq.getOnePanel(optFilter)
-        .then(result => {
-            console.log(`***Faq get by id ${optFilter} result: `, result);
-            return result;
-        })
-        .catch(err => {
-            console.error("!!!Faq get failed: ", err);
-            throw err;
-        })
+faqController.prototype.getPanel = async (optFilter) => {
+    if (!optFilter || optFilter instanceof Object) { //updateValue instanceof Array
+        return await Faq.panelList()
+            .then(faqs => faqs)
+            .catch(err => {
+                console.error("!!!Faq getAll failed: ", err);
+                throw err;
+            })
+    } else {
+        return await Faq.getById(optFilter)
+            .then(result => {
+                console.log(`***Faq get by id ${optFilter} result: `, result);
+                return result;
+            })
+            .catch(err => {
+                console.error("!!!Faq get failed: ", err);
+                throw err;
+            })
+    }
 };
 
 
@@ -66,14 +75,10 @@ faqController.prototype.getOnePanel = async (optFilter) => {
  *
  * @return Faq
  */
-faqController.prototype.get = async (optFilter) => {
+faqController.prototype.getApp = async (optFilter) => {
     if (!optFilter || optFilter instanceof Object) { //updateValue instanceof Array
-        return await Faq.list()
-            .then(faqs => {
-                let returnedFaqs = [];
-                faqs.map(faq => returnedFaqs.push(faq.transform(optFilter.selected, optFilter.lang)));
-                return returnedFaqs;
-            })
+        return await Faq.appList()
+            .then(faqs => faqs)
             .catch(err => {
                 console.error("!!!Faq getAll failed: ", err);
                 throw err;

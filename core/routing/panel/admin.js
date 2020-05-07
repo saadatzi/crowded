@@ -27,8 +27,7 @@ const addSchema = Joi.object().keys({
     email: JoiConfigs.email(),
     name: JoiConfigs.title,
     password: JoiConfigs.password,
-    role: JoiConfigs.arrayLength(1, 50, JoiConfigs.isMongoId),
-    lastIp: JoiConfigs.strOptional,
+    roles: JoiConfigs.arrayLength(1, 50, JoiConfigs.isMongoId),
     call: JoiConfigs.array(false, callSchema),
     organizationId: JoiConfigs.isMongoId
 });
@@ -37,9 +36,7 @@ const addSchema = Joi.object().keys({
 const updateSchema = Joi.object().keys({
     adminId: JoiConfigs.isMongoId,
     name: JoiConfigs.title,
-    password: JoiConfigs.password,
-    role: JoiConfigs.arrayLength(1, 50, JoiConfigs.isMongoId),
-    lastIp: JoiConfigs.strOptional,
+    roles: JoiConfigs.arrayLength(1, 50, JoiConfigs.isMongoId),
     call: JoiConfigs.array(false, callSchema),
     organizationId: JoiConfigs.isMongoId
 });
@@ -65,6 +62,11 @@ const listSchema = JoiConfigs.schemas.list({
     }
 });
 
+
+const activateSchema = Joi.object().keys({
+    adminId: JoiConfigs.isMongoId,
+    isActive: JoiConfigs.boolInt,
+});
 
 /**
  *  login Panel
@@ -132,6 +134,26 @@ router.put('/edit', joiValidate(updateSchema, 0), verifyTokenPanel(), authorizat
         })
         .catch(err => {
             console.error("Admin update Catch err:", err);
+            new NZ.Response(null, err.message, err.code || 500).send(res);
+        })
+});
+
+
+/**
+ *  Activation ADMIN
+ * -UPDATE Admin status in db
+ * @return status
+ */
+//______________________Add Event_____________________//
+router.put('/activate', joiValidate(activateSchema), verifyTokenPanel(), authorization([{ADMIN: 'RU'}]), async (req, res) => {
+    console.info('API: Activation event/init %j', {body: req.body});
+
+    eventController.update(req.body.eventId, {status: req.body.isActive})
+        .then(event => {
+            new NZ.Response(!!event, event ? 'Event Update successful!' : 'Not Found!').send(res);
+        })
+        .catch(err => {
+            console.error("Event Update Catch err:", err);
             new NZ.Response(null, err.message, err.code || 500).send(res);
         })
 });

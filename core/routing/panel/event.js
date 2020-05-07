@@ -68,6 +68,11 @@ const updateSchema = Joi.object().keys({
     lng: JoiConfigs.price,
     interests: JoiConfigs.arrayLength(1, 100, JoiConfigs.isMongoId),
     allowedRadius: JoiConfigs.number,
+    // isActive: JoiConfigs.boolInt,
+});
+
+const activateSchema = Joi.object().keys({
+    eventId: JoiConfigs.isMongoId,
     isActive: JoiConfigs.boolInt,
 });
 
@@ -78,8 +83,17 @@ const listSchema = JoiConfigs.schemas.list({
         status: Joi.number().valid(0, 1, 2).default(1)
     },
     sorts:{
+        status: Joi.number().optional().valid(-1, 1).default(sorts => {
+            if (Object.keys(sorts).length <2) return -1;
+            return undefined;
+        }),
+        from: Joi.number().optional().valid(-1, 1).default(sorts => {
+            if (Object.keys(sorts).length <2) return 1;
+            return undefined;
+        }),
         title_en: Joi.number().optional().valid(-1, 1),
         title_ar: Joi.number().optional().valid(-1, 1),
+
     }
 });
 
@@ -158,7 +172,6 @@ router.post('/add', uploader, joiValidate(addSchema), verifyTokenPanel(), author
 
 /**
  *  Update Event
- * -upload image and save in req._uploadPath
  * -add Event in db
  * @return status
  */
@@ -169,7 +182,7 @@ router.put('/edit', joiValidate(updateSchema), verifyTokenPanel(), authorization
 
     const eventId = req.body.eventId;
     delete req.body.eventId;
-    req.body.location = {coordinates: [req.body.lat, req.body.lng]};
+    req.body.location = {type: 'Point', coordinates: [req.body.lat, req.body.lng]};
     eventController.update(eventId, req.body)
         .then(event => {
             new NZ.Response(!!event, event ? 'Event Update successful!' : 'Not Found!').send(res);
@@ -181,14 +194,33 @@ router.put('/edit', joiValidate(updateSchema), verifyTokenPanel(), authorization
 });
 
 /**
+ *  Activation Event
+ * -add Event in db
+ * @return status
+ */
+//______________________Add Event_____________________//
+router.put('/activate', joiValidate(activateSchema), verifyTokenPanel(), authorization([{EVENT: 'RU'}]), async (req, res) => {
+    console.info('API: Activation event/init %j', {body: req.body});
+    if (req.auth.accessLevel.EVENT[1].U.level !== 'ANY') return new NZ.Response(null, 'You are not allowed to activate the event!', 403).send(res);
+    eventController.update(req.body.eventId, {status: req.body.isActive})
+        .then(event => {
+            new NZ.Response(!!event, event ? 'Event Activation successful!' : 'Not Found!').send(res);
+        })
+        .catch(err => {
+            console.error("Event Update Catch err:", err);
+            new NZ.Response(null, err.message, err.code || 500).send(res);
+        })
+});
+
+
+/**
  * Get Event List
  * @return Events
  */
 //______________________Get Event_____________________//
 //TODO JOI Validation
 router.post('/', verifyTokenPanel(),  authorization([{EVENT: 'R'}]), joiValidate(listSchema,0), async (req, res) => {
-    console.info('API: Get event/init %j', {body: req.body});
-    console.info('API: Get event/init req.auth %j', req.auth);
+    console.info('API: Get event/init %j', {body: req._body});
 
     eventController.list(req.userId, req._body, req.auth.accessLevel.EVENT[0].R.level)
         .then(result => {
