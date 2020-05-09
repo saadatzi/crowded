@@ -80,6 +80,7 @@ router.post('/login', joiValidate(loginSchema, 0), async (req, res) => {
         .then(async user => {
             await roleController.getAdmin(user.roles)
                 .then(permissions => {
+                    delete user.roles;
                     const token = sign({userId: user.id});
                     new NZ.Response({user, token, permissions}).send(res);
                 })

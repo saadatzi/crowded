@@ -93,18 +93,17 @@ const activateSchema = Joi.object().keys({
 });
 
 
-
 const listSchema = JoiConfigs.schemas.list({
-    filters:{
+    filters: {
         status: Joi.number().valid(0, 1).optional()
     },
-    sorts:{
+    sorts: {
         status: Joi.number().optional().valid(-1, 1).default(sorts => {
-            if (Object.keys(sorts).length <2) return -1;
+            if (Object.keys(sorts).length < 2) return -1;
             return undefined;
         }),
         from: Joi.number().optional().valid(-1, 1).default(sorts => {
-            if (Object.keys(sorts).length <2) return 1;
+            if (Object.keys(sorts).length < 2) return 1;
             return undefined;
         }),
         title_en: Joi.number().optional().valid(-1, 1),
@@ -112,7 +111,6 @@ const listSchema = JoiConfigs.schemas.list({
 
     }
 });
-
 
 
 /**
@@ -256,7 +254,7 @@ router.put('/activate', joiValidate(activateSchema), verifyTokenPanel(), authori
  */
 //______________________Get Event_____________________//
 //TODO JOI Validation
-router.post('/', joiValidate(listSchema), verifyTokenPanel(),  authorization([{EVENT: 'R'}]), async (req, res) => {
+router.post('/', joiValidate(listSchema), verifyTokenPanel(), authorization([{EVENT: 'R'}]), async (req, res) => {
     console.info('API: Get event/init %j', {body: req._body});
 
     eventController.list(req.userId, req._body, req.auth.accessLevel.EVENT[0].R.level)
