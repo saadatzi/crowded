@@ -34,10 +34,15 @@ module.exports = {
     schemas: {
 
         list(optFilter) {
-            optFilter = optFilter || {},
-            optFilter.filters = optFilter.filters || {};
-            optFilter.sorts = optFilter.sorts || {};
-            optFilter.pagination = optFilter.pagination || {};
+
+
+            optFilter = optFilter || {};
+            optFilter.filters = optFilter.filters && Object.keys(optFilter.filters).length ? optFilter.filters : {};
+            optFilter.pagination = optFilter.pagination && Object.keys(optFilter.pagination).length ? optFilter.pagination : {};
+            optFilter.sorts = optFilter.sorts && Object.keys(optFilter.sorts).length ? optFilter.sorts : {
+                createdAt: Joi.number().optional().valid(-1, 1).default(1)
+            };
+
             return Joi.object().keys({
                 search:
                     Joi.string().allow("").optional().default(""),
@@ -50,14 +55,10 @@ module.exports = {
                 sorts:
                     Joi.object().optional()
                         .keys({
-                            createdAt: Joi.number().optional().valid(-1, 1).default(sorts => {
-                                if (Object.keys(sorts).length === 0) return 1;
-                                return undefined;
-                            }),
                             updatedAt: Joi.number().optional().valid(-1, 1),
                             ...optFilter.sorts
                         })
-                        .min(1)
+                        .min(1)// Caution: don't reduce this below 1
                         .default(),
                 pagination:
                     Joi.object().optional()
@@ -67,7 +68,7 @@ module.exports = {
                             ...optFilter.pagination
                         })
                         .default(),
-            })
+            });
         }
 
 
