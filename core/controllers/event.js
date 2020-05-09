@@ -270,5 +270,31 @@ eventController.prototype.update = async (optFilter, newValue) => {
 
 };
 
+/**
+ * Update reorder Images Event
+ *
+ * @param {ObjectId} eventId
+ * @param {Array} newOrders
+ *
+ * @return Query
+ */
+eventController.prototype.reorder = async (eventId, newOrders) => {
+    newOrders.map(nOrder => {
+        Event.updateOne({
+            _id: mongoose.Types.ObjectId(eventId),
+            'images._id': mongoose.Types.ObjectId(nOrder.imageId)
+        }, {$set: {'images.$.order': nOrder.order}})
+            .then(result => {
+                console.log("%%%%%%%%%%%%%%%%% Event reorder Images result: ", result);
+                // return result;
+            })
+            .catch(err => {
+                console.error("!!!Event reorder Images failed: ", err);
+                throw err;
+            })
+    });
+    return true
+};
+
 module.exports = new eventController();
 const userEventController = require('./userEvent');

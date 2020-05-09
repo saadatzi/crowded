@@ -32,7 +32,7 @@ RoleSchema.method({});
 RoleSchema.static({
 
     /**
-     * Find User by id
+     * Find Role by id
      *
      * @param {ObjectId} id
      * @api private
@@ -80,6 +80,70 @@ RoleSchema.static({
                     r.permissions.map(rp => rp.accesssLevel = binLevel2Bool(rp.accessLevelNum))
                 });
                 return result[0];
+            })
+            .catch(err => console.error("Role getById  Catch", err));
+
+        // return this.findById({_id})
+        //     .populate('permissions.permissionId')
+        //     .then(role => role)
+        //     .catch(err => console.error("!!!!!!!!Role getById catch err: ", err))
+    },
+
+    /**
+     * get Admin role Permissions
+     *
+     * @param {Array} roleIds
+     * @api private
+     */
+    async getAdminPermissions(roleIds) {
+        const baseCriteria = {status: 1, _id: {$in: roleIds}};
+        return await this.aggregate([
+            {$match: baseCriteria},
+            {$unwind: "$permissions"},
+            {
+                $lookup: {
+                    from: 'permissions',
+                    localField: 'permissions.permissionId',
+                    foreignField: '_id',
+                    as: 'perName'
+                }
+            },
+            // {$replaceRoot: {newRoot: {$mergeObjects: [{$arrayElemAt: ["$perName", 0]}, "$$ROOT"]}}},
+            {$unwind: "$perName"},
+            {
+                $group: {
+                    _id: "$_id",
+                    permissions: {
+                        $push: {
+                            title: '$perName.title',
+                            accessLevelNum: '$permissions.accessLevel',
+                        }
+                    },
+                    name: {$first: `$name`},
+                    status: {$first: `$status`},
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    permissions: 1,
+                }
+            },
+        ])
+            .then(result => {
+                const merged = [];
+                result.map(r => {
+                    r.permissions.map(rp => {
+                        rp.accesssLevel = binLevel2Bool(rp.accessLevelNum);
+                        let tempMerge = merged.find(old => old.title === rp.title);
+                        if (!tempMerge) merged.push(rp);
+                        if (tempMerge && tempMerge.accessLevelNum < rp.accessLevelNum) {
+                            const foundIndex = merged.findIndex(old => old.title === rp.title);
+                            merged[foundIndex] = rp;
+                        }
+                    })
+                });
+                return merged;
             })
             .catch(err => console.error("Role getById  Catch", err));
 

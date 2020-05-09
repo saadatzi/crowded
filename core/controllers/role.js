@@ -63,6 +63,21 @@ roleController.prototype.get = async (optFilter, type = 'id') => {
 };
 
 /**
+ * get Admin permissions
+ *
+ * @param {Array} roleIds
+ */
+roleController.prototype.getAdmin = async (roleIds) => {
+    return await Role.getAdminPermissions(roleIds)
+        .then(result => result)
+        .catch(err => {
+            console.error("!!!Role Admin permissions failed: ", err);
+            throw err;
+        })
+};
+
+
+/**
  * remove Role
  *
  * @param {ObjectId} roleId
@@ -72,7 +87,7 @@ roleController.prototype.remove = async (roleId) => {
         .then(async isAssigned => {
             if (isAssigned) throw {code: 400, message: 'Couldn`t remove! this role assigned to Admin.'};
             let newStatus = 2;
-            return await Role.setStatus(roleId,2,oldStatus=>oldStatus!==newStatus)
+            return await Role.setStatus(roleId, 2, oldStatus => oldStatus !== newStatus)
                 // .then(result => result)
                 .catch(err => {
                     console.error("!!!Role Remove failed: ", err);

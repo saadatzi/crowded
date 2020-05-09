@@ -12,6 +12,7 @@ const deviceController = require('../../controllers/device');
 const NZ = require('../../utils/nz');
 const {uploader, multiUploader} = require('../../utils/fileManager');
 const {verifyTokenPanel, authorization} = require('../../utils/validation');
+const settings = require('../../utils/settings')
 
 const UserEvent = require('../../models/UserEvent');
 
@@ -34,6 +35,16 @@ const deleteImageSchema = Joi.object().keys({
 const addImageSchema = Joi.object().keys({
     eventId: JoiConfigs.isMongoId,
     order: JoiConfigs.number,
+});
+
+const orderObjSchema = Joi.object().keys({
+    imageId: JoiConfigs.isMongoId,
+    order: JoiConfigs.number,
+});
+
+const orderImagesSchema = Joi.object().keys({
+    eventId: JoiConfigs.isMongoId,
+    newOrderImages: JoiConfigs.arrayLength(1, 10, orderObjSchema),
 });
 
 const addSchema = Joi.object().keys({
@@ -118,6 +129,7 @@ router.post('/addImage', verifyTokenPanel(), uploader, joiValidate(addImageSchem
 
     eventController.get(req.body.eventId)
         .then(event => {
+            if (event.images.length + 1 > settings.event.maxImageForEvent) return new NZ.Response(false, `${settings.event.maxImageForEvent} images are allowed for the event.`, 400).send(res);
             event.images.push({url: req._uploadPath + '/' + req._uploadFilename, order: req.body.order || null});
             event.save();
             new NZ.Response(true, 'Event add image successful!').send(res);
@@ -127,7 +139,27 @@ router.post('/addImage', verifyTokenPanel(), uploader, joiValidate(addImageSchem
             new NZ.Response(null, err.message, err.code || 500).send(res);
         })
 });
-//TODO Image ORDER need API!!!
+
+/**
+ *  Reorder Images Update Event
+ * -add Event in db
+ * @return status
+ */
+//______________________Reorder Images Event_____________________//
+router.put('/reorder', joiValidate(orderImagesSchema), verifyTokenPanel(), authorization([{EVENT: 'RU'}]), async (req, res) => {
+    console.info('API: Reorder Images event/init %j', {body: req.body});
+
+
+    eventController.reorder(req.body.eventId, req.body.newOrderImages)
+        .then(event => {
+            new NZ.Response(!!event, event ? 'Reorder images Update successful!' : 'Not Found!').send(res);
+        })
+        .catch(err => {
+            console.error("Event Reorder Images Catch err:", err);
+            new NZ.Response(null, err.message, err.code || 500).send(res);
+        })
+});
+
 
 /**
  *  Remove Event Image

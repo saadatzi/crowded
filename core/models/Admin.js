@@ -107,6 +107,7 @@ AdminSchema.method({
             email: this.email,
             name: this.name,
             organization: this.organization ? this.organization.name : '',
+            roles: this.roles,
             call: this.call,
         };
     }
@@ -141,6 +142,8 @@ AdminSchema.static({
     getAuthenticated: async function (email, password) {
         return await this.findOne({email: email})
             .populate('organizationId', 'name')
+            // .populate('roles', 'name permissions')
+            // .populate('roles.permissions.permissionId')
             .then(async admin => {
                 // make sure the user exists
                 if (!admin) {

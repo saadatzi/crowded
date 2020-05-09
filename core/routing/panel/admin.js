@@ -3,6 +3,7 @@ const express = require('express')
 
 // Instantiate the Device Model
 const adminController = require('../../controllers/admin');
+const roleController = require('../../controllers/role');
 const userController = require('../../controllers/user');
 const NZ = require('../../utils/nz');
 const {sign, verifyTokenPanel, authorization} = require('../../utils/validation');
@@ -76,10 +77,16 @@ router.post('/login', joiValidate(loginSchema, 0), async (req, res) => {
     console.info('API: Login Panel User/init %j', {body: req.body});
 
     adminController.auth(req.body.email, req.body.password)
-        .then(user => {
-            const token = sign({userId: user.id});
-            new NZ.Response({user, token}).send(res);
-
+        .then(async user => {
+            await roleController.getAdmin(user.roles)
+                .then(permissions => {
+                    const token = sign({userId: user.id});
+                    new NZ.Response({user, token, permissions}).send(res);
+                })
+                .catch(err => {
+                    console.log('!!!! user login Panel getAdminPermissions catch err: ', err);
+                    new NZ.Response(null, err.message, err.code || 500).send(res);
+                });
         })
         .catch(err => {
             console.log('!!!! user login Panel catch err: ', err);
