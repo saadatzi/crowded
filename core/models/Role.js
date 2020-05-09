@@ -145,7 +145,7 @@ RoleSchema.static({
                 });
                 return merged;
             })
-            .catch(err => console.error("Role getById  Catch", err));
+            .catch(err => console.error("Role  Admin Permissions Catch", err));
 
         // return this.findById({_id})
         //     .populate('permissions.permissionId')
