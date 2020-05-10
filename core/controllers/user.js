@@ -8,6 +8,29 @@ const eventController = require('./event');
 const userController = function () {
 };
 
+
+
+/**
+ * Get a list of users
+ *
+ * @param {Object} optFilter
+ *
+ * @return {Object} {items + explain}
+ */
+userController.prototype.getManyPanel = async (optFilter) => {
+    return await User.getManyPanel(optFilter)
+        .then(result => {
+            console.log("***User getManyPanel success result", result);
+            return result;
+        })
+        .catch(err => {
+            console.error("!!!User many save failed: ", err);
+            throw err;
+        })
+};
+
+
+
 /**
  * Add new User
  *
