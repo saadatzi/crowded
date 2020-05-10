@@ -151,7 +151,6 @@ InterestSchema.static({
             },
         ])
             .then(result => {
-                console.warn("<<<<<<<<<<<<<<<<<<<<< Interest getManyPanel result: ", result);
                 let items = [],
                     total = 0;
                 if (result.length > 0) {

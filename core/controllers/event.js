@@ -220,7 +220,6 @@ eventController.prototype.remove = async (id) => {
 eventController.prototype.removeImage = async (eventId, imageId) => {
     return await Event.findByIdAndUpdate(eventId, {$pull: {images: {_id: mongoose.Types.ObjectId(imageId)}}})
         .then(result => {
-            console.log(`***Event Remove Image result: `, result);
             return result;
         })
         .catch(err => {
