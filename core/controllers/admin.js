@@ -133,11 +133,11 @@ adminController.prototype.checkAssign = async (roleId) => {
 /**
  * Admin getOnePanel
  *
- * @param {Object} optFilter
+ * @param {ObjectId} adminId
  *
  */
-adminController.prototype.getOnePanel = async (optFilter) => {
-    return await Admin.getOnePanel(optFilter)
+adminController.prototype.getOnePanel = async (adminId) => {
+    return await Admin.getOnePanel(adminId)
         .then(result => {
             return result;
         })

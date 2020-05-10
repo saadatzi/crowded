@@ -34,7 +34,6 @@ const deleteImageSchema = Joi.object().keys({
 
 const addImageSchema = Joi.object().keys({
     eventId: JoiConfigs.isMongoId,
-    order: JoiConfigs.number,
 });
 
 const orderObjSchema = Joi.object().keys({
@@ -128,7 +127,7 @@ router.post('/addImage', verifyTokenPanel(), uploader, joiValidate(addImageSchem
     eventController.get(req.body.eventId)
         .then(event => {
             if (event.images.length + 1 > settings.event.maxImageForEvent) return new NZ.Response(false, `${settings.event.maxImageForEvent} images are allowed for the event.`, 400).send(res);
-            event.images.push({url: req._uploadPath + '/' + req._uploadFilename, order: req.body.order || null});
+            event.images.push({url: req._uploadPath + '/' + req._uploadFilename, order: null});
             event.save();
             new NZ.Response(true, 'Event add image successful!').send(res);
         })

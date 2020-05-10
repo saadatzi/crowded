@@ -20,7 +20,7 @@ const Event = require('../../models/Event');
 const {getForgotHash} = require('../../utils/cacheLayer')
 
 const callSchema = Joi.object().keys({
-    type: JoiConfigs.title,
+    callType: JoiConfigs.title,
     value: JoiConfigs.title,
 });
 
@@ -36,11 +36,13 @@ const addSchema = Joi.object().keys({
 
 const updateSchema = Joi.object().keys({
     adminId: JoiConfigs.isMongoId,
-    name: JoiConfigs.title,
-    roles: JoiConfigs.arrayLength(1, 50, JoiConfigs.isMongoId),
+    name: JoiConfigs.strOptional,
+    roles: JoiConfigs.array(false, JoiConfigs.isMongoId),
     call: JoiConfigs.array(false, callSchema),
-    organizationId: JoiConfigs.isMongoId
-});
+    organizationId: JoiConfigs.isMongoIdOpt,
+    oldPassword: JoiConfigs.passwordOpt,
+    password: Joi.when('oldPassword', { is: '', then: Joi.string().allow(''), otherwise: JoiConfigs.password}),
+}).required().with('password', 'oldPassword');
 
 const hasValidIdSchema = Joi.object().keys({
     id: JoiConfigs.isMongoId
@@ -114,7 +116,7 @@ router.get('/logout', verifyTokenPanel(), async (req, res) => {
  * @return status 5e9fa191c12938e496a23480
  */
 //______________________Add Admin_____________________//
-router.post('/add', joiValidate(addSchema, 0), verifyTokenPanel(), authorization([{ADMIN: 'C'}]), async (req, res) => {
+router.post('/add', joiValidate(addSchema), verifyTokenPanel(), authorization([{ADMIN: 'C'}]), async (req, res) => {
     console.info('API: Add Admin/init %j', {body: req.body});
 
     adminController.add(req.body)
@@ -133,17 +135,43 @@ router.post('/add', joiValidate(addSchema, 0), verifyTokenPanel(), authorization
  * @return status
  */
 //______________________Update Admin_____________________//
-router.put('/edit', joiValidate(updateSchema, 0), verifyTokenPanel(), authorization([{ADMIN: 'RU'}]), async (req, res) => {
+router.put('/edit', joiValidate(updateSchema), verifyTokenPanel(), authorization([{ADMIN: 'RU'}]), async (req, res) => {
     console.info('API: update Admin/init %j', {body: req.body});
 
-    adminController.update(req.body.adminId, req.body.permissions)
-        .then(admin => {
-            new NZ.Response(admin, admin ? 'Admin has been successfully update!' : 'Not found!', admin ? 200 : 404).send(res);
-        })
-        .catch(err => {
-            console.error("Admin update Catch err:", err);
-            new NZ.Response(null, err.message, err.code || 500).send(res);
-        })
+    const adminId = req.body.adminId;
+    delete req.body.adminId;
+    //Compare old password
+    let passwordIsMatch = true;
+    if (req.body.password) {
+        passwordIsMatch = await adminController.get(adminId, 'id')
+            .then(async admin => {
+                if (!admin) return new NZ.Response(false, 'Not found!', 404).send(res);
+                return await admin.comparePassword(req.body.oldPassword)
+                    .then(isMatch => {
+                        if (!isMatch) new NZ.Response(false, 'Your old password & current is not match!', 400).send(res);
+                        delete req.body.oldPassword;
+                        return isMatch;
+                    })
+                    .catch(err => {
+                        console.error("Admin comparePassword Catch err:", err);
+                        return new NZ.Response(null, err.message, err.code || 500).send(res);
+                    });
+            })
+            .catch(err => {
+                console.error("Admin get for check pass err:", err);
+                return new NZ.Response(null, err.message, err.code || 500).send(res);
+            })
+    }
+    if (passwordIsMatch) {
+        adminController.update(adminId, req.body)
+            .then(admin => {
+                new NZ.Response(true, admin ? 'Admin has been successfully update!' : 'Not found!', admin ? 200 : 404).send(res);
+            })
+            .catch(err => {
+                console.error("Admin update Catch err:", err);
+                new NZ.Response(null, err.message, err.code || 500).send(res);
+            })
+    }
 });
 
 
@@ -189,7 +217,7 @@ router.post('/', verifyTokenPanel(), joiValidate(listSchema,0), async (req, res)
 router.get('/:id', verifyTokenPanel(), async (req, res) => {
     console.info('API:  Admin Detail/init %j', {params: req.params});
 
-    adminController.getOnePanel({_id:req.params.id})
+    adminController.getOnePanel(req.params.id)
         .then(result => {
             new NZ.Response(result).send(res);
         })
