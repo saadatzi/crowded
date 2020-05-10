@@ -35,13 +35,15 @@ module.exports = {
 
         list(optFilter) {
 
+            if(!optFilter || !Object.keys(optFilter).length) throw {message:"optFilter must be defined"};
+            if(!optFilter.defaultSorts || !Object.keys(optFilter.defaultSorts).length) throw {message:"default sort must be defined"};
+            
 
-            optFilter = optFilter || {};
             optFilter.filters = optFilter.filters && Object.keys(optFilter.filters).length ? optFilter.filters : {};
             optFilter.pagination = optFilter.pagination && Object.keys(optFilter.pagination).length ? optFilter.pagination : {};
-            optFilter.sorts = optFilter.sorts && Object.keys(optFilter.sorts).length ? optFilter.sorts : {
-                createdAt: Joi.number().optional().valid(-1, 1).default(1)
-            };
+            optFilter.sorts = optFilter.sorts && Object.keys(optFilter.sorts).length ? optFilter.sorts : {};
+
+
 
             return Joi.object().keys({
                 search:
@@ -52,14 +54,10 @@ module.exports = {
                             ...optFilter.filters
                         })
                         .default(),
-                sorts:
-                    Joi.object().optional()
-                        .keys({
-                            updatedAt: Joi.number().optional().valid(-1, 1),
-                            ...optFilter.sorts
-                        })
-                        .min(1)// Caution: don't reduce this below 1
-                        .default(),
+
+                sorts: Joi.object().keys(optFilter.sorts)
+                    .not().empty({})
+                    .default(optFilter.defaultSorts),
                 pagination:
                     Joi.object().optional()
                         .keys({
