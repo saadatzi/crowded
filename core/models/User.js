@@ -113,6 +113,93 @@ UserSchema.static({
     },
 
     /**
+     * List many users for panel
+     *
+     * @param {Object} optFilter
+     * @api private
+     */
+    async getManyPanel(optFilter) {
+
+
+        let regexMatch = {};
+        if (optFilter.search) {
+            let regex = new RegExp(optFilter.search);
+            regexMatch = {
+                "$or": [
+                    {
+                        email: { $regex: regex, $options: "i" }
+                    },
+                    {
+                        firstname: { $regex: regex, $options: "i" }
+                    },
+                    {
+                        lastname: { $regex: regex, $options: "i" }
+                    }
+                ]
+            };
+        }
+
+
+        return this.aggregate([
+            { $match: regexMatch },
+            { $match: optFilter.filters },
+            { $sort: optFilter.sorts },
+            { $skip: optFilter.pagination.page * optFilter.pagination.limit },
+            { $limit: optFilter.pagination.limit },
+            {
+                $project: {
+                    _id: 0,
+                    id: '$_id',
+                    email: 1,
+                    firstname: 1,
+                    lastname: 1,
+                    isActive: {$cond: {if: {$eq: ["$status", 1]}, then: true, else: false}},
+                }
+            },
+            {
+                $group: {
+                    _id: null,
+                    items: { $push: '$$ROOT' },
+                }
+            },
+            {
+                $lookup: {
+                    from: 'users',
+                    pipeline: [
+                        { $match: regexMatch },
+                        { $match: optFilter.filters },
+                        { $count: 'total' },
+                    ],
+                    as: 'getTotal'
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    items: 1,
+                    total: { $arrayElemAt: ["$getTotal", 0] },
+                }
+            },
+        ])
+            .then(result => {
+                console.warn("<<<<<<<<<<<<<<<<<<<<< User getManyPanel result: ", result);
+                let items = [],
+                    total = 0;
+                if (result.length > 0) {
+                    total = result[0].total.total;
+                    delete result[0].total;
+                    items = result[0].items;
+                }
+                optFilter.pagination.total = total;
+                return { explain: optFilter, items };
+            })
+            .catch(err => console.error(err));
+
+
+    },
+    
+
+    /**
      * List all User in Event
      *
      * @param {Object} optFilter
