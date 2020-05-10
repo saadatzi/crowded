@@ -34,11 +34,30 @@ const listSchema = JoiConfigs.schemas.list({
     }
 });
 
+const detailSchema = Joi.object().keys({
+    id: JoiConfigs.isMongoId,
+});
+
+
 /**
  Get users (customers)
 */
 router.post('/', verifyTokenPanel(), joiValidate(listSchema, 0), async (req, res) => {
     userController.getManyPanel(req._body)
+        .then(result => {
+            new NZ.Response(result).send(res);
+        })
+        .catch(err=>{
+            new NZ.Response(null,err.message,err.code).send(res);
+        });
+});
+
+
+/**
+ Get user detail (customer)
+*/
+router.get('/:id', verifyTokenPanel(), joiValidate(detailSchema, 2), async (req, res) => {
+    userController.getOnePanel(req.params)
         .then(result => {
             new NZ.Response(result).send(res);
         })

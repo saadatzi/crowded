@@ -197,6 +197,58 @@ UserSchema.static({
 
 
     },
+
+
+
+    /**
+     * Get 
+     *
+     * @param {Object} optFilter
+     * @api private
+     */
+    async getOnePanel(optFilter) {
+
+
+        const baseCriteria = { status: { $in: [0, 1] }, _id: mongoose.Types.ObjectId(optFilter.id) };
+        return await this.aggregate([
+            { $match: baseCriteria },
+            {
+                $lookup: {
+                    from: 'interests',
+                    let: { 'primaryInterest': '$interests' },
+                    pipeline: [
+                        { $match: { $expr: { $in: ["$_id", "$$primaryInterest"] } } },
+                        {
+                            $project: {
+                                _id: 0,
+                                id: '$_id',
+                                title_ar: 1,
+                                title_en: 1
+                            }
+                        }
+                    ],
+                    as: 'getInterests'
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    id: '$_id',
+                    interests: '$getInterests',
+                    firstname:1,
+                    lastname:1,
+                    sex:1,
+                    email: 1,
+                    nationality: 1,
+                    birthDate:1
+                }
+            }
+        ])
+            .catch(err => console.error(err));
+
+
+    },
+    
     
 
     /**
