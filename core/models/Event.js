@@ -471,14 +471,11 @@ EventSchema.static({
             };
         }
 
-
+        console.warn(">>>>>>>>>>>>> listOwnAny optFilter: ", optFilter);
         return await this.aggregate([
             {$match: ownAny},
             {$match: regexMatch},
             {$match: optFilter.filters},
-            {$sort: optFilter.sorts},
-            {$skip: optFilter.pagination.page * optFilter.pagination.limit},
-            {$limit: optFilter.pagination.limit},
             {$unwind: "$images"},
             {$sort: {'images.order': 1}},
             {
@@ -498,6 +495,9 @@ EventSchema.static({
                     isActive: {$cond: {if: {$eq: ["$status", 1]}, then: true, else: false}},
                 },
             },
+            {$sort: optFilter.sorts},
+            {$skip: optFilter.pagination.page * optFilter.pagination.limit},
+            {$limit: optFilter.pagination.limit},
             {
                 $group: {
                     _id: null,
@@ -594,10 +594,6 @@ EventSchema.static({
                 }
             },
             {$unwind: {path: "$getOrgAdmin", preserveNullAndEmptyArrays: false}},
-            // { $sort: { score: { $meta: "textScore" } } },
-            {$sort: optFilter.sorts},
-            {$skip: optFilter.pagination.page * optFilter.pagination.limit},
-            {$limit: optFilter.pagination.limit},
             {$unwind: {path: "$images", preserveNullAndEmptyArrays: true}},
             {$sort: {'images.order': 1}},
             {
@@ -617,6 +613,9 @@ EventSchema.static({
                     isActive: {$cond: {if: {$eq: ["$status", 1]}, then: true, else: false}}
                 },
             },
+            {$sort: optFilter.sorts},
+            {$skip: optFilter.pagination.page * optFilter.pagination.limit},
+            {$limit: optFilter.pagination.limit},
             {
                 $group: {
                     _id: null,

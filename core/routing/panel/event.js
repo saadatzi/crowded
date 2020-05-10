@@ -34,17 +34,11 @@ const deleteImageSchema = Joi.object().keys({
 
 const addImageSchema = Joi.object().keys({
     eventId: JoiConfigs.isMongoId,
-    order: JoiConfigs.number,
-});
-
-const orderObjSchema = Joi.object().keys({
-    imageId: JoiConfigs.isMongoId,
-    order: JoiConfigs.number,
 });
 
 const orderImagesSchema = Joi.object().keys({
     eventId: JoiConfigs.isMongoId,
-    newOrderImages: JoiConfigs.arrayLength(1, 10, orderObjSchema),
+    newOrderImages: JoiConfigs.arrayLength(1, 10, JoiConfigs.isMongoId),
 });
 
 const addSchema = Joi.object().keys({
@@ -93,18 +87,17 @@ const activateSchema = Joi.object().keys({
 });
 
 
-
 const listSchema = JoiConfigs.schemas.list({
-    filters:{
+    filters: {
         status: Joi.number().valid(0, 1).optional()
     },
-    sorts:{
+    sorts: {
         status: Joi.number().optional().valid(-1, 1).default(sorts => {
-            if (Object.keys(sorts).length <2) return -1;
+            if (Object.keys(sorts).length < 2) return -1;
             return undefined;
         }),
         from: Joi.number().optional().valid(-1, 1).default(sorts => {
-            if (Object.keys(sorts).length <2) return 1;
+            if (Object.keys(sorts).length < 2) return 1;
             return undefined;
         }),
         title_en: Joi.number().optional().valid(-1, 1),
@@ -112,7 +105,6 @@ const listSchema = JoiConfigs.schemas.list({
 
     }
 });
-
 
 
 /**
@@ -130,7 +122,7 @@ router.post('/addImage', verifyTokenPanel(), uploader, joiValidate(addImageSchem
     eventController.get(req.body.eventId)
         .then(event => {
             if (event.images.length + 1 > settings.event.maxImageForEvent) return new NZ.Response(false, `${settings.event.maxImageForEvent} images are allowed for the event.`, 400).send(res);
-            event.images.push({url: req._uploadPath + '/' + req._uploadFilename, order: req.body.order || null});
+            event.images.push({url: req._uploadPath + '/' + req._uploadFilename, order: null});
             event.save();
             new NZ.Response(true, 'Event add image successful!').send(res);
         })
@@ -256,7 +248,7 @@ router.put('/activate', joiValidate(activateSchema), verifyTokenPanel(), authori
  */
 //______________________Get Event_____________________//
 //TODO JOI Validation
-router.post('/', joiValidate(listSchema), verifyTokenPanel(),  authorization([{EVENT: 'R'}]), async (req, res) => {
+router.post('/', joiValidate(listSchema), verifyTokenPanel(), authorization([{EVENT: 'R'}]), async (req, res) => {
     console.info('API: Get event/init %j', {body: req._body});
 
     eventController.list(req.userId, req._body, req.auth.accessLevel.EVENT[0].R.level)

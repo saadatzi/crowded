@@ -8,6 +8,7 @@ module.exports = {
     strOptional: Joi.string().optional(),
     resource_icon: Joi.string().max(255).required(),
     password: Joi.string().regex(/^[a-zA-Z0-9(<!@#$%&*^`~'"|+=\-\\_/?.,>)]{4,63}$/).required(),
+    passwordOpt: Joi.string().regex(/^[a-zA-Z0-9(<!@#$%&*^`~'"|+=\-\\_/?.,>)]{4,63}$/).optional(),
     boolInt: Joi.number().integer().min(0).max(1).required(),
     booleanVal: Joi.boolean().required(),
     link: Joi.string().min(1).max(1000).required(),
@@ -19,6 +20,7 @@ module.exports = {
     percent: Joi.number().min(0).max(100).required(),
     html: Joi.string().min(1).required(),
     isMongoId: Joi.string().regex(/^[0-9a-fA-F]{24}$/, 'ID is invalid').required(),
+    isMongoIdOpt: Joi.string().regex(/^[0-9a-fA-F]{24}$/, 'ID is invalid').optional(),
 
     phone: (isRequired = true) => isRequired ? Joi.string().min(4).max(13).required() : Joi.string().min(4).max(13).optional(),
     datetime: (isRequired = true) => isRequired ? Joi.date().required() : Joi.date().optional(),

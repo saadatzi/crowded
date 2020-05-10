@@ -15,7 +15,7 @@ const AdminSchema = new Schema({
     roles: [{type: Schema.ObjectId, ref: 'Role'}],
     call: [
         {
-            type: String,
+            callType: String,
             value: String
         }
     ],
@@ -46,21 +46,44 @@ AdminSchema.pre('remove', function (next) {
  * Pre-save hook
  */
 AdminSchema.pre('save', function (next) {
-    var user = this;
-
+    var admin = this;
+    console.warn('######################## pre save', admin);
     // only hash the password if it has been modified (or is new)
-    if (!user.isModified('password')) return next();
+    if (!admin.isModified('password')) return next();
 
     // generate a salt
     bcrypt.genSalt(SALT_WORK_FACTOR, function (err, salt) {
         if (err) return next(err);
 
         // hash the password using our new salt
-        bcrypt.hash(user.password, salt, function (err, hash) {
+        bcrypt.hash(admin.password, salt, function (err, hash) {
             if (err) return next(err);
 
             // set the hashed password back on our user document
-            user.password = hash;
+            admin.password = hash;
+            next();
+        });
+    });
+});
+
+/**
+ * Pre-Update hook
+ */
+AdminSchema.pre('findOneAndUpdate', function (next) {
+    var admin = this.getUpdate();
+    // only hash the password if it has been modified (or is new)
+    if (!admin.hasOwnProperty('password')) return next();
+
+    // generate a salt
+    bcrypt.genSalt(SALT_WORK_FACTOR, function (err, salt) {
+        if (err) return next(err);
+
+        // hash the password using our new salt
+        bcrypt.hash(admin.password, salt, function (err, hash) {
+            if (err) return next(err);
+
+            // set the hashed password back on our user document
+            admin.password = hash;
             next();
         });
     });
@@ -323,23 +346,32 @@ AdminSchema.static({
     /**
      * Get an Admin
      *
-     * @param {Object} optFilter
+     * @param {ObjectId} adminId
      * @api private
      */
-    async getOnePanel(optFilter) {
-        if (!optFilter) throw {message: "Missing criteria for Admin.getOnePanel!"};
-
-        const baseCriteria = {status: {$in: [0, 1]}, _id: mongoose.Types.ObjectId(optFilter._id)};
+    async getOnePanel(adminId) {
+        const baseCriteria = {status: {$in: [0, 1]}, _id: mongoose.Types.ObjectId(adminId)};
 
 
         return await this.aggregate([
             {$match: baseCriteria},
+            //get Role Name
             {
                 $lookup: {
                     from: 'roles',
-                    foreignField: '_id',
-                    localField: 'roles',
-                    as: "role"
+                    let: {primaryRoleIds: "$roles"},
+                    pipeline: [
+                        // { $match: {_id: {$in: "$$primaryRoleIds"}} },
+                        {$match: {$expr: {$in: ["$_id", "$$primaryRoleIds"]}}},
+                        {
+                            $project: {
+                                _id: 0,
+                                id: '$_id',
+                                name: 1
+                            }
+                        },
+                    ],
+                    as: 'getRoles'
                 }
             },
             {
@@ -350,37 +382,33 @@ AdminSchema.static({
                     as: 'organization'
                 }
             },
-            {
-                $group: {
-                    organization: {$first: '$organization'},
-                    role: {$first: "$role"},
-                    _id: 0,
-                    id: {$first: '$_id'},
-                    name: {$first: "$name"},
-                    email: {$first: "$email"},
-                    call: {$first: "$call"},
-                    lastIp: {$first: "$lastIp"},
-                    lastLogin: {$first: "$lastLogin"},
-                    lastInteract: {$first: "$lastInteract"},
-                    loginAttempts: {$first: "$loginAttempts"},
-                    lockUntil: {$first: "$lockUntil"},
-                    address: {$first: "$address"},
-                    createdAt: {$first: "$createdAt"},
-                    updatedAt: {$first: "$updatedAt"},
-                    isActive: {$first: "$status"},
-                }
-            },
+            // {
+            //     $group: {
+            //         organization: {$first: '$organization'},
+            //         roles: {$first: "$getRoles"},
+            //         _id: 0,
+            //         id: {$first: '$_id'},
+            //         name: {$first: "$name"},
+            //         email: {$first: "$email"},
+            //         call: {$first: "$call"},
+            //         lastIp: {$first: "$lastIp"},
+            //         lastLogin: {$first: "$lastLogin"},
+            //         lastInteract: {$first: "$lastInteract"},
+            //         loginAttempts: {$first: "$loginAttempts"},
+            //         lockUntil: {$first: "$lockUntil"},
+            //         address: {$first: "$address"},
+            //         createdAt: {$first: "$createdAt"},
+            //         updatedAt: {$first: "$updatedAt"},
+            //         isActive: {$first: "$status"},
+            //     }
+            // },
             {
                 $project: {
                     _id: 0,
-                    id: 1,
+                    id: '$_id',
                     name: 1,
                     email: 1,
-                    roles: {
-                        id: {$arrayElemAt: ["$role._id", 0]},
-                        name: {$arrayElemAt: ["$role.name", 0]},
-                        permissions: {$arrayElemAt: ["$role.permissions", 0]}
-                    },
+                    roles: '$getRoles',
                     call: 1,
                     organization: {
                         id: {$arrayElemAt: ["$organization._id", 0]},
@@ -389,20 +417,17 @@ AdminSchema.static({
                         image: {
                             $cond: [
                                 {$ne: [{$arrayElemAt: ["$organization.image", 0]}, ""]},
-                                {$concat: [settings.media_domain, {$arrayElemAt: ["$organization.image", 0]}]},
+                                {url: {$concat: [settings.media_domain, {$arrayElemAt: ["$organization.image", 0]}]}},
                                 null
                             ]
                         }
                     },
-                    lastIp: 1,
                     lastLogin: 1,
                     lastInteract: 1,
-                    loginAttempts: 1,
-                    lockUntil: 1,
                     address: 1,
                     createdAt: 1,
                     updatedAt: 1,
-                    isActive: {$toBool: "$isActive"},
+                    isActive: {$cond: {if: {$eq: ["$status", 1]}, then: true, else: false}},
                 }
             }
         ])
