@@ -282,14 +282,6 @@ TransactionSchema.static({
         const criteria = {isDebtor: true};
 
         optFilter.filters = optFilter.filters || {};
-        optFilter.sorts = (!optFilter.sorts || (Object.keys(optFilter.sorts).length === 0 && optFilter.sorts.constructor === Object)) ? {
-            situation: -1,
-            eventDate: -1
-        } : optFilter.sorts;
-        optFilter.pagination = optFilter.pagination || {
-            page: 0,
-            limit: settings.panel.defaultLimitPage
-        };
 
         let regexMatch = {};
         if (optFilter.search) {

@@ -29,6 +29,15 @@ const manageSchema = Joi.object().keys({
 const listSchema = JoiConfigs.schemas.list({
     filters:{
         status: Joi.number().valid(0, 1, 2).default(1),
+    },
+    sorts:{
+        situation: Joi.number().valid(-1,1),
+        eventDate: Joi.number().valid(-1,1),
+        createdAt: Joi.number().valid(-1,1),
+    },
+    defaultSorts:{
+        situation: -1,
+        eventDate: -1
     }
 });
 
