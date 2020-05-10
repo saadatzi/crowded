@@ -54,7 +54,7 @@ module.exports = {
                             req.userId = null;
                             if (device.userId) {
                                 req.userId = (device.userId).toString();
-                                userController.update(device.userId, {lastIp: req.headers['x-real-ip'], lastInteract: new Date()})
+                                userController.update((device.userId).toString(), {lastIp: req.headers['x-real-ip'], lastInteract: new Date()})
                                     .catch(err => console.error("!!!!!!!!User lastIp lastInteract update catch err: ", err));
                             }
 
