@@ -22,6 +22,7 @@ app.use('/static',      require('./static'));
 app.use('/setting',     require('./setting'));
 app.use('/faq',         require('./faq'));
 app.use('/bank',        require('./bank'));
+app.use('/customer',        require('./customer'));
 
 app.get('/reset-password-app', (req, res) => {
     NZ.setDomainOnLocals(res);
