@@ -8,6 +8,50 @@ const eventController = require('./event');
 const userController = function () {
 };
 
+
+
+/**
+ * Get a list of users
+ *
+ * @param {Object} optFilter
+ *
+ * @return {Object} {items + explain}
+ */
+userController.prototype.getManyPanel = async (optFilter) => {
+    return await User.getManyPanel(optFilter)
+        .then(result => {
+            console.log("***User getManyPanel success result", result);
+            return result;
+        })
+        .catch(err => {
+            console.error("!!!User getManyPanel failed: ", err);
+            throw err;
+        })
+};
+
+
+/**
+ * Get a user
+ *
+ * @param {Object} optFilter
+ *
+ * @return {Object} {user}
+ */
+userController.prototype.getOnePanel = async (optFilter) => {
+    return await User.getOnePanel(optFilter)
+        .then(result => {
+            console.log("***User getOnePanel success result", result);
+            return result;
+        })
+        .catch(err => {
+            console.error("!!!User getOnePanel failed: ", err);
+            throw err;
+        })
+};
+
+
+
+
 /**
  * Add new User
  *

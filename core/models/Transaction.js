@@ -317,7 +317,7 @@ TransactionSchema.static({
                                 sex: 1,
                                 nationality: 1,
                                 image: {url: {$concat: [settings.media_domain, "$image"]}},
-                                isActive: {$toBool: "$status"}
+                                isActive: {$cond: {if: {$eq: ["$status", 1]}, then: true, else: false}},
                             }
                         },
                     ],

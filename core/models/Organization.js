@@ -85,7 +85,7 @@ OrganizationSchema.static({
                     _id: 0,
                     id: '$_id',
                     title: 1,
-                    isActive: {$toBool: "$status"},
+                    isActive: {$cond: {if: {$eq: ["$status", 1]}, then: true, else: false}},
                     image: {
                         $cond: [
                             {$ne: ["$image", ""]},
@@ -156,7 +156,7 @@ OrganizationSchema.static({
                     createdAt: 1,
                     updatedAt: 1,
                     phones: 1,
-                    isActive: {$toBool: "$status"},
+                    isActive: {$cond: {if: {$eq: ["$status", 1]}, then: true, else: false}},
                     image: {
                         $cond: [
                             {$ne: ["$image", ""]},

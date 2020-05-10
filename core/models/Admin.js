@@ -298,7 +298,7 @@ AdminSchema.static({
                     _id: 0,
                     id: '$_id',
                     name: 1,
-                    isActive: {$toBool: "$status"}
+                    isActive: {$cond: {if: {$eq: ["$status", 1]}, then: true, else: false}},
                 }
             },
             {
