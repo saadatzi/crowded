@@ -36,7 +36,7 @@ module.exports = {
         list(optFilter) {
 
             if(!optFilter || !Object.keys(optFilter).length) throw {message:"optFilter must be defined"};
-            if(!optFilter.defaultSorts || !Object.keys(optFilter.defaultSorts).length) throw {message:"default sort must be defined"};
+            if(!optFilter.defaultSorts || !Object.keys(optFilter.defaultSorts).length) throw {message:"optFilter.defaultSorts must be defined and non-empty"};
             
 
             optFilter.filters = optFilter.filters && Object.keys(optFilter.filters).length ? optFilter.filters : {};
