@@ -62,6 +62,12 @@ const forgotSchema = Joi.object().keys({
 const listSchema = JoiConfigs.schemas.list({
     filters:{
         status: Joi.number().valid(0, 1, 2).default(1),
+    },
+    sorts:{
+        createdAt: Joi.number().valid(-1,1),
+    },
+    defaultSorts:{
+        createdAt: -1
     }
 });
 

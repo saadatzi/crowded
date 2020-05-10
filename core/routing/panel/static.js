@@ -15,7 +15,14 @@ const { verifyTokenPanel } = require('../../utils/validation');
 
 
 
-const listSchema = JoiConfigs.schemas.list({});
+const listSchema = JoiConfigs.schemas.list({
+    sorts:{
+        createdAt: Joi.number().valid(-1,1),
+    },
+    defaultSorts:{
+        createdAt: -1,
+    }
+});
 
 /**
  * Get Statics

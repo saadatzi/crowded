@@ -40,9 +40,15 @@ const listSchema = JoiConfigs.schemas.list({
         status: Joi.number().valid(0, 1, 2).default(1)
     },
     sorts:{
-        title: Joi.number().optional().valid(-1, 1),
+        createdAt: Joi.number().valid(-1,1),
+        title: Joi.number().valid(-1,1),
+    },
+    defaultSorts:{
+        createdAt: -1,
     }
 });
+
+
 
 /**
  *  Add Organization

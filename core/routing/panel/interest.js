@@ -46,10 +46,15 @@ const listSchema = JoiConfigs.schemas.list({
         status: Joi.number().valid(0, 1, 2).default(1)
     },
     sorts:{
-        title_en: Joi.number().optional().valid(-1, 1),
-        title_ar: Joi.number().optional().valid(-1, 1),
+        createdAt: Joi.number().valid(-1,1),
+        title_en: Joi.number().valid(-1,1),
+        title_ar: Joi.number().valid(-1,1),
+    },
+    defaultSorts:{
+        createdAt: -1,
     }
 });
+
 
 
 /**

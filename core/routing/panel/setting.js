@@ -19,7 +19,14 @@ const editSchema = Joi.object().keys({
     value: Joi.string().required()
 });
 
-const listSchema = JoiConfigs.schemas.list({});
+const listSchema = JoiConfigs.schemas.list({
+    sorts:{
+        createdAt: Joi.number().valid(-1,1),
+    },
+    defaultSorts:{
+        createdAt: -1,
+    }
+});
 
 
 

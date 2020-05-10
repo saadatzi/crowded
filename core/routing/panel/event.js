@@ -91,18 +91,15 @@ const listSchema = JoiConfigs.schemas.list({
     filters: {
         status: Joi.number().valid(0, 1).optional()
     },
-    sorts: {
-        status: Joi.number().optional().valid(-1, 1).default(sorts => {
-            if (Object.keys(sorts).length < 2) return -1;
-            return undefined;
-        }),
-        from: Joi.number().optional().valid(-1, 1).default(sorts => {
-            if (Object.keys(sorts).length < 2) return 1;
-            return undefined;
-        }),
-        title_en: Joi.number().optional().valid(-1, 1),
-        title_ar: Joi.number().optional().valid(-1, 1),
-
+    sorts:{
+        status: Joi.number().valid(-1,1),
+        from: Joi.number().valid(-1,1),
+        title_en: Joi.number().valid(-1,1),
+        title_ar: Joi.number().valid(-1,1),
+    },
+    defaultSorts:{
+        status: -1,
+        from: 1
     }
 });
 
