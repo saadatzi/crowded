@@ -36,14 +36,9 @@ const addImageSchema = Joi.object().keys({
     eventId: JoiConfigs.isMongoId,
 });
 
-const orderObjSchema = Joi.object().keys({
-    imageId: JoiConfigs.isMongoId,
-    order: JoiConfigs.number,
-});
-
 const orderImagesSchema = Joi.object().keys({
     eventId: JoiConfigs.isMongoId,
-    newOrderImages: JoiConfigs.arrayLength(1, 10, orderObjSchema),
+    newOrderImages: JoiConfigs.arrayLength(1, 10, JoiConfigs.isMongoId),
 });
 
 const addSchema = Joi.object().keys({

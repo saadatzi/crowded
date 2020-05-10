@@ -279,12 +279,11 @@ eventController.prototype.update = async (optFilter, newValue) => {
  * @return Query
  */
 eventController.prototype.reorder = async (eventId, newOrders) => {
-    newOrders.map((nOrder, i) => {
+    newOrders.map((nOrderId, i) => {
         Event.updateOne({
             _id: mongoose.Types.ObjectId(eventId),
-            'images._id': mongoose.Types.ObjectId(nOrder.imageId)
+            'images._id': mongoose.Types.ObjectId(nOrderId)
         }, {$set: {'images.$.order': i + 1}})
-            .then(result => {})
             .catch(err => {
                 console.error("!!!Event reorder Images failed: ", err);
                 throw err;
