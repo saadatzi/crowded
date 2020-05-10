@@ -30,7 +30,7 @@ const listSchema = JoiConfigs.schemas.list({
         createdAt: Joi.number().valid(-1,1),
     },
     defaultSorts:{
-        createdAt: -1
+        lastInteract: -1
     }
 });
 

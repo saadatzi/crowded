@@ -53,7 +53,6 @@ EventSchema.pre('remove', function (next) {
 EventSchema.pre('save', function (next) {
     var event = this;
     if (!event.isNew && !event.images[event.images.length - 1].order) {
-        console.log(">>>>>>>>>>>>>> pre save AddImage event: ", event);
         const maxOrder = Math.max.apply(Math, event.images.map(function (o) {
             return o.order
         }))
