@@ -124,7 +124,7 @@ module.exports = {
             console.error('>>>>>>>>>>>>>>>>>>>>> authorization userId', req.userId);
             roleController.authorize(req.userId, permissions)
                 .then(accessLevel => {
-                    if (!accessLevel.access) return new NZ.Response(null, 'You do not have the need permissions for this request!', 403).send(res);
+                    // if (!accessLevel.access) return new NZ.Response(null, 'You do not have the need permissions for this request!', 403).send(res);
                     req.auth = accessLevel;
                     return next();
                 })
