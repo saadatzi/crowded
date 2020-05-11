@@ -32,6 +32,7 @@ reportUserController.prototype.add = async (newReportUser) => {
             })
             .catch(err => {
                 console.error("!!!ReportUser save failed: ", err);
+                if (err.code === 11000) throw {message: "You have already reported for this user in this event", code: 424};
                 throw err;
             })
     }
@@ -134,13 +135,9 @@ reportUserController.prototype.getOnePanel = async (reportUserId) => {
  * @return Query
  */
 reportUserController.prototype.remove = async (id) => {
-    let newStatus = 2;
-    return await ReportUser.setStatus(id,2,oldStatus=>oldStatus!==newStatus)
-        .then(result => {
-            return result;
-        })
+    return await ReportUser.findByIdAndUpdate(id, {isDeleted: true})
         .catch(err => {
-            console.error(`!!!ReportUser Remove failed for id ${id}: `, err);
+            console.error(`!!!ReportUser Remove failed err: `, err);
             throw err;
         });
 };

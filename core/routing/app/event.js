@@ -79,7 +79,7 @@ router.post('/', verifyToken(true), async function (req, res) {
             new NZ.Response(true, 'Your request to crowded this event, successful has been submitted.').send(res);
         })
         .catch(err => {
-            console.error("Event Get Catch err:", err)
+            console.error("Event Get Catch err:", err);
             new NZ.Response(null, err.message, err.code || 500).send(res);
         })
 
