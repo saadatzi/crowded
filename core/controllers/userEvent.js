@@ -365,7 +365,7 @@ userEventController.prototype.update = async (optFilter, newValue) => {
 userEventController.prototype.finalStatus = async () => {
     return await UserEvent.jobFinalStatus()
         .catch(err => {
-            console.error("!!!UserEvent FinalStatus failed: ", err);
+            // console.error("!!!UserEvent FinalStatus failed: ", err);
             throw err;
         })
 
