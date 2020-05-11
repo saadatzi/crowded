@@ -12,6 +12,7 @@ const {joiValidate} = require('./../utils');
 
 // Grab controller
 const reportUserController = require('../../controllers/reportUser');
+const userEventController = require('../../controllers/userEvent');
 
 const {verifyTokenPanel, authorization} = require('../../utils/validation');
 
@@ -58,10 +59,19 @@ router.get('/causeOption', verifyTokenPanel(), async function (req, res) {
  * Add Report user
  **/
 router.post('/add', joiValidate(addSchema), verifyTokenPanel(), authorization([{REPORT: 'C'}]), async (req, res) => {
-    req.body.reporter = req.userId;
-    reportUserController.add(req.body)
+    //check is valid userId&eventId
+    userEventController.isValidUserEventReport(req.body.userId, req.body.eventId, ['ACTIVE', 'LEFT', 'PAUSED', 'CONTINUE', 'SUCCESS'])
         .then(result => {
-            new NZ.Response(true, 'Your report successfully added!').send(res);
+            if (!result) return new NZ.Response(false, 'It is not possible to register a report for a user who did not participate in the event!', 400).send(res);
+            req.body.reporterId = req.userId;
+            reportUserController.add(req.body)
+                .then(result => {
+                    new NZ.Response(true, 'Your report successfully added!').send(res);
+                })
+                .catch(err => {
+                    console.error("Add ReportUser Catch err:", err);
+                    new NZ.Response(null, err.message, err.code || 500).send(res);
+                });
         })
         .catch(err => {
             console.error("Add ReportUser Catch err:", err);

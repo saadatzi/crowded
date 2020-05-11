@@ -94,6 +94,23 @@ userEventController.prototype.getByUserEvent = async (userId, eventId) => {
 };
 
 /**
+ * get UserEvent & valid status for Report
+ *
+ * @param {ObjectId} userId
+ * @param {ObjectId} eventId
+ * @param {Array} validStatus
+ * @return UserEvent
+ */
+userEventController.prototype.isValidUserEventReport = async (userId, eventId, validStatus) => {
+    return await UserEvent.getOne({userId, eventId, status: {$in: validStatus}})
+        .then(result => !!result)
+        .catch(err => {
+            console.error("!!!UserEvent getByUserEvent failed: ", err);
+            throw err;
+        })
+};
+
+/**
  * set Status UserEvent
  *
  * @param {ObjectId} userId
