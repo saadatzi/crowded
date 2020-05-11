@@ -36,7 +36,7 @@ const deleteSchema =  Joi.object().keys({
     id: JoiConfigs.isMongoId
 })
 
-const detailSchema = deleteSchema.keys({});
+const detailSchema = deleteSchema;
 
 
 const listSchema = JoiConfigs.schemas.list({
