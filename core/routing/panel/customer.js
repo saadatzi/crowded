@@ -82,20 +82,6 @@ router.post('/', joiValidate(customerListSchema), verifyTokenPanel(), async (req
 
 
 /**
- Get user detail (customer)
-*/
-router.get('/:id', joiValidate(detailSchema, 2), verifyTokenPanel(), async (req, res) => {
-    userController.getOnePanel(req.params)
-        .then(result => {
-            new NZ.Response(result).send(res);
-        })
-        .catch(err=>{
-            new NZ.Response(null,err.message,err.code).send(res);
-        });
-});
-
-
-/**
  Get user bank accounts
 */
 router.post('/:id/bankAccounts', verifyTokenPanel(), joiValidate(detailSchema, 2), joiValidate(bankAccountListSchema, 0), async (req, res) => {
@@ -109,7 +95,7 @@ router.post('/:id/bankAccounts', verifyTokenPanel(), joiValidate(detailSchema, 2
 });
 
 /**
- Get user bank accounts
+ Get Detail user bank account
 */
 router.get('/:id/bankAccounts/:accountId', verifyTokenPanel(), joiValidate(bankAccountDetailSchema, 2), async (req, res) => {
     userController.getBankAccountDetail(req.params.accountId)
@@ -122,7 +108,7 @@ router.get('/:id/bankAccounts/:accountId', verifyTokenPanel(), joiValidate(bankA
 });
 
 /**
- Get user bank accounts
+ Delete user bank accounts
 */
 router.delete('/:id/bankAccounts', verifyTokenPanel(), joiValidate(detailSchema, 2), joiValidate(bankAccountDeleteSchema, 0), async (req, res) => {
     userController.deleteBankAccount(req.body.accountId)
@@ -144,6 +130,20 @@ router.delete('/:id/bankAccounts', verifyTokenPanel(), joiValidate(detailSchema,
  */
 router.post('/', joiValidate(eventListSchema), verifyTokenPanel(), async (req, res) => {
     userController.getManyPanel(req._body)
+        .then(result => {
+            new NZ.Response(result).send(res);
+        })
+        .catch(err=>{
+            new NZ.Response(null,err.message,err.code).send(res);
+        });
+});
+
+
+/**
+ Get user detail (customer)
+ */
+router.get('/:id', joiValidate(detailSchema, 2), verifyTokenPanel(), async (req, res) => {
+    userController.getOnePanel(req.params)
         .then(result => {
             new NZ.Response(result).send(res);
         })
