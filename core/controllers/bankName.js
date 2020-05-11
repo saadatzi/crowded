@@ -69,6 +69,17 @@ bankNameController.prototype.getListPanel = async (optFilter) =>{
         .catch(err => console.error('get bank-name list failed!', err));     
 };
 
+/**
+ * Get BankNames
+ *
+ * @param {Object} optFilter
+ *
+ * @return {ObjectId} bankNameId
+ */
+bankNameController.prototype.getOnePanel = async (id) =>{
+    return BankName.getOnePanel(id)
+        .catch(err => console.error('bankname getOnePanel failed!', err));     
+};
 
 /**
  * Edit BankName

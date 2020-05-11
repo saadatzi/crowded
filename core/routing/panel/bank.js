@@ -36,6 +36,8 @@ const deleteSchema =  Joi.object().keys({
     id: JoiConfigs.isMongoId
 })
 
+const detailSchema = deleteSchema.keys({});
+
 
 const listSchema = JoiConfigs.schemas.list({
     filters:{
@@ -56,6 +58,14 @@ const listSchema = JoiConfigs.schemas.list({
 */
 router.post('/name', verifyTokenPanel(), joiValidate(listSchema, 0), async (req, res) => {
     let bankNames = await bankNameController.getListPanel(req._body);
+    new NZ.Response(bankNames).send(res);
+});
+
+/**
+ Get Bank Names
+*/
+router.get('/name/:id', verifyTokenPanel(), joiValidate(detailSchema, 2), async (req, res) => {
+    let bankNames = await bankNameController.getOnePanel(req.params.id);
     new NZ.Response(bankNames).send(res);
 });
 
