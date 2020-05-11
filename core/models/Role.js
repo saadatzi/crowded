@@ -284,8 +284,8 @@ RoleSchema.static({
             {$sort: {_id: 1}}
         ])
             .then(permissions => {
-                console.log(">>>>>>>>>>>>>>>>>>%j<<<<<<<<<<<<<<<<", perNames);
-                console.log("permissions>>>>>>>>>>>>>>>>>>%j<<<<<<<<<<<<<<<<", permissions);
+                // console.log(">>>>>>>>>>>>>>>>>>%j<<<<<<<<<<<<<<<<", perNames);
+                // console.log("permissions>>>>>>>>>>>>>>>>>>%j<<<<<<<<<<<<<<<<", permissions);
                 // return permissions
                 let resultAccess = [];
                 let accessLevel = {};
