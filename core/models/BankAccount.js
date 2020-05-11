@@ -44,6 +44,115 @@ BankAccountSchema.static({
     * @param {Object} options
     * @api private
     */
+    getManyForUser(userId, optFilter) {
+        let matchUser = { userId: mongoose.Types.ObjectId(userId) };
+
+        let regexMatch = {};
+        if (optFilter.search) {
+            let regex = new RegExp(optFilter.search);
+            regexMatch = {
+                "$or": [
+                    {
+                        firstname: { $regex: regex, $options: "i" }
+                    },
+                    {
+                        lastname: { $regex: regex, $options: "i" }
+                    }
+                ]
+            };
+        }
+
+
+        return this.aggregate([
+            { $match:matchUser },
+            { $match: regexMatch },
+            { $match: optFilter.filters },
+            { $sort: optFilter.sorts },
+            { $skip: optFilter.pagination.page * optFilter.pagination.limit },
+            { $limit: optFilter.pagination.limit },
+            {
+                $lookup: {
+                    from: 'banknames',
+                    let: { primaryBankNameId: "$bankNameId" },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: { $eq: ["$_id", "$$primaryBankNameId"] },
+                                // status: 1 // TODO: hum?
+                            },
+                        },
+                        {
+                            $project: {
+                                _id: 0,
+                                id: '$_id',
+                                name_en: 1,
+                                name_ar: 1,
+                                isActive: { $cond: { if: { $eq: ["$status", 1] }, then: true, else: false } }
+                            }
+                        }
+                    ],
+                    as: 'getBankNames'
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    id: '$_id',
+                    fullName: { $concat: ['$firstname', ' ', '$lastname'] },
+                    IBAN: 1,
+                    civilId: 1,
+                    bankName: { $arrayElemAt: ['$getBankNames', 0] },
+                    isActive: { $cond: { if: { $eq: ["$status", 1] }, then: true, else: false } },
+                }
+            },
+            {
+                $group: {
+                    _id: null,
+                    items: { $push: '$$ROOT' },
+                }
+            },
+            {
+                $lookup: {
+                    from: 'users',
+                    pipeline: [
+                        { $match: regexMatch },
+                        { $match: optFilter.filters },
+                        { $count: 'total' },
+                    ],
+                    as: 'getTotal'
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    items: 1,
+                    total: { $arrayElemAt: ["$getTotal", 0] },
+                }
+            },
+        ])
+            .then(result => {
+                console.warn("<<<<<<<<<<<<<<<<<<<<< BankAccount getManyForUser result: ", result);
+                let items = [],
+                    total = 0;
+                if (result.length > 0) {
+                    total = result[0].total.total;
+                    delete result[0].total;
+                    items = result[0].items;
+                }
+                optFilter.pagination.total = total;
+                return { explain: optFilter, items };
+            })
+            .catch(err => console.error(err));
+
+
+    },
+
+    /**
+    * Get all accounts
+    *
+    * @param {Object} options
+    * @api private
+    */
     getMany(options) {
         const originalCriteria = options.criteria || {};
         const lang = options.lang;
@@ -95,7 +204,7 @@ BankAccountSchema.static({
     changeStatus(id, newStatus) {
         return this.getById(id)
             .then(bankAccount => {
-                if(newStatus == bankAccount.status) throw {message: 'Not permitted to fixstate on a status.'};
+                if (newStatus == bankAccount.status) throw { message: 'Not permitted to fixstate on a status.' };
                 bankAccount.status = newStatus;
                 return bankAccount.save();
             })
@@ -104,7 +213,7 @@ BankAccountSchema.static({
             });
     },
 
-        
+
     /**
      * Checks to see if given bankNameId is related to any bankAccount
      *
@@ -113,7 +222,7 @@ BankAccountSchema.static({
      */
     bankNameIsRelated: async function (id) {
         let result = await this.aggregate([
-            {$match: {bankNameId: mongoose.Types.ObjectId(id)}}
+            { $match: { bankNameId: mongoose.Types.ObjectId(id) } }
         ])
             .catch(err => {
                 console.error(`BankAccount bankNameIsRelated check failed with criteria id:${id}`, err);
@@ -132,13 +241,13 @@ BankAccountSchema.static({
         let criteria = {
             bankNameId: bankNameId
         };
-        return this.updateMany(criteria, {status:2})
+        return this.updateMany(criteria, { status: 2 })
             .catch(err => {
                 console.error(`BankAccount deleteRelatedBankAccounts failed with criteria id:${id}`, err);
                 throw err;
             });
-            
-       
+
+
     }
 
 });

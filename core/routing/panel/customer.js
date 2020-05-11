@@ -22,7 +22,7 @@ const { verifyTokenPanel } = require('../../utils/validation');
 
 // Joi valdiator schemas
 
-const listSchema = JoiConfigs.schemas.list({
+const customerListSchema = JoiConfigs.schemas.list({
     filters: {
         status: Joi.number().valid(0, 1).optional()
     },
@@ -38,11 +38,23 @@ const detailSchema = Joi.object().keys({
     id: JoiConfigs.isMongoId,
 });
 
+const bankAccountListSchema = JoiConfigs.schemas.list({
+    filters: {
+        status: Joi.number().valid(0, 1).optional()
+    },
+    sorts:{
+        createdAt: Joi.number().valid(-1,1),
+    },
+    defaultSorts:{
+        createdAt: -1
+    }
+});
+
 
 /**
  Get users (customers)
 */
-router.post('/', verifyTokenPanel(), joiValidate(listSchema, 0), async (req, res) => {
+router.post('/', verifyTokenPanel(), joiValidate(customerListSchema, 0), async (req, res) => {
     userController.getManyPanel(req._body)
         .then(result => {
             new NZ.Response(result).send(res);
@@ -65,6 +77,21 @@ router.get('/:id', verifyTokenPanel(), joiValidate(detailSchema, 2), async (req,
             new NZ.Response(null,err.message,err.code).send(res);
         });
 });
+
+
+/**
+ Get user bank accounts
+*/
+router.post('/:id/bankAccounts', verifyTokenPanel(), joiValidate(detailSchema, 2), joiValidate(bankAccountListSchema, 0), async (req, res) => {
+    userController.getBankAccountsList(req.params.id,req._body)
+        .then(result => {
+            new NZ.Response(result).send(res);
+        })
+        .catch(err=>{
+            new NZ.Response(null,err.message,err.code).send(res);
+        });
+});
+
 
 
 
