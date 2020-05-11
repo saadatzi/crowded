@@ -41,7 +41,7 @@ BankNameSchema.static({
     getMany(options) {
 
         let lang = options.lang;
-        let modifiedCriteria = {status: 1};
+        let modifiedCriteria = { status: 1 };
 
         return this.aggregate([
             {
@@ -62,6 +62,41 @@ BankNameSchema.static({
 
 
     },
+
+
+    /**
+     * get BankName for panel (single)
+     *
+     * @param {String} id
+     * @api private
+     */
+    getOnePanel(id) {
+
+        id = mongoose.Types.ObjectId(id);
+
+        return this.aggregate([
+            { $match: { _id: id } },
+            {
+                $project: {
+                    _id: 0,
+                    id: "$_id",
+                    name_en: 1,
+                    name_ar: 1,
+                    createdAt: 1,
+                    updatedAt: 1,
+                    isActive: { $cond: { if: { $eq: ["$status", 1] }, then: true, else: false } }
+                }
+            }
+        ])
+            .then(result => {
+                return result[0];
+            })
+            .catch(err => {
+                console.error(err);
+                throw err;
+            });
+    },
+
 
     /**
      * Find BankNames for panel (plural)
@@ -87,7 +122,7 @@ BankNameSchema.static({
             };
         }
 
-        
+
         return this.aggregate([
             { $match: regexMatch },
             { $match: optFilter.filters },
@@ -112,7 +147,7 @@ BankNameSchema.static({
                 $lookup: {
                     from: 'banknames',
                     pipeline: [
-                        { $match: regexMatch },  
+                        { $match: regexMatch },
                         { $match: optFilter.filters },
                         { $count: 'total' },
                     ],
@@ -127,17 +162,17 @@ BankNameSchema.static({
                 }
             }
         ])
-        .then(result => {
-            let items = [],
-                total = 0;
-            if (result.length > 0) {
-                total = result[0].total.total;
-                delete result[0].total;
-                items = result[0].items;
-            }
-            optFilter.pagination.total = total;
-            return { explain: optFilter, items };
-        })
+            .then(result => {
+                let items = [],
+                    total = 0;
+                if (result.length > 0) {
+                    total = result[0].total.total;
+                    delete result[0].total;
+                    items = result[0].items;
+                }
+                optFilter.pagination.total = total;
+                return { explain: optFilter, items };
+            })
             .catch(err => console.error(err));
     },
 
@@ -152,7 +187,7 @@ BankNameSchema.static({
     changeStatus(id, newStatus) {
         return this.getById(id)
             .then(bankName => {
-                if(newStatus == bankName.status) throw {message: 'Not permitted to fixstate on a status.'};
+                if (newStatus == bankName.status) throw { message: 'Not permitted to fixstate on a status.' };
                 bankName.status = newStatus;
                 return bankName.save();
             })
