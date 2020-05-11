@@ -303,17 +303,17 @@ const permissionController = require('./controllers/permission');
                 const initPermission = [
                     {title: "Admin",        access: 143, order: 1},
                     // {title: "Area",         access: 143},
-                    {title: "User",         access: 175, order: 2},
+                    {title: "User",         access: 143, order: 2},
                     {title: "Bank",         access: 143, order: 3},
                     // {title: "Device",   access: 143, order: 4},
                     {title: "Organization", access: 143, order: 5},
                     {title: "Role",         access: 143, order: 6},
                     {title: "Transaction",  access: 167, order: 7},
-                    {title: "FAQ",          access: 166, order: 8}, // All
+                    {title: "FAQ",          access: 143, order: 8},
                     {title: "Interest",     access: 143, order: 9},
                     {title: "Event",        access: 175, order: 10}, //All
                     {title: "PARTICIPANTS", access: 166, order: 11}, // All
-                    {title: "Report",       access: 166, order: 12}, // All
+                    {title: "Report",       access: 175, order: 12}, // All
                 ];
                 return permissionController.add(initPermission)
                     .catch(err => {

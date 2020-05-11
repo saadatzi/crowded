@@ -81,59 +81,57 @@ module.exports = {
     },
     verifyTokenPanel: () => {
         return async (req, res, next) => {
-            // let token = req.headers['authorization']; // Express headers are auto converted to lowercase
-            // if (token && token.startsWith('Bearer ')) {
-            //     // Remove Bearer from string
-            //     token = token.slice(7, token.length);
-            // }
-            // if (token) {
-            //     try {
-            //         let tokenObj = validation.verify(token, publicKEY, tokenOption);
-            //         if (!tokenObj) return new NZ.Response(null, 'invalid token ', 401).send(res);
-            //         return await adminController.get(tokenObj.userId, 'id')
-            //             .then(admin => {
-            //                 if (!admin) return new NZ.Response(null, 'User not found!', 401).send(res);
-            //                 req._admin = admin;
-            //                 req.userId = tokenObj.userId;
-            //                 // user.lastIp = req.headers['x-real-ip'];
-            //                 // user.lastInteract =  new Date();
-            //                 // user.save();
-            //                 admin.updateOne({
-            //                     $set: {lastIp: req.headers['x-real-ip'], lastInteract: new Date()},
-            //                 })
-            //                     .catch(err => {
-            //                         console.error("!!!!!!!!Admin lastIp lastInteract update catch err: ", err);
-            //                     });
-            //                 return next();
-            //
-            //             })
-            //             .catch(err => console.error('!!!adminController get byId Failed!!! ', err));
-            //     } catch (err) {
-            //         console.error('!!!Panel Verify Token Catch! Token: Authorization Failed!!! => API: %s', err);
-            //         return new NZ.Response(null, 'invalid token err: ' + err.message, 401).send(res);
-            //     }
-            // } else {
-            //     console.error('!!!Panel Verify Token not have Token: Authorization Failed!!! => API: %s', req.originalUrl);
-            //     return new NZ.Response(null, 'invalid token', 401).send(res);
-            // }
-            next()
+            let token = req.headers['authorization']; // Express headers are auto converted to lowercase
+            if (token && token.startsWith('Bearer ')) {
+                // Remove Bearer from string
+                token = token.slice(7, token.length);
+            }
+            if (token) {
+                try {
+                    let tokenObj = validation.verify(token, publicKEY, tokenOption);
+                    if (!tokenObj) return new NZ.Response(null, 'invalid token ', 401).send(res);
+                    return await adminController.get(tokenObj.userId, 'id')
+                        .then(admin => {
+                            if (!admin) return new NZ.Response(null, 'User not found!', 401).send(res);
+                            req._admin = admin;
+                            req.userId = tokenObj.userId;
+                            // user.lastIp = req.headers['x-real-ip'];
+                            // user.lastInteract =  new Date();
+                            // user.save();
+                            admin.updateOne({
+                                $set: {lastIp: req.headers['x-real-ip'], lastInteract: new Date()},
+                            })
+                                .catch(err => {
+                                    console.error("!!!!!!!!Admin lastIp lastInteract update catch err: ", err);
+                                });
+                            return next();
+
+                        })
+                        .catch(err => console.error('!!!adminController get byId Failed!!! ', err));
+                } catch (err) {
+                    console.error('!!!Panel Verify Token Catch! Token: Authorization Failed!!! => API: %s', err);
+                    return new NZ.Response(null, 'invalid token err: ' + err.message, 401).send(res);
+                }
+            } else {
+                console.error('!!!Panel Verify Token not have Token: Authorization Failed!!! => API: %s', req.originalUrl);
+                return new NZ.Response(null, 'invalid token', 401).send(res);
+            }
 
         }
     },
     authorization: (permissions = []) => {
         return async (req, res, next) => {
             console.error('>>>>>>>>>>>>>>>>>>>>> authorization userId', req.userId);
-            next();
-            // roleController.authorize(req.userId, permissions)
-            //     .then(accessLevel => {
-            //         if (!accessLevel.access) return new NZ.Response(null, 'You do not have the need permissions for this request!', 403).send(res);
-            //         req.auth = accessLevel;
-            //         return next();
-            //     })
-            //     .catch(err => {
-            //         console.error("Role Authorization Catch err:", err);
-            //         return new NZ.Response(null, 'Authorization err: ' + err.message, 403).send(res);
-            //     })
+            roleController.authorize(req.userId, permissions)
+                .then(accessLevel => {
+                    if (!accessLevel.access) return new NZ.Response(null, 'You do not have the need permissions for this request!', 403).send(res);
+                    req.auth = accessLevel;
+                    return next();
+                })
+                .catch(err => {
+                    console.error("Role Authorization Catch err:", err);
+                    return new NZ.Response(null, 'Authorization err: ' + err.message, 403).send(res);
+                })
         }
     }
 };
