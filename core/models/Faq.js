@@ -2,8 +2,10 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const SupportSchema = new Schema({
-    question: {type: String, required: [true, "can't be blank"]},
-    answer: {type: String, required: [true, "can't be blank"]},
+    question_ar: {type: String, required: [true, "can't be blank"]},
+    question_en: {type: String, required: [true, "can't be blank"]},
+    answer_ar: {type: String, required: [true, "can't be blank"]},
+    answer_en: {type: String, required: [true, "can't be blank"]},
     order: Number,
     status: {type: Number, default: 1},
 }, {timestamps: true});
@@ -23,8 +25,10 @@ SupportSchema.method({
     toJSON() {
         return {
             id: this._id,
-            question: this.question,
-            answer: this.answer,
+            question_ar: this.question_ar,
+            question_en: this.question_en,
+            answer_ar: this.answer_ar,
+            answer_en: this.answer_en,
             lastname: this.lastname,
             order: this.order,
             isActive: this.status === 1,
@@ -52,7 +56,6 @@ SupportSchema.static({
     /**
      * Get All panel
      *
-     * @param {String} token
      * @api private
      */
     async panelList() {
@@ -64,8 +67,10 @@ SupportSchema.static({
                 $project: {
                     _id: 0,
                     id: '$_id',
-                    question: 1,
-                    answer: 1,
+                    question_ar: 1,
+                    question_en: 1,
+                    answer_ar: 1,
+                    answer_en: 1,
                     isActive: {$cond: {if: {$eq: ["$status", 1]}, then: true, else: false}},
                 }
             },
@@ -79,9 +84,10 @@ SupportSchema.static({
     /**
      * Get All App
      *
+     * @param {String} lang
      * @api private
      */
-    async appList() {
+    async appList({lang}) {
         const baseCriteria = {status: 1};
         return await this.aggregate([
             {$match: baseCriteria},
@@ -89,8 +95,8 @@ SupportSchema.static({
             {
                 $project: {
                     _id: 0,
-                    question: 1,
-                    answer: 1,
+                    question: `question_${lang}`,
+                    answer: `answer_${lang}`,
                 }
             },
         ])

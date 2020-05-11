@@ -59,7 +59,7 @@ staticController.prototype.list = async (optFilter) => {
 
 /**
  *
- * @param {Object} 
+ * @param {Object} payload
  *
  * @return Events
  */

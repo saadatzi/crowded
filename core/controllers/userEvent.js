@@ -340,5 +340,19 @@ userEventController.prototype.update = async (optFilter, newValue) => {
 
 
 };
+
+
+/**
+ * fix final status
+ */
+userEventController.prototype.finalStatus = async () => {
+    return await UserEvent.jobFinalStatus()
+        .catch(err => {
+            console.error("!!!UserEvent FinalStatus failed: ", err);
+            throw err;
+        })
+
+};
+
 const newUserEventController = new userEventController();
 module.exports = newUserEventController;

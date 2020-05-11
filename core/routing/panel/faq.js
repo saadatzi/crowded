@@ -23,15 +23,19 @@ const hasValidIdSchema = Joi.object().keys({
 });
 
 const addSchema = Joi.object().keys({
-    question: JoiConfigs.title,
-    answer: JoiConfigs.description(),
+    question_ar: JoiConfigs.title,
+    question_en: JoiConfigs.title,
+    answer_ar: JoiConfigs.description(),
+    answer_en: JoiConfigs.description(),
     order: JoiConfigs.number,
 });
 
 const editSchema = Joi.object().keys({
     faqId: JoiConfigs.isMongoId,
-    question: JoiConfigs.description(),
-    answer: JoiConfigs.title,
+    question_ar: JoiConfigs.title,
+    question_en: JoiConfigs.title,
+    answer_ar: JoiConfigs.description(),
+    answer_en: JoiConfigs.description(),
     order: JoiConfigs.number,
 });
 

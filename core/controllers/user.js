@@ -227,10 +227,7 @@ userController.prototype.update = async (optFilter, newValue) => {
                 })
         } else {
             return await User.findByIdAndUpdate(optFilter, newValue)
-                .then(result => {
-                    console.log(`***User Update by id ${optFilter} result: `, result);
-                    return result;
-                })
+                .then(result => result)
                 .catch(err => {
                     console.error("!!!User Update failed: ", err);
                     throw err;

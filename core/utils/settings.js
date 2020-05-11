@@ -51,6 +51,10 @@ module.exports = {
 		leftOption: ['The event was different from what was described','I did not like the event','I had an emergency and had to leave', 'I had an emergency and had to leave']
 	},
 
+	report: {
+		causeOption: ['It\'s too late', 'Improper behavior', 'Violence']
+	},
+
 	wallet: {
 		limitPage: 4,
 		withdrawTitle_en: 'Withdraw the wallet',

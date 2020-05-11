@@ -63,7 +63,7 @@ router.post('/add', verifyToken(), joiValidate(addSchema,0), async (req, res) =>
 router.get('/faq', verifyToken(), async function (req, res) {
     console.info('API: Get support/init');
 
-    faqController.getApp({})
+    faqController.getApp({lang: req.headers['lang'] ? (req.headers['lang']).toLowerCase() : 'en'})
         .then(items => {
             new NZ.Response({items}).send(res);
         })

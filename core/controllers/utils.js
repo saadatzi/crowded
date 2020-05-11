@@ -5,6 +5,8 @@ const engine = require('express-dot-engine');
 const nodemailer = require('nodemailer');
 const moment_tz = require('moment-timezone');
 const moment = require('moment');
+const cron = require("node-cron");
+const userEventController = require('./userEvent')
 
 const {insertForgotHash} = require('../utils/cacheLayer')
 
@@ -60,6 +62,13 @@ const utcToKuwaitTimezone = async ({ collection, utcKey = 'CDate', kuwaitKey = '
 
 	return collection;
 };
+
+// schedule tasks to be run on the server
+cron.schedule("*/5 * * * *", function() {
+	userEventController.finalStatus()
+		.then(result => console.info("^^^^^^^^^^^^^^^^^^^^Cron.schedule every 5 min FinalStatus result: ", result))
+		.catch(err => console.error("!!!Cron.schedule FinalStatus failed err: ", err))
+});
 
 module.exports = {
 	sendEmail,

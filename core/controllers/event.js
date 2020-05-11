@@ -110,16 +110,16 @@ eventController.prototype.list = async (userId, optFilter, accessLevel) => {
 /**
  * getById Event
  *
- * @param {ObjectId} id
+ * @param {ObjectId} eventId
  * @param {String} lang
  * @param {ObjectId} userId
  *
  * @return Event
  */
-eventController.prototype.getByIdAggregate = async (id, lang, userId = null) => {
+eventController.prototype.getByIdAggregate = async (eventId, lang, userId = null) => {
     let userEventStatus = null;
     if (userId) {
-        await userEventController.getByUserEvent(userId, id)
+        await userEventController.getByUserEvent(userId, eventId)
             .then(userEvent => {
                 if (userEvent) userEventStatus = userEvent.status;
             })
@@ -129,7 +129,7 @@ eventController.prototype.getByIdAggregate = async (id, lang, userId = null) => 
             })
     }
     const isApproved = ['APPROVED', 'ACTIVE', 'LEFT', 'PAUSED', 'SUCCESS'].includes(userEventStatus);
-    return await Event.getByIdAggregate(id, lang, isApproved, userEventStatus)
+    return await Event.getByIdAggregate(eventId, lang, isApproved, userEventStatus)
         .then(async event => {
             if (isApproved) event = Object.assign(event, {map: isApproved ? {url: await googleStaticImage(event.coordinates[0], event.coordinates[1])} : null});
             return event
