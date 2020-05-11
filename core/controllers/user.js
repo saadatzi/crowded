@@ -5,6 +5,8 @@ let User = require('../models/User');
 const settings = require('../utils/settings');
 const eventController = require('./event');
 
+const BankAccount = require('../models/BankAccount');
+
 const userController = function () {
 };
 
@@ -49,6 +51,64 @@ userController.prototype.getOnePanel = async (optFilter) => {
         })
 };
 
+
+
+/**
+ * getBankAccountsList
+ *
+ * @param {Object} optFilter
+ *
+ * @return {Object} {user}
+ */
+userController.prototype.getBankAccountsList = async (userId, optFilter) => {
+    return await BankAccount.getManyForUser(userId, optFilter)
+        .then(result => {
+            console.log("***User getBankAccountsList success result", result);
+            return result;
+        })
+        .catch(err => {
+            console.error("!!!User getBankAccountsList failed: ", err);
+            throw err;
+        })
+};
+
+/**
+ * getBankAccountsList
+ *
+ * @param {String} id
+ *
+ * @return {Object} {user}
+ */
+userController.prototype.getBankAccountDetail = async (id) => {
+    return await BankAccount.getOnePanel(id)
+        .then(result => {
+            console.log("***User getBankAccountDetail success result", result);
+            return result;
+        })
+        .catch(err => {
+            console.error("!!!User getBankAccounDetail failed: ", err);
+            throw err;
+        })
+};
+
+/**
+ * deleteBankAccount
+ *
+ * @param {String} id
+ *
+ * @return {Object} {user}
+ */
+userController.prototype.deleteBankAccount = async (id) => {
+    return await BankAccount.changeStatus(id,2)
+        .then(result => {
+            console.log("***User deleteBankAccount success result", result);
+            return result;
+        })
+        .catch(err => {
+            console.error("!!!User deleteBankAccount failed: ", err);
+            throw err;
+        })
+};
 
 
 
