@@ -147,6 +147,66 @@ BankAccountSchema.static({
 
     },
 
+
+    /**
+     * 
+     * @param {ObjectId} id 
+     */
+    getOnePanel(id){
+        console.log(id);
+        let matchUser = { _id: mongoose.Types.ObjectId(id) };
+
+        return this.aggregate([
+            { $match:matchUser },
+            {
+                $lookup: {
+                    from: 'banknames',
+                    let: { primaryBankNameId: "$bankNameId" },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: { $eq: ["$_id", "$$primaryBankNameId"] },
+                                // status: 1 // TODO: hum?
+                            },
+                        },
+                        {
+                            $project: {
+                                _id: 0,
+                                id: '$_id',
+                                name_en: 1,
+                                name_ar: 1,
+                                isActive: { $cond: { if: { $eq: ["$status", 1] }, then: true, else: false } }
+                            }
+                        }
+                    ],
+                    as: 'getBankNames'
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    id: '$_id',
+                    fullName: { $concat: ['$firstname', ' ', '$lastname'] },
+                    IBAN: 1,
+                    civilId: 1,
+                    bankName: { $arrayElemAt: ['$getBankNames', 0] },
+                    isActive: { $cond: { if: { $eq: ["$status", 1] }, then: true, else: false } },
+                    createdAt:1,
+                    updatedAt: 1
+                }
+            }
+        ])
+            .then(result => {
+                console.warn("<<<<<<<<<<<<<<<<<<<<< BankAccount getOnePanel result: ", result);
+                return result[0];
+            })
+            .catch(err => console.error(err));
+
+
+    },
+    
+
+
     /**
     * Get all accounts
     *

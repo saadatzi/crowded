@@ -38,6 +38,10 @@ const detailSchema = Joi.object().keys({
     id: JoiConfigs.isMongoId,
 });
 
+const bankAccountDetailSchema = detailSchema.keys({
+    accountId: JoiConfigs.isMongoId,
+});
+
 const bankAccountListSchema = JoiConfigs.schemas.list({
     filters: {
         status: Joi.number().valid(0, 1).optional()
@@ -84,6 +88,19 @@ router.get('/:id', verifyTokenPanel(), joiValidate(detailSchema, 2), async (req,
 */
 router.post('/:id/bankAccounts', verifyTokenPanel(), joiValidate(detailSchema, 2), joiValidate(bankAccountListSchema, 0), async (req, res) => {
     userController.getBankAccountsList(req.params.id,req._body)
+        .then(result => {
+            new NZ.Response(result).send(res);
+        })
+        .catch(err=>{
+            new NZ.Response(null,err.message,err.code).send(res);
+        });
+});
+
+/**
+ Get user bank accounts
+*/
+router.get('/:id/bankAccounts/:accountId', verifyTokenPanel(), joiValidate(bankAccountDetailSchema, 2), async (req, res) => {
+    userController.getBankAccountDetail(req.params.accountId)
         .then(result => {
             new NZ.Response(result).send(res);
         })

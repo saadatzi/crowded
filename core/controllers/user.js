@@ -72,6 +72,25 @@ userController.prototype.getBankAccountsList = async (userId, optFilter) => {
         })
 };
 
+/**
+ * getBankAccountsList
+ *
+ * @param {Object} optFilter
+ *
+ * @return {Object} {user}
+ */
+userController.prototype.getBankAccountDetail = async (id) => {
+    return await BankAccount.getOnePanel(id)
+        .then(result => {
+            console.log("***User getBankAccountDetail success result", result);
+            return result;
+        })
+        .catch(err => {
+            console.error("!!!User getBankAccounDetail failed: ", err);
+            throw err;
+        })
+};
+
 
 
 
