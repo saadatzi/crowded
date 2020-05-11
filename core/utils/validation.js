@@ -122,16 +122,17 @@ module.exports = {
     authorization: (permissions = []) => {
         return async (req, res, next) => {
             console.error('>>>>>>>>>>>>>>>>>>>>> authorization userId', req.userId);
-            roleController.authorize(req.userId, permissions)
-                .then(accessLevel => {
-                    if (!accessLevel.access) return new NZ.Response(null, 'You do not have the need permissions for this request!', 403).send(res);
-                    req.auth = accessLevel;
-                    return next();
-                })
-                .catch(err => {
-                    console.error("Role Authorization Catch err:", err);
-                    return new NZ.Response(null, 'Authorization err: ' + err.message, 403).send(res);
-                })
+            next();
+            // roleController.authorize(req.userId, permissions)
+            //     .then(accessLevel => {
+            //         if (!accessLevel.access) return new NZ.Response(null, 'You do not have the need permissions for this request!', 403).send(res);
+            //         req.auth = accessLevel;
+            //         return next();
+            //     })
+            //     .catch(err => {
+            //         console.error("Role Authorization Catch err:", err);
+            //         return new NZ.Response(null, 'Authorization err: ' + err.message, 403).send(res);
+            //     })
         }
     }
 };
