@@ -38,6 +38,10 @@ const detailSchema = Joi.object().keys({
     id: JoiConfigs.isMongoId,
 });
 
+const bankAccountDeleteSchema = Joi.object().keys({
+    accountId: JoiConfigs.isMongoId
+});
+
 const bankAccountDetailSchema = detailSchema.keys({
     accountId: JoiConfigs.isMongoId,
 });
@@ -105,6 +109,22 @@ router.get('/:id/bankAccounts/:accountId', verifyTokenPanel(), joiValidate(bankA
             new NZ.Response(result).send(res);
         })
         .catch(err=>{
+            new NZ.Response(null,err.message,err.code).send(res);
+        });
+});
+
+/**
+ Get user bank accounts
+*/
+router.delete('/:id/bankAccounts', verifyTokenPanel(), joiValidate(detailSchema, 2), joiValidate(bankAccountDeleteSchema, 0), async (req, res) => {
+    userController.deleteBankAccount(req.body.accountId)
+        .then(result => {
+            console.log(`bank account deleted :${result}`)
+            if (result) new NZ.Response('BankAccount deleted successfully!').send(res);
+            else throw {message: "sth went wrong when deleting bank account", code:500};
+        })
+        .catch(err=>{
+            console.error(err);
             new NZ.Response(null,err.message,err.code).send(res);
         });
 });

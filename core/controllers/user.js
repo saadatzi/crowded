@@ -75,7 +75,7 @@ userController.prototype.getBankAccountsList = async (userId, optFilter) => {
 /**
  * getBankAccountsList
  *
- * @param {Object} optFilter
+ * @param {String} id
  *
  * @return {Object} {user}
  */
@@ -91,6 +91,24 @@ userController.prototype.getBankAccountDetail = async (id) => {
         })
 };
 
+/**
+ * deleteBankAccount
+ *
+ * @param {String} id
+ *
+ * @return {Object} {user}
+ */
+userController.prototype.deleteBankAccount = async (id) => {
+    return await BankAccount.changeStatus(id,2)
+        .then(result => {
+            console.log("***User deleteBankAccount success result", result);
+            return result;
+        })
+        .catch(err => {
+            console.error("!!!User deleteBankAccount failed: ", err);
+            throw err;
+        })
+};
 
 
 

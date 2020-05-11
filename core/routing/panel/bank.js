@@ -90,7 +90,8 @@ router.delete('/name', verifyTokenPanel(), joiValidate(deleteSchema, 0), async (
     // }
 
     let bankName = await bankNameController.delete(req.body.id);
-    new NZ.Response("Successfully deleted bank name!").send(res);
+    if(bankName) new NZ.Response("Successfully deleted bank name!").send(res);
+    else  new NZ.Response("Failed to remove bank name!", 500).send(res);
 });
 
 
