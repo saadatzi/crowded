@@ -278,7 +278,7 @@ router.post('/resetPassword/claim', joiValidate(forgotSchema, 0), async (req, re
             let email = '';
             if (admin) {
                 const hash = await controllerUtils.createResetPasswordHash(admin.id);
-                await controllerUtils.sendEmail('m.kazemnia@nizek.com', 'Reset Password', 'resetPassword', {
+                await controllerUtils.sendEmail(req.body.email, 'Reset Password', 'resetPassword', {
                     name: admin.name,
                     logo: settings.email_logo,
                     cdn_domain: settings.cdn_domain,
