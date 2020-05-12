@@ -240,7 +240,15 @@ UserSchema.static({
                     sex:1,
                     email: 1,
                     nationality: 1,
-                    birthDate:1
+                    birthDate:1,
+                    image: {
+                        $cond: [
+                            {$ne: [ "$image", undefined]},
+                            {$concat: [settings.media_domain, '$image']},
+                            null
+                        ]
+                    },
+                    phone:1
                 }
             }
         ])
