@@ -40,11 +40,7 @@ const updateSchema = Joi.object().keys({
     roles: JoiConfigs.array(false, JoiConfigs.isMongoId),
     call: JoiConfigs.array(false, callSchema),
     organizationId: JoiConfigs.isMongoIdOpt,
-    password: Joi.when('oldPassword', {
-        is: '',
-        then: Joi.string().allow(''),
-        otherwise: JoiConfigs.passwordOpt
-    }),
+    password: JoiConfigs.passwordOpt,
     oldPassword: JoiConfigs.passwordOpt,
 }).required().with('password', 'oldPassword');
 
