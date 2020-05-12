@@ -295,7 +295,7 @@ router.post('/resetPassword/claim', joiValidate(claimResetPasswordSchema, 0), as
                     contact_project: settings.project_name,
                     contact_privacy: settings.contact.privacy,
                     contact_terms: settings.contact.terms,
-                    link: `${settings.panel_route}panel/reset-password-panel/${hash}`
+                    link: `${settings.panel_route}reset-password-panel/${hash}`
                 });
                 email = 'Email has been sent.';
                 return new NZ.Response(true, `Reset-password link generated! ${email}`).send(res);
