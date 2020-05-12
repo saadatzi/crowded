@@ -261,7 +261,7 @@ const settingController = require('./controllers/setting');
 
 
         //Add bank names (test)
-        //TODO user controller
+        //TODO use controller
         BankName.find({})
             .then(bankNames => {
                 if (bankNames.length === 0) {
@@ -394,7 +394,6 @@ const settingController = require('./controllers/setting');
                             roleController.add(addRoles)
                                 .then(resultRoles => {
                                     console.log("initDataDB>>>>>>>>>>>>>>>>> ", resultRoles.length + ' Role has been successfully added!')
-                                    console.log("initDataDB>>>>>>>>>>>>>>>>> ", resultRoles)
 
                                     //Add Organization
                                     const newOrg = [
@@ -414,8 +413,83 @@ const settingController = require('./controllers/setting');
                                     organizationController.add(newOrg)
                                         .then(resultOrg => {
                                             console.log("initDataDB>>>>>>>>>>>>>>>>> ", resultOrg.length + ' Organization has been successfully added!')
-                                            console.log("initDataDB>>>>>>>>>>>>>>>>> ", resultOrg)
 
+                                            const adminRoles  = [], testRoles = [], crowdedRoles = [], orgRoles = [], agentRoles = [];
+                                            resultRoles.map(role => {
+                                                switch (role.name) {
+                                                    case 'super_admin':
+                                                        adminRoles.push(role._id);
+                                                        crowdedRoles.push(role._id);
+                                                        testRoles.push(role._id);
+                                                        break;
+                                                    case 'org_admin':
+                                                        adminRoles.push(role._id);
+                                                        orgRoles.push(role._id);
+                                                        break;
+                                                    case 'agent':
+                                                        agentRoles.push(role._id);
+                                                        break;
+                                                    default:
+                                                        console.log(`Permission out of init ${role}.`);
+                                                }
+                                            });
+
+                                            let nizekOrg = '', crowdedOrg = '';
+                                            resultOrg.map(org => {
+                                                switch (org.title) {
+                                                    case 'NIZEK':
+                                                        nizekOrg = org._id;
+                                                        break;
+                                                    case 'CROWDED':
+                                                        crowdedOrg = org._id;
+                                                        break;
+                                                    default:
+                                                        console.log(`Permission out of init ${org}.`);
+                                                }
+                                            });
+                                            //Add Admin
+                                            const newAdmin = [
+                                                {
+                                                    email:			"admin@nizek.com",
+                                                    name:         	"NIZEK",
+                                                    password:     	"a123321N",
+                                                    roles:         	adminRoles,
+                                                    organizationId:	nizekOrg,
+                                                },
+                                                {
+                                                    email:			"test@nizek.com",
+                                                    name:         	"TEST",
+                                                    password:     	"a123321T",
+                                                    roles:         	testRoles,
+                                                    organizationId:	nizekOrg,
+                                                },
+                                                {
+                                                    email:			"admin@crowded.com",
+                                                    name:         	"CROWDED",
+                                                    password:     	"a123321C",
+                                                    roles:         	crowdedRoles,
+                                                    organizationId:	crowdedOrg,
+                                                },
+                                                {
+                                                    email:			"org@nizek.com",
+                                                    name:         	"Test Org Admin",
+                                                    password:     	"a123321TO",
+                                                    roles:         	orgRoles,
+                                                    organizationId:	nizekOrg,
+                                                },
+                                                {
+                                                    email:			"agent@nizek.com",
+                                                    name:         	"Test Agent",
+                                                    password:     	"a123321TA",
+                                                    roles:         	agentRoles,
+                                                    organizationId:	nizekOrg,
+                                                }
+                                            ];
+                                            adminController.add(newAdmin)
+                                                .then(resultAdmin => {
+                                                    console.log("initDataDB>>>>>>>>>>>>>>>>> ", resultAdmin.length + ' Admin has been successfully added!')
+                                                })
+                                                .catch(err => console.error("!!! initDataDB Admin Add Catch err:", err))
 
                                         })
                                         .catch(err => console.error("!!! initDataDB Organization Add Catch err:", err))

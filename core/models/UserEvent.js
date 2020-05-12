@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 const UserEventSchema = new Schema({
     status: {
         type: String,
-        enum: ['APPLIED', 'APPROVED', 'REJECTED', 'ACTIVE', 'LEFT', 'PAUSED', 'CONTINUE', 'SUCCESS', 'FAILED', 'UNAPPROVED'],
+        enum: ['APPLIED', 'APPROVED', 'REJECTED', 'ACTIVE', 'LEFT', 'PAUSED', 'CONTINUE', 'SUCCESS', 'MISSED', 'UNAPPROVED'],
         default: 'APPLIED'
     },
     userId: {type: Schema.ObjectId, ref: 'User'},
@@ -92,7 +92,7 @@ UserEventSchema.static({
                 }
             },
             {$unwind: {path: "$getEvents", preserveNullAndEmptyArrays: false}},
-            {$set: {status: {$cond: {if: {$eq: ["$status", 'APPLIED']}, then: 'UNAPPROVED', else: 'FAILED'}}}},
+            {$set: {status: {$cond: {if: {$eq: ["$status", 'APPLIED']}, then: 'UNAPPROVED', else: 'MISSED'}}}},
             {$group: {_id: {status: "$status"}, ids: {$push: '$_id'}}}
         ])
             .then(groupResult => {
