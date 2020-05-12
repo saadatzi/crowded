@@ -5,36 +5,21 @@ const areaController = require('./controllers/area');
 
 // DEV-TEMPORARY
 const bankNameController = require('./controllers/bankName');
-const eventController = require('./controllers/event');
 const BankName = require('./models/BankName');
-const Staticpage = require('./models/Staticpage');
-const Setting = require('./models/Setting');
+
+
 
 const permissionController = require('./controllers/permission');
 const roleController = require('./controllers/role');
 const organizationController = require('./controllers/organization');
 const adminController = require('./controllers/admin');
 const interestController = require('./controllers/interest');
+const staticController = require('./controllers/static');
+const settingController = require('./controllers/setting');
 
 
 (async () => {
     console.log("******* single run **********");
-
-    // eventController.update({}, {$set: {allowedRadius: 200}});
-
-    // Staticpage.create([{
-    // 	alias: 	 'about-us',
-    // 	name_en: 'About us',
-    // 	name_ar: 'About USS',
-    // 	html_en: 'somehtmlhere',
-    //     html_ar: 'YOYO',
-    //     in_app: true
-    // }]);
-
-    // Setting.create([{
-    // 	key: 	 'support-email',
-    // 	value:  'sup@nizek.com',
-    // }]);
 
     // googleStaticImage(35.7485728, 51.4080562);
     //TODO initDATABASE
@@ -226,15 +211,54 @@ const interestController = require('./controllers/interest');
                         .then(area => {
                             console.log("initDataDB>>>>>>>>>>>>>>>>> ", area.length + ' Area has been successfully added!')
                         })
-                        .catch(err => {
-                            console.error("!!! initDataDB Area Add Catch err:", err)
-                        })
+                        .catch(err => console.error("!!! initDataDB Area Add Catch err:", err))
                 }
 
             })
-            .catch(err => {
-                console.error("!!! initDataDB Area Get All Catch err:", err)
-            });
+            .catch(err => console.error("!!! initDataDB Area Get All Catch err:", err));
+
+        //Add Static Page
+        staticController.get({})
+            .then(statics => {
+                if (statics.length === 0) {
+                    const newStatics = [
+                        {
+                        	alias: 	 'about-us',
+                        	name_en: 'About us',
+                        	name_ar: 'About USS',
+                        	html_en: 'somehtmlhere',
+                            html_ar: 'YOYO',
+                            in_app: true
+                        }
+                    ];
+                    staticController.add(newStatics)
+                        .then(staticPage => {
+                            console.log("initDataDB>>>>>>>>>>>>>>>>> ", staticPage.length + ' staticPage has been successfully added!')
+                        })
+                        .catch(err => console.error("!!! initDataDB staticPage Add Catch err:", err))
+                }
+
+            })
+            .catch(err => console.error("!!! initDataDB staticPage Get All Catch err:", err));
+
+        settingController.get({})
+            .then(settings => {
+                if (settings.length === 0) {
+                    const newSettings = [
+                        {
+                        	key: 	 'support-email',
+                        	value:  'sup@nizek.com',
+                        }
+                    ];
+                    settingController.add(newSettings)
+                        .then(resultSettings => {
+                            console.log("initDataDB>>>>>>>>>>>>>>>>> ", resultSettings.length + ' Settings has been successfully added!')
+                        })
+                        .catch(err => console.error("!!! initDataDB Settings Add Catch err:", err))
+                }
+            })
+            .catch(err => console.error("!!! initDataDB staticPage Get All Catch err:", err));
+
 
         //Add bank names (test)
         //TODO user controller
@@ -263,14 +287,10 @@ const interestController = require('./controllers/interest');
                         .then(newBanks => {
                             console.log("initDataDB>>>>>>>>>>>>>>>>> ", newBanks.length + ' BankName has been successfully added!')
                         })
-                        .catch(err => {
-                            console.error("!!! initDataDB BankName Add Catch err:", err)
-                        })
+                        .catch(err => console.error("!!! initDataDB BankName Add Catch err:", err))
                 }
             })
-            .catch(err => {
-                console.error("!!! initDataDB BankName Get All Catch err:", err)
-            });
+            .catch(err => console.error("!!! initDataDB BankName Get All Catch err:", err));
 
         //Init Permissions
         permissionController.get({})
@@ -278,97 +298,135 @@ const interestController = require('./controllers/interest');
                 if (permissions.length === 0) {
                     console.log('...Attempting to seed Permission Model.');
                     const initPermission = [
-                        {title: "Admin", access: 143, order: 1},
-                        {title: "User", access: 143, order: 2},
-                        {title: "Bank", access: 143, order: 3},
-                        {title: "Account", access: 143, order: 3},
+                        {title: "Admin",        access: 143, order: 1},
+                        {title: "User",         access: 142, order: 2},
+                        {title: "Bank",         access: 143, order: 3},
+                        {title: "Account",      access: 143, order: 3},
                         {title: "Organization", access: 143, order: 5},
-                        {title: "Role", access: 143, order: 6},
-                        {title: "Transaction", access: 167, order: 7},
-                        {title: "FAQ", access: 143, order: 8},
-                        {title: "Interest", access: 143, order: 9},
-                        {title: "Event", access: 175, order: 10}, //All
+                        {title: "Role",         access: 143, order: 6},
+                        {title: "Transaction",  access: 135, order: 7},
+                        {title: "FAQ",          access: 143, order: 8},
+                        {title: "Interest",     access: 143, order: 9},
+                        {title: "Event",        access: 175, order: 10}, //All
                         {title: "PARTICIPANTS", access: 166, order: 11}, // All
-                        {title: "Report", access: 175, order: 12}, // All
-                        {title: "Setting", access: 143, order: 12},
-                        {title: "Page", access: 143, order: 12},
+                        {title: "Report",       access: 174, order: 12}, // All
+                        {title: "Setting",      access: 134, order: 13},
+                        {title: "Page",         access: 134, order: 14},
+                        {title: "Profile",      access: 134, order: 14},
                     ];
                     return permissionController.add(initPermission)
                         .then(resultPermissions => {
                             console.log("initDataDB>>>>>>>>>>>>>>>>> ", resultPermissions.length + ' Permission has been successfully added!')
-                            /*
-                            * {
-	"name": "super_admin",
-	"permissions": [
-		{
-			"permissionId": "5eb00048fdc640619bae0fd7",
-			"accessLevel": 143
-		},
-		{
-			"permissionId": "5eb00048fdc640619bae0fd8",
-			"accessLevel": 175
-		},
-		{
-			"permissionId": "5eb00048fdc640619bae0fd9",
-			"accessLevel": 143
-		},
-		{
-			"permissionId": "5eb00048fdc640619bae0fda",
-			"accessLevel": 143
-		},
-		{
-			"permissionId": "5eb00048fdc640619bae0fdb",
-			"accessLevel": 175
-		},
-		{
-			"permissionId": "5eb00048fdc640619bae0fdc",
-			"accessLevel": 143
-		},
-		{
-			"permissionId": "5eb00048fdc640619bae0fdd",
-			"accessLevel": 143
-		},
-		{
-			"permissionId": "5eb00048fdc640619bae0fde",
-			"accessLevel": 143
-		},
-		{
-			"permissionId": "5eb00048fdc640619bae0fdf",
-			"accessLevel": 143
-		},
-		{
-			"permissionId": "5eb00048fdc640619bae0fe0",
-			"accessLevel": 175
-		}
-	]
-}*/
                             const super_admin = [], org_admin = [], agent = [];
                             resultPermissions.map(rp => {
                                 switch (rp.title) {
                                     case 'ADMIN':
                                         super_admin.push({permissionId: rp._id, accessLevel: 143});
-                                        org_admin.push({permissionId: rp._id, accessLevel: 134});
+                                        break;
+                                    case 'USER':
+                                        super_admin.push({permissionId: rp._id, accessLevel: 143});
+                                        break;
+                                    case 'BANK':
+                                        super_admin.push({permissionId: rp._id, accessLevel: 143});
+                                        break;
+                                    case 'ACCOUNT':
+                                        super_admin.push({permissionId: rp._id, accessLevel: 143});
+                                        break;
+                                    case 'ORGANIZATION':
+                                        super_admin.push({permissionId: rp._id, accessLevel: 143});
+                                        break;
+                                    case 'ROLE':
+                                        super_admin.push({permissionId: rp._id, accessLevel: 143});
+                                        break;
+                                    case 'TRANSACTION':
+                                        super_admin.push({permissionId: rp._id, accessLevel: 135});
+                                        break;
+                                    case 'FAQ':
+                                        super_admin.push({permissionId: rp._id, accessLevel: 143});
+                                        break;
+                                    case 'INTEREST':
+                                        super_admin.push({permissionId: rp._id, accessLevel: 143});
+                                        break;
+                                    case 'EVENT':
+                                        super_admin.push({permissionId: rp._id, accessLevel: 167});
+                                        org_admin.push({permissionId: rp._id, accessLevel: 158});
+                                        agent.push({permissionId: rp._id, accessLevel: 142});
+                                        break;
+                                    case 'PARTICIPANTS':
+                                        super_admin.push({permissionId: rp._id, accessLevel: 166});
+                                        org_admin.push({permissionId: rp._id, accessLevel: 150});
                                         agent.push({permissionId: rp._id, accessLevel: 134});
                                         break;
-                                    case 'Mangoes':
-                                    case 'Papayas':
-                                        console.log('Mangoes and papayas are $2.79 a pound.');
-                                        // expected output: "Mangoes and papayas are $2.79 a pound."
+                                    case 'REPORT':
+                                        super_admin.push({permissionId: rp._id, accessLevel: 166});
+                                        org_admin.push({permissionId: rp._id, accessLevel: 152});
+                                        agent.push({permissionId: rp._id, accessLevel: 136});
+                                        break;
+                                    case 'SETTING':
+                                        super_admin.push({permissionId: rp._id, accessLevel: 134});
+                                        break;
+                                    case 'PAGE':
+                                        super_admin.push({permissionId: rp._id, accessLevel: 134});
+                                        break;
+                                    case 'PROFILE':
+                                        super_admin.push({permissionId: rp._id, accessLevel: 134});
                                         break;
                                     default:
-                                        console.log(`Sorry, we are out of ${expr}.`);
+                                        console.log(`Permission out of init ${rp}.`);
                                 }
-                            })
-                        })
-                        .catch(err => {
-                            console.error("!!! initDataDB Permission Add Catch err:", err)
+                            });
+
+                            //Add Roles
+                            const addRoles = [
+                                {
+                                    name: "super_admin",
+                                    permissions: super_admin
+                                },
+                                {
+                                    name: "org_admin",
+                                    permissions: org_admin
+                                },
+                                {
+                                    name: "agent",
+                                    permissions: agent
+                                }
+                            ];
+                            roleController.add(addRoles)
+                                .then(resultRoles => {
+                                    console.log("initDataDB>>>>>>>>>>>>>>>>> ", resultRoles.length + ' Role has been successfully added!')
+                                    console.log("initDataDB>>>>>>>>>>>>>>>>> ", resultRoles)
+
+                                    //Add Organization
+                                    const newOrg = [
+                                        {
+                                            title: 'NIZEK',
+                                            address: 'no 13, st main',
+                                            phones: ['321321', '111222333444555'],
+                                            image: 'init.jpg'
+                                        },
+                                        {
+                                            title: 'CROWDED',
+                                            address: 'no 14, st main',
+                                            phones: ['321321', '111222333444555'],
+                                            image: 'init.jpg'
+                                        }
+                                    ];
+                                    organizationController.add(newOrg)
+                                        .then(resultOrg => {
+                                            console.log("initDataDB>>>>>>>>>>>>>>>>> ", resultOrg.length + ' Organization has been successfully added!')
+                                            console.log("initDataDB>>>>>>>>>>>>>>>>> ", resultOrg)
+
+
+                                        })
+                                        .catch(err => console.error("!!! initDataDB Organization Add Catch err:", err))
+                                })
+                                .catch(err => console.error("!!! initDataDB Role Add Catch err:", err))
 
                         })
+                        .catch(err => console.error("!!! initDataDB Permission Add Catch err:", err))
                 }
             })
-            .catch(err => {
-                console.error("!!! initDataDB Permission Get All Catch err:", err)
-            });
+            .catch(err => console.error("!!! initDataDB Permission Get All Catch err:", err));
 
     }
 
