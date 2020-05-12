@@ -340,7 +340,6 @@ router.post('/resetPassword/verify/', joiValidate(verifyResetPasswordSchema), as
  *  check hash, reset the password
  */
 router.post('/resetPassword/use', joiValidate(useResetPasswordSchema), async (req, res) => {
-    let adminDTO;
     
     return getForgotHash(req.body.hash,true)
         .then(adminId => {
@@ -354,22 +353,46 @@ router.post('/resetPassword/use', joiValidate(useResetPasswordSchema), async (re
             return admin.save();
         })
         .then(admin => {
-            return adminController.auth(admin.email, req.body.password)
-        })
-        .then(admin => {
-            adminDTO = admin;
-            return roleController.getAdmin(admin.roles)
-        })
-        .then(permissions => {
-            delete adminDTO.roles;
-            const token = sign({userId: adminDTO.id});
-            new NZ.Response({user: adminDTO, token, permissions}).send(res);
+           return new NZ.Response(true, 'OK.').send(res);
         })
         .catch(err => {
             console.log('!!!! admin login catch err: ', err);
             new NZ.Response(null, err.message, err.code || 500).send(res);
         });
 });
+
+// router.post('/resetPassword/use', joiValidate(useResetPasswordSchema), async (req, res) => {
+//     let adminDTO;
+    
+//     return getForgotHash(req.body.hash,true)
+//         .then(adminId => {
+//             return adminController.get(adminId, 'id')
+//         })
+//         .then(admin => {
+//             if (!admin) return new NZ.Response(null, 'Hash Invalid, Try resetting again...', 400).send(res);
+//             // else 
+//             // !!! update password !!!
+//             admin.password = req.body.password;
+//             return admin.save();
+//         })
+//         .then(admin => {
+//             return adminController.auth(admin.email, req.body.password)
+//         })
+//         .then(admin => {
+//             adminDTO = admin;
+//             return roleController.getAdmin(admin.roles)
+//         })
+//         .then(permissions => {
+//             delete adminDTO.roles;
+//             const token = sign({userId: adminDTO.id});
+//             new NZ.Response({user: adminDTO, token, permissions}).send(res);
+//         })
+//         .catch(err => {
+//             console.log('!!!! admin login catch err: ', err);
+//             new NZ.Response(null, err.message, err.code || 500).send(res);
+//         });
+// });
+
 
 
 module.exports = router;
