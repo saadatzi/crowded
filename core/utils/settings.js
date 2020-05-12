@@ -1,10 +1,10 @@
 const path = require('path');
 module.exports = {
-	initDataDB: true,
+	initDataDB: false,
 	contact:		{
 		email:		'info@crowdedapp.com',
 		phone:		'+965 9744 8984',
-		address:	'Crowder Technologies CO. <br> MSSS Alddd Complex, <br> Kuwait City',
+		address:	'Crowded Technologies CO. <br> MSSS Alddd Complex, <br> Kuwait City',
 		copyright:	'Crowded Inc.',
 		privacy:	'https://google.com',
 		terms:		'https://google.com',
