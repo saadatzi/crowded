@@ -14,6 +14,8 @@ const {joiValidate} = require('./../utils');
 
 const settings = require('../../utils/settings');
 
+const controllerUtils = require('../../controllers/utils');
+
 
 const Event = require('../../models/Event');
 
@@ -54,8 +56,19 @@ const loginSchema = Joi.object().keys({
     password: JoiConfigs.password,
 });
 
-const forgotSchema = Joi.object().keys({
-    email: JoiConfigs.email(),
+const claimResetPasswordSchema = Joi.object().keys({
+    email: JoiConfigs.email(true),
+});
+
+const verifyResetPasswordSchema = Joi.object().keys({
+    hash: JoiConfigs.title //TODO: secure validate hash
+});
+
+
+const useResetPasswordSchema = Joi.object().keys({
+    hash: JoiConfigs.title, //TODO: secure validate hash
+    password: JoiConfigs.password,
+    passwordConfirm: Joi.ref('password')
 });
 
 
@@ -259,19 +272,19 @@ router.delete('/', verifyTokenPanel(), joiValidate(hasValidIdSchema, 0), authori
 
 
 /**
- *  Forgot Password
+ *  Request a password reset link
  */
 //______________________Forgot Password_____________________//
-router.post('/forgotPassword', joiValidate(forgotSchema, 0), async (req, res) => {
+router.post('/resetPassword/claim', joiValidate(claimResetPasswordSchema, 0), async (req, res) => {
     console.info('API: Forgot Password Admin/init %j', {body: req.body});
-    adminController.get(req.body.email)
-        .then(async user => {
-            let email = '';
-            if (user) {
-                const hash = await controllerUtils.createResetPasswordHash(user.id);
 
-                await controllerUtils.sendEmail(user.email, 'Reset Password', 'reset-password', {
-                    name: user.name,
+    adminController.get(req.body.email, 'email')
+        .then(async admin => {
+            let email = '';
+            if (admin) {
+                const hash = await controllerUtils.createResetPasswordHash(admin.id);
+                await controllerUtils.sendEmail(req.body.email, 'Reset Password', 'resetPassword', {
+                    name: admin.name,
                     logo: settings.email_logo,
                     cdn_domain: settings.cdn_domain,
                     primary_domain: settings.primary_domain,
@@ -282,10 +295,10 @@ router.post('/forgotPassword', joiValidate(forgotSchema, 0), async (req, res) =>
                     contact_project: settings.project_name,
                     contact_privacy: settings.contact.privacy,
                     contact_terms: settings.contact.terms,
-                    link: `${settings.panel_route}panel/reset-password/${hash}`
+                    link: `${settings.panel_route}panel/reset-password-panel/${hash}`
                 });
                 email = 'Email has been sent.';
-                return new NZ.Response(true, `Password has been reset! ${email}`).send(res);
+                return new NZ.Response(true, `Reset-password link generated! ${email}`).send(res);
             } else {
                 return new NZ.Response(false, `${req.body.email} is not valid email!`).send(res);
             }
@@ -293,68 +306,70 @@ router.post('/forgotPassword', joiValidate(forgotSchema, 0), async (req, res) =>
 
         })
         .catch(err => {
-            console.log('!!!! user forgot catch err: ', err);
+            console.log('!!!! admin forgot catch err: ', err);
             new NZ.Response(null, err.message, 400).send(res);
         });
 });
 
 
 /**
- *  reset Password link
- * -get user from hash
- * -remove hash
- * -update Password
- * @return template reset password
+ *  reset Password verify hash
+ * check if the given hash if valid and points to a user
  */
-//______________________Update Admin_____________________//
-router.post('/reset-password/:hash', async (req, res) => {
-    const userId = await getForgotHash(req.params.hash);
-
-    userController.get(userId, 'id')
-        .then(user => {
-            if (!user) return new NZ.Response(null, 'Token Invalid, Try resetting again...', 400).send(res);
-
-            console.error("User Login user:", user);
-            const newToken = sign({deviceId: req.deviceId, userId: user._id});
-            //update device(toke,userId,updateAt)
-            deviceController.update(req.deviceId, {userId: user._id, token: newToken, updateAt: Date.now()})
-                .then(device => {
-                    //interest selected from device to user & merge & unique
-                    user.interests = Array.from(new Set([...user.interests.map(item => item.toString()), ...device.interests.map(item => item.toString())]));
-                    // user.interests.addToSet(device.interests);
-                    //update user lastLogin
-                    user.lastLogin = Date.now();
-                    user.lastInteract = Date.now();
-                    user.save();
-                    //remove selected interest from device
-                    device.interests = [];
-                    device.save();
-                }).catch(err => console.error("User Login update device Catch err:", err));
-            new NZ.Response({
-                access_token: newToken,
-                access_type: 'private',
-                user: userController.dto(user)
-            }).send(res);
+router.post('/resetPassword/verify/', joiValidate(verifyResetPasswordSchema), async (req, res) => {
+    return getForgotHash(req.body.hash)
+        .then(adminId => {
+            console.log('')
+            return adminController.get(adminId, 'id')
+        })
+        .then(admin => {
+            if (!admin) return new NZ.Response(null, 'Hash Invalid, Try resetting again...', 400).send(res);
+            // else
+            return new NZ.Response(true, 'Good to go!').send(res);
 
         })
         .catch(err => {
-            console.log('!!!! user login catch err: ', err);
+            console.log('!!!! admin login catch err: ', err);
             new NZ.Response(null, err.message, 400).send(res);
         });
-
-    const password = req.body.password;
-    if (password.length < 6)
-        return new NZ.Response(null, 'New password length should be at least 6 characters', 400).send(res);
-
-    await generalModel.invalidateResetHash(req.params.token);
-
-    if (user.type == 'admin') {
-        await adminModel.setPassword(user.id, password);
-    } else if (user.type == 'user') {
-        await userModel.setPassword(user.id, password);
-    }
-
-    return new NZ.Response(user.type).send(res);
 });
+
+
+/**
+ *  reset Password use hash
+ *  check hash, reset the password
+ */
+router.post('/resetPassword/use', joiValidate(useResetPasswordSchema), async (req, res) => {
+    let adminDTO;
+
+    return getForgotHash(req.body.hash,true)
+        .then(adminId => {
+            return adminController.get(adminId, 'id')
+        })
+        .then(admin => {
+            if (!admin) return new NZ.Response(null, 'Hash Invalid, Try resetting again...', 400).send(res);
+            // else
+            // !!! update password !!!
+            admin.password = req.body.password;
+            return admin.save();
+        })
+        .then(admin => {
+            return adminController.auth(admin.email, req.body.password)
+        })
+        .then(admin => {
+            adminDTO = admin;
+            return roleController.getAdmin(admin.roles)
+        })
+        .then(permissions => {
+            delete adminDTO.roles;
+            const token = sign({userId: adminDTO.id});
+            new NZ.Response({user: adminDTO, token, permissions}).send(res);
+        })
+        .catch(err => {
+            console.log('!!!! admin login catch err: ', err);
+            new NZ.Response(null, err.message, err.code || 500).send(res);
+        });
+});
+
 
 module.exports = router;

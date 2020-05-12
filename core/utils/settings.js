@@ -94,6 +94,7 @@ module.exports = {
 
 
 	email_logo:		'https://media.kids.dev.nizek.com/_email/Kidadvisor-white.png',
+	// TODO!
 
 	db_date_format: 	'YYYY-MM-DD HH:mm:ss',
 	date_format:		'DD-MM-YYYY',

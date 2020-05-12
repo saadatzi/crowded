@@ -20,17 +20,17 @@ const insertForgotHash = async (hash, userId) => {
 };
 
 
-const getForgotHash = async (hash) => {
-    return new Promise(resolve => {
+const getForgotHash = async (hash, shouldRemove) => {
+    return new Promise((resolve,reject) => {
         hashForgotPassCache.get(hash, async function (err, result) {
             if (err) {
-                throw err
+                reject(err)
             }
             if (result) {
-                // hashForgotPassCache.del(hash, function(err) {console.error("!!!! remove hash forgot Password catch err:", err)});
+                if(shouldRemove) hashForgotPassCache.del(hash, function(err) {console.error("!!!! remove hash forgot Password catch err:", err)});
                 resolve(result);
             }
-            throw {code: 400, message: 'The link has expired or invalid request!'}
+            reject({code: 400, message: 'The link has expired or invalid request!'});
         });
     });
 };
