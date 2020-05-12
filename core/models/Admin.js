@@ -71,6 +71,8 @@ AdminSchema.pre('save', function (next) {
  */
 AdminSchema.pre('findOneAndUpdate', function (next) {
     var admin = this.getUpdate();
+    console.warn('######################## pre findOneAndUpdate', admin);
+
     // only hash the password if it has been modified (or is new)
     if (!admin.hasOwnProperty('password')) return next();
 
@@ -238,10 +240,15 @@ AdminSchema.static({
      * @param {String} email
      * @api private
      */
-    getByEmail: async function (email) {
+    async getByEmail (email) {
         return await this.findOne({email: email})
-            .then(user => user)
-            .catch(err => console.error("!!!!!!!! getByEmail catch err: ", err));
+            .then(user => {
+                return user;
+            })
+            .catch(err => {
+                console.error("!!!!!!!! getByEmail catch err: ", err)
+                throw err;
+            });
     },
 
     /**
