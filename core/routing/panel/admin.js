@@ -264,8 +264,6 @@ router.delete('/', verifyTokenPanel(), joiValidate(hasValidIdSchema, 0), authori
 //______________________Forgot Password_____________________//
 router.post('/forgotPassword', joiValidate(forgotSchema, 0), async (req, res) => {
     console.info('API: Forgot Password Admin/init %j', {body: req.body});
-
-
     adminController.get(req.body.email)
         .then(async user => {
             let email = '';
@@ -309,8 +307,8 @@ router.post('/forgotPassword', joiValidate(forgotSchema, 0), async (req, res) =>
  * @return template reset password
  */
 //______________________Update Admin_____________________//
-router.post('/reset-password/:token', async (req, res) => {
-    const userId = await getForgotHash(req.params.token);
+router.post('/reset-password/:hash', async (req, res) => {
+    const userId = await getForgotHash(req.params.hash);
 
     userController.get(userId, 'id')
         .then(user => {

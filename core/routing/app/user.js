@@ -221,7 +221,7 @@ router.get('/', function (req, res) {
  *  Forgot Password
  */
 //______________________Forgot Password_____________________//
-router.post('/forgotPassword',joiValidate(forgotSchema, 0), verifyToken(), async (req, res) => {
+router.post('/forgotPassword',joiValidate(forgotSchema), verifyToken(), async (req, res) => {
     console.info('API: Forgot Password User/init %j', {body: req.body});
 
 
@@ -229,7 +229,7 @@ router.post('/forgotPassword',joiValidate(forgotSchema, 0), verifyToken(), async
         .then(async user => {
             let email = '';
             if (user) {
-                const hash = await controllerUtils.createResetPasswordHash( user.id);
+                const hash = await controllerUtils.createResetPasswordHash(user.id);
 
                 await controllerUtils.sendEmail(user.email, 'Reset Password', 'reset-password', {
                     name: 			user.name,

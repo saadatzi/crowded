@@ -55,7 +55,6 @@ BankNameSchema.static({
                 }
             }
         ])
-            .exec()
             .catch(err => {
                 console.error(`!!!BankName getMany failed with options: ${JSON.stringify(options)}`, err);
             });
