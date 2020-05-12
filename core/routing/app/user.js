@@ -14,6 +14,9 @@ const {sign, verifyToken} = require('../../utils/validation');
 const settings = require('../../utils/settings');
 const nationalities = require('../../utils/nationalities');
 
+const {getForgotHash} = require('../../utils/cacheLayer')
+
+
 
 const userRegisterSchema = Joi.object().keys({
     firstname:	    JoiConfigs.title,
@@ -40,6 +43,21 @@ const forgotSchema = Joi.object().keys({
 const changePassSchema = Joi.object().keys({
     oldPassword:    JoiConfigs.password,
     password:       JoiConfigs.password,
+});
+
+const claimResetPasswordSchema = Joi.object().keys({
+    email: JoiConfigs.email(true),
+});
+
+const verifyResetPasswordSchema = Joi.object().keys({
+    hash: JoiConfigs.title //TODO: secure validate hash
+});
+
+
+const useResetPasswordSchema = Joi.object().keys({
+    hash: JoiConfigs.title, //TODO: secure validate hash
+    password: JoiConfigs.password,
+    passwordConfirm: Joi.ref('password')
 });
 
 /**
@@ -218,48 +236,6 @@ router.get('/', function (req, res) {
 });
 
 /**
- *  Forgot Password
- */
-//______________________Forgot Password_____________________//
-router.post('/forgotPassword',joiValidate(forgotSchema, 0), verifyToken(), async (req, res) => {
-    console.info('API: Forgot Password User/init %j', {body: req.body});
-
-
-    userController.get(req.body.email)
-        .then(async user => {
-            let email = '';
-            if (user) {
-                const hash = await controllerUtils.createResetPasswordHash( user.id);
-
-                await controllerUtils.sendEmail(user.email, 'Reset Password', 'reset-password', {
-                    name: 			user.name,
-                    logo:			settings.email_logo,
-                    cdn_domain:		settings.cdn_domain,
-                    primary_domain:	settings.primary_domain,
-                    contact_email:	settings.contact.email,
-                    contact_phone:	settings.contact.phone,
-                    contact_address:settings.contact.address,
-                    contact_copy:	settings.contact.copyright,
-                    contact_project:settings.project_name,
-                    contact_privacy:settings.contact.privacy,
-                    contact_terms:	settings.contact.terms,
-                    link: 			`${settings.panel_route}panel/reset-password-app/${hash}`
-                });
-                email = 'Email has been sent.';
-                return new NZ.Response(true, `Password has been reset! ${email}`).send(res);
-            } else {
-                return new NZ.Response(false, `${req.body.email} is not valid email!`).send(res);
-            }
-
-
-        })
-        .catch(err => {
-            console.log('!!!! user forgot catch err: ', err);
-            new NZ.Response(null, err.message, 400).send(res);
-        });
-});
-
-/**
  * Get User Profile
  * @return User
  */
@@ -307,6 +283,91 @@ router.get('/nationalities', verifyToken(), function (req, res) {
     console.info('API: Get Nationalities User/init');
     const lang = req.headers['lang'] ? (req.headers['lang']).toLowerCase() : 'en';
     new NZ.Response({items: nationalities[`title_${lang}`]}).send(res);
+});
+
+
+/**
+ *  Request a password reset link 
+ */
+//______________________Forgot Password_____________________//
+router.post('/resetPassword/claim', joiValidate(claimResetPasswordSchema, 0), async (req, res) => {
+    console.info('API: Forgot Password Admin/init %j', {body: req.body});
+
+    userController.get(req.body.email, 'email')
+        .then(async user => {
+            let email = '';
+            if (user) {
+                const hash = await controllerUtils.createResetPasswordHash(user.id);
+                await controllerUtils.sendEmail(req.body.email, 'Reset Password', 'resetPassword', {
+                    name: user.name,
+                    logo: settings.email_logo,
+                    cdn_domain: settings.cdn_domain,
+                    primary_domain: settings.primary_domain,
+                    contact_email: settings.contact.email,
+                    contact_phone: settings.contact.phone,
+                    contact_address: settings.contact.address,
+                    contact_copy: settings.contact.copyright,
+                    contact_project: settings.project_name,
+                    contact_privacy: settings.contact.privacy,
+                    contact_terms: settings.contact.terms,
+                    link: `${settings.panel_route}panel/reset-password-app/${hash}`
+                });
+                email = 'Email has been sent.';
+                return new NZ.Response(true, `Reset-password link generated! ${email}`).send(res);
+            } else {
+                return new NZ.Response(false, `${req.body.email} is not valid email!`).send(res);
+            }
+
+
+        })
+        .catch(err => {
+            console.log('!!!! user forgot catch err: ', err);
+            new NZ.Response(null, err.message, 400).send(res);
+        });
+});
+
+
+/**
+ * reset Password verify hash
+ * check if the given hash if valid and points to a user
+ */
+router.post('/resetPassword/verify/', joiValidate(verifyResetPasswordSchema, 0), async (req, res) => {
+    return getForgotHash(req.body.hash)
+        .then(userId => {
+            return userController.get(userId, 'id')
+        })
+        .then(user => {
+            if (!user) return new NZ.Response(null, 'Hash Invalid, Try resetting again...', 400).send(res);
+            // else 
+            return new NZ.Response(true, 'Good to go!').send(res);
+
+        })
+        .catch(err => {
+            console.log('!!!! user verify hash catch err: ', err);
+            new NZ.Response(null, err.message, 400).send(res);
+        });
+});
+
+
+/**
+ *  reset Password use hash
+ *  check hash, reset the password
+ */
+router.post('/resetPassword/use', joiValidate(useResetPasswordSchema), async (req, res) => {
+
+    try {
+        let userId = await getForgotHash(req.body.hash, true);
+        let user = await userController.get(userId, 'id')
+        if (!user) return new NZ.Response(null, 'Hash Invalid, Try resetting again...', 400).send(res);
+        // else 
+        // !!! update password !!!
+        user.password = NZ.sha512Hmac(req.body.password, user.salt);
+        await user.save();
+        return new NZ.Response(true,'OK.').send(res);
+    } catch (err) {
+        console.log('!!!! user use hash catch err: ', err);
+        new NZ.Response(null, err.message, 400).send(res);
+    }
 });
 
 
