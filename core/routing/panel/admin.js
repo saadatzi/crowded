@@ -56,12 +56,17 @@ const loginSchema = Joi.object().keys({
     password: JoiConfigs.password,
 });
 
-const forgotSchema = Joi.object().keys({
+const claimResetPasswordSchema = Joi.object().keys({
     email: JoiConfigs.email(true),
 });
 
+const verifyResetPasswordSchema = Joi.object().keys({
+    hash: JoiConfigs.title //TODO: secure validate hash
+});
+
+
 const useResetPasswordSchema = Joi.object().keys({
-    hash: JoiConfigs.title,
+    hash: JoiConfigs.title, //TODO: secure validate hash
     password: JoiConfigs.password,
     passwordConfirm: Joi.ref('password')
 });
@@ -270,7 +275,7 @@ router.delete('/', verifyTokenPanel(), joiValidate(hasValidIdSchema, 0), authori
  *  Request a password reset link 
  */
 //______________________Forgot Password_____________________//
-router.post('/resetPassword/claim', joiValidate(forgotSchema, 0), async (req, res) => {
+router.post('/resetPassword/claim', joiValidate(claimResetPasswordSchema, 0), async (req, res) => {
     console.info('API: Forgot Password Admin/init %j', {body: req.body});
 
     adminController.get(req.body.email, 'email')
@@ -311,7 +316,7 @@ router.post('/resetPassword/claim', joiValidate(forgotSchema, 0), async (req, re
  *  reset Password verify hash
  * check if the given hash if valid and points to a user
  */
-router.post('/resetPassword/verify/', async (req, res) => {
+router.post('/resetPassword/verify/', joiValidate(verifyResetPasswordSchema), async (req, res) => {
     return getForgotHash(req.body.hash)
         .then(adminId => {
             console.log('')
