@@ -296,7 +296,69 @@ const interestController = require('./controllers/interest');
                     return permissionController.add(initPermission)
                         .then(resultPermissions => {
                             console.log("initDataDB>>>>>>>>>>>>>>>>> ", resultPermissions.length + ' Permission has been successfully added!')
-                            console.log("initDataDB>>>>>>>>>>>>>>>>> ", resultPermissions)
+                            /*
+                            * {
+	"name": "super_admin",
+	"permissions": [
+		{
+			"permissionId": "5eb00048fdc640619bae0fd7",
+			"accessLevel": 143
+		},
+		{
+			"permissionId": "5eb00048fdc640619bae0fd8",
+			"accessLevel": 175
+		},
+		{
+			"permissionId": "5eb00048fdc640619bae0fd9",
+			"accessLevel": 143
+		},
+		{
+			"permissionId": "5eb00048fdc640619bae0fda",
+			"accessLevel": 143
+		},
+		{
+			"permissionId": "5eb00048fdc640619bae0fdb",
+			"accessLevel": 175
+		},
+		{
+			"permissionId": "5eb00048fdc640619bae0fdc",
+			"accessLevel": 143
+		},
+		{
+			"permissionId": "5eb00048fdc640619bae0fdd",
+			"accessLevel": 143
+		},
+		{
+			"permissionId": "5eb00048fdc640619bae0fde",
+			"accessLevel": 143
+		},
+		{
+			"permissionId": "5eb00048fdc640619bae0fdf",
+			"accessLevel": 143
+		},
+		{
+			"permissionId": "5eb00048fdc640619bae0fe0",
+			"accessLevel": 175
+		}
+	]
+}*/
+                            const super_admin = [], org_admin = [], agent = [];
+                            resultPermissions.map(rp => {
+                                switch (rp.title) {
+                                    case 'ADMIN':
+                                        super_admin.push({permissionId: rp._id, accessLevel: 143});
+                                        org_admin.push({permissionId: rp._id, accessLevel: 134});
+                                        agent.push({permissionId: rp._id, accessLevel: 134});
+                                        break;
+                                    case 'Mangoes':
+                                    case 'Papayas':
+                                        console.log('Mangoes and papayas are $2.79 a pound.');
+                                        // expected output: "Mangoes and papayas are $2.79 a pound."
+                                        break;
+                                    default:
+                                        console.log(`Sorry, we are out of ${expr}.`);
+                                }
+                            })
                         })
                         .catch(err => {
                             console.error("!!! initDataDB Permission Add Catch err:", err)

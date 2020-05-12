@@ -81,7 +81,7 @@ const activateSchema = Joi.object().keys({
  *  login Panel
  */
 //______________________Login Panel_____________________//
-router.post('/login', joiValidate(loginSchema, 0), async (req, res) => {
+router.post('/login', joiValidate(loginSchema), async (req, res) => {
     console.info('API: Login Panel User/init %j', {body: req.body});
 
     adminController.auth(req.body.email, req.body.password)
@@ -220,7 +220,7 @@ router.post('/', verifyTokenPanel(), joiValidate(listSchema, 0), async (req, res
 /**
  *  Admin Detail
  */
-router.get('/:id', verifyTokenPanel(), async (req, res) => {
+router.get('/:id', verifyTokenPanel(), authorization([{ADMIN: 'R'}]), async (req, res) => {
     console.info('API:  Admin Detail/init %j', {params: req.params});
 
     adminController.getOnePanel(req.params.id)
