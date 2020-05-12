@@ -40,8 +40,12 @@ const updateSchema = Joi.object().keys({
     roles: JoiConfigs.array(false, JoiConfigs.isMongoId),
     call: JoiConfigs.array(false, callSchema),
     organizationId: JoiConfigs.isMongoIdOpt,
+    password: Joi.when('oldPassword', {
+        is: '',
+        then: Joi.string().allow(''),
+        otherwise: JoiConfigs.passwordOpt
+    }),
     oldPassword: JoiConfigs.passwordOpt,
-    password: Joi.when('oldPassword', { is: '', then: Joi.string().allow('').optional(), otherwise: JoiConfigs.passwordOpt}),
 }).required().with('password', 'oldPassword');
 
 const hasValidIdSchema = Joi.object().keys({
@@ -60,13 +64,13 @@ const forgotSchema = Joi.object().keys({
 
 
 const listSchema = JoiConfigs.schemas.list({
-    filters:{
+    filters: {
         status: Joi.number().valid(0, 1, 2).default(1),
     },
-    sorts:{
-        createdAt: Joi.number().valid(-1,1),
+    sorts: {
+        createdAt: Joi.number().valid(-1, 1),
     },
-    defaultSorts:{
+    defaultSorts: {
         createdAt: -1
     }
 });
@@ -204,7 +208,7 @@ router.put('/activate', joiValidate(activateSchema), verifyTokenPanel(), authori
 /**
  *  List Admins
  */
-router.post('/', verifyTokenPanel(), joiValidate(listSchema,0), async (req, res) => {
+router.post('/', verifyTokenPanel(), joiValidate(listSchema, 0), async (req, res) => {
     console.info('API: List Admin/init %j', {body: req._body});
 
     adminController.getManyPanel(req._body)
