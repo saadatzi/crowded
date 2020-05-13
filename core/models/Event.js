@@ -98,18 +98,52 @@ EventSchema.method({
  */
 EventSchema.static({
 
+
     /*********************************************/
     /*           FOR DASHBOARD START             */
     /*********************************************/
-    countTotal(optFilter) {
-        return optFilter;
+
+ /**
+     * Event list Group
+     */
+    async countListGroup(userId, optFilter) {
+        const baseCriteria = {status: {$in: [0, 1]}};
+
+
+        return await this.aggregate([
+            {$match: baseCriteria},
+            // {$match: optFilter.filters},
+            {$count: 'total'}
+        ])
+            .then(result => {
+              return result[0].total;
+            })
+            .catch(err => console.error(err));
+
+        },
+
+        /**
+     * Event list OWN/Any
+     */
+    countListOwnAny(userId, optFilter, accessLevel) {
+        console.log(userId, optFilter, accessLevel);
+        const ownAny = accessLevel === 'OWN' ? {owner: mongoose.Types.ObjectId(userId), status: {$in: [0, 1]}} : {status: {$in: [0, 1]}};
+        console.log(ownAny)
+        return this.aggregate([
+            {$match: ownAny},
+            // {$match: optFilter.filters},
+            {$count: 'total'}
+        ])
+            .then(result => {
+               return result[0].total;
+            })
+            .catch(err => console.error(err));
     },
 
 
     /*********************************************/
     /*            FOR DASHBOARD END              */
     /*********************************************/
-
 
 
 

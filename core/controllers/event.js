@@ -108,6 +108,32 @@ eventController.prototype.list = async (userId, optFilter, accessLevel) => {
 };
 
 /**
+ * countTotal Events (OWN,GROUP,ANY)
+ *
+ * @param {ObjectId} userId
+ * @param {Object} optFilter
+ * @param {String} accessLevel
+ *
+ * @return Events
+ */
+eventController.prototype.countTotal =  async (userId, optFilter, accessLevel) => {
+    if (accessLevel === 'GROUP') {
+        return await Event.countListGroup(userId, optFilter)
+            .catch(err => {
+                console.error("!!!Event countListGroup failed: ", err);
+                throw err;
+            })
+    } else {
+        console.log(">>>>>>>>>>>>>>>> accessLevel: %s", accessLevel);
+        return await Event.countListOwnAny(userId, optFilter, accessLevel)
+            .catch(err => {
+                console.error("!!!Event countListOwnAny failed: ", err);
+                throw err;
+            })
+    }
+};
+
+/**
  * getById Event
  *
  * @param {ObjectId} eventId

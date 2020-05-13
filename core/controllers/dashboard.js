@@ -2,10 +2,7 @@
  * Module dependencies.
  */
 
-let Admin = require('../models/Admin');
-let Event = require('../models/Event');
-let Transaction = require('../models/Transaction');
-
+const eventController = require('./event');
 
 const dashboardController = function () {
 };
@@ -14,11 +11,11 @@ const dashboardController = function () {
  * Login User Panel
  *
  */
-dashboardController.prototype.getStats = async (optFilter) => {
+dashboardController.prototype.getStats = async (userId,optFilter,accessLevel) => {
 
     try {
 
-        let totalEventsCount = Event.countTotal(optFilter);
+        let totalEventsCount = await eventController.countTotal(userId, optFilter, accessLevel.EVENT[0].R.level);
 
 
 

@@ -37,11 +37,11 @@ const getStatsSchema = Joi.object().keys({
 /**
  *  Get everything
  */
-router.post('/', verifyTokenPanel(), joiValidate(getStatsSchema, 0), async (req, res) => {
+router.post('/', verifyTokenPanel(), joiValidate(getStatsSchema, 0), authorization([{EVENT: 'R'}]), async (req, res) => {
     console.info('API: Dashboard getStats/init %j', { body: req._body });
 
     try {
-        let stats = await dashboardController.getStats(req._body);
+        let stats = await dashboardController.getStats(req.userId, req._body, req.auth.accessLevel);
         new NZ.Response(stats).send(res);
     }
     catch (err) {
