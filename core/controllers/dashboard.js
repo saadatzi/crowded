@@ -17,10 +17,12 @@ dashboardController.prototype.getStats = async (userId,optFilter,accessLevel) =>
 
         let totalEventsCount = await eventController.countTotal(userId, optFilter, accessLevel.EVENT[0].R.level);
 
+        let waitingForApprovalCount = await eventController.countWatingForApproval(userId, optFilter, accessLevel.EVENT[0].R.level);
 
 
         return {
-            totalEventsCount
+            totalEventsCount,
+            waitingForApprovalCount
         };
     } catch (err) {
         console.error('getStat Failed', err);

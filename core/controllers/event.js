@@ -134,6 +134,23 @@ eventController.prototype.countTotal =  async (userId, optFilter, accessLevel) =
 };
 
 /**
+ * countTotal Events (OWN,GROUP,ANY)
+ *
+ * @param {ObjectId} userId
+ * @param {Object} optFilter
+ * @param {String} accessLevel
+ *
+ * @return NotApprovedUsersCount
+ */
+eventController.prototype.countWatingForApproval = async(userId,optFilter,accessLevel) => {
+    return await Event.countWaitingForApprovalOwnAny(userId,optFilter,accessLevel)
+        .catch(err => {
+            console.error("!!!Event countWaitingForApprovalOwnAny failed: ", err);
+            throw err;
+        })
+};
+
+/**
  * getById Event
  *
  * @param {ObjectId} eventId

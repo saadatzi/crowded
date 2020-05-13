@@ -109,20 +109,51 @@ EventSchema.static({
     async countListGroup(userId, optFilter) {
         const baseCriteria = {status: {$in: [0, 1]}};
 
-
+        console.log("async countListGroup(userId, optFilter) {const baseCriteria = {status: {$in: [0, 1]}};");
         return await this.aggregate([
             {$match: baseCriteria},
-            // {$match: optFilter.filters},
+            // {
+            //     $lookup: {
+            //         from: 'admins',
+            //         pipeline: [
+            //             {$match: {_id: mongoose.Types.ObjectId(userId)}},
+            //         ],
+            //         as: 'getAdmin'
+            //     }
+            // },
+            // {$unwind: "$getAdmin"},
+            // {
+            //     $lookup: {
+            //         from: 'admins',
+            //         let: {orgId: "$getAdmin.organizationId", owner: "$owner"},
+            //         pipeline: [
+
+            //             {$match: {$expr: {$eq: ["$$orgId", "$organizationId"]}}},
+            //             {$match: {$expr: {$eq: ["$$owner", "$_id"]}}},
+            //             // {$project: {_id: 0, status: "$status"}},
+            //         ],
+            //         as: 'getOrgAdmin'
+            //     }
+            // },
+            // {$unwind: {path: "$getOrgAdmin", preserveNullAndEmptyArrays: false}},
+            // // {$unwind: {path: "$images", preserveNullAndEmptyArrays: true}},
+            // // {$sort: {'images.order': 1}},
+            // {
+            //     $group: {
+            //         _id: "$_id",
+            //     }},
+            // // {$match: optFilter.filters},
             {$count: 'total'}
         ])
             .then(result => {
+                if(!result.length) return 0;
               return result[0].total;
             })
             .catch(err => console.error(err));
 
         },
 
-        /**
+    /**
      * Event list OWN/Any
      */
     countListOwnAny(userId, optFilter, accessLevel) {
@@ -135,7 +166,106 @@ EventSchema.static({
             {$count: 'total'}
         ])
             .then(result => {
+                if (result.length == 0) return 0;
                return result[0].total;
+            })
+            .catch(err => console.error(err));
+    },
+
+    /**
+     * Waiting for Approval Own/Any
+     */
+    countWaitingForApprovalOwnAny(userId, optFilter, accessLevel) {
+        console.log(userId, optFilter, accessLevel);
+        const accessLevelMatch = { status: { $in: [0, 1] } };
+
+        if (accessLevel === 'OWN') accessLevel.owner = mongoose.Types.ObjectId(userId);
+
+        return this.aggregate([
+            { $match: accessLevelMatch },
+            {
+                $lookup: {
+                    from: 'userevents',
+                    let: {primaryEventId: "$_id"},
+                    pipeline: [
+                        {$match: {$expr: {$eq: ["$$primaryEventId", "$eventId"]}}},
+                        {$match: {status: 'APPLIED'}},
+                        {$count: 'total'},
+                    ],
+                    as: 'getUserEvents'
+                }
+            },
+            {
+                $group: {
+                    _id: "$_id",
+                    _total: { $first: "$getUserEvents.total" },
+                }
+            },
+            {
+                $project:{
+                    _id:1,
+                    total:{$arrayElemAt:['$_total',0]}
+                }
+            },
+            {
+                $group:{
+                    _id:1,
+                    total: {$sum:"$total"}
+                }
+            }
+        ])
+            .then(result => {
+                if (result.length == 0) return 0;
+                return result[0].total;
+            })
+            .catch(err => console.error(err));
+    },
+
+    /**
+     * Waiting for Approval group
+     */
+    countWaitingForApprovalGroup(userId, optFilter) {
+        console.log(userId, optFilter, accessLevel);
+        const accessLevelMatch = { status: { $in: [0, 1] } };
+
+        if (accessLevel === 'OWN') accessLevel.owner = mongoose.Types.ObjectId(userId);
+
+        return this.aggregate([
+            { $match: accessLevelMatch },
+            {
+                $lookup: {
+                    from: 'userevents',
+                    let: {primaryEventId: "$_id"},
+                    pipeline: [
+                        {$match: {$expr: {$eq: ["$$primaryEventId", "$eventId"]}}},
+                        {$match: {status: 'APPLIED'}},
+                        {$count: 'total'},
+                    ],
+                    as: 'getUserEvents'
+                }
+            },
+            {
+                $group: {
+                    _id: "$_id",
+                    _total: { $first: "$getUserEvents.total" },
+                }
+            },
+            {
+                $project:{
+                    _id:1,
+                    total:{$arrayElemAt:['$_total',0]}
+                }
+            },
+            {
+                $group:{
+                    _id:1,
+                    total: {$sum:"$total"}
+                }
+            }
+        ])
+            .then(result => {
+                if (result.length == 0) return 0;
+                return result[0].total;
             })
             .catch(err => console.error(err));
     },
