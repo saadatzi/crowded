@@ -484,16 +484,8 @@ const settingController = require('./controllers/setting');
                                                     organizationId:	nizekOrg,
                                                 }
                                             ];
-                                            // adminController.add(newAdmin)
-                                            //     .then(resultAdmin => {
-                                            //         console.log("initDataDB>>>>>>>>>>>>>>>>> ", resultAdmin.length + ' Admin has been successfully added!')
-                                            //     })
-                                            //     .catch(err => console.error("!!! initDataDB Admin Add Catch err:", err))
                                             newAdmin.map(admin => {
                                                 adminController.add(admin)
-                                                    .then(resultAdmin => {
-                                                        console.log("initDataDB>>>>>>>>>>>>>>>>> ", resultAdmin + ' Admin has been successfully added!')
-                                                    })
                                                     .catch(err => console.error("!!! initDataDB Admin Add Catch err:", err))
                                             })
                                         })

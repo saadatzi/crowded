@@ -291,5 +291,24 @@ eventController.prototype.reorder = async (eventId, newOrders) => {
     return true
 };
 
+/**
+ * get Event customer
+ *
+ * @param {ObjectId} userId
+ * @param {Object} optFilter
+ *
+ * @return Event
+ */
+eventController.prototype.getCustomerEvent = async (userId, optFilter) => {
+
+    return await Event.getAllCustomerEvent(userId, optFilter)
+        .then(async event => event)
+        .catch(err => {
+            console.error("!!!Event getCustomerEvent failed: ", err);
+            throw err;
+        })
+
+};
+
 module.exports = new eventController();
 const userEventController = require('./userEvent');

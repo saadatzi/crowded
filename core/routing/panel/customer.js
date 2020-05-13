@@ -11,6 +11,7 @@ const { joiValidate } = require('./../utils');
 
 // Grab controller
 const userController = require('../../controllers/user');
+const eventController = require('../../controllers/event');
 
 const { verifyTokenPanel } = require('../../utils/validation');
 
@@ -129,7 +130,7 @@ router.delete('/:id/bankAccounts', verifyTokenPanel(), joiValidate(detailSchema,
  Get users events (customers)
  */
 router.post('/', joiValidate(eventListSchema), verifyTokenPanel(), async (req, res) => {
-    userController.getManyPanel(req._body)
+    eventController.getCustomerEvent(req._body)
         .then(result => {
             new NZ.Response(result).send(res);
         })
