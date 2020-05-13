@@ -10,6 +10,7 @@ const EventSchema = new Schema({
     title_en: String,
     desc_ar: String,
     desc_en: String,
+    imagePicker: String,
     images: [{
         url: String,
         order: {type: Number, default: 1},
@@ -273,12 +274,12 @@ EventSchema.static({
                     as: 'getArea'
                 }
             },
-            {$unwind: "$images"},
-            {$sort: {'images.order': 1}},
+            // {$unwind: "$images"},
+            // {$sort: {'images.order': 1}},
             {
                 $group: {
                     _id: "$_id",
-                    image: {$first: {url: {$concat: [settings.media_domain, "$images.url"]}}}, //$push
+                    image: {$first: {url: {$concat: [settings.media_domain, "$imagePicker"]}}}, //$push
                     title: {$first: `$title_${options.lang}`},
                     // dec: {$first: `$desc_${options.lang}`},
                     value: {$first: "$value"},
@@ -334,7 +335,6 @@ EventSchema.static({
             },
             // {$sort: {id: -1}},
         ])
-            // .exec()
             .then(events => events)
             .catch(err => console.error("getAllMyInterestEvent  Catch", err));
     },
@@ -389,12 +389,12 @@ EventSchema.static({
             {$sort: {createdAt: -1}},
             {$skip: limit * page},
             {$limit: limit + 1},
-            {$unwind: "$images"},
-            {$sort: {'images.order': 1}},
+            // {$unwind: "$images"},
+            // {$sort: {'images.order': 1}},
             {
                 $group: {
                     _id: "$_id",
-                    image: {$first: {url: {$concat: [settings.media_domain, "$images.url"]}}}, //$push
+                    image: {$first: {url: {$concat: [settings.media_domain, "$imagePicker"]}}}, //$push
                     title: {$first: `$title_${lang}`},
                     value: {$first: {$toString: "$value"}},
                     attendance: {$first: `$attendance`},
@@ -501,12 +501,12 @@ EventSchema.static({
             {$match: ownAny},
             {$match: regexMatch},
             {$match: optFilter.filters},
-            {$unwind: "$images"},
-            {$sort: {'images.order': 1}},
+            // {$unwind: "$images"},
+            // {$sort: {'images.order': 1}},
             {
                 $group: {
                     _id: "$_id",
-                    image: {$first: {url: {$concat: [settings.media_domain, "$images.url"]}}},
+                    image: {$first: {url: {$concat: [settings.media_domain, "$imagePicker"]}}},
                     title_en: {$first: `$title_en`},
                     status: {$first: `$status`},
                 }
@@ -619,12 +619,12 @@ EventSchema.static({
                 }
             },
             {$unwind: {path: "$getOrgAdmin", preserveNullAndEmptyArrays: false}},
-            {$unwind: {path: "$images", preserveNullAndEmptyArrays: true}},
-            {$sort: {'images.order': 1}},
+            // {$unwind: {path: "$images", preserveNullAndEmptyArrays: true}},
+            // {$sort: {'images.order': 1}},
             {
                 $group: {
                     _id: "$_id",
-                    image: {$first: {url: {$concat: [settings.media_domain, "$images.url"]}}},
+                    image: {$first: {url: {$concat: [settings.media_domain, "$imagePicker"]}}},
                     title_en: {$first: `$title_en`},
                     status: {$first: `$status`},
                 }
@@ -945,12 +945,12 @@ EventSchema.static({
                 }
             },
             {$unwind: {path: "$getUserEvents", preserveNullAndEmptyArrays: false}},
-            {$unwind: "$images"},
-            {$sort: {'images.order': 1}},
+            // {$unwind: "$images"},
+            // {$sort: {'images.order': 1}},
             {
                 $group: {
                     _id: "$_id",
-                    image: {$first: {url: {$concat: [settings.media_domain, "$images.url"]}}}, //$push
+                    image: {$first: {url: {$concat: [settings.media_domain, "$imagePicker"]}}}, //$push
                     title_en: {$first: `$title_en`},
                     value: {$first: {$toString: "$value"}},
                     attendance: {$first: `$attendance`},
