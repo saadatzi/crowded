@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const settings = require('../utils/settings');
 
-const StaticpageSchema = new Schema({
+const StaticPageSchema = new Schema({
     alias: { type: String, required: true, unique:true},
     name_en: { type: String, required: true },
     name_ar: { type: String, required: true },
@@ -19,13 +19,13 @@ const StaticpageSchema = new Schema({
 /**
  * Methods
  */
-StaticpageSchema.method({
+StaticPageSchema.method({
 });
 
 /**
  * Statics
  */
-StaticpageSchema.static({
+StaticPageSchema.static({
     /**
     * Find Staicpage
     *
@@ -53,7 +53,7 @@ StaticpageSchema.static({
 
     getByAlias(alias) {
         return this.findOne({ alias })
-            .then(staticpage => staticpage)
+            .then(staticPage => staticPage)
             .catch(err => console.error("!!!!!!!! getByAlias catch err: ", err));
     },
 
@@ -111,6 +111,6 @@ StaticpageSchema.static({
 
 });
 
-const Staticpage = mongoose.model('Staticpage', StaticpageSchema);
+const StaticPage = mongoose.model('StaticPage', StaticPageSchema);
 
-module.exports = Staticpage;
+module.exports = StaticPage;

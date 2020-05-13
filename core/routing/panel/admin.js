@@ -42,8 +42,8 @@ const updateSchema = Joi.object().keys({
     roles: JoiConfigs.array(false, JoiConfigs.isMongoId),
     call: JoiConfigs.array(false, callSchema),
     organizationId: JoiConfigs.isMongoIdOpt,
+    password: JoiConfigs.passwordOpt,
     oldPassword: JoiConfigs.passwordOpt,
-    password: Joi.when('oldPassword', { is: '', then: Joi.string().allow(''), otherwise: JoiConfigs.password}),
 }).required().with('password', 'oldPassword');
 
 const hasValidIdSchema = Joi.object().keys({
@@ -73,13 +73,13 @@ const useResetPasswordSchema = Joi.object().keys({
 
 
 const listSchema = JoiConfigs.schemas.list({
-    filters:{
+    filters: {
         status: Joi.number().valid(0, 1, 2).default(1),
     },
-    sorts:{
-        createdAt: Joi.number().valid(-1,1),
+    sorts: {
+        createdAt: Joi.number().valid(-1, 1),
     },
-    defaultSorts:{
+    defaultSorts: {
         createdAt: -1
     }
 });
@@ -94,7 +94,7 @@ const activateSchema = Joi.object().keys({
  *  login Panel
  */
 //______________________Login Panel_____________________//
-router.post('/login', joiValidate(loginSchema, 0), async (req, res) => {
+router.post('/login', joiValidate(loginSchema), async (req, res) => {
     console.info('API: Login Panel User/init %j', {body: req.body});
 
     adminController.auth(req.body.email, req.body.password)
@@ -217,7 +217,7 @@ router.put('/activate', joiValidate(activateSchema), verifyTokenPanel(), authori
 /**
  *  List Admins
  */
-router.post('/', verifyTokenPanel(), joiValidate(listSchema,0), async (req, res) => {
+router.post('/', verifyTokenPanel(), joiValidate(listSchema, 0), async (req, res) => {
     console.info('API: List Admin/init %j', {body: req._body});
 
     adminController.getManyPanel(req._body)
@@ -233,7 +233,7 @@ router.post('/', verifyTokenPanel(), joiValidate(listSchema,0), async (req, res)
 /**
  *  Admin Detail
  */
-router.get('/:id', verifyTokenPanel(), async (req, res) => {
+router.get('/:id', verifyTokenPanel(), authorization([{ADMIN: 'R'}]), async (req, res) => {
     console.info('API:  Admin Detail/init %j', {params: req.params});
 
     adminController.getOnePanel(req.params.id)
@@ -272,7 +272,7 @@ router.delete('/', verifyTokenPanel(), joiValidate(hasValidIdSchema, 0), authori
 
 
 /**
- *  Request a password reset link 
+ *  Request a password reset link
  */
 //______________________Forgot Password_____________________//
 router.post('/resetPassword/claim', joiValidate(claimResetPasswordSchema, 0), async (req, res) => {
@@ -324,7 +324,7 @@ router.post('/resetPassword/verify/', joiValidate(verifyResetPasswordSchema), as
         })
         .then(admin => {
             if (!admin) return new NZ.Response(null, 'Hash Invalid, Try resetting again...', 400).send(res);
-            // else 
+            // else
             return new NZ.Response(true, 'Good to go!').send(res);
 
         })
@@ -340,14 +340,14 @@ router.post('/resetPassword/verify/', joiValidate(verifyResetPasswordSchema), as
  *  check hash, reset the password
  */
 router.post('/resetPassword/use', joiValidate(useResetPasswordSchema), async (req, res) => {
-    
+
     return getForgotHash(req.body.hash,true)
         .then(adminId => {
             return adminController.get(adminId, 'id')
         })
         .then(admin => {
             if (!admin) return new NZ.Response(null, 'Hash Invalid, Try resetting again...', 400).send(res);
-            // else 
+            // else
             // !!! update password !!!
             admin.password = req.body.password;
             return admin.save();
@@ -363,14 +363,14 @@ router.post('/resetPassword/use', joiValidate(useResetPasswordSchema), async (re
 
 // router.post('/resetPassword/use', joiValidate(useResetPasswordSchema), async (req, res) => {
 //     let adminDTO;
-    
+
 //     return getForgotHash(req.body.hash,true)
 //         .then(adminId => {
 //             return adminController.get(adminId, 'id')
 //         })
 //         .then(admin => {
 //             if (!admin) return new NZ.Response(null, 'Hash Invalid, Try resetting again...', 400).send(res);
-//             // else 
+//             // else
 //             // !!! update password !!!
 //             admin.password = req.body.password;
 //             return admin.save();

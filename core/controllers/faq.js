@@ -56,10 +56,6 @@ faqController.prototype.getPanel = async (optFilter) => {
             })
     } else {
         return await Faq.getById(optFilter)
-            .then(result => {
-                console.log(`***Faq get by id ${optFilter} result: `, result);
-                return result;
-            })
             .catch(err => {
                 console.error("!!!Faq get failed: ", err);
                 throw err;
@@ -77,7 +73,7 @@ faqController.prototype.getPanel = async (optFilter) => {
  */
 faqController.prototype.getApp = async (optFilter) => {
     if (!optFilter || optFilter instanceof Object) { //updateValue instanceof Array
-        return await Faq.appList()
+        return await Faq.appList(optFilter)
             .then(faqs => faqs)
             .catch(err => {
                 console.error("!!!Faq getAll failed: ", err);
@@ -85,10 +81,6 @@ faqController.prototype.getApp = async (optFilter) => {
             })
     } else {
         return await Faq.get(optFilter)
-            .then(result => {
-                console.log(`***Faq get by id ${optFilter} result: `, result);
-                return result;
-            })
             .catch(err => {
                 console.error("!!!Faq get failed: ", err);
                 throw err;

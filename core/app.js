@@ -106,13 +106,13 @@ app.use(
             method:       req.method,
             responseCode: res.statusCode,
             responseTime: time,
-            headers:      req.headers
+            headers:      req.headers,
+            body:         req.body ? req.body : null
         };
-        const realPath = req.baseUrl + req._parsedUrl.pathname;
-        if (typeof req.body == 'object' && req.method == 'POST') {
-
-            insert.body = req.body;
-        }
+        // const realPath = req.baseUrl + req._parsedUrl.pathname;
+        // if (typeof req.body == 'object' && req.method === 'POST') {
+        //     insert.body = req.body;
+        // }
 
         if(!isAPIChecker(req))
             logController.add(insert)

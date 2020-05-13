@@ -287,7 +287,7 @@ router.get('/nationalities', verifyToken(), function (req, res) {
 
 
 /**
- *  Request a password reset link 
+ *  Request a password reset link
  */
 //______________________Forgot Password_____________________//
 router.post('/resetPassword/claim', joiValidate(claimResetPasswordSchema, 0), async (req, res) => {
@@ -338,7 +338,7 @@ router.post('/resetPassword/verify/', joiValidate(verifyResetPasswordSchema, 0),
         })
         .then(user => {
             if (!user) return new NZ.Response(null, 'Hash Invalid, Try resetting again...', 400).send(res);
-            // else 
+            // else
             return new NZ.Response(true, 'Good to go!').send(res);
 
         })
@@ -359,7 +359,7 @@ router.post('/resetPassword/use', joiValidate(useResetPasswordSchema), async (re
         let userId = await getForgotHash(req.body.hash, true);
         let user = await userController.get(userId, 'id')
         if (!user) return new NZ.Response(null, 'Hash Invalid, Try resetting again...', 400).send(res);
-        // else 
+        // else
         // !!! update password !!!
         user.password = NZ.sha512Hmac(req.body.password, user.salt);
         await user.save();

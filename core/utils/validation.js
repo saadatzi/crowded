@@ -3,6 +3,7 @@ const validation = require('jsonwebtoken');
 const moment = require('moment-timezone');
 const NZ = require('./nz');
 const deviceController = require('../controllers/device');
+const userController = require('../controllers/user');
 const roleController = require('../controllers/role');
 const adminController = require('../controllers/admin');
 const settings = require('./settings')
@@ -51,8 +52,11 @@ module.exports = {
                             req.deviceId = (device._id).toString();
 
                             req.userId = null;
-                            if (device.userId)
+                            if (device.userId) {
                                 req.userId = (device.userId).toString();
+                                userController.update((device.userId).toString(), {lastIp: req.headers['x-real-ip'], lastInteract: new Date()})
+                                    .catch(err => console.error("!!!!!!!!User lastIp lastInteract update catch err: ", err));
+                            }
 
                             if (isSecure && !device.userId)
                                 return new NZ.Response(null, '', 401).send(res);
@@ -87,14 +91,14 @@ module.exports = {
                     let tokenObj = validation.verify(token, publicKEY, tokenOption);
                     if (!tokenObj) return new NZ.Response(null, 'invalid token ', 401).send(res);
                     return await adminController.get(tokenObj.userId, 'id')
-                        .then(user => {
-                            if (!user) return new NZ.Response(null, 'User not found!', 401).send(res);
-                            req._admin = user;
+                        .then(admin => {
+                            if (!admin) return new NZ.Response(null, 'User not found!', 401).send(res);
+                            req._admin = admin;
                             req.userId = tokenObj.userId;
                             // user.lastIp = req.headers['x-real-ip'];
                             // user.lastInteract =  new Date();
                             // user.save();
-                            user.updateOne({
+                            admin.updateOne({
                                 $set: {lastIp: req.headers['x-real-ip'], lastInteract: new Date()},
                             })
                                 .catch(err => {

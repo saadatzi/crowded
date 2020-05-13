@@ -110,16 +110,16 @@ eventController.prototype.list = async (userId, optFilter, accessLevel) => {
 /**
  * getById Event
  *
- * @param {ObjectId} id
+ * @param {ObjectId} eventId
  * @param {String} lang
  * @param {ObjectId} userId
  *
  * @return Event
  */
-eventController.prototype.getByIdAggregate = async (id, lang, userId = null) => {
+eventController.prototype.getByIdAggregate = async (eventId, lang, userId = null) => {
     let userEventStatus = null;
     if (userId) {
-        await userEventController.getByUserEvent(userId, id)
+        await userEventController.getByUserEvent(userId, eventId)
             .then(userEvent => {
                 if (userEvent) userEventStatus = userEvent.status;
             })
@@ -129,7 +129,7 @@ eventController.prototype.getByIdAggregate = async (id, lang, userId = null) => 
             })
     }
     const isApproved = ['APPROVED', 'ACTIVE', 'LEFT', 'PAUSED', 'SUCCESS'].includes(userEventStatus);
-    return await Event.getByIdAggregate(id, lang, isApproved, userEventStatus)
+    return await Event.getByIdAggregate(eventId, lang, isApproved, userEventStatus)
         .then(async event => {
             if (isApproved) event = Object.assign(event, {map: isApproved ? {url: await googleStaticImage(event.coordinates[0], event.coordinates[1])} : null});
             return event
@@ -220,7 +220,6 @@ eventController.prototype.remove = async (id) => {
 eventController.prototype.removeImage = async (eventId, imageId) => {
     return await Event.findByIdAndUpdate(eventId, {$pull: {images: {_id: mongoose.Types.ObjectId(imageId)}}})
         .then(result => {
-            console.log(`***Event Remove Image result: `, result);
             return result;
         })
         .catch(err => {
@@ -290,6 +289,25 @@ eventController.prototype.reorder = async (eventId, newOrders) => {
             })
     });
     return true
+};
+
+/**
+ * get Event customer
+ *
+ * @param {ObjectId} userId
+ * @param {Object} optFilter
+ *
+ * @return Event
+ */
+eventController.prototype.getCustomerEvent = async (userId, optFilter) => {
+
+    return await Event.getAllCustomerEvent(userId, optFilter)
+        .then(async event => event)
+        .catch(err => {
+            console.error("!!!Event getCustomerEvent failed: ", err);
+            throw err;
+        })
+
 };
 
 module.exports = new eventController();

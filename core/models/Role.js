@@ -285,6 +285,7 @@ RoleSchema.static({
         ])
             .then(permissions => {
                 // console.log(">>>>>>>>>>>>>>>>>>%j<<<<<<<<<<<<<<<<", perNames);
+                // console.log("permissions>>>>>>>>>>>>>>>>>>%j<<<<<<<<<<<<<<<<", permissions);
                 // return permissions
                 let resultAccess = [];
                 let accessLevel = {};

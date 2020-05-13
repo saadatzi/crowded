@@ -4,7 +4,7 @@ module.exports = {
 	contact:		{
 		email:		'info@crowdedapp.com',
 		phone:		'+965 9744 8984',
-		address:	'Crowder Technologies CO. <br> MSSS Alddd Complex, <br> Kuwait City',
+		address:	'Crowded Technologies CO. <br> MSSS Alddd Complex, <br> Kuwait City',
 		copyright:	'Crowded Inc.',
 		privacy:	'https://google.com',
 		terms:		'https://google.com',
@@ -49,6 +49,10 @@ module.exports = {
 		maxImageForEvent: 10,
 		limitPage: 4,
 		leftOption: ['The event was different from what was described','I did not like the event','I had an emergency and had to leave', 'I had an emergency and had to leave']
+	},
+
+	report: {
+		causeOption: ['It\'s too late', 'Improper behavior', 'Violence']
 	},
 
 	wallet: {

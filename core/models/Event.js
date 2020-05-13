@@ -53,7 +53,6 @@ EventSchema.pre('remove', function (next) {
 EventSchema.pre('save', function (next) {
     var event = this;
     if (!event.isNew && !event.images[event.images.length - 1].order) {
-        console.log(">>>>>>>>>>>>>> pre save AddImage event: ", event);
         const maxOrder = Math.max.apply(Math, event.images.map(function (o) {
             return o.order
         }))
@@ -872,7 +871,125 @@ EventSchema.static({
         if (!validateCurrent(currentState)) throw {message: "Changing status not permitted!"};
         record.status = newStatus;
         return record.save();
-    }
+    },
+
+    /**
+     * List Customer Event
+     *
+     * @param {ObjectId} userId
+     * @param {Object} optFilter
+     */
+    getAllCustomerEvent: async function (userId, optFilter,) {
+        const baseCriteria = {status: {$in: [0, 1]}};
+
+        let regexMatch = {};
+        if (optFilter.search) {
+            let regex = new RegExp(optFilter.search);
+            regexMatch = {
+                "$or": [
+                    {
+                        title_en: {$regex: regex, $options: "i"}
+                    },
+                    {
+                        title_ar: {$regex: regex, $options: "i"}
+                    },
+                    {
+                        desc_en: {$regex: regex, $options: "i"}
+                    },
+                    {
+                        desc_ar: {$regex: regex, $options: "i"}
+                    }
+                ]
+            };
+        }
+
+        return await this.aggregate([
+            {$match: baseCriteria},
+            {$match: regexMatch},
+            {
+                $lookup: {
+                    from: 'userevents',
+                    let: {primaryEventId: "$_id"},
+                    pipeline: [
+                        {$match: {userId: mongoose.Types.ObjectId(userId)}},
+                        {$match: {$expr: {$eq: ["$$primaryEventId", "$eventId"]}}},
+                        {$project: {_id: 0, status: "$status"}},
+                    ],
+                    as: 'getUserEvents'
+                }
+            },
+            {$unwind: {path: "$getUserEvents", preserveNullAndEmptyArrays: false}},
+            {$unwind: "$images"},
+            {$sort: {'images.order': 1}},
+            {
+                $group: {
+                    _id: "$_id",
+                    image: {$first: {url: {$concat: [settings.media_domain, "$images.url"]}}}, //$push
+                    title_en: {$first: `$title_en`},
+                    value: {$first: {$toString: "$value"}},
+                    attendance: {$first: `$attendance`},
+                    from: {$first: `$from`},
+                    to: {$first: `$to`},
+                    userEventStatus: {$first: `$getUserEvents.status`}
+                }
+            },
+            {$match: optFilter.filters},
+            {$sort: optFilter.sorts},
+            {$skip: optFilter.pagination.page * optFilter.pagination.limit},
+            {$limit: optFilter.pagination.limit},
+            {
+                $group: {
+                    _id: null,
+                    items: {$push: '$$ROOT'},
+                }
+            },
+            {
+                $lookup: {
+                    from: 'events',
+                    pipeline: [
+                        {$match: baseCriteria},
+                        {$match: regexMatch},
+                        {
+                            $lookup: {
+                                from: 'userevents',
+                                let: {primaryEventId: "$_id"},
+                                pipeline: [
+                                    {$match: {userId: mongoose.Types.ObjectId(userId)}},
+                                    {$match: {$expr: {$eq: ["$$primaryEventId", "$eventId"]}}},
+                                    {$project: {_id: 0, status: "$status"}},
+                                ],
+                                as: 'getUserEvents'
+                            }
+                        },
+                        {$unwind: {path: "$getUserEvents", preserveNullAndEmptyArrays: false}},
+                        {$match: optFilter.filters},
+                        {$count: 'total'},
+                    ],
+                    as: 'getTotal'
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    items: 1,
+                    total: {$arrayElemAt: ["$getTotal", 0]},
+                }
+            }
+        ])
+            .then(result => {
+                let items = [],
+                    total = 0;
+                if (result.length > 0) {
+                    total = result[0].total.total;
+                    delete result[0].total;
+                    items = result[0].items;
+                }
+                optFilter.pagination.total = total;
+                return {explain: optFilter, items};
+            })
+            .catch(err => console.error("getAllCustomerEvent  Catch", err));
+    },
+
 });
 
 const Event = mongoose.model('Event', EventSchema);

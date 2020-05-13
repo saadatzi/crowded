@@ -120,7 +120,6 @@ UserSchema.static({
      */
     async getManyPanel(optFilter) {
 
-
         let regexMatch = {};
         if (optFilter.search) {
             let regex = new RegExp(optFilter.search);

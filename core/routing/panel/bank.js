@@ -56,6 +56,8 @@ const listSchema = JoiConfigs.schemas.list({
 /**
  Get Bank Names
 */
+//TODO please use promise .catch & .then | use log.error important in catch
+//TODO joiValidate first middleware If possible & accessKey zero(0) not need, use(default value is 0)
 router.post('/name', verifyTokenPanel(), joiValidate(listSchema, 0), async (req, res) => {
     let bankNames = await bankNameController.getListPanel(req._body);
     new NZ.Response(bankNames).send(res);
@@ -64,7 +66,7 @@ router.post('/name', verifyTokenPanel(), joiValidate(listSchema, 0), async (req,
 /**
  Get Bank Names
 */
-router.get('/name/:id', verifyTokenPanel(), joiValidate(detailSchema, 2), async (req, res) => {
+router.get('/name/:id', joiValidate(detailSchema, 2), verifyTokenPanel(), async (req, res) => {
     let bankNames = await bankNameController.getOnePanel(req.params.id);
     new NZ.Response(bankNames).send(res);
 });

@@ -2,23 +2,59 @@
  * Module dependencies.
  */
 const mongoose = require('mongoose');
-const Staticpage = require('../models/Staticpage');
+const StaticPage = require('../models/StaticPage');
 const moment = require('moment-timezone');
 
 const staticController = function () {
 };
 
-
+/**
+ * Add new Static
+ *
+ * @param {Object || Array} newStatic
+ *
+ * @return {ObjectId} staticPages
+ */
+staticController.prototype.add = async (newStatic) => {
+    if (Array.isArray(newStatic)) { //newOrganization instanceof Array
+        return await StaticPage.insertMany(newStatic)
+            .catch(err => {
+                console.error("!!!StaticPage many save failed: ", err);
+                throw err;
+            })
+    } else {
+        return await StaticPage.create(newStatic)
+            .catch(err => {
+                console.error("!!!StaticPage save failed: ", err);
+                throw err;
+            })
+    }
+};
 
 /**
  *
  * @param {Object} id
  *
- * @return Events
+ * @return staticPages
  */
 staticController.prototype.getById = async (id) => {
 
-    return await Staticpage.getById(id)
+    return await StaticPage.getById(id)
+        .catch(err => {
+            console.error("!!!Static getById failed: ", err);
+            throw err;
+        })
+};
+
+/**
+ *
+ * @param {Object} optFilter
+ *
+ * @return staticPages
+ */
+staticController.prototype.get = async (optFilter) => {
+    return await StaticPage.find(optFilter)
+        .then(statics => statics)
         .catch(err => {
             console.error("!!!Static getById failed: ", err);
             throw err;
@@ -34,7 +70,7 @@ staticController.prototype.getById = async (id) => {
  */
 staticController.prototype.getByAlias = async (alias) => {
 
-    return await Staticpage.getByAlias(alias)
+    return await StaticPage.getByAlias(alias)
         .catch(err => {
             console.error("!!!Static getByAlias failed: ", err);
             throw err;
@@ -50,7 +86,7 @@ staticController.prototype.getByAlias = async (alias) => {
  */
 staticController.prototype.list = async (optFilter) => {
 
-    return await Staticpage.list(optFilter)
+    return await StaticPage.list(optFilter)
         .catch(err => {
             console.error("!!!Static list failed: ", err);
             throw err;
@@ -59,7 +95,7 @@ staticController.prototype.list = async (optFilter) => {
 
 /**
  *
- * @param {Object} 
+ * @param {Object} payload
  *
  * @return Events
  */
@@ -72,7 +108,7 @@ staticController.prototype.update = async (payload) => {
     payload.html_ar ? toUpdate.html_ar = payload.html_ar : null;
     payload.in_app !== undefined ? toUpdate.in_app = payload.in_app : null;
 
-    return await Staticpage.findByIdAndUpdate(payload.id, toUpdate)
+    return await StaticPage.findByIdAndUpdate(payload.id, toUpdate)
         .catch(err => {
             console.error("!!!Static update failed: ", err);
             throw err;

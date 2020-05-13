@@ -76,14 +76,10 @@ router.post('/', verifyToken(true), async function (req, res) {
 
     userEventController.add(req.body.eventId, req.userId)
         .then(result => {
-            //TODO set automatic Approved for Test
-            console.info(">>>>>>>>>>>>>>>>>>>>>***30sec Set Status APPROVED : %j", result);
-            result.status = "APPROVED";
-            result.save();
-            new NZ.Response({status: result.status}).send(res);
+            new NZ.Response(true, 'Your request to crowded this event, successful has been submitted.').send(res);
         })
         .catch(err => {
-            console.error("Event Get Catch err:", err)
+            console.error("Event Get Catch err:", err);
             new NZ.Response(null, err.message, err.code || 500).send(res);
         })
 

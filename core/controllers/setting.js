@@ -9,12 +9,34 @@ const settingController = function () {
 };
 
 
+/**
+ * Add new Settings
+ *
+ * @param {Object || Array} newSetting
+ *
+ * @return {ObjectId} settings
+ */
+settingController.prototype.add = async (newSetting) => {
+    if (Array.isArray(newSetting)) { //newOrganization instanceof Array
+        return await Setting.insertMany(newSetting)
+            .catch(err => {
+                console.error("!!!Settings many save failed: ", err);
+                throw err;
+            })
+    } else {
+        return await Setting.create(newSetting)
+            .catch(err => {
+                console.error("!!!Settings save failed: ", err);
+                throw err;
+            })
+    }
+};
 
 /**
  *
  * @param {Object} id
  *
- * @return Events
+ * @return Settings
  */
 settingController.prototype.getById = async (id) => {
 
@@ -25,16 +47,30 @@ settingController.prototype.getById = async (id) => {
         })
 };
 
+/**
+ *
+ * @param {Object} optFilter
+ *
+ * @return Settings
+ */
+settingController.prototype.get = async (optFilter) => {
+    return await Setting.find(optFilter)
+        .then(settings => settings)
+        .catch(err => {
+            console.error("!!!Setting get failed: ", err);
+            throw err;
+        })
+};
 
 /**
  *
  * @param {Object} key
  *
- * @return Events
+ * @return Settings
  */
 settingController.prototype.getByKey = async (key) => {
 
-    return await Staticpage.getByKey(key)
+    return await Setting.getByKey(key)
         .catch(err => {
             console.error("!!!Setting getByKey failed: ", err);
             throw err;
@@ -46,7 +82,7 @@ settingController.prototype.getByKey = async (key) => {
  *
  * @param {Object} optFilter
  *
- * @return Events
+ * @return Settings
  */
 settingController.prototype.list = async (optFilter) => {
 
@@ -61,7 +97,7 @@ settingController.prototype.list = async (optFilter) => {
  *
  * @param {Object} 
  *
- * @return Events
+ * @return Settings
  */
 settingController.prototype.update = async (payload) => {
 

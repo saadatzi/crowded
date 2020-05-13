@@ -22,6 +22,7 @@ module.exports = {
     isMongoId: Joi.string().regex(/^[0-9a-fA-F]{24}$/, 'ID is invalid').required(),
     isMongoIdOpt: Joi.string().regex(/^[0-9a-fA-F]{24}$/, 'ID is invalid').optional(),
 
+    strValid: (items, isRequired = true) => isRequired ? Joi.string().valid(...items).required() : Joi.string().valid(...items).optional(),
     phone: (isRequired = true) => isRequired ? Joi.string().min(4).max(13).required() : Joi.string().min(4).max(13).optional(),
     datetime: (isRequired = true) => isRequired ? Joi.date().required() : Joi.date().optional(),
     email: (isRequired = true) => isRequired ?
