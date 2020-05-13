@@ -72,9 +72,10 @@ module.exports = {
 	primary_domain:	'https://kids.dev.nizek.com/',
 	project_name:	'Crowded',
 
-	panel_route:	'https://panel.crowded.dev.nizek.com/api/',
-	api_base:		'https://api.crowded.dev.nizek.com/',
-	media_domain:	'https://media.crowded.dev.nizek.com/',
+	panel_route:		'https://panel.crowded.dev.nizek.com/api/',
+	base_panel_route:	'https://panel.crowded.dev.nizek.com/',
+	api_base:			'https://api.crowded.dev.nizek.com/',
+	media_domain:		'https://media.crowded.dev.nizek.com/',
 
 
 
