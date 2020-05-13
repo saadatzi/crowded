@@ -120,6 +120,7 @@ UserSchema.static({
      */
     async getManyPanel(optFilter) {
 
+
         let regexMatch = {};
         if (optFilter.search) {
             let regex = new RegExp(optFilter.search);
@@ -247,7 +248,13 @@ UserSchema.static({
                             null
                         ]
                     },
-                    phone:1
+                    phone: {
+                        $cond: [
+                            { $gt: ["$phone", null] },
+                            '$phone',
+                            null
+                        ]
+                    }
                 }
             }
         ])
