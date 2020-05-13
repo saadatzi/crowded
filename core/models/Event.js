@@ -96,6 +96,32 @@ EventSchema.method({
  * Statics
  */
 EventSchema.static({
+
+    /*********************************************/
+    /*           FOR DASHBOARD START             */
+    /*********************************************/
+    countTotal(optFilter) {
+        return optFilter;
+    },
+
+
+    /*********************************************/
+    /*            FOR DASHBOARD END              */
+    /*********************************************/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     /**
      * Find event by id
      *
