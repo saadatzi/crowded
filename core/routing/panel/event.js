@@ -175,7 +175,7 @@ router.delete('/image', joiValidate(deleteImageSchema), verifyTokenPanel(), auth
  * @return status
  */
 //______________________Add Event_____________________//
-router.post('/add', uploader, joiValidate(addSchema), verifyTokenPanel(), authorization([{EVENT: 'C'}]), async (req, res) => {
+router.post('/add', verifyTokenPanel(), uploader, joiValidate(addSchema), authorization([{EVENT: 'C'}]), async (req, res) => {
     console.info('API: Add event/init %j', {body: req.body});
 
     if (!req._uploadPath || !req._uploadFilename) {
@@ -192,6 +192,28 @@ router.post('/add', uploader, joiValidate(addSchema), verifyTokenPanel(), author
         })
         .catch(err => {
             console.error("Event Add Catch err:", err);
+            new NZ.Response(null, err.message, err.code || 500).send(res);
+        })
+});
+
+/**
+ *  Add Event ImagePicker
+ * -upload image callback path&name
+ * @return status
+ */
+//______________________Add Event ImagePicker_____________________//
+router.post('/changeImagePicker', verifyTokenPanel(), uploader, joiValidate(addImageSchema), authorization([{EVENT: 'RU'}]), async (req, res) => {
+    console.info('API: changeImagePicker event/init %j', {body: req.body});
+    if (!req._uploadPath || !req._uploadFilename) {
+        return new NZ.Response(null, 'fileUpload is Empty!', 400).send(res);
+    }
+
+    eventController.update(req.body.eventId, {imagePicker: req._uploadPath + '/' + req._uploadFilename})
+        .then(event => {
+            new NZ.Response(true, 'Event change image picker successful!').send(res);
+        })
+        .catch(err => {
+            console.error("Event changeImagePicker Catch err:", err)
             new NZ.Response(null, err.message, err.code || 500).send(res);
         })
 });
