@@ -182,7 +182,7 @@ router.post('/add', uploader, joiValidate(addSchema), verifyTokenPanel(), author
         return new NZ.Response(null, 'fileUpload is Empty!', 400).send(res);
     }
 
-    req.body.images = [{url: req._uploadPath + '/' + req._uploadFilename, order: 1}];
+    req.body.imagePicker = req._uploadPath + '/' + req._uploadFilename;
     req.body.location = {coordinates: [req.body.lat, req.body.lng]};
     req.body.owner = req.userId;
     req.body.orgId = req._admin.organizationId;
