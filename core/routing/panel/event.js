@@ -210,10 +210,10 @@ router.post('/changeImagePicker', verifyTokenPanel(), uploader, joiValidate(addI
 
     eventController.update(req.body.eventId, {imagePicker: req._uploadPath + '/' + req._uploadFilename})
         .then(event => {
-            new NZ.Response(true, 'Event change image picker successful!').send(res);
+            new NZ.Response(!!event, event ? 'Event change image picker successful!' : 'not found!', event ? 200 : 404).send(res);
         })
         .catch(err => {
-            console.error("Event changeImagePicker Catch err:", err)
+            console.error("Event changeImagePicker Catch err:", err);
             new NZ.Response(null, err.message, err.code || 500).send(res);
         })
 });
