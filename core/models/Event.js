@@ -228,7 +228,7 @@ EventSchema.static({
         console.log(userId, optFilter, accessLevel);
         const accessLevelMatch = { status: { $in: [0, 1] } };
 
-        if (accessLevel === 'OWN') accessLevel.owner = mongoose.Types.ObjectId(userId);
+        // if (accessLevel === 'OWN') accessLevel.owner = mongoose.Types.ObjectId(userId);
 
         return this.aggregate([
             { $match: accessLevelMatch },
