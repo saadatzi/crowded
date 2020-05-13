@@ -62,7 +62,7 @@ const eventListSchema = JoiConfigs.schemas.list({
         updatedAt:  Joi.number().valid(-1,1),
     },
     defaultSorts:{
-        lastInteract: -1
+        from: -1
     }
 });
 
@@ -129,8 +129,8 @@ router.delete('/:id/bankAccounts', verifyTokenPanel(), joiValidate(detailSchema,
 /**
  Get users events (customers)
  */
-router.post('/', joiValidate(eventListSchema), verifyTokenPanel(), async (req, res) => {
-    eventController.getCustomerEvent(req._body)
+router.post('/:id/event', joiValidate(detailSchema, 2), joiValidate(eventListSchema), verifyTokenPanel(), async (req, res) => {
+    eventController.getCustomerEvent(req.params.id, req._body)
         .then(result => {
             new NZ.Response(result).send(res);
         })
