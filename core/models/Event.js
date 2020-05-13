@@ -813,6 +813,7 @@ EventSchema.static({
                     _id: 0,
                     id: "$_id",
                     title: 1,
+                    imagePicker: 1,
                     images: 1,
                     desc_en: 1,
                     desc_ar: 1,
