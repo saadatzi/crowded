@@ -55,7 +55,7 @@ const bankAccountListSchema = JoiConfigs.schemas.list({
 
 const eventListSchema = JoiConfigs.schemas.list({
     filters: {
-        status:     Joi.string().valid('APPROVED', 'REJECTED', 'ACTIVE', 'LEFT', 'PAUSED', 'SUCCESS').required()
+        status:     Joi.string().valid('APPROVED', 'REJECTED', 'ACTIVE', 'LEFT', 'PAUSED', 'SUCCESS')
     },
     sorts:{
         createdAt:  Joi.number().valid(-1,1),
