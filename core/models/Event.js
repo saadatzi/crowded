@@ -830,6 +830,7 @@ EventSchema.static({
                     _id: "$_id",
                     isActive: {$first: "$status"},
                     images: {$push: {id: '$images._id',url: {$concat: [settings.media_domain, "$images.url"]}, order: "$images.order"}}, //$push
+                    imagePicker: {$first: {url: {$concat: [settings.media_domain, "$imagePicker"]}}},
                     title_en: {$first: `$title_en`},
                     title_ar: {$first: `$title_ar`},
                     desc_en: {$first: `$desc_en`},
@@ -872,6 +873,7 @@ EventSchema.static({
                     _id: 0,
                     id: "$_id",
                     title: 1,
+                    imagePicker: 1,
                     images: 1,
                     desc_en: 1,
                     desc_ar: 1,
