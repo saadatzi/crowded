@@ -44,7 +44,7 @@ router.get('/myWalletTotal', verifyToken(true), async function (req, res) {
 
     transactionController.myTransactionTotal(req.userId, req.headers['lang'] ? (req.headers['lang']).toLowerCase() : 'en', req.query.page, req.query.date)
         .then(result => {
-            new NZ.Response(result ? Object.assign(result, {chart: {url: settings.api_base + 'app/wallet/myWalletChart'}}) : null).send(res);
+            new NZ.Response(result ? Object.assign(result, {chart: {url: settings.api_base + 'wallet/myWalletChart'}}) : null).send(res);
         })
         .catch(err => {
             console.error("walletTotal Get Catch err:", err);
