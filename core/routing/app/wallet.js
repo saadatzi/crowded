@@ -11,6 +11,7 @@ const NZ = require('../../utils/nz');
 const {uploader} = require('../../utils/fileManager');
 const {verifyToken} = require('../../utils/validation');
 const settings = require('../../utils/settings');
+const controllerUtils = require('../../controllers/utils');
 
 
 /**
@@ -42,9 +43,10 @@ router.get('/myWalletTotal', verifyToken(true), async function (req, res) {
     console.info('API: Get walletTotal/init req.query', req.query);
     let selected;
 
+    const userHash = await controllerUtils.createMyWalletChartHash(req.userId);
     transactionController.myTransactionTotal(req.userId, req.headers['lang'] ? (req.headers['lang']).toLowerCase() : 'en', req.query.page, req.query.date)
         .then(result => {
-            new NZ.Response(result ? Object.assign(result, {chart: {url: settings.api_base + 'wallet/myWalletChart'}}) : null).send(res);
+            new NZ.Response(result ? Object.assign(result, {chart: {url: settings.api_base + `static/myWalletChart/${userHash}`}}) : null).send(res);
         })
         .catch(err => {
             console.error("walletTotal Get Catch err:", err);
@@ -76,21 +78,6 @@ router.post('/withdraw', verifyToken(true), async function (req, res) {
             console.error("Wallet Set Withdraw Catch err:", err)
             new NZ.Response(null, err.message, err.code || 500).send(res);
         })
-});
-
-/**
- * Get Wallet Chart
- * @return Chart html
- */
-//______________________Get Wallet_____________________//
-router.get('/myWalletChart', async function (req, res) {
-    console.info('API: Get appMyWalletChart/init');
-    // res.sendFile(path.join(__dirname, '../../templates/chart/index.html'));
-    res.render('my_wallet_chart', {
-        project_name:	settings.project_name,
-        title:			'My wallet Chart',
-        content:		'',
-    });
 });
 
 module.exports = router;

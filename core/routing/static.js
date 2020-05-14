@@ -21,4 +21,19 @@ app.get('/:lang/:alias/', async (req, res, next) => {
 	});
 });
 
+/**
+ * Get Wallet Chart
+ * @return Chart html
+ */
+//______________________Get Wallet_____________________//
+router.get('/myWalletChart/:hash', async function (req, res) {
+	console.info('API: Get appMyWalletChart/init userId:', req.params.hash);
+
+	res.render('my_wallet_chart', {
+		project_name:	settings.project_name,
+		title:			'My wallet Chart',
+		content:		'',
+	});
+});
+
 module.exports = app;
