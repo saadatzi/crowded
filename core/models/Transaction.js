@@ -155,14 +155,14 @@ TransactionSchema.static({
                         {
                             $project: {
                                 _id: 0,
-                                price: {$toString: "$price"},
-                                eventDate: {
+                                x: {
                                     $dateToString: {
                                         format: "%Y/%m/%d",
                                         date: "$eventDate",
                                         timezone: "Asia/Kuwait"
                                     }
-                                }
+                                },
+                                y: {$toString: "$price"}
                             }
                         },
                     ],
@@ -216,7 +216,7 @@ TransactionSchema.static({
             {
                 $project: {
                     _id: 0,
-                    dataCart: "$getMonthAgo",
+                    chartData: "$getMonthAgo",
                     withdraw: {$arrayElemAt: ["$getUnpaid", 0]},
                     totalEarned: {$arrayElemAt: ["$getTotal", 0]},
                     thisWeek: {$arrayElemAt: ["$getWeek", 0]}
@@ -225,7 +225,7 @@ TransactionSchema.static({
             },
             {
                 $project: {
-                    dataCart: 1,
+                    chartData: 1,
                     withdraw: {
                         $cond: {
                             if: {$gt: ["$withdraw.total", 0]},

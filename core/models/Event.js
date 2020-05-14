@@ -521,16 +521,6 @@ EventSchema.static({
 
         if (dateFilter) criteria.from = {$gte: dateFilter.startMonth, $lt: dateFilter.endMonth};
 
-        //TODO .find date range
-        /*criteria.from = {
-        $expr: {
-            $and: [
-                {$eq: [{$month: "$dob"}, {$month: dateFilter}]},
-                {$eq: [{$year: "$dob"}, {$year: dateFilter}]}
-            ]
-        }
-    };*/
-
         const limit = settings.event.limitPage;
 
         console.log(">>>>>>>>>>> getAllMyEvent userId: ", userId);
@@ -774,7 +764,6 @@ EventSchema.static({
                     from: 'admins',
                     let: {orgId: "$getAdmin.organizationId", owner: "$owner"},
                     pipeline: [
-
                         {$match: {$expr: {$eq: ["$$orgId", "$organizationId"]}}},
                         {$match: {$expr: {$eq: ["$$owner", "$_id"]}}},
                         // {$project: {_id: 0, status: "$status"}},

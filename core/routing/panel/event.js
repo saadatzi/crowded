@@ -252,7 +252,8 @@ router.put('/activate', joiValidate(activateSchema), verifyTokenPanel(), authori
     if (req.auth.accessLevel.EVENT[1].U.level !== 'ANY') return new NZ.Response(null, 'You are not allowed to activate the event!', 403).send(res);
     eventController.update(req.body.eventId, {status: req.body.isActive})
         .then(event => {
-            new NZ.Response(!!event, event ? 'Event Activation successful!' : 'Not Found!').send(res);
+            const resultMessage = req.body.isActive ? 'Event Activation successful!' : 'Event Deactivation successful!';
+            new NZ.Response(!!event, event ? resultMessage : 'Not Found!', event ? 200 : 404).send(res);
         })
         .catch(err => {
             console.error("Event Update Catch err:", err);
