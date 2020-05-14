@@ -112,37 +112,36 @@ EventSchema.static({
         console.log("async countListGroup(userId, optFilter) {const baseCriteria = {status: {$in: [0, 1]}};");
         return await this.aggregate([
             {$match: baseCriteria},
-            // {
-            //     $lookup: {
-            //         from: 'admins',
-            //         pipeline: [
-            //             {$match: {_id: mongoose.Types.ObjectId(userId)}},
-            //         ],
-            //         as: 'getAdmin'
-            //     }
-            // },
-            // {$unwind: "$getAdmin"},
-            // {
-            //     $lookup: {
-            //         from: 'admins',
-            //         let: {orgId: "$getAdmin.organizationId", owner: "$owner"},
-            //         pipeline: [
-
-            //             {$match: {$expr: {$eq: ["$$orgId", "$organizationId"]}}},
-            //             {$match: {$expr: {$eq: ["$$owner", "$_id"]}}},
-            //             // {$project: {_id: 0, status: "$status"}},
-            //         ],
-            //         as: 'getOrgAdmin'
-            //     }
-            // },
-            // {$unwind: {path: "$getOrgAdmin", preserveNullAndEmptyArrays: false}},
-            // // {$unwind: {path: "$images", preserveNullAndEmptyArrays: true}},
-            // // {$sort: {'images.order': 1}},
-            // {
-            //     $group: {
-            //         _id: "$_id",
-            //     }},
-            // // {$match: optFilter.filters},
+            {
+                $lookup: {
+                    from: 'admins',
+                    pipeline: [
+                        {$match: {_id: mongoose.Types.ObjectId(userId)}},
+                    ],
+                    as: 'getAdmin'
+                }
+            },
+            {$unwind: "$getAdmin"},
+            {
+                $lookup: {
+                    from: 'admins',
+                    let: {orgId: "$getAdmin.organizationId", owner: "$owner"},
+                    pipeline: [
+                        {$match: {$expr: {$eq: ["$$orgId", "$organizationId"]}}},
+                        {$match: {$expr: {$eq: ["$$owner", "$_id"]}}},
+                        // {$project: {_id: 0, status: "$status"}},
+                    ],
+                    as: 'getOrgAdmin'
+                }
+            },
+            {$unwind: {path: "$getOrgAdmin", preserveNullAndEmptyArrays: false}},
+            // {$unwind: {path: "$images", preserveNullAndEmptyArrays: true}},
+            // {$sort: {'images.order': 1}},
+            {
+                $group: {
+                    _id: "$_id",
+                }
+            }, 
             {$count: 'total'}
         ])
             .then(result => {
