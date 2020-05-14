@@ -86,19 +86,4 @@ app.get('/reset-password/:token', async (req, res) => {
         });
 });
 
-/**
- * Get Wallet Chart
- * @return Chart html
- */
-//______________________Get Wallet_____________________//
-app.get('/appMyWalletChart', async function (req, res) {
-    console.info('API: Get appMyWalletChart/init');
-    // res.sendFile(path.join(__dirname, '../../templates/chart/index.html'));
-    res.render('myWalletChart', {
-        project_name:	settings.project_name,
-        title:			'My wallet Chart',
-        content:		'',
-    });
-});
-
 module.exports = app;
