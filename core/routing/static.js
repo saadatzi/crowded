@@ -26,7 +26,7 @@ app.get('/:lang/:alias/', async (req, res, next) => {
  * @return Chart html
  */
 //______________________Get Wallet_____________________//
-router.get('/myWalletChart/:hash', async function (req, res) {
+app.get('/myWalletChart/:hash', async function (req, res) {
 	console.info('API: Get appMyWalletChart/init userId:', req.params.hash);
 
 	res.render('my_wallet_chart', {
