@@ -7,6 +7,8 @@ const userController = require('../../controllers/user');
 const agentController = require('../../controllers/admin');
 app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
 app.use(bodyParser.json({limit: '5mb'}));
+const settings = require('../../utils/settings');
+
 
 const path = require('path');
 
@@ -91,7 +93,12 @@ app.get('/reset-password/:token', async (req, res) => {
 //______________________Get Wallet_____________________//
 app.get('/appMyWalletChart', async function (req, res) {
     console.info('API: Get appMyWalletChart/init');
-    res.sendFile(path.join(__dirname, '../../templates/chart/index.html'));
+    // res.sendFile(path.join(__dirname, '../../templates/chart/index.html'));
+    res.render('myWalletChart', {
+        project_name:	settings.project_name,
+        title:			'My wallet Chart',
+        content:		'',
+    });
 });
 
 module.exports = app;

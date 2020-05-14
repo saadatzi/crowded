@@ -134,8 +134,6 @@ app.engine('dot', engine.__express);
 app.set('views', path.join(_rootDir, './templates'));
 app.set('view engine', 'dot');
 
-app.use(express.static(path.join(__dirname,'./templates/chart')));
-
 /*
 * start Routing
 * */
