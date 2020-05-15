@@ -4,9 +4,7 @@ const app = express.Router();
 const settings = require('../utils/settings');
 const staticController = require('../controllers/static');
 const transactionController = require('../controllers/transaction');
-const {getHash} = require('../utils/cacheLayer')
-
-const NZ = require('../utils/nz');
+const {getHash} = require('../utils/cacheLayer');
 
 /**
  * Get Wallet Chart
