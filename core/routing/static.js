@@ -29,8 +29,9 @@ app.get('/:lang/:alias/', async (req, res, next) => {
 //______________________Get Wallet_____________________//
 app.get('/myWalletChart/:hash', async function (req, res) {
 	console.info('API: Get appMyWalletChart/init userId:', req.params.hash);
+	let userId = await getForgotHash(req.params.hash, true);
 
-	transactionController.myTransactionChart("5e9576668061fc5d3ba9caeb"/*req.userId*/)
+	transactionController.myTransactionChart(userId)
 		.then(result => {
 			console.info('API: Get appMyWalletChart result:', result);
 			res.render('myWalletChart', {
