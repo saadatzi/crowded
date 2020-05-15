@@ -26,12 +26,12 @@ app.get('/myWalletChart/:hash', async function (req, res) {
 				})
 				.catch(err => {
 					console.error("Get appMyWalletChart Catch err:", err);
-					new NZ.Response(null, err.message, err.code || 500).send(res);
+					res.status(err.code || 500).send(err.message);
 				})
 		})
 		.catch(err => {
-			console.error("Get appMyWalletChart Catch err:", err);
-			new NZ.Response(null, err.message, 500).send(res);
+			console.error("getHash Catch err:", err);
+			res.status(err.code || 500).send(err.message);
 		})
 });
 
