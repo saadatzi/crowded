@@ -19,7 +19,7 @@ const setHash = async (hash, userId) => {
     hashForgotPassCache.set(hash, userId)
 };
 
-hashForgotPassCache.set('pach', '5ebb3ed24f7f7a13247476ea')
+hashForgotPassCache.set('pach', '5ebb3ed44f7f7a13247476ec')
 
 
 const getHash = async (hash, shouldRemove) => {
