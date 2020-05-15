@@ -6,6 +6,8 @@ const staticController = require('../controllers/static');
 const transactionController = require('../controllers/transaction');
 const {getHash} = require('../utils/cacheLayer')
 
+const NZ = require('../utils/nz');
+
 /**
  * Get Wallet Chart
  * @return Chart html
@@ -34,7 +36,6 @@ app.get('/myWalletChart/:hash', async function (req, res) {
 			new NZ.Response(null, err.message, 500).send(res);
 		})
 });
-
 
 app.get('/:lang/:alias/', async (req, res, next) => {
 
