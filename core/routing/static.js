@@ -35,6 +35,7 @@ app.get('/myWalletChart/:hash', async function (req, res) {
 		})
 });
 
+
 app.get('/:lang/:alias/', async (req, res, next) => {
 
 	const page = await staticController.getByAlias(req.params.alias);
