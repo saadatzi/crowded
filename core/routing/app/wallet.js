@@ -46,7 +46,7 @@ router.get('/myWalletTotal', verifyToken(true), async function (req, res) {
     const userHash = await controllerUtils.createMyWalletChartHash(req.userId);
     transactionController.myTransactionTotal(req.userId, req.headers['lang'] ? (req.headers['lang']).toLowerCase() : 'en', req.query.page, req.query.date)
         .then(result => {
-            new NZ.Response(result ? Object.assign(result, {chart: {url: settings.api_base + `static/myWalletChart/${userHash}`}}) : null).send(res);
+            new NZ.Response(result ? Object.assign(result, {chart: {url: settings.static_route + `myWalletChart/${userHash}`}}) : null).send(res);
         })
         .catch(err => {
             console.error("walletTotal Get Catch err:", err);

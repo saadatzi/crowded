@@ -77,6 +77,7 @@ module.exports = {
 	project_name:	'Crowded',
 
 	panel_route:		'https://panel.crowded.dev.nizek.com/api/',
+	static_route:		'https://static.crowded.dev.nizek.com/',
 	base_panel_route:	'https://panel.crowded.dev.nizek.com/',
 	api_base:			'https://api.crowded.dev.nizek.com/',
 	media_domain:		'https://media.crowded.dev.nizek.com/',
