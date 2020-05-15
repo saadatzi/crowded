@@ -100,7 +100,7 @@ TransactionSchema.static({
                     id: "$_id",
                     title: {$toString: `$title_${lang}`},
                     price: {$toString: "$price"},
-                    eventDate: {$dateToString: {format: "%Y/%m/%d", date: "$eventDate", timezone: "Asia/Kuwait"}},
+                    eventDate: {$dateToString: {format: "%Y/%m/%d", date: "$createdAt", timezone: "Asia/Kuwait"}},
                     isDebtor: 1,
                     transactionId: 1
                 },
