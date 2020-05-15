@@ -13,13 +13,14 @@ const {insertForgotHash} = require('../utils/cacheLayer')
 const NZ = require('../utils/nz');
 
 const createResetPasswordHash = async (userId) => {
-	const hash = NZ.sha512(uuid.v4() + 'NIZEK_CROWDED' + moment().format('x'));
+	const hash = NZ.sha512(uuid.v4() + 'NZ_CROWDED_PASS' + moment().format('x'));
 	await insertForgotHash(hash, userId);
 	return hash;
 };
 
+//TODO pair UP Do merge
 const createMyWalletChartHash = async (userId) => {
-	const hash = NZ.sha512(uuid.v4() + 'NIZEK_CROWDED_CHART' + moment().format('x'));
+	const hash = NZ.sha512(uuid.v4() + 'NZ_CROWDED_CHART' + moment().format('x'));
 	await insertForgotHash(hash, userId);
 	return hash;
 };

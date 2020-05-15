@@ -88,6 +88,24 @@ transactionController.prototype.myTransactionTotal = async (userId) => {
 
 };
 
+/**
+ * get myTransaction Total
+ *
+ * @param {ObjectId} userId
+ *
+ * @return Event
+ */
+transactionController.prototype.myTransactionChart = async (userId) => {
+
+    return await Transaction.getMyTransactionChart(userId)
+        .then(async event => event)
+        .catch(err => {
+            console.error("!!!get myTransaction failed: ", err);
+            throw err;
+        })
+
+};
+
 
 /**
  * withdraw Transaction

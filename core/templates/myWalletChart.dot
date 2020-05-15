@@ -39,6 +39,9 @@
                     gradientStroke.addColorStop(0, '#FF4500');
                     gradientStroke.addColorStop(1, '#FFD700	');
 
+                    const dataChart = "[[=model.chartData]]";
+                    console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ dataChart :", dataChart);
+
             		var myChart = new Chart(ctx, {
             			type: 'line',
             			data: {
@@ -52,37 +55,7 @@
                                 pointHoverBorderWidth: 1,
             					pointRadius: 0,
                                 fill: false,
-            					data: [{
-            						x: newDateString(0),
-                                    y: randomScalingFactor()
-            					}, {
-            						x: newDateString(5),
-            						y: randomScalingFactor()
-            					}, {
-            						x: newDateString(7),
-            						y: randomScalingFactor()
-            					}, {
-            						x: newDateString(15),
-            						y: randomScalingFactor()
-            					}, {
-            						x: newDateString(17),
-            						y: randomScalingFactor()
-            					}, {
-            						x: newDateString(19),
-            						y: randomScalingFactor()
-            					}, {
-            						x: newDateString(21),
-            						y: randomScalingFactor()
-            					}, {
-            						x: newDateString(27),
-            						y: randomScalingFactor()
-            					}, {
-            						x: newDateString(34),
-            						y: randomScalingFactor()
-            					}, {
-            						x: newDateString(38),
-            						y: randomScalingFactor()
-            					}],
+            					data: dataChart
             				}]
             			},
             			options: {
@@ -100,7 +73,7 @@
             						},
             						gridLines: {
             							display:true,
-            							color: "black",
+            							color: "yellow",
             							lineWidth: 0.1
             						}
             					}],

@@ -139,36 +139,10 @@ TransactionSchema.static({
     getMyTransactionTotal: async function (userId) {
         const criteria = {status: 1, userId: mongoose.Types.ObjectId(userId)};
 
-        const monthAgo = new Date(new Date().getTime() - 2678400000);//31*24*60*60*1000
-
         console.error("!!!!!!!! getMyTransaction userId: ", userId)
         console.error("!!!!!!!! getMyTransaction criteria: ", criteria);
         return await this.aggregate([
             {$match: criteria},
-            //Get one month ago
-            {
-                $lookup: {
-                    from: 'transactions',
-                    pipeline: [
-                        {$match: criteria},
-                        {$match: {isDebtor: false, createdAt: {$gt: monthAgo}}},
-                        {
-                            $project: {
-                                _id: 0,
-                                x: {
-                                    $dateToString: {
-                                        format: "%Y/%m/%d",
-                                        date: "$eventDate",
-                                        timezone: "Asia/Kuwait"
-                                    }
-                                },
-                                y: {$toString: "$price"}
-                            }
-                        },
-                    ],
-                    as: 'getMonthAgo'
-                }
-            },
             //Get All UNPAID for withdraw
             {
                 $lookup: {
@@ -216,7 +190,6 @@ TransactionSchema.static({
             {
                 $project: {
                     _id: 0,
-                    chartData: "$getMonthAgo",
                     withdraw: {$arrayElemAt: ["$getUnpaid", 0]},
                     totalEarned: {$arrayElemAt: ["$getTotal", 0]},
                     thisWeek: {$arrayElemAt: ["$getWeek", 0]}
@@ -225,7 +198,6 @@ TransactionSchema.static({
             },
             {
                 $project: {
-                    chartData: 1,
                     withdraw: {
                         $cond: {
                             if: {$gt: ["$withdraw.total", 0]},
@@ -252,6 +224,52 @@ TransactionSchema.static({
         ])
             .then(async transactions => {
                 return transactions[0]
+            })
+            .catch(err => console.error("getMyTransaction  Catch", err));
+    },
+
+    /**
+     * Get chart Data
+     *
+     * @param {Object} userId
+     */
+    getMyTransactionChart: async function (userId) {
+        const monthAgo = new Date(new Date().getTime() - 2678400000);//31*24*60*60*1000
+        const criteria = {
+            userId: mongoose.Types.ObjectId(userId),
+            status: 1,
+            isDebtor: false,
+            createdAt: {$gt: monthAgo}
+        };
+
+        return await this.aggregate([
+            {$match: criteria},
+            {
+                $group:
+                    {
+                        _id: {day: {$dayOfYear: "$createdAt"}, year: {$year: "$createdAt"}},
+                        date: {$first: "$createdAt"},
+                        totalAmount: {$sum: "$price"},
+                        count: {$sum: 1}
+                    }
+            },
+            {$sort: {date: -1}},
+            {
+                $project: {
+                    _id: 0,
+                    x: {
+                        $dateToString: {
+                            format: "%Y/%m/%d",
+                            date: "$date",
+                            timezone: "Asia/Kuwait"
+                        }
+                    },
+                    y: {$toDouble: "$totalAmount"}
+                }
+            }
+        ])
+            .then(async transactions => {
+                return transactions
             })
             .catch(err => console.error("getMyTransaction  Catch", err));
     },
@@ -313,7 +331,7 @@ TransactionSchema.static({
                             $project: {
                                 _id: 0,
                                 id: '$_id',
-                                fullName: {$concat: ['$firstname',' ', '$lastname']},
+                                fullName: {$concat: ['$firstname', ' ', '$lastname']},
                                 sex: 1,
                                 nationality: 1,
                                 image: {url: {$concat: [settings.media_domain, "$image"]}},
@@ -345,7 +363,7 @@ TransactionSchema.static({
                             $project: {
                                 _id: 0,
                                 id: '$_id',
-                                fullName: {$concat: ['$firstname',' ', '$lastname']},
+                                fullName: {$concat: ['$firstname', ' ', '$lastname']},
                                 IBAN: 1,
                                 civilId: 1,
                                 bankName: {$arrayElemAt: ['$getBankName.name_en', 0]}
@@ -366,7 +384,12 @@ TransactionSchema.static({
                     account: '$getAccount',
                     situation: 1,
                     price: {$toString: "$price"},
-                    date: {$dateToString: {/*format: "%Y/%m/%d %H:%M:%S",*/ date: "$eventDate", timezone: "Asia/Kuwait"}},
+                    date: {
+                        $dateToString: {/*format: "%Y/%m/%d %H:%M:%S",*/
+                            date: "$eventDate",
+                            timezone: "Asia/Kuwait"
+                        }
+                    },
                     transactionId: 1
                 },
             },
