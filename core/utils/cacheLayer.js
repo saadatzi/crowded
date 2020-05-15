@@ -19,6 +19,8 @@ const setHash = async (hash, userId) => {
     hashForgotPassCache.set(hash, userId)
 };
 
+hashForgotPassCache.set('pach', '5eba2bc14532730ea20350c6')
+
 
 const getHash = async (hash, shouldRemove) => {
     return new Promise((resolve,reject) => {
