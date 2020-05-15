@@ -2,7 +2,7 @@ const express = require('express');
 const app = express.Router();
 const bodyParser = require('body-parser');
 const NZ = require('../../utils/nz');
-const {getForgotHash} = require('../../utils/cacheLayer');
+const {getHash} = require('../../utils/cacheLayer');
 const userController = require('../../controllers/user');
 const agentController = require('../../controllers/admin');
 app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
@@ -39,7 +39,7 @@ app.get('/reset-password-app', (req, res) => {
 
 app.get('/reset-password-app/:token', async (req, res) => {
     NZ.setDomainOnLocals(res);
-    const userId = await getForgotHash(req.params.token);
+    const userId = await getHash(req.params.token);
 
     userController.get(userId, 'id')
         .then(user => {
@@ -67,7 +67,7 @@ app.get('/reset-password', (req, res) => {
 
 app.get('/reset-password/:token', async (req, res) => {
     NZ.setDomainOnLocals(res);
-    const userId = await getForgotHash(req.params.token);
+    const userId = await getHash(req.params.token);
 
     agentController.get(userId, 'id')
         .then(user => {

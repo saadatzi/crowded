@@ -15,12 +15,12 @@ const hashForgotPassCache = cacheManager.caching(
 );
 
 
-const insertForgotHash = async (hash, userId) => {
+const setHash = async (hash, userId) => {
     hashForgotPassCache.set(hash, userId)
 };
 
 
-const getForgotHash = async (hash, shouldRemove) => {
+const getHash = async (hash, shouldRemove) => {
     return new Promise((resolve,reject) => {
         hashForgotPassCache.get(hash, async function (err, result) {
             if (err) {
@@ -37,6 +37,6 @@ const getForgotHash = async (hash, shouldRemove) => {
 
 
 module.exports = {
-    insertForgotHash,
-    getForgotHash,
+    setHash,
+    getHash,
 };

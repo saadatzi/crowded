@@ -19,7 +19,7 @@ const controllerUtils = require('../../controllers/utils');
 
 const Event = require('../../models/Event');
 
-const {getForgotHash} = require('../../utils/cacheLayer')
+const {getHash} = require('../../utils/cacheLayer')
 
 const callSchema = Joi.object().keys({
     callType: JoiConfigs.title,
@@ -317,7 +317,7 @@ router.post('/resetPassword/claim', joiValidate(claimResetPasswordSchema, 0), as
  * check if the given hash if valid and points to a user
  */
 router.post('/resetPassword/verify/', joiValidate(verifyResetPasswordSchema), async (req, res) => {
-    return getForgotHash(req.body.hash)
+    return getHash(req.body.hash)
         .then(adminId => {
             console.log('')
             return adminController.get(adminId, 'id')
@@ -341,7 +341,7 @@ router.post('/resetPassword/verify/', joiValidate(verifyResetPasswordSchema), as
  */
 router.post('/resetPassword/use', joiValidate(useResetPasswordSchema), async (req, res) => {
 
-    return getForgotHash(req.body.hash,true)
+    return getHash(req.body.hash,true)
         .then(adminId => {
             return adminController.get(adminId, 'id')
         })
@@ -364,7 +364,7 @@ router.post('/resetPassword/use', joiValidate(useResetPasswordSchema), async (re
 // router.post('/resetPassword/use', joiValidate(useResetPasswordSchema), async (req, res) => {
 //     let adminDTO;
 
-//     return getForgotHash(req.body.hash,true)
+//     return getHash(req.body.hash,true)
 //         .then(adminId => {
 //             return adminController.get(adminId, 'id')
 //         })

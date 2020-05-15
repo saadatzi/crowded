@@ -8,20 +8,20 @@ const moment = require('moment');
 const cron = require("node-cron");
 const userEventController = require('./userEvent')
 
-const {insertForgotHash} = require('../utils/cacheLayer')
+const {setHash} = require('../utils/cacheLayer')
 
 const NZ = require('../utils/nz');
 
 const createResetPasswordHash = async (userId) => {
 	const hash = NZ.sha512(uuid.v4() + 'NZ_CROWDED_PASS' + moment().format('x'));
-	await insertForgotHash(hash, userId);
+	await setHash(hash, userId);
 	return hash;
 };
 
 //TODO pair UP Do merge
 const createMyWalletChartHash = async (userId) => {
 	const hash = NZ.sha512(uuid.v4() + 'NZ_CROWDED_CHART' + moment().format('x'));
-	await insertForgotHash(hash, userId);
+	await setHash(hash, userId);
 	return hash;
 };
 

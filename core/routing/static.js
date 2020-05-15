@@ -4,6 +4,7 @@ const app = express.Router();
 const settings = require('../utils/settings');
 const staticController = require('../controllers/static');
 const transactionController = require('../controllers/transaction');
+const {getHash} = require('../utils/cacheLayer')
 
 /**
  * Get Wallet Chart
@@ -12,16 +13,21 @@ const transactionController = require('../controllers/transaction');
 //______________________Get Wallet_____________________//
 app.get('/myWalletChart/:hash', async function (req, res) {
 	console.info('API: Get appMyWalletChart/init userId:', req.params.hash);
-	let userId = await getForgotHash(req.params.hash, true);
-
-	transactionController.myTransactionChart(userId)
-		.then(result => {
-			console.info('API: Get appMyWalletChart result:', result);
-			res.render('myWalletChart', {
-				project_name:	settings.project_name,
-				title:			'My wallet Chart',
-				chartData:		result,
-			});
+	await getHash(req.params.hash, true)
+		.then(userId => {
+			transactionController.myTransactionChart(userId)
+				.then(result => {
+					console.info('API: Get appMyWalletChart result:', result);
+					res.render('myWalletChart', {
+						project_name:	settings.project_name,
+						title:			'My wallet Chart',
+						chartData:		{result},
+					});
+				})
+				.catch(err => {
+					console.error("Get appMyWalletChart Catch err:", err);
+					new NZ.Response(null, err.message, err.code || 500).send(res);
+				})
 		})
 		.catch(err => {
 			console.error("Get appMyWalletChart Catch err:", err);

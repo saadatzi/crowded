@@ -14,7 +14,7 @@ const {sign, verifyToken} = require('../../utils/validation');
 const settings = require('../../utils/settings');
 const nationalities = require('../../utils/nationalities');
 
-const {getForgotHash} = require('../../utils/cacheLayer')
+const {getHash} = require('../../utils/cacheLayer')
 
 
 
@@ -332,7 +332,7 @@ router.post('/resetPassword/claim', joiValidate(claimResetPasswordSchema, 0), as
  * check if the given hash if valid and points to a user
  */
 router.post('/resetPassword/verify/', joiValidate(verifyResetPasswordSchema, 0), async (req, res) => {
-    return getForgotHash(req.body.hash)
+    return getHash(req.body.hash)
         .then(userId => {
             return userController.get(userId, 'id')
         })
@@ -356,7 +356,7 @@ router.post('/resetPassword/verify/', joiValidate(verifyResetPasswordSchema, 0),
 router.post('/resetPassword/use', joiValidate(useResetPasswordSchema), async (req, res) => {
 
     try {
-        let userId = await getForgotHash(req.body.hash, true);
+        let userId = await getHash(req.body.hash, true);
         let user = await userController.get(userId, 'id')
         if (!user) return new NZ.Response(null, 'Hash Invalid, Try resetting again...', 400).send(res);
         // else

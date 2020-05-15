@@ -39,7 +39,8 @@
                     gradientStroke.addColorStop(0, '#FF4500');
                     gradientStroke.addColorStop(1, '#FFD700	');
 
-                    const dataChart = "[[=model.chartData]]";
+
+                    const dataChart = "[[=model.chartData.result]]";
                     console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ dataChart :", dataChart);
 
             		var myChart = new Chart(ctx, {
