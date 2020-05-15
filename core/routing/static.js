@@ -6,6 +6,8 @@ const staticController = require('../controllers/static');
 const transactionController = require('../controllers/transaction');
 const {getHash} = require('../utils/cacheLayer')
 
+const NZ = require('../utils/nz');
+
 /**
  * Get Wallet Chart
  * @return Chart html

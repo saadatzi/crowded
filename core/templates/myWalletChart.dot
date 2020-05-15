@@ -40,7 +40,7 @@
                     gradientStroke.addColorStop(1, '#FFD700	');
 
 
-                    const dataChart = "[[=model.chartData.result]]";
+                    const dataChart = JSON.parse('[[=JSON.stringify(model.chartData.result)]]');
                     console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ dataChart :", dataChart);
 
             		var myChart = new Chart(ctx, {
