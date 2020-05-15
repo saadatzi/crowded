@@ -114,7 +114,7 @@ TransactionSchema.static({
             {
                 $project: {
                     _id: 0,
-                    nextPage: {$cond: {if: {$gt: [{$size: "$items"}, limit]}, then: {$add: [page, 1]}, else: null}},
+                    nextPage: {$cond: {if: {$gt: [{$size: "$items"}, limit]}, then: {$add: [{$toInt: page}, 1]}, else: null}},
                     items: {$slice: ["$items", limit]},
                 }
             },
