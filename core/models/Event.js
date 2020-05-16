@@ -103,7 +103,7 @@ EventSchema.static({
     /*           FOR DASHBOARD START             */
     /*********************************************/
 
- /**
+    /**
      * Event list Group
      */
     async countListGroup(userId, optFilter) {
@@ -138,31 +138,34 @@ EventSchema.static({
                 $group: {
                     _id: "$_id",
                 }
-            }, 
+            },
             {$count: 'total'}
         ])
             .then(result => {
-                if(!result.length) return 0;
-              return result[0].total;
+                if (!result.length) return 0;
+                return result[0].total;
             })
             .catch(err => console.error(err));
 
-        },
+    },
 
     /**
      * Event list OWN/Any
      */
     countListOwnAny(userId, optFilter, accessLevel) {
         console.log(userId, optFilter, accessLevel);
-        const ownAny = accessLevel === 'OWN' ? {owner: mongoose.Types.ObjectId(userId), status: {$in: [0, 1]}} : {status: {$in: [0, 1]}};
-        console.log(ownAny)
+        const ownAny = accessLevel === 'OWN' ? {
+            owner: mongoose.Types.ObjectId(userId),
+            status: {$in: [0, 1]}
+        } : {status: {$in: [0, 1]}};
+        console.log(ownAny);
         return this.aggregate([
             {$match: ownAny},
             {$count: 'total'}
         ])
             .then(result => {
-                if (result.length == 0) return 0;
-               return result[0].total;
+                if (result.length === 0) return 0;
+                return result[0].total;
             })
             .catch(err => console.error(err));
     },
@@ -172,12 +175,12 @@ EventSchema.static({
      */
     countWaitingForApprovalOwnAny(userId, optFilter, accessLevel) {
         console.log(userId, optFilter, accessLevel);
-        const accessLevelMatch = { status: { $in: [0, 1] } };
+        const accessLevelMatch = {status: {$in: [0, 1]}};
 
         if (accessLevel === 'OWN') accessLevelMatch.owner = mongoose.Types.ObjectId(userId);
 
         return this.aggregate([
-            { $match: accessLevelMatch },
+            {$match: accessLevelMatch},
             {
                 $lookup: {
                     from: 'userevents',
@@ -193,24 +196,24 @@ EventSchema.static({
             {
                 $group: {
                     _id: "$_id",
-                    _total: { $first: "$getUserEvents.total" },
+                    _total: {$first: "$getUserEvents.total"},
                 }
             },
             {
-                $project:{
-                    _id:1,
-                    total:{$arrayElemAt:['$_total',0]}
+                $project: {
+                    _id: 1,
+                    total: {$arrayElemAt: ['$_total', 0]}
                 }
             },
             {
-                $group:{
-                    _id:1,
-                    total: {$sum:"$total"}
+                $group: {
+                    _id: 1,
+                    total: {$sum: "$total"}
                 }
             }
         ])
             .then(result => {
-                if (result.length == 0) return 0;
+                if (result.length === 0) return 0;
                 return result[0].total;
             })
             .catch(err => console.error(err));
@@ -221,7 +224,7 @@ EventSchema.static({
      */
     countWaitingForApprovalGroup(userId, optFilter) {
         console.log(userId, optFilter, accessLevel);
-        const accessLevelMatch = { status: { $in: [0, 1] } };
+        const accessLevelMatch = {status: {$in: [0, 1]}};
 
         // if (accessLevel === 'OWN') accessLevel.owner = mongoose.Types.ObjectId(userId);
 
@@ -253,7 +256,7 @@ EventSchema.static({
                 $group: {
                     _id: "$_id",
                 }
-            }, 
+            },
             {
                 $lookup: {
                     from: 'userevents',
@@ -269,24 +272,24 @@ EventSchema.static({
             {
                 $group: {
                     _id: "$_id",
-                    _total: { $first: "$getUserEvents.total" },
+                    _total: {$first: "$getUserEvents.total"},
                 }
             },
             {
-                $project:{
-                    _id:1,
-                    total:{$arrayElemAt:['$_total',0]}
+                $project: {
+                    _id: 1,
+                    total: {$arrayElemAt: ['$_total', 0]}
                 }
             },
             {
-                $group:{
-                    _id:1,
-                    total: {$sum:"$total"}
+                $group: {
+                    _id: 1,
+                    total: {$sum: "$total"}
                 }
             }
         ])
             .then(result => {
-                if (result.length == 0) return 0;
+                if (result.length === 0) return 0;
                 return result[0].total;
             })
             .catch(err => console.error(err));
@@ -649,7 +652,10 @@ EventSchema.static({
      */
     async listOwnAny(userId, optFilter, accessLevel) {
 
-        const ownAny = accessLevel === 'OWN' ? {owner: mongoose.Types.ObjectId(userId), status: {$in: [0, 1]}} : {status: {$in: [0, 1]}};
+        const ownAny = accessLevel === 'OWN' ? {
+            owner: mongoose.Types.ObjectId(userId),
+            status: {$in: [0, 1]}
+        } : {status: {$in: [0, 1]}};
 
         let regexMatch = {};
         if (optFilter.search) {
@@ -970,7 +976,13 @@ EventSchema.static({
                 $group: {
                     _id: "$_id",
                     isActive: {$first: "$status"},
-                    images: {$push: {id: '$images._id',url: {$concat: [settings.media_domain, "$images.url"]}, order: "$images.order"}}, //$push
+                    images: {
+                        $push: {
+                            id: '$images._id',
+                            url: {$concat: [settings.media_domain, "$images.url"]},
+                            order: "$images.order"
+                        }
+                    }, //$push
                     imagePicker: {$first: {url: {$concat: [settings.media_domain, "$imagePicker"]}}},
                     title_en: {$first: `$title_en`},
                     title_ar: {$first: `$title_ar`},
@@ -1133,7 +1145,22 @@ EventSchema.static({
                     attendance: {$first: `$attendance`},
                     from: {$first: `$from`},
                     to: {$first: `$to`},
-                    userEventStatus: {$first: `$getUserEvents.status`}
+                    userEventStatus: {$first: `$getUserEvents.status`},
+                    status: {$first: `$status`}
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    id: "$_id",
+                    image: 1,
+                    title_en: 1,
+                    value: 1,
+                    attendance: 1,
+                    from: 1,
+                    to: 1,
+                    userEventStatus: 1,
+                    isActive: {$cond: {if: {$eq: ["$status", 1]}, then: true, else: false}}
                 }
             },
             {$match: optFilter.filters},

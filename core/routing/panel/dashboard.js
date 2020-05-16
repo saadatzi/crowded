@@ -40,6 +40,7 @@ const getStatsSchema = Joi.object().keys({
 router.post('/', verifyTokenPanel(), joiValidate(getStatsSchema, 0), authorization([{EVENT: 'R'}]), async (req, res) => {
     console.info('API: Dashboard getStats/init %j', { body: req._body });
 
+    //TODO why try catch, controller is promise
     try {
         let stats = await dashboardController.getStats(req.userId, req._body, req.auth.accessLevel);
         new NZ.Response(stats).send(res);

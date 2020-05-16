@@ -80,8 +80,7 @@ ReportUserSchema.static({
 
 
         return this.aggregate([
-            {$match: {$and: [baseCriteria, regexMatch]}},
-            {$match: optFilter.filters},
+            {$match: {$and: [baseCriteria, regexMatch, optFilter.filters]}},
             {$sort: optFilter.sorts},
             {$skip: optFilter.pagination.page * optFilter.pagination.limit},
             {$limit: optFilter.pagination.limit},

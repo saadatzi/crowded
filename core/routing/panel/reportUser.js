@@ -33,6 +33,7 @@ const hasValidIdSchema = Joi.object().keys({
 
 const listSchema = JoiConfigs.schemas.list({
     filters:{
+        userId: JoiConfigs.isMongoIdOpt,
         priority: JoiConfigs.strValid(['LOW', 'MEDIUM', 'HIGH'], false)
     },
     sorts:{

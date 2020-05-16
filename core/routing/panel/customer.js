@@ -13,7 +13,7 @@ const {joiValidate} = require('./../utils');
 const userController = require('../../controllers/user');
 const eventController = require('../../controllers/event');
 
-const {verifyTokenPanel} = require('../../utils/validation');
+const {verifyTokenPanel, authorization} = require('../../utils/validation');
 
 
 // Joi validator schemas
@@ -66,6 +66,11 @@ const eventListSchema = JoiConfigs.schemas.list({
     }
 });
 
+const activateSchema = Joi.object().keys({
+    userId: JoiConfigs.isMongoId,
+    isActive: JoiConfigs.boolInt,
+});
+
 
 /**
  Get users (customers)
@@ -81,6 +86,24 @@ router.post('/', joiValidate(customerListSchema), verifyTokenPanel(), async (req
         });
 });
 
+/**
+ *  Activation customer
+ * -add Event in db
+ * @return status
+ */
+//______________________Activation Customer_____________________//
+router.put('/activate', joiValidate(activateSchema), verifyTokenPanel(), authorization([{USER: 'RU'}]), async (req, res) => {
+    console.info('API: Activation Customer/init %j', {body: req.body});
+    userController.update(req.body.userId, {status: req.body.isActive})
+        .then(user => {
+            const resultMessage = req.body.isActive ? 'Customer Activation successful!' : 'Customer Deactivation successful!';
+            new NZ.Response(!!user, user ? resultMessage : 'Not Found!', user ? 200 : 404).send(res);
+        })
+        .catch(err => {
+            console.error("Customer Activation Catch err:", err);
+            new NZ.Response(null, err.message, err.code || 500).send(res);
+        })
+});
 
 /**
  Get user bank accounts
