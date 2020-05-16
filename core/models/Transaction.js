@@ -511,6 +511,7 @@ TransactionSchema.static({
                     // total: {$toString: "$total"},
                     // orgPercent: {$arrayElemAt: ['$getOrganization', 0]},
                     sumPercent: {$multiply: [{$divide: ["$total", 100]}, {$arrayElemAt: ['$getOrganization.commissionPercentage', 0]}]},
+                    total: 1
                     // totalPercent: 1
                 }
             },
