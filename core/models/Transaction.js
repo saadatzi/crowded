@@ -505,7 +505,7 @@ TransactionSchema.static({
             {$unwind: {path: "$getOrgEvents", preserveNullAndEmptyArrays: false}},
             {$group: {_id: null, total: {$sum: "$price"}}},
             {$project: {totalPercent: {$add: [{$multiply:[{$divide:["$total",100]},{$arrayElemAt: ['$getOrganization.commissionPercentage', 0]}]}, "$total"]}}},
-            {$project: {_id: 0, total:{$toString: "$total"}}},
+            {$project: {_id: 0, total:{$toString: "$totalPercent"}}},
         ])
             .then(async result => {
                 console.log("&&&&&&&&&&&&&&&&&&&&&&&& getTotalPaid", result);
