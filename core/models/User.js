@@ -142,9 +142,6 @@ UserSchema.static({
 
         return this.aggregate([
             {$match: {$and: [regexMatch, optFilter.filters]}},
-            {$sort: optFilter.sorts},
-            {$skip: optFilter.pagination.page * optFilter.pagination.limit},
-            {$limit: optFilter.pagination.limit},
             //get report count
             {
                 $lookup: {
@@ -169,6 +166,9 @@ UserSchema.static({
                     isActive: {$cond: {if: {$eq: ["$status", 1]}, then: true, else: false}},
                 }
             },
+            {$sort: optFilter.sorts},
+            {$skip: optFilter.pagination.page * optFilter.pagination.limit},
+            {$limit: optFilter.pagination.limit},
             {
                 $group: {
                     _id: null,

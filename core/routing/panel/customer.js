@@ -23,6 +23,7 @@ const customerListSchema = JoiConfigs.schemas.list({
     },
     sorts: {
         createdAt: Joi.number().valid(-1, 1),
+        reportCount: Joi.number().valid(-1, 1),
     },
     defaultSorts: {
         lastInteract: -1
