@@ -103,6 +103,29 @@ EventSchema.static({
     /*           FOR DASHBOARD START             */
     /*********************************************/
 
+
+    /**
+     * Event list OWN/Any
+     */
+    countListOwnAny(userId, optFilter, accessLevel) {
+        console.log(userId, optFilter, accessLevel);
+        const ownAny = accessLevel === 'OWN' ? {
+            owner: mongoose.Types.ObjectId(userId),
+            status: {$in: [0, 1]}
+        } : {status: {$in: [0, 1]}};
+        console.log(ownAny);
+        return this.aggregate([
+            {$match: ownAny},
+            {$count: 'total'}
+        ])
+            .then(result => {
+                if (result.length === 0) return 0;
+                return result[0].total;
+            })
+            .catch(err => console.error(err));
+    },
+
+
     /**
      * Event list Group
      */
@@ -149,26 +172,6 @@ EventSchema.static({
 
     },
 
-    /**
-     * Event list OWN/Any
-     */
-    countListOwnAny(userId, optFilter, accessLevel) {
-        console.log(userId, optFilter, accessLevel);
-        const ownAny = accessLevel === 'OWN' ? {
-            owner: mongoose.Types.ObjectId(userId),
-            status: {$in: [0, 1]}
-        } : {status: {$in: [0, 1]}};
-        console.log(ownAny);
-        return this.aggregate([
-            {$match: ownAny},
-            {$count: 'total'}
-        ])
-            .then(result => {
-                if (result.length === 0) return 0;
-                return result[0].total;
-            })
-            .catch(err => console.error(err));
-    },
 
     /**
      * Waiting for Approval Own/Any
@@ -223,10 +226,9 @@ EventSchema.static({
      * Waiting for Approval group
      */
     countWaitingForApprovalGroup(userId, optFilter) {
-        console.log(userId, optFilter, accessLevel);
-        const accessLevelMatch = {status: {$in: [0, 1]}};
+        console.log(userId, optFilter);
+        const baseCriteria = {status: {$in: [0, 1]}};
 
-        // if (accessLevel === 'OWN') accessLevel.owner = mongoose.Types.ObjectId(userId);
 
         return this.aggregate([
             {$match: baseCriteria},
@@ -294,14 +296,80 @@ EventSchema.static({
             })
             .catch(err => console.error(err));
     },
+    
+    async listUpcomingEventsOwnAny(userId, optFilter, accessLevel) {
+        const accessLevelMatch = { status: { $in: [0, 1] } };
+        if (accessLevel === 'OWN') accessLevelMatch.owner = mongoose.Types.ObjectId(userId);
+        return this.aggregate([
+            { $match: accessLevelMatch },
+            {
+                $match: {
+                    from: { $gte: new Date() }
+                }
+            },
+            {
+                $count: 'total'
+            }
+        ])
+            .then(result => {
+                if (result.length === 0) return 0;
+                return result[0].total;
+            })
+            .catch(err => console.error(err));
+    },
+
+    async listUpcomingEventsGroup(userId, optFilter, accessLevel) {
+        const accessLevelMatch = { status: { $in: [0, 1] } };
+        if (accessLevel === 'OWN') accessLevelMatch.owner = mongoose.Types.ObjectId(userId);
+        return this.aggregate([
+            { $match: accessLevelMatch },
+            {
+                $lookup: {
+                    from: 'admins',
+                    pipeline: [
+                        {$match: {_id: mongoose.Types.ObjectId(userId)}},
+                    ],
+                    as: 'getAdmin'
+                }
+            },
+            {$unwind: "$getAdmin"},
+            {
+                $lookup: {
+                    from: 'admins',
+                    let: {orgId: "$getAdmin.organizationId", owner: "$owner"},
+                    pipeline: [
+                        {$match: {$expr: {$eq: ["$$orgId", "$organizationId"]}}},
+                        {$match: {$expr: {$eq: ["$$owner", "$_id"]}}},
+                    ],
+                    as: 'getOrgAdmin'
+                }
+            },
+            {$unwind: {path: "$getOrgAdmin", preserveNullAndEmptyArrays: false}},
+            {
+                $group: {
+                    _id: "$_id",
+                }
+            },
+            {
+                $match: {
+                    from: { $gte: new Date() }
+                }
+            },
+            {
+                $count: 'total'
+            }
+        ])
+            .then(result => {
+                if (result.length === 0) return 0;
+                return result[0].total;
+            })
+            .catch(err => console.error(err));
+    }
 
 
     /*********************************************/
     /*            FOR DASHBOARD END              */
     /*********************************************/
-
-
-
 
 
 
