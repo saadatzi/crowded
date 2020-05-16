@@ -41,10 +41,7 @@ userController.prototype.getManyPanel = async (optFilter) => {
  */
 userController.prototype.getOnePanel = async (optFilter) => {
     return await User.getOnePanel(optFilter)
-        .then(result => {
-            console.log("***User getOnePanel success result", result);
-            return result;
-        })
+        // .then(result => result)
         .catch(err => {
             console.error("!!!User getOnePanel failed: ", err);
             throw err;
@@ -63,7 +60,7 @@ userController.prototype.getOnePanel = async (optFilter) => {
 userController.prototype.getBankAccountsList = async (userId, optFilter) => {
     return await BankAccount.getManyForUser(userId, optFilter)
         .then(result => {
-            console.log("***User getBankAccountsList success result", result);
+            // console.log("***User getBankAccountsList success result", result);
             return result;
         })
         .catch(err => {
