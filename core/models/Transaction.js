@@ -503,22 +503,22 @@ TransactionSchema.static({
                     as: 'getOrganization'
                 }
             },
-            // {$project: {totalPercent: {$add: [{$multiply:[{$divide:["$total",100]},{$arrayElemAt: ['$getOrganization.commissionPercentage', 0]}]}, "$total"]}}},
-            {
-                $project: {
-                    _id: 0,
-                    // getOrganization: {$arrayElemAt: ['$getOrganization.commissionPercentage', 0]},
-                    // total: {$toString: "$total"},
-                    // orgPercent: {$arrayElemAt: ['$getOrganization', 0]},
-                    sumPercent: {$multiply: [{$divide: ["$total", 100]}, {$arrayElemAt: ['$getOrganization.commissionPercentage', 0]}]},
-                    total: 1
-                    // totalPercent: 1
-                }
-            },
+            {$project: {totalPercent: {$add: [{$multiply: [{$divide: ["$total", 100]}, {$arrayElemAt: ['$getOrganization.commissionPercentage', 0]}]}, "$total"]}, total: 1}},
+            // { $round : [1234.5678, 2]
+            //     $project: {
+            //         _id: 0,
+            //         // getOrganization: {$arrayElemAt: ['$getOrganization.commissionPercentage', 0]},
+            //         // total: {$toString: "$total"},
+            //         // orgPercent: {$arrayElemAt: ['$getOrganization', 0]},
+            //         sumPercent: {$multiply: [{$divide: ["$total", 100]}, {$arrayElemAt: ['$getOrganization.commissionPercentage', 0]}]},
+            //         total: 1
+            //         // totalPercent: 1
+            //     }
+            // },
             {
                 $project: {
                     total: {$toString: "$total"},
-                    sumPercent: {$toString: "$sumPercent"},
+                    totalPercent: {$toString: "$totalPercent"},
 
                 }
             },
