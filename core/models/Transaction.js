@@ -71,6 +71,185 @@ TransactionSchema.static({
     },
 
 
+
+    calendarTotalEarned(admin, monthFlag, accessLevel) {
+
+        // ***********************************
+        // ************Mock Data**************
+        // ***********************************
+        return [
+                {
+                    "day": 18,
+                    "TransactionAmount": 100
+                },
+                {
+                    "day": 13,
+                    "TransactionAmount": 300
+                },
+                {
+                    "day": 10,
+                    "TransactionAmount": 2000
+                },
+                {
+                    "day": 2,
+                    "TransactionAmount": 400
+                },
+                {
+                    "day": 30,
+                    "TransactionAmount": 100
+                },
+                {
+                    "day": 24,
+                    "TransactionAmount": 100
+                },
+                {
+                    "day": 20,
+                    "TransactionAmount": 10000
+                },
+                {
+                    "day": 23,
+                    "TransactionAmount": 10
+                }
+        ];
+
+        console.log(admin, monthFlag, accessLevel);
+
+
+        /* ********************************* */
+        /*        Access level tweak         */
+        /* ********************************* */
+
+        let accessLevelMatch = [];
+
+        if (accessLevel === "ANY") {
+            let criteria = { isDebtor: false };
+
+            accessLevelMatchForTransactions = [
+                {
+                    $match: criteria
+                }
+            ]
+        } else {
+            let criteria = { isDebtor: false };
+
+            accessLevelMatchForTransactions = [
+                { $match: criteria },
+                //filter only this Organization
+                {
+                    $lookup: {
+                        from: 'events',
+                        let: { primaryEventId: "$eventId" },
+                        pipeline: [
+                            { $match: { orgId: mongoose.Types.ObjectId(admin.organizationId) } },
+                            // ??
+                            { $match: { $expr: { $eq: ["$$primaryEventId", "$_id"] } } },// TODO: What?? 
+                            // ??
+                        ],
+                        as: 'getOrgEvents'
+                    }
+                },
+                { $unwind: { path: "$getOrgEvents", preserveNullAndEmptyArrays: false } },
+                // { $group: { _id: null, total: { $sum: "$price" } } },
+                //get organization percent //commissionPercentage
+                // {
+                //     $lookup: {
+                //         from: 'organizations',
+                //         pipeline: [
+                //             { $match: { _id: mongoose.Types.ObjectId(admin.organizationId) } },
+                //         ],
+                //         as: 'getOrganization'
+                //     }
+                // },
+                {
+                    $project: {
+                        totalPercent: {
+                            $add: [
+                                {
+                                    $multiply:
+                                        [
+                                            {
+                                                $divide:
+                                                    ["$total", 100]
+                                            },
+                                            {
+                                                $arrayElemAt:
+                                                    ['$getOrganization.commissionPercentage',
+                                                        0]
+                                            }
+                                        ]
+                                },
+                                "$total"
+                            ]
+                        }
+                    }
+                },
+                // {
+                //     $project: {
+                //         total: { $toString: { $round: ["$totalPercent", 2] } },
+                //     }
+                // },
+            ]
+        }
+
+
+
+        
+
+
+        return this.aggregate([
+            {$match: {status: { $in: [0, 1] } }},
+            ...accessLevelMatch,
+            {
+                $match: {
+                    $expr: {
+                        $and: [
+                            {
+                                $eq: [
+                                    { $month: monthFlag },
+                                    { $month: "$from" }
+                                ]
+                            },
+                            {
+                                $eq: [
+                                    { $year: monthFlag },
+                                    { $year: "$from" }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            },
+            {
+                $group:
+                {
+                    _id:
+                    {
+                        day: { $dayOfMonth: "$from" },
+                        month: { $month: "$from" },
+                        year: { $year: "$from" }
+                    },
+                    count: { $sum: 1 },
+                    date: { $first: "$from" }
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    day: "$_id.day",
+                    month: "$_id.month",
+                    year: "$_id.year",
+                    date: 1,
+                    eventCount: '$count'
+                }
+            }
+        ])
+            .then(result => {
+                return result;
+            })
+            .catch(err => console.error(err));
+    },
+
+
     /**
      * List my Transaction
      *
