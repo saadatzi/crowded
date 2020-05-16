@@ -662,7 +662,7 @@ TransactionSchema.static({
             {
                 $lookup: {
                     from: 'events',
-                    let: {primaryOrgId: admin.organizationId, primaryEventId: "$eventId"},
+                    let: {primaryEventId: "$eventId"},
                     pipeline: [
                         {$match: {orgId: mongoose.Types.ObjectId(admin.organizationId)}},
                         {$match: {$expr: {$eq: ["$$primaryEventId", "$_id"]}}},
@@ -690,7 +690,6 @@ TransactionSchema.static({
             },
         ])
             .then(async result => {
-                console.log("&&&&&&&&&&&&&&&&&&&&&&&& getTotalPaid", result);
                 return {type: 'paid', total: result.length > 0 && result[0].total ? result[0].total : 0};
             })
             .catch(err => console.error("getMyTransaction  Catch", err));

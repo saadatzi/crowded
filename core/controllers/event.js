@@ -116,7 +116,7 @@ eventController.prototype.list = async (userId, optFilter, accessLevel) => {
  *
  * @return Events
  */
-eventController.prototype.countTotal =  async (userId, optFilter, accessLevel) => {
+eventController.prototype.countTotal = async (userId, optFilter, accessLevel) => {
     if (accessLevel === 'GROUP') {
         console.log(">>>>>>>>>>>>>>>> accessLevel: %s", accessLevel);
         return await Event.countListGroup(userId, optFilter)
@@ -143,24 +143,24 @@ eventController.prototype.countTotal =  async (userId, optFilter, accessLevel) =
  *
  * @return NotApprovedUsersCount
  */
-eventController.prototype.countWatingForApproval = async(userId,optFilter,accessLevel) => {
+eventController.prototype.countWatingForApproval = async (userId, optFilter, accessLevel) => {
 
     if (accessLevel === 'GROUP') {
         console.log(">>>>>>>>>>>>>>>> accessLevel: %s", accessLevel);
-        return await Event.countWaitingForApprovalGroup(userId,optFilter,accessLevel)
-        .catch(err => {
-            console.error("!!!Event countWaitingForApprovalGroup failed: ", err);
-            throw err;
-        })
+        return await Event.countWaitingForApprovalGroup(userId, optFilter, accessLevel)
+            .catch(err => {
+                console.error("!!!Event countWaitingForApprovalGroup failed: ", err);
+                throw err;
+            })
     } else {
         console.log(">>>>>>>>>>>>>>>> accessLevel: %s", accessLevel);
-        return await Event.countWaitingForApprovalOwnAny(userId,optFilter,accessLevel)
-        .catch(err => {
-            console.error("!!!Event countWaitingForApprovalOwnAny failed: ", err);
-            throw err;
-        })
+        return await Event.countWaitingForApprovalOwnAny(userId, optFilter, accessLevel)
+            .catch(err => {
+                console.error("!!!Event countWaitingForApprovalOwnAny failed: ", err);
+                throw err;
+            })
     }
-   
+
 };
 
 
@@ -173,22 +173,22 @@ eventController.prototype.countWatingForApproval = async(userId,optFilter,access
  *
  * @return 10 next Events
  */
-eventController.prototype.listUpcomingEvents = async(userId,optFilter,accessLevel) => {
+eventController.prototype.listUpcomingEvents = async (userId, optFilter, accessLevel) => {
 
-     if (accessLevel === 'GROUP') {
+    if (accessLevel === 'GROUP') {
         console.log(">>>>>>>>>>>>>>>> accessLevel: %s", accessLevel);
-        return await Event.listUpcomingEventsGroup(userId,optFilter,accessLevel)
-        .catch(err => {
-            console.error("!!!Event listUpcomingEventsGroup failed: ", err);
-            throw err;
-        })
+        return await Event.listUpcomingEventsGroup(userId, optFilter, accessLevel)
+            .catch(err => {
+                console.error("!!!Event listUpcomingEventsGroup failed: ", err);
+                throw err;
+            })
     } else {
         console.log(">>>>>>>>>>>>>>>> accessLevel: %s", accessLevel);
-        return await Event.listUpcomingEventsOwnAny(userId,optFilter,accessLevel)
-        .catch(err => {
-            console.error("!!!Event listUpcomingEventsOwnAny failed: ", err);
-            throw err;
-        })
+        return await Event.listUpcomingEventsOwnAny(userId, optFilter, accessLevel)
+            .catch(err => {
+                console.error("!!!Event listUpcomingEventsOwnAny failed: ", err);
+                throw err;
+            })
     }
 };
 
@@ -197,7 +197,7 @@ eventController.prototype.listUpcomingEvents = async(userId,optFilter,accessLeve
  * listUpcomingEvents (OWN,GROUP,ANY)
  *
  * @param {ObjectId} userId
- * @param {Object} optFilter
+ * @param {Object} monthFlag
  * @param {String} accessLevel
  *
  * @return 10 next Events

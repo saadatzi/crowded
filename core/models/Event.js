@@ -296,27 +296,20 @@ EventSchema.static({
             })
             .catch(err => console.error(err));
     },
-    
+
     async listUpcomingEventsOwnAny(userId, optFilter, accessLevel) {
-        const accessLevelMatch = { status: { $in: [0, 1] } };
+        const accessLevelMatch = {status: {$in: [0, 1]}};
         if (accessLevel === 'OWN') accessLevelMatch.owner = mongoose.Types.ObjectId(userId);
         return this.aggregate([
-            { $match: accessLevelMatch },
-            {
-                $match: {
-                    from: { $gte: new Date() }
-                }
-            },
-            {
-                $limit:10
-            },
+            {$match: {$and: [accessLevelMatch, {from: {$gte: new Date()}}]}},
+            {$limit: 10},
             {
                 $project: {
                     _id: 0,
                     id: "$_id",
                     title_en: 1,
-                    image: {$concat: [settings.media_domain, "$imagePicker"]},
-                    isActive: {$cond: {if: {$eq: ["$status", 1]}, then: true, else: false}},
+                    image: {url: {$concat: [settings.media_domain, "$imagePicker"]}},
+                    isActive: {$cond: [{$eq: ["$status", 1]}, true, false]},
                 },
             },
         ])
@@ -327,10 +320,9 @@ EventSchema.static({
     },
 
     async listUpcomingEventsGroup(userId, optFilter, accessLevel) {
-        const accessLevelMatch = { status: { $in: [0, 1] } };
-        if (accessLevel === 'OWN') accessLevelMatch.owner = mongoose.Types.ObjectId(userId);
+        const accessLevelMatch = {status: {$in: [0, 1]}};
         return this.aggregate([
-            { $match: accessLevelMatch },
+            {$match: accessLevelMatch},
             {
                 $lookup: {
                     from: 'admins',
@@ -353,31 +345,17 @@ EventSchema.static({
                 }
             },
             {$unwind: {path: "$getOrgAdmin", preserveNullAndEmptyArrays: false}},
-            {
-                $group: {
-                    _id: "$_id",
-                    image: {$first: {url: {$concat: [settings.media_domain, "$imagePicker"]}}},
-                    title_en: {$first: `$title_en`},
-                    status: {$first: `$status`},
-                }
-            },
-            {
-                $match: {
-                    from: { $gte: new Date() }
-                }
-            },
-            {
-                $limit:10
-            },
+            {$match: {$and: [accessLevelMatch, {from: {$gte: new Date()}}]}},
+            {$limit: 10},
             {
                 $project: {
                     _id: 0,
                     id: "$_id",
                     title_en: 1,
-                    image: 1,
-                    isActive: {$cond: {if: {$eq: ["$status", 1]}, then: true, else: false}},
+                    image: {url: {$concat: [settings.media_domain, "$imagePicker"]}},
+                    isActive: {$cond: [{$eq: ["$status", 1]}, true, false]},
                 },
-            }
+            },
         ])
             .then(result => {
                 return result;
@@ -398,10 +376,9 @@ EventSchema.static({
         /* ********************************* */
 
         const accessLevelMatch = [];
-        if (accessLevel === 'OWN'){
-            accessLevelMatch = [{ $match: { owner: mongoose.Types.ObjectId(userId) } }];
-        } 
-        else if (accessLevel === 'GROUP') {
+        if (accessLevel === 'OWN') {
+            accessLevelMatch = [{$match: {owner: mongoose.Types.ObjectId(userId)}}];
+        } else if (accessLevel === 'GROUP') {
             accessLevelMatch = [
                 {
                     $lookup: {
@@ -430,12 +407,8 @@ EventSchema.static({
         }
 
 
-
-        
-
-
         return this.aggregate([
-            {$match: {status: { $in: [0, 1] } }},
+            {$match: {status: {$in: [0, 1]}}},
             ...accessLevelMatch,
             {
                 $match: {
@@ -443,14 +416,14 @@ EventSchema.static({
                         $and: [
                             {
                                 $eq: [
-                                    { $month: monthFlag },
-                                    { $month: "$from" }
+                                    {$month: monthFlag},
+                                    {$month: "$from"}
                                 ]
                             },
                             {
                                 $eq: [
-                                    { $year: monthFlag },
-                                    { $year: "$from" }
+                                    {$year: monthFlag},
+                                    {$year: "$from"}
                                 ]
                             }
                         ]
@@ -459,23 +432,25 @@ EventSchema.static({
             },
             {
                 $group:
-                {
-                    _id:
                     {
-                        day: { $dayOfMonth: "$from" },
-                        month: { $month: "$from" },
-                        year: { $year: "$from" }
-                    },
-                    count: { $sum: 1 },
-                    date: { $first: "$from" }
-                }
+                        _id:
+                            {
+                                day: {$dayOfMonth: "$from"},
+                                month: {$month: "$from"},
+                                year: {$year: "$from"}
+                            },
+                        count: {$sum: 1},
+                        date: {$first: "$from"}
+                    }
             },
-            { $project:{
-                _id:0,
-                day: "$_id.day",
-                date:1,
-                count: 1
-            }}
+            {
+                $project: {
+                    _id: 0,
+                    day: "$_id.day",
+                    date: 1,
+                    count: 1
+                }
+            }
         ])
             .then(result => {
                 return result;

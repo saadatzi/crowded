@@ -29,7 +29,8 @@ const updateSchema = Joi.object().keys({
     title:           JoiConfigs.title.optional(),
     address:         JoiConfigs.title.optional(),
     phones:          Joi.array().items(JoiConfigs.phone).optional(),
-    status:          Joi.number().optional(),   
+    status:          Joi.number().optional(),
+    commissionPercentage: JoiConfigs.price
 });
 
 const hasValidIdSchema = Joi.object().keys({
@@ -43,6 +44,7 @@ const listSchema = JoiConfigs.schemas.list({
     sorts:{
         createdAt: Joi.number().valid(-1,1),
         title: Joi.number().valid(-1,1),
+        commissionPercentage: Joi.number().valid(-1,1),
     },
     defaultSorts:{
         createdAt: -1,
