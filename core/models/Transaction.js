@@ -479,16 +479,6 @@ TransactionSchema.static({
         const criteria = {isDebtor: false};
         return await this.aggregate([
             {$match: criteria},
-            //get organization percent //commissionPercentage
-            {
-                $lookup: {
-                    from: 'organizations',
-                    pipeline: [
-                        {$match: {_id: mongoose.Types.ObjectId(admin.organizationId)}},
-                    ],
-                    as: 'getOrganization'
-                }
-            },
             //filter only this Organization
             {
                 $lookup: {
@@ -503,14 +493,25 @@ TransactionSchema.static({
             },
             {$unwind: {path: "$getOrgEvents", preserveNullAndEmptyArrays: false}},
             {$group: {_id: null, total: {$sum: "$price"}}},
-            // {$project: {totalPercent: {$add: [{$multiply:[{$divide:["$total",100]},{$arrayElemAt: ['$getOrganization.commissionPercentage', 0]}]}, "$total"]}}},
+            //get organization percent //commissionPercentage
+            {
+                $lookup: {
+                    from: 'organizations',
+                    pipeline: [
+                        {$match: {_id: mongoose.Types.ObjectId(admin.organizationId)}},
+                    ],
+                    as: 'getOrganization'
+                }
+            },
+            {$project: {totalPercent: {$add: [{$multiply:[{$divide:["$total",100]},{$arrayElemAt: ['$getOrganization.commissionPercentage', 0]}]}, "$total"]}}},
             {
                 $project: {
                     _id: 0,
                     total: {$toString: "$total"},
                     orgPercent: {$arrayElemAt: ['$getOrganization', 0]},
                     getOrganization: 1,
-                    sumPercent: {$multiply: [{$divide: ["$total", 100]}, {$arrayElemAt: ['$getOrganization.commissionPercentage', 0]}]}
+                    sumPercent: {$multiply: [{$divide: ["$total", 100]}, {$arrayElemAt: ['$getOrganization.commissionPercentage', 0]}]},
+                    totalPercent: 1
                 }
             },
         ])
