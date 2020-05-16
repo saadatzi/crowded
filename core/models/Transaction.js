@@ -507,11 +507,11 @@ TransactionSchema.static({
             {
                 $project: {
                     _id: 0,
-                    getOrganization: {$arrayElemAt: ['$getOrganization.commissionPercentage', 0]},
-                    total: {$toString: "$total"},
+                    // getOrganization: {$arrayElemAt: ['$getOrganization.commissionPercentage', 0]},
+                    total: {$toString: "$totalPercent"},
                     // orgPercent: {$arrayElemAt: ['$getOrganization', 0]},
-                    sumPercent: {$multiply: [{$divide: ["$total", 100]}, {$arrayElemAt: ['$getOrganization.commissionPercentage', 0]}]},
-                    totalPercent: 1
+                    // sumPercent: {$multiply: [{$divide: ["$total", 100]}, {$arrayElemAt: ['$getOrganization.commissionPercentage', 0]}]},
+                    // totalPercent: 1
                 }
             },
         ])
