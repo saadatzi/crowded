@@ -466,7 +466,7 @@ TransactionSchema.static({
             {$project: {_id: 0, total:{$toString: "$total"}}},
         ])
             .then(async result => {
-                return {type: 'earned', total: result.length > 0  ? result[0].total : 0};
+                return {type: 'earned', total: result.length > 0 && result[0].total ? result[0].total : 0};
             })
             .catch(err => console.error("getMyTransaction  Catch", err));
     },
@@ -509,7 +509,7 @@ TransactionSchema.static({
         ])
             .then(async result => {
                 console.log("&&&&&&&&&&&&&&&&&&&&&&&& getTotalPaid", result);
-                return {type: 'paid', total: result.length > 0 ? result[0].total : 0};
+                return {type: 'paid', total: result.length > 0 && result[0].total ? result[0].total : 0};
             })
             .catch(err => console.error("getMyTransaction  Catch", err));
     },
