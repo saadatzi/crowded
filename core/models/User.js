@@ -162,7 +162,7 @@ UserSchema.static({
                     email: 1,
                     firstname: 1,
                     lastname: 1,
-                    reportCount: {$arrayElemAt: ["$getReportTotal.total", 0]},
+                    reportCount: {$cond: [{$arrayElemAt: ["$getReportTotal.total", 0]}, 99, 0],
                     isActive: {$cond: {if: {$eq: ["$status", 1]}, then: true, else: false}},
                 }
             },
