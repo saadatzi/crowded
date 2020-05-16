@@ -28,7 +28,8 @@ const manageSchema = Joi.object().keys({
 
 const listSchema = JoiConfigs.schemas.list({
     filters:{
-        status: Joi.number().valid(0, 1, 2).default(1),
+        situation: JoiConfigs.strValid(['PAID', 'UNPAID', 'PENDING'], false),
+        status: Joi.number().valid(0, 1).default(1),
     },
     sorts:{
         situation: Joi.number().valid(-1,1),

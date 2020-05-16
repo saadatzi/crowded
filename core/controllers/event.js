@@ -296,10 +296,7 @@ eventController.prototype.update = async (optFilter, newValue) => {
         } else {
 
             return await Event.findByIdAndUpdate(optFilter, newValue)
-                .then(result => {
-                    console.log(`***Event Update by id ${optFilter} result: `, result);
-                    return result;
-                })
+                // .then(result => result)
                 .catch(err => {
                     console.error("!!!Event Update failed: ", err);
                     throw err;

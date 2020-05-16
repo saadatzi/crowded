@@ -46,12 +46,13 @@ const listSchema = JoiConfigs.schemas.list({
         status: Joi.number().valid(0, 1, 2).default(1)
     },
     sorts:{
+        order: Joi.number().valid(-1,1),
         createdAt: Joi.number().valid(-1,1),
         title_en: Joi.number().valid(-1,1),
         title_ar: Joi.number().valid(-1,1),
     },
     defaultSorts:{
-        createdAt: -1,
+        order: 1,
     }
 });
 
@@ -133,7 +134,7 @@ router.delete('/', verifyTokenPanel(), joiValidate(hasValidIdSchema, 0), authori
  * Get Interests
  * @return list of interests
  */
-router.post('/', verifyTokenPanel(), authorization([{INTEREST: 'R'}]), joiValidate(listSchema, 0), async function (req, res) {
+router.post('/', joiValidate(listSchema), verifyTokenPanel(), authorization([{INTEREST: 'R'}]), async function (req, res) {
     // !! NOTE that joi-filtered data is now in req._body not req.body !!
     interestController.getManyPanel(req._body)
         .then(result => {

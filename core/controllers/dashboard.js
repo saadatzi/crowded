@@ -19,6 +19,8 @@ dashboardController.prototype.getStats = async (userId,optFilter,accessLevel) =>
 
         let waitingForApprovalCount = await eventController.countWatingForApproval(userId, optFilter, accessLevel.EVENT[0].R.level);
 
+        let totalEarned = await eventController.countWatingForApproval(userId, optFilter, accessLevel.EVENT[0].R.level);
+
 
         return {
             totalEventsCount,
