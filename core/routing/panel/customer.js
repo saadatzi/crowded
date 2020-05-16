@@ -77,7 +77,7 @@ const activateSchema = Joi.object().keys({
 /**
  Get users (customers)
  */
-router.post('/', joiValidate(customerListSchema), verifyTokenPanel(), async (req, res) => {
+router.post('/', joiValidate(customerListSchema), verifyTokenPanel(), authorization([{USER: 'R'}]), async (req, res) => {
     userController.getManyPanel(req._body)
         .then(result => {
             new NZ.Response(result).send(res);
@@ -110,7 +110,7 @@ router.put('/activate', joiValidate(activateSchema), verifyTokenPanel(), authori
 /**
  Get user bank accounts
  */
-router.post('/:id/bankAccounts', verifyTokenPanel(), joiValidate(detailSchema, 2), joiValidate(bankAccountListSchema, 0), async (req, res) => {
+router.post('/:id/bankAccounts', verifyTokenPanel(), joiValidate(detailSchema, 2), joiValidate(bankAccountListSchema), authorization([{USER: 'R'}, {Bank: 'R'}, {ACCOUNT: 'R'}]), async (req, res) => {
     userController.getBankAccountsList(req.params.id, req._body)
         .then(result => {
             new NZ.Response(result).send(res);
@@ -123,7 +123,7 @@ router.post('/:id/bankAccounts', verifyTokenPanel(), joiValidate(detailSchema, 2
 /**
  Get Detail user bank account
  */
-router.get('/:id/bankAccounts/:accountId', verifyTokenPanel(), joiValidate(bankAccountDetailSchema, 2), async (req, res) => {
+router.get('/:id/bankAccounts/:accountId', verifyTokenPanel(), joiValidate(bankAccountDetailSchema, 2), authorization([{USER: 'R'}, {Bank: 'R'}, {ACCOUNT: 'R'}]), async (req, res) => {
     userController.getBankAccountDetail(req.params.accountId)
         .then(result => {
             new NZ.Response(result).send(res);
@@ -136,7 +136,7 @@ router.get('/:id/bankAccounts/:accountId', verifyTokenPanel(), joiValidate(bankA
 /**
  Delete user bank accounts
  */
-router.delete('/:id/bankAccounts', verifyTokenPanel(), joiValidate(detailSchema, 2), joiValidate(bankAccountDeleteSchema, 0), async (req, res) => {
+router.delete('/:id/bankAccounts', verifyTokenPanel(), joiValidate(detailSchema, 2), joiValidate(bankAccountDeleteSchema), authorization([{USER: 'R'}, {ACCOUNT: 'RD'}]), async (req, res) => {
     userController.deleteBankAccount(req.body.accountId)
         .then(result => {
             console.log(`bank account deleted :${result}`)
@@ -153,7 +153,7 @@ router.delete('/:id/bankAccounts', verifyTokenPanel(), joiValidate(detailSchema,
 /**
  Get users events (customers)
  */
-router.post('/:id/event', joiValidate(detailSchema, 2), joiValidate(eventListSchema), verifyTokenPanel(), async (req, res) => {
+router.post('/:id/event', joiValidate(detailSchema, 2), joiValidate(eventListSchema), verifyTokenPanel(), authorization([{USER: 'R'}, {EVENT: 'R'}]), async (req, res) => {
     console.info('API: Get users events (customers)/init %j', {body: req.body});
     eventController.getCustomerEvent(req.params.id, req._body)
         .then(result => {
@@ -169,7 +169,7 @@ router.post('/:id/event', joiValidate(detailSchema, 2), joiValidate(eventListSch
 /**
  Get user detail (customer)
  */
-router.get('/:id', joiValidate(detailSchema, 2), verifyTokenPanel(), async (req, res) => {
+router.get('/:id', joiValidate(detailSchema, 2), verifyTokenPanel(), authorization([{USER: 'R'}]), async (req, res) => {
     userController.getOnePanel(req.params)
         .then(result => {
             new NZ.Response(result).send(res);
