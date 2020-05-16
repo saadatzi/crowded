@@ -81,14 +81,14 @@ router.post('/', joiValidate(customerListSchema), verifyTokenPanel(), async (req
             new NZ.Response(result).send(res);
         })
         .catch(err => {
-
+            console.error("Customer List Catch err:", err);
             new NZ.Response(null, err.message, err.code).send(res);
         });
 });
 
 /**
  *  Activation customer
- * -add Event in db
+ * -Update user status
  * @return status
  */
 //______________________Activation Customer_____________________//

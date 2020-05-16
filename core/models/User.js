@@ -127,13 +127,13 @@ UserSchema.static({
             regexMatch = {
                 "$or": [
                     {
-                        email: { $regex: regex, $options: "i" }
+                        email: {$regex: regex, $options: "i"}
                     },
                     {
-                        firstname: { $regex: regex, $options: "i" }
+                        firstname: {$regex: regex, $options: "i"}
                     },
                     {
-                        lastname: { $regex: regex, $options: "i" }
+                        lastname: {$regex: regex, $options: "i"}
                     }
                 ]
             };
@@ -141,11 +141,23 @@ UserSchema.static({
 
 
         return this.aggregate([
-            { $match: regexMatch },
-            { $match: optFilter.filters },
-            { $sort: optFilter.sorts },
-            { $skip: optFilter.pagination.page * optFilter.pagination.limit },
-            { $limit: optFilter.pagination.limit },
+            {$match: {$and: [regexMatch, optFilter.filters]}},
+            {$sort: optFilter.sorts},
+            {$skip: optFilter.pagination.page * optFilter.pagination.limit},
+            {$limit: optFilter.pagination.limit},
+            //get report count
+            {
+                $lookup: {
+                    from: 'reportusers',
+                    let: {primaryUserId: "$_id"},
+                    pipeline: [
+                        //TODO important report result
+                        {$match: {$expr: {$eq: ["$$primaryUserId", "$userId"]}}},
+                        {$count: 'total'},
+                    ],
+                    as: 'getReportTotal'
+                }
+            },
             {
                 $project: {
                     _id: 0,
@@ -153,22 +165,23 @@ UserSchema.static({
                     email: 1,
                     firstname: 1,
                     lastname: 1,
+                    reportCount: {$arrayElemAt: ["$getReportTotal", 0]},
                     isActive: {$cond: {if: {$eq: ["$status", 1]}, then: true, else: false}},
                 }
             },
             {
                 $group: {
                     _id: null,
-                    items: { $push: '$$ROOT' },
+                    items: {$push: '$$ROOT'},
                 }
             },
             {
                 $lookup: {
                     from: 'users',
                     pipeline: [
-                        { $match: regexMatch },
-                        { $match: optFilter.filters },
-                        { $count: 'total' },
+                        {$match: regexMatch},
+                        {$match: optFilter.filters},
+                        {$count: 'total'},
                     ],
                     as: 'getTotal'
                 }
@@ -177,7 +190,7 @@ UserSchema.static({
                 $project: {
                     _id: 0,
                     items: 1,
-                    total: { $arrayElemAt: ["$getTotal", 0] },
+                    total: {$arrayElemAt: ["$getTotal", 0]},
                 }
             },
         ])
@@ -191,7 +204,7 @@ UserSchema.static({
                     items = result[0].items;
                 }
                 optFilter.pagination.total = total;
-                return { explain: optFilter, items };
+                return {explain: optFilter, items};
             })
             .catch(err => console.error(err));
 
@@ -199,9 +212,8 @@ UserSchema.static({
     },
 
 
-
     /**
-     * Get 
+     * Get
      *
      * @param {Object} optFilter
      * @api private
@@ -209,15 +221,15 @@ UserSchema.static({
     async getOnePanel(optFilter) {
 
 
-        const baseCriteria = { status: { $in: [0, 1] }, _id: mongoose.Types.ObjectId(optFilter.id) };
+        const baseCriteria = {status: {$in: [0, 1]}, _id: mongoose.Types.ObjectId(optFilter.id)};
         return await this.aggregate([
-            { $match: baseCriteria },
+            {$match: baseCriteria},
             {
                 $lookup: {
                     from: 'interests',
-                    let: { 'primaryInterest': '$interests' },
+                    let: {'primaryInterest': '$interests'},
                     pipeline: [
-                        { $match: { $expr: { $in: ["$_id", "$$primaryInterest"] } } },
+                        {$match: {$expr: {$in: ["$_id", "$$primaryInterest"]}}},
                         {
                             $project: {
                                 _id: 0,
@@ -235,22 +247,22 @@ UserSchema.static({
                     _id: 0,
                     id: '$_id',
                     interests: '$getInterests',
-                    firstname:1,
-                    lastname:1,
-                    sex:1,
+                    firstname: 1,
+                    lastname: 1,
+                    sex: 1,
                     email: 1,
                     nationality: 1,
-                    birthDate:1,
+                    birthDate: 1,
                     image: {
                         $cond: [
-                            {$ne: [ "$image", undefined]},
+                            {$ne: ["$image", undefined]},
                             {$concat: [settings.media_domain, '$image']},
                             null
                         ]
                     },
                     phone: {
                         $cond: [
-                            { $gt: ["$phone", null] },
+                            {$gt: ["$phone", null]},
                             '$phone',
                             null
                         ]
@@ -262,8 +274,7 @@ UserSchema.static({
 
 
     },
-    
-    
+
 
     /**
      * List all User in Event
