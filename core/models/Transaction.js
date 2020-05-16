@@ -457,13 +457,13 @@ TransactionSchema.static({
      *
      */
     getTotalEarned: async function () {
-        const criteria = {isDebtor: true};
+        const criteria = {isDebtor: false};
 
         //TODO imp commissionPercentage
         return await this.aggregate([
             {$match: criteria},
             {$group: {_id: null, total: {$sum: "$price"}}},
-            {$project: {_id: 0, total:{$toString: {$abs: "$total"}}}},
+            {$project: {_id: 0, total:{$toString: "$total"}}},
         ])
             .then(async result => {
                 return {type: 'earned', total: result[0].total ? result[0].total : 0};
@@ -477,9 +477,20 @@ TransactionSchema.static({
      */
     getTotalPaid: async function (admin) {
         const criteria = {isDebtor: false};
-
         return await this.aggregate([
             {$match: criteria},
+            //get organization percent //commissionPercentage
+            {
+                $lookup: {
+                    from: 'organizations',
+                    let: {primaryOrgId: admin.organizationId},
+                    pipeline: [
+                        {$match: {$expr: {$eq: ["$$primaryOrgId", "$_id"]}}},
+                    ],
+                    as: 'getOrganization'
+                }
+            },
+            //filter only this Organization
             {
                 $lookup: {
                     from: 'events',
@@ -493,7 +504,7 @@ TransactionSchema.static({
             },
             {$unwind: {path: "$getOrgEvents", preserveNullAndEmptyArrays: false}},
             {$group: {_id: null, total: {$sum: "$price"}}},
-            // {$project: {_id: 0, total:{$arrayElemAt: ["$total", 0]}}},
+            {$project: {totalPercent: {$add: [{$multiply:[{$divide:["$total",100]},{$arrayElemAt: ['$getOrganization.commissionPercentage', 0]}]}, "$total"]}}},
             {$project: {_id: 0, total:{$toString: "$total"}}},
         ])
             .then(async result => {
