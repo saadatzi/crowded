@@ -459,15 +459,45 @@ TransactionSchema.static({
     getTotalEarned: async function () {
         const criteria = {isDebtor: true};
 
+        //TODO imp commissionPercentage
         return await this.aggregate([
             {$match: criteria},
+            {$group: {_id: null, total: {$sum: "$price"}}},
+            {$project: {_id: 0, total:{$toString: {$abs: "$total"}}}},
+        ])
+            .then(async result => {
+                return {type: 'earned', total: result[0].total ? result[0].total : 0};
+            })
+            .catch(err => console.error("getMyTransaction  Catch", err));
+    },
+
+    /**
+     * Total Paid for Organization Transaction
+     * @param {Object} admin
+     */
+    getTotalPaid: async function (admin) {
+        const criteria = {isDebtor: false};
+
+        return await this.aggregate([
+            {$match: criteria},
+            {
+                $lookup: {
+                    from: 'events',
+                    let: {primaryOrgId: admin.organizationId, primaryEventId: "$eventId"},
+                    pipeline: [
+                        {$match: {$expr: {$eq: ["$orgId", "$$primaryOrgId"]}}},
+                    ],
+                    as: 'getOrgEvents'
+                }
+            },
+            {$unwind: {path: "$getOrgEvents", preserveNullAndEmptyArrays: false}},
             {$group: {_id: null, total: {$sum: "$price"}}},
             // {$project: {_id: 0, total:{$arrayElemAt: ["$total", 0]}}},
             {$project: {_id: 0, total:{$toString: {$abs: "$total"}}}},
         ])
             .then(async result => {
-                console.log("&&&&&&&&&&&&&&&&&&&&&&&& getTotalEarned", result);
-                return {type: 'earned', total: result[0].total};
+                console.log("&&&&&&&&&&&&&&&&&&&&&&&& getTotalPaid", result);
+                return {type: 'paid', total: result[0].total ? result[0].total : 0};
             })
             .catch(err => console.error("getMyTransaction  Catch", err));
     },

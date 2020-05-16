@@ -12,15 +12,15 @@ const dashboardController = function () {
  * Login User Panel
  *
  */
-dashboardController.prototype.getStats = async (userId, optFilter, accessLevel) => {
+dashboardController.prototype.getStats = async (admin, optFilter, accessLevel) => {
 
     try {
 
-        let totalEventsCount = await eventController.countTotal(userId, optFilter, accessLevel.EVENT[0].R.level);
+        let totalEventsCount = await eventController.countTotal(admin._id, optFilter, accessLevel.EVENT[0].R.level);
 
-        let waitingForApprovalCount = await eventController.countWatingForApproval(userId, optFilter, accessLevel.EVENT[0].R.level);
+        let waitingForApprovalCount = await eventController.countWatingForApproval(admin._id, optFilter, accessLevel.EVENT[0].R.level);
 
-        let totalCostIncome = await transactionController.getTotalCostIncome(userId, accessLevel.EVENT[0].R.level);
+        let totalCostIncome = await transactionController.getTotalCostIncome(admin, accessLevel.EVENT[0].R.level);
 
 
         return {
