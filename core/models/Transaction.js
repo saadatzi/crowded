@@ -492,7 +492,7 @@ TransactionSchema.static({
                 }
             },
             {$unwind: {path: "$getOrgEvents", preserveNullAndEmptyArrays: false}},
-            {$group: {_id: null, total: {$sum: "$price"}}},
+            // {$group: {_id: null, total: {$sum: "$price"}}},
             //get organization percent //commissionPercentage
             {
                 $lookup: {
@@ -503,15 +503,15 @@ TransactionSchema.static({
                     as: 'getOrganization'
                 }
             },
-            {$project: {totalPercent: {$add: [{$multiply:[{$divide:["$total",100]},{$arrayElemAt: ['$getOrganization.commissionPercentage', 0]}]}, "$total"]}}},
+            // {$project: {totalPercent: {$add: [{$multiply:[{$divide:["$total",100]},{$arrayElemAt: ['$getOrganization.commissionPercentage', 0]}]}, "$total"]}}},
             {
                 $project: {
                     _id: 0,
-                    total: {$toString: "$total"},
-                    orgPercent: {$arrayElemAt: ['$getOrganization', 0]},
                     getOrganization: 1,
-                    sumPercent: {$multiply: [{$divide: ["$total", 100]}, {$arrayElemAt: ['$getOrganization.commissionPercentage', 0]}]},
-                    totalPercent: 1
+                    // total: {$toString: "$total"},
+                    // orgPercent: {$arrayElemAt: ['$getOrganization', 0]},
+                    // sumPercent: {$multiply: [{$divide: ["$total", 100]}, {$arrayElemAt: ['$getOrganization.commissionPercentage', 0]}]},
+                    // totalPercent: 1
                 }
             },
         ])
