@@ -26,7 +26,8 @@ const customerListSchema = JoiConfigs.schemas.list({
         reportCount: Joi.number().valid(-1, 1),
     },
     defaultSorts: {
-        lastInteract: -1
+        lastInteract: -1,
+        reportCount: -1
     }
 });
 
