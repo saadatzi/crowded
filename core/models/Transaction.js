@@ -476,7 +476,6 @@ TransactionSchema.static({
      * @param {Object} admin
      */
     getTotalPaid: async function (admin) {
-        console.info("!!!getTotalCostIncome admin : ", admin);
         const criteria = {isDebtor: false};
         return await this.aggregate([
             {$match: criteria},

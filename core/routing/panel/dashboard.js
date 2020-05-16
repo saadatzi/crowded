@@ -46,7 +46,6 @@ router.post('/', joiValidate(getStatsSchema), verifyTokenPanel(), authorization(
 
     //TODO why try catch, controller is promise
     try {
-        console.info("////////////////// AFter verifyTokenPanel admin : ", req._admin);
         let stats = await dashboardController.getStats(req._admin, req._body, req.auth.accessLevel);
         new NZ.Response(stats).send(res);
     } catch (err) {

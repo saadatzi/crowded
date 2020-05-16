@@ -15,8 +15,6 @@ const dashboardController = function () {
 dashboardController.prototype.getStats = async (admin, optFilter, accessLevel) => {
 
     try {
-        console.info("////////////////// dashboardController.prototype.getStats admin : ", admin);
-
         let totalEventsCount = await eventController.countTotal(admin._id, optFilter, accessLevel.EVENT[0].R.level);
 
         let waitingForApprovalCount = await eventController.countWatingForApproval(admin._id, optFilter, accessLevel.EVENT[0].R.level);

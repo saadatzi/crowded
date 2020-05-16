@@ -226,10 +226,8 @@ transactionController.prototype.getPanelTransaction = async (optFilter) => {
  * @return List Transaction
  */
 transactionController.prototype.getTotalCostIncome = async (admin, accLevel) => {
-    console.info("////////////////// getTotalCostIncome admin : ", admin);
-
     if (accLevel === 'ANY')
-        return await Transaction.getTotalPaid()
+        return await Transaction.getTotalPaid(admin)
             .then(transactions => transactions)
             .catch(err => {
                 console.error("!!!Transaction getAll failed: ", err);
