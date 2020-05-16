@@ -486,6 +486,7 @@ TransactionSchema.static({
                     let: {primaryOrgId: admin.organizationId, primaryEventId: "$eventId"},
                     pipeline: [
                         {$match: {$expr: {$eq: ["$orgId", "$$primaryOrgId"]}}},
+                        {$match: {$expr: {$eq: ["$$primaryEventId", "$_id"]}}},
                     ],
                     as: 'getOrgEvents'
                 }
@@ -493,7 +494,7 @@ TransactionSchema.static({
             {$unwind: {path: "$getOrgEvents", preserveNullAndEmptyArrays: false}},
             {$group: {_id: null, total: {$sum: "$price"}}},
             // {$project: {_id: 0, total:{$arrayElemAt: ["$total", 0]}}},
-            {$project: {_id: 0, total:{$toString: {$abs: "$total"}}}},
+            {$project: {_id: 0, total:{$toString: "$total"}}},
         ])
             .then(async result => {
                 console.log("&&&&&&&&&&&&&&&&&&&&&&&& getTotalPaid", result);
