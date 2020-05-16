@@ -120,7 +120,10 @@ transactionController.prototype.requestWithdraw = async (userId, accountId, tota
     return await Transaction.getTotalUnpaid(userId)
         .then(async totalUnpaid => {
             if (totalUnpaid) {
-                if (Number(totalUnpaid.total) !== Number(total)) throw {code: 406, message: 'Your request has security issues!'}
+                if (Number(totalUnpaid.total) !== Number(total)) throw {
+                    code: 406,
+                    message: 'Your request has security issues!'
+                }
                 return await accountController.validation(userId, accountId)
                     .then(validation => {
                         if (!validation) throw {code: 406, message: 'Account selected is incorrect!'}
@@ -210,6 +213,26 @@ transactionController.prototype.getPanelTransaction = async (optFilter) => {
             console.error("!!!Transaction getAll failed: ", err);
             throw err;
         })
+
+};
+
+
+/**
+ * get total cost/income
+ *
+ * @param {ObjectId} userId
+ * @param {String} accLevel
+ *
+ * @return List Transaction
+ */
+transactionController.prototype.getTotalCostIncome = async (userId, accLevel) => {
+    if (accLevel === 'ANY')
+        return await Transaction.getTotalEarned()
+            .then(transactions => transactions)
+            .catch(err => {
+                console.error("!!!Transaction getAll failed: ", err);
+                throw err;
+            })
 
 };
 

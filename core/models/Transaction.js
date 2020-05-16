@@ -114,7 +114,13 @@ TransactionSchema.static({
             {
                 $project: {
                     _id: 0,
-                    nextPage: {$cond: {if: {$gt: [{$size: "$items"}, limit]}, then: {$add: [{$toInt: page}, 1]}, else: null}},
+                    nextPage: {
+                        $cond: {
+                            if: {$gt: [{$size: "$items"}, limit]},
+                            then: {$add: [{$toInt: page}, 1]},
+                            else: null
+                        }
+                    },
                     items: {$slice: ["$items", limit]},
                 }
             },
@@ -139,7 +145,7 @@ TransactionSchema.static({
     getMyTransactionTotal: async function (userId) {
         const criteria = {status: 1, userId: mongoose.Types.ObjectId(userId)};
 
-        console.error("!!!!!!!! getMyTransaction userId: ", userId)
+        console.error("!!!!!!!! getMyTransaction userId: ", userId);
         console.error("!!!!!!!! getMyTransaction criteria: ", criteria);
         return await this.aggregate([
             {$match: criteria},
@@ -447,23 +453,24 @@ TransactionSchema.static({
     },
 
     /**
-     * List all Transaction
+     * Total Earned Transaction
      *
-     * @param {Object} options
-     * @api private
      */
-    getAll: async (options) => {
-        const criteria = options.criteria || {};
-        const page = options.page || 0;
-        const limit = options.limit || 50;
-        return await Transaction.find(criteria, options.field || '',)
-            .sort({order: -1})
-            .limit(limit)
-            .skip(limit * page)
-            .exec()
-            .then(result => result)
-            .catch(err => console.error("Transaction getAll Catch", err));
-    }
+    getTotalEarned: async function () {
+        const criteria = {isDebtor: true};
+
+        return await this.aggregate([
+            {$match: criteria},
+            {$group: {_id: null, total: {$sum: "$price"}}},
+            // {$project: {_id: 0, total:{$arrayElemAt: ["$total", 0]}}},
+            {$project: {_id: 0, total:{$toString: {$abs: "$total"}}}},
+        ])
+            .then(async result => {
+                console.log("&&&&&&&&&&&&&&&&&&&&&&&& getTotalEarned", result);
+                return {type: 'earned', total: result[0].total};
+            })
+            .catch(err => console.error("getMyTransaction  Catch", err));
+    },
 })
 ;
 

@@ -88,8 +88,12 @@ const activateSchema = Joi.object().keys({
 
 
 const listSchema = JoiConfigs.schemas.list({
+    /* TODO sort in interest or orgId
+    * Event / Add Filter: [Status][Organizer][Interests] and Sort: [A/D Date][A/D Status][A/D Organizer][A/D Interests]*/
     filters: {
-        status: Joi.number().valid(0, 1).optional()
+        status: Joi.number().valid(0, 1).optional(),
+        orgId: JoiConfigs.isMongoIdOpt,
+        interests: JoiConfigs.isMongoIdOpt,
     },
     sorts:{
         status: Joi.number().valid(-1,1),

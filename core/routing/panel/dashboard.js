@@ -41,7 +41,7 @@ const getStatsSchema = Joi.object().keys({
 /**
  *  Get everything
  */
-router.post('/', verifyTokenPanel(), joiValidate(getStatsSchema, 0), authorization([{EVENT: 'R'}]), async (req, res) => {
+router.post('/', verifyTokenPanel(), joiValidate(getStatsSchema, 0), authorization([{EVENT: 'R'}, {TRANSACTION: 'R'}]), async (req, res) => {
     console.info('API: Dashboard getStats/init %j', {body: req._body});
 
     //TODO why try catch, controller is promise

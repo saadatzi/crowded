@@ -8,7 +8,8 @@ const OrganizationSchema = new Schema({
     status: {type: Number, default: 1},
     image: {type: String, default: ''},
     address: {type: String, default: ''},
-    phones: [{type: String}]
+    phones: [{type: String}],
+    commissionPercentage: {type: Number, default: 1},
 }, {timestamps: true});
 
 

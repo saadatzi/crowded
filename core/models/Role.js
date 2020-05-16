@@ -127,17 +127,21 @@ RoleSchema.static({
                 $project: {
                     _id: 0,
                     permissions: 1,
+                    name: 1,
+                    status: 1
                 }
             },
         ])
             .then(result => {
+                // return result;
                 const merged = [];
                 result.map(r => {
                     r.permissions.map(rp => {
                         rp.accesssLevel = binLevel2Bool(rp.accessLevelNum);
                         let tempMerge = merged.find(old => old.title === rp.title);
                         if (!tempMerge) merged.push(rp);
-                        if (tempMerge && tempMerge.accessLevelNum < rp.accessLevelNum) {
+                        else {
+                            rp.accesssLevel = mergeAccessLevel(tempMerge.accesssLevel ,rp.accesssLevel)
                             const foundIndex = merged.findIndex(old => old.title === rp.title);
                             merged[foundIndex] = rp;
                         }
@@ -156,7 +160,6 @@ RoleSchema.static({
     /**
      * Get All
      *
-     * @param {String} token
      * @api private
      */
     async list() {
@@ -365,6 +368,15 @@ function binLevel2Bool(number) {
         read: !!arrayAccess[len - 3],
         update: !!arrayAccess[len - 2],
         delete: !!arrayAccess[len - 1]
+    }
+}
+
+function mergeAccessLevel(oldAL, newAL) {
+    return {
+        create: oldAL.create || newAL.create,
+        read:   oldAL.read   || newAL.read,
+        update: oldAL.update || newAL.update,
+        delete: oldAL.delete || newAL.delete,
     }
 }
 
