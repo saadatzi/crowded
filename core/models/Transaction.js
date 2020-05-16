@@ -483,9 +483,8 @@ TransactionSchema.static({
             {
                 $lookup: {
                     from: 'organizations',
-                    let: {primaryOrgId: admin.organizationId},
                     pipeline: [
-                        {$match: {$expr: {$eq: ["$$primaryOrgId", "$_id"]}}},
+                        {$match: {_id: mongoose.Types.ObjectId(admin.organizationId)}},
                     ],
                     as: 'getOrganization'
                 }
@@ -496,7 +495,7 @@ TransactionSchema.static({
                     from: 'events',
                     let: {primaryOrgId: admin.organizationId, primaryEventId: "$eventId"},
                     pipeline: [
-                        {$match: {$expr: {$eq: ["$orgId", "$$primaryOrgId"]}}},
+                        {$match: {orgId: mongoose.Types.ObjectId(admin.organizationId)}},
                         {$match: {$expr: {$eq: ["$$primaryEventId", "$_id"]}}},
                     ],
                     as: 'getOrgEvents'
