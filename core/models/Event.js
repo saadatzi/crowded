@@ -385,6 +385,106 @@ EventSchema.static({
             .catch(err => console.error(err));
     },
 
+    /**
+     * calendarEventCount OWN/Any
+     */
+    calendarEventCount(userId, monthFlag, accessLevel) {
+
+        console.log(userId, monthFlag, accessLevel);
+
+
+        /* ********************************* */
+        /*        Access level tweak         */
+        /* ********************************* */
+
+        const accessLevelMatch = [];
+        if (accessLevel === 'OWN'){
+            accessLevelMatch = [{ $match: { owner: mongoose.Types.ObjectId(userId) } }];
+        } 
+        else if (accessLevel === 'GROUP') {
+            accessLevelMatch = [
+                {
+                    $lookup: {
+                        from: 'admins',
+                        pipeline: [
+                            {$match: {_id: mongoose.Types.ObjectId(userId)}},
+                        ],
+                        as: 'getAdmin'
+                    }
+                },
+                {$unwind: "$getAdmin"},
+                {
+                    $lookup: {
+                        from: 'admins',
+                        let: {orgId: "$getAdmin.organizationId", owner: "$owner"},
+                        pipeline: [
+                            {$match: {$expr: {$eq: ["$$orgId", "$organizationId"]}}},
+                            {$match: {$expr: {$eq: ["$$owner", "$_id"]}}},
+                            // {$project: {_id: 0, status: "$status"}},
+                        ],
+                        as: 'getOrgAdmin'
+                    }
+                },
+                {$unwind: {path: "$getOrgAdmin", preserveNullAndEmptyArrays: false}}
+            ]
+        }
+
+
+
+        
+
+
+        return this.aggregate([
+            {$match: {status: { $in: [0, 1] } }},
+            ...accessLevelMatch,
+            {
+                $match: {
+                    $expr: {
+                        $and: [
+                            {
+                                $eq: [
+                                    { $month: monthFlag },
+                                    { $month: "$from" }
+                                ]
+                            },
+                            {
+                                $eq: [
+                                    { $year: monthFlag },
+                                    { $year: "$from" }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            },
+            {
+                $group:
+                {
+                    _id:
+                    {
+                        day: { $dayOfMonth: "$from" },
+                        month: { $month: "$from" },
+                        year: { $year: "$from" }
+                    },
+                    count: { $sum: 1 },
+                    date: { $first: "$from" }
+                }
+            },
+            { $project:{
+                _id:0,
+                day: "$_id.day",
+                date:1,
+                count: 1
+            }}
+        ])
+            .then(result => {
+                return result;
+                if (result.length === 0) return 0;
+                return result[0].total;
+            })
+            .catch(err => console.error(err));
+    },
+
 
     /*********************************************/
     /*            FOR DASHBOARD END              */

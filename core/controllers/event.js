@@ -179,17 +179,35 @@ eventController.prototype.listUpcomingEvents = async(userId,optFilter,accessLeve
         console.log(">>>>>>>>>>>>>>>> accessLevel: %s", accessLevel);
         return await Event.listUpcomingEventsGroup(userId,optFilter,accessLevel)
         .catch(err => {
-            console.error("!!!Event countWaitingForApprovalGroup failed: ", err);
+            console.error("!!!Event listUpcomingEventsGroup failed: ", err);
             throw err;
         })
     } else {
         console.log(">>>>>>>>>>>>>>>> accessLevel: %s", accessLevel);
         return await Event.listUpcomingEventsOwnAny(userId,optFilter,accessLevel)
         .catch(err => {
-            console.error("!!!Event countWaitingForApprovalOwnAny failed: ", err);
+            console.error("!!!Event listUpcomingEventsOwnAny failed: ", err);
             throw err;
         })
     }
+};
+
+
+/**
+ * listUpcomingEvents (OWN,GROUP,ANY)
+ *
+ * @param {ObjectId} userId
+ * @param {Object} optFilter
+ * @param {String} accessLevel
+ *
+ * @return 10 next Events
+ */
+eventController.prototype.calendarEventCount = (userId, monthFlag, accessLevel) => {
+    return Event.calendarEventCount(userId, monthFlag, accessLevel)
+        .catch(err => {
+            console.error("!!!Event calendarEventCount failed: ", err);
+            throw err;
+        });
 };
 
 
