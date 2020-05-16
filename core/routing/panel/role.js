@@ -76,7 +76,7 @@ router.put('/edit', joiValidate(updateSchema, 0), verifyTokenPanel(), authorizat
  *  Get Permission List
  * @return status
  */
-//______________________Update Role_____________________//
+//______________________Permission List_____________________//
 router.get('/permissions', verifyTokenPanel(), async (req, res) => {
     console.info('API: Permission List/init');
 

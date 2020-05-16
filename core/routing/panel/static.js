@@ -3,23 +3,21 @@ const express = require('express')
 
 const Joi = require('@hapi/joi');
 const JoiConfigs = require('./../joiConfigs');
-const { joiValidate } = require('./../utils');
+const {joiValidate} = require('./../utils');
 
 // Instantiate the Device Model
 const staticController = require('../../controllers/static');
 const userController = require('../../controllers/user');
 const deviceController = require('../../controllers/device');
 const NZ = require('../../utils/nz');
-const { verifyTokenPanel } = require('../../utils/validation');
-
-
+const {verifyTokenPanel, authorization} = require('../../utils/validation');
 
 
 const listSchema = JoiConfigs.schemas.list({
-    sorts:{
-        createdAt: Joi.number().valid(-1,1),
+    sorts: {
+        createdAt: Joi.number().valid(-1, 1),
     },
-    defaultSorts:{
+    defaultSorts: {
         createdAt: -1,
     }
 });
@@ -28,8 +26,8 @@ const listSchema = JoiConfigs.schemas.list({
  * Get Statics
  * @return List Static
  */
-router.post('/', verifyTokenPanel(), joiValidate(listSchema,0), async (req, res) => {
-    console.info('API: Get Static list %j', { body: req._body });
+router.post('/', verifyTokenPanel(), joiValidate(listSchema, 0), authorization([{PAGE: 'R'}]), async (req, res) => {
+    console.info('API: Get Static list %j', {body: req._body});
 
     staticController.list(req._body)
         .then(result => {
@@ -45,8 +43,8 @@ router.post('/', verifyTokenPanel(), joiValidate(listSchema,0), async (req, res)
  * Edit Static
  * @return Static
  */
-router.put('/edit', verifyTokenPanel(), async (req, res) => {
-    console.info('API: Edit Static %j', { body: req.body });
+router.put('/edit', verifyTokenPanel(), authorization([{PAGE: 'RU'}]), async (req, res) => {
+    console.info('API: Edit Static %j', {body: req.body});
 
     staticController.update(req.body)
         .then(result => {
@@ -62,8 +60,8 @@ router.put('/edit', verifyTokenPanel(), async (req, res) => {
  * Get Static detail
  * @return List Static
  */
-router.get('/:id', verifyTokenPanel(), async (req, res) => {
-    console.info('API: Get Static detail %j', { body: req.params });
+router.get('/:id', verifyTokenPanel(), authorization([{PAGE: 'R'}]), async (req, res) => {
+    console.info('API: Get Static detail %j', {body: req.params});
 
     staticController.getById(req.params.id)
         .then(result => {

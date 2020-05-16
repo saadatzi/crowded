@@ -56,6 +56,7 @@ const listSchema = JoiConfigs.schemas.list({
 /**
  Get Bank Names
 */
+//TODO add  authorization([{BANK: 'R'}]),
 //TODO please use promise .catch & .then | use log.error important in catch
 //TODO joiValidate first middleware If possible & accessKey zero(0) not need, use(default value is 0)
 router.post('/name', verifyTokenPanel(), joiValidate(listSchema, 0), async (req, res) => {

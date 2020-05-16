@@ -217,7 +217,7 @@ router.put('/activate', joiValidate(activateSchema), verifyTokenPanel(), authori
 /**
  *  List Admins
  */
-router.post('/', verifyTokenPanel(), joiValidate(listSchema, 0), async (req, res) => {
+router.post('/', verifyTokenPanel(), joiValidate(listSchema), authorization([{ADMIN: 'R'}]), async (req, res) => {
     console.info('API: List Admin/init %j', {body: req._body});
 
     adminController.getManyPanel(req._body)
@@ -249,7 +249,7 @@ router.get('/:id', verifyTokenPanel(), authorization([{ADMIN: 'R'}]), async (req
 /**
  * Remove Admin
  */
-router.delete('/', verifyTokenPanel(), joiValidate(hasValidIdSchema, 0), authorization([{ADMIN: 'D'}]), async (req, res) => {
+router.delete('/', verifyTokenPanel(), joiValidate(hasValidIdSchema), authorization([{ADMIN: 'D'}]), async (req, res) => {
 
     let id = req.body.id;
 
@@ -275,7 +275,7 @@ router.delete('/', verifyTokenPanel(), joiValidate(hasValidIdSchema, 0), authori
  *  Request a password reset link
  */
 //______________________Forgot Password_____________________//
-router.post('/resetPassword/claim', joiValidate(claimResetPasswordSchema, 0), async (req, res) => {
+router.post('/resetPassword/claim', joiValidate(claimResetPasswordSchema), async (req, res) => {
     console.info('API: Forgot Password Admin/init %j', {body: req.body});
 
     adminController.get(req.body.email, 'email')
