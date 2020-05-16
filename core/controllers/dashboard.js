@@ -3,6 +3,7 @@
  */
 
 const eventController = require('./event');
+const transactionController = require('./transaction');
 
 const dashboardController = function () {
 };
@@ -11,23 +12,23 @@ const dashboardController = function () {
  * Login User Panel
  *
  */
-dashboardController.prototype.getStats = async (userId,optFilter,accessLevel) => {
+dashboardController.prototype.getStats = async (admin, optFilter, accessLevel) => {
 
     try {
+        let totalEventsCount = await eventController.countTotal(admin._id, optFilter, accessLevel.EVENT[0].R.level);
 
-        let totalEventsCount = await eventController.countTotal(userId, optFilter, accessLevel.EVENT[0].R.level);
+        let waitingForApprovalCount = await eventController.countWatingForApproval(admin._id, optFilter, accessLevel.EVENT[0].R.level);
 
-        let waitingForApprovalCount = await eventController.countWatingForApproval(userId, optFilter, accessLevel.EVENT[0].R.level);
+        let upcomingEvents = await eventController.listUpcomingEvents(admin._id, optFilter, accessLevel.EVENT[0].R.level);
 
-        let upcomingEvents = await eventController.listUpcomingEvents(userId, optFilter, accessLevel.EVENT[0].R.level);
-
-        let totalEarned = await eventController.countWatingForApproval(userId, optFilter, accessLevel.EVENT[0].R.level);
+        let totalCostIncome = await transactionController.getTotalCostIncome(admin, accessLevel.EVENT[0].R.level);
 
 
         return {
             totalEventsCount,
             waitingForApprovalCount,
-            upcomingEvents
+            upcomingEvents,
+            totalCostIncome
         };
     } catch (err) {
         console.error('getStat Failed', err);

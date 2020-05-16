@@ -1306,8 +1306,7 @@ EventSchema.static({
         }
 
         return await this.aggregate([
-            {$match: baseCriteria},
-            {$match: regexMatch},
+            {$match: {$and: [baseCriteria, regexMatch]}},
             {
                 $lookup: {
                     from: 'userevents',

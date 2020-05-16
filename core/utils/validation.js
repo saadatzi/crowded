@@ -93,6 +93,7 @@ module.exports = {
                     return await adminController.get(tokenObj.userId, 'id')
                         .then(admin => {
                             if (!admin) return new NZ.Response(null, 'User not found!', 401).send(res);
+
                             req._admin = admin;
                             req.userId = tokenObj.userId;
                             // user.lastIp = req.headers['x-real-ip'];

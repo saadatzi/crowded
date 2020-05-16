@@ -114,7 +114,13 @@ TransactionSchema.static({
             {
                 $project: {
                     _id: 0,
-                    nextPage: {$cond: {if: {$gt: [{$size: "$items"}, limit]}, then: {$add: [{$toInt: page}, 1]}, else: null}},
+                    nextPage: {
+                        $cond: {
+                            if: {$gt: [{$size: "$items"}, limit]},
+                            then: {$add: [{$toInt: page}, 1]},
+                            else: null
+                        }
+                    },
                     items: {$slice: ["$items", limit]},
                 }
             },
@@ -139,7 +145,7 @@ TransactionSchema.static({
     getMyTransactionTotal: async function (userId) {
         const criteria = {status: 1, userId: mongoose.Types.ObjectId(userId)};
 
-        console.error("!!!!!!!! getMyTransaction userId: ", userId)
+        console.error("!!!!!!!! getMyTransaction userId: ", userId);
         console.error("!!!!!!!! getMyTransaction criteria: ", criteria);
         return await this.aggregate([
             {$match: criteria},
@@ -447,23 +453,69 @@ TransactionSchema.static({
     },
 
     /**
-     * List all Transaction
+     * Total Earned Transaction
      *
-     * @param {Object} options
-     * @api private
      */
-    getAll: async (options) => {
-        const criteria = options.criteria || {};
-        const page = options.page || 0;
-        const limit = options.limit || 50;
-        return await Transaction.find(criteria, options.field || '',)
-            .sort({order: -1})
-            .limit(limit)
-            .skip(limit * page)
-            .exec()
-            .then(result => result)
-            .catch(err => console.error("Transaction getAll Catch", err));
-    }
+    getTotalEarned: async function () {
+        const criteria = {isDebtor: false};
+
+        //TODO imp commissionPercentage
+        return await this.aggregate([
+            {$match: criteria},
+            {$group: {_id: null, total: {$sum: "$price"}}},
+            {$project: {_id: 0, total: {$toString: "$total"}}},
+        ])
+            .then(async result => {
+                return {type: 'earned', total: result.length > 0 && result[0].total ? result[0].total : 0};
+            })
+            .catch(err => console.error("getMyTransaction  Catch", err));
+    },
+
+    /**
+     * Total Paid for Organization Transaction
+     * @param {Object} admin
+     */
+    getTotalPaid: async function (admin) {
+        const criteria = {isDebtor: false};
+        return await this.aggregate([
+            {$match: criteria},
+            //filter only this Organization
+            {
+                $lookup: {
+                    from: 'events',
+                    let: {primaryOrgId: admin.organizationId, primaryEventId: "$eventId"},
+                    pipeline: [
+                        {$match: {orgId: mongoose.Types.ObjectId(admin.organizationId)}},
+                        {$match: {$expr: {$eq: ["$$primaryEventId", "$_id"]}}},
+                    ],
+                    as: 'getOrgEvents'
+                }
+            },
+            {$unwind: {path: "$getOrgEvents", preserveNullAndEmptyArrays: false}},
+            {$group: {_id: null, total: {$sum: "$price"}}},
+            //get organization percent //commissionPercentage
+            {
+                $lookup: {
+                    from: 'organizations',
+                    pipeline: [
+                        {$match: {_id: mongoose.Types.ObjectId(admin.organizationId)}},
+                    ],
+                    as: 'getOrganization'
+                }
+            },
+            {$project: {totalPercent: {$add: [{$multiply: [{$divide: ["$total", 100]}, {$arrayElemAt: ['$getOrganization.commissionPercentage', 0]}]}, "$total"]}}},
+            {
+                $project: {
+                    total: {$toString: {$round: ["$totalPercent", 2]}},
+                }
+            },
+        ])
+            .then(async result => {
+                console.log("&&&&&&&&&&&&&&&&&&&&&&&& getTotalPaid", result);
+                return {type: 'paid', total: result.length > 0 && result[0].total ? result[0].total : 0};
+            })
+            .catch(err => console.error("getMyTransaction  Catch", err));
+    },
 })
 ;
 
