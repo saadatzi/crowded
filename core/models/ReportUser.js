@@ -78,6 +78,7 @@ ReportUserSchema.static({
             };
         }
 
+        if (optFilter.filters.userId) optFilter.filters.userId = mongoose.Types.ObjectId(optFilter.filters.userId);
 
         return this.aggregate([
             {$match: {$and: [baseCriteria, regexMatch, optFilter.filters]}},
