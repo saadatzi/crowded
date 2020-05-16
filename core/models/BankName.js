@@ -75,15 +75,44 @@ BankNameSchema.static({
 
         return this.aggregate([
             { $match: { _id: id } },
+           
+            {
+                $lookup: {
+                    from: "bankaccounts",
+                    let: { primaryBankNameId: "$_id" },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: { $eq: ["$$primaryBankNameId", "$bankNameId"] },
+                                // status: 1 // TODO: hum?
+                            },
+                        },
+                        { $count: 'total' },
+                    ],
+                    as: "_boundAccounts"
+                }
+            },
             {
                 $project: {
                     _id: 0,
                     id: "$_id",
                     name_en: 1,
                     name_ar: 1,
+                    boundAccounts: { $arrayElemAt: ["$_boundAccounts", 0] },
                     createdAt: 1,
                     updatedAt: 1,
-                    isActive: { $cond: { if: { $eq: ["$status", 1] }, then: true, else: false } }
+                    isActive: { $cond: { if: { $eq: ["$status", 1] }, then: true, else: false } },
+                }
+            },
+            {
+                $project: {
+                    id: 1,
+                    name_en: 1,
+                    boundAccounts: "$boundAccounts.total",
+                    name_ar: 1,
+                    createdAt: 1,
+                    updatedAt: 1,
+                    isActive: 1
                 }
             }
         ])
@@ -129,9 +158,34 @@ BankNameSchema.static({
             { $skip: optFilter.pagination.page * optFilter.pagination.limit },
             { $limit: optFilter.pagination.limit },
             {
+                $lookup: {
+                    from: "bankaccounts",
+                    let: { primaryBankNameId: "$_id" },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: { $eq: ["$$primaryBankNameId", "$bankNameId"] },
+                                // status: 1 // TODO: hum?
+                            },
+                        },
+                        { $count: 'total' },
+                    ],
+                    as: "_boundAccounts"
+                }
+            },
+            {
                 $project: {
                     _id: 0,
                     id: "$_id",
+                    boundAccounts: { $arrayElemAt: ["$_boundAccounts", 0] },
+                    name_en: 1,
+                    name_ar: 1
+                }
+            },
+            {
+                $project: {
+                    id: 1,
+                    boundAccounts: "$boundAccounts.total",
                     name_en: 1,
                     name_ar: 1
                 }
