@@ -129,14 +129,32 @@ ReportUserSchema.static({
                     as: 'getAdmin'
                 }
             },
+            //get Event info
+            {
+                $lookup: {
+                    from: 'events',
+                    let: {primaryEventId: "$eventId"},
+                    pipeline: [
+                        {$match: {$expr: {$eq: ["$$primaryEventId", "$_id"]}}},
+                        {
+                            $project: {
+                                _id: 0,
+                                id: '$_id',
+                                title: "$title_en",
+                            }
+                        },
+                    ],
+                    as: 'getEvent'
+                }
+            },
             {
                 $project: {
                     _id: 0,
                     id: '$_id',
-                    eventId: 1,
                     cause: 1,
                     desc: 1,
                     priority: 1,
+                    event: {$arrayElemAt: ["$getEvent", 0]},
                     reporter: {$arrayElemAt: ["$getAdmin", 0]}
                 }
             },
@@ -150,8 +168,7 @@ ReportUserSchema.static({
                 $lookup: {
                     from: 'reportusers',
                     pipeline: [
-                        {$match: {$and: [baseCriteria, regexMatch]}},
-                        {$match: optFilter.filters},
+                        {$match: {$and: [baseCriteria, regexMatch, optFilter.filters]}},
                         {$count: 'total'},
                     ],
                     as: 'getTotal'
