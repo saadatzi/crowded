@@ -175,7 +175,7 @@ eventController.prototype.countWatingForApproval = async(userId,optFilter,access
  */
 eventController.prototype.listUpcomingEvents = async(userId,optFilter,accessLevel) => {
 
-     if (accessLevel === 'GROUP' && false) {
+     if (accessLevel === 'GROUP') {
         console.log(">>>>>>>>>>>>>>>> accessLevel: %s", accessLevel);
         return await Event.listUpcomingEventsGroup(userId,optFilter,accessLevel)
         .catch(err => {

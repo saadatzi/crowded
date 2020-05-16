@@ -308,12 +308,20 @@ EventSchema.static({
                 }
             },
             {
-                $count: 'total'
-            }
+                $limit:10
+            },
+            {
+                $project: {
+                    _id: 0,
+                    id: "$_id",
+                    title_en: 1,
+                    image: {$concat: [settings.media_domain, "$imagePicker"]},
+                    isActive: {$cond: {if: {$eq: ["$status", 1]}, then: true, else: false}},
+                },
+            },
         ])
             .then(result => {
-                if (result.length === 0) return 0;
-                return result[0].total;
+                return result;
             })
             .catch(err => console.error(err));
     },
@@ -348,6 +356,9 @@ EventSchema.static({
             {
                 $group: {
                     _id: "$_id",
+                    image: {$first: {url: {$concat: [settings.media_domain, "$imagePicker"]}}},
+                    title_en: {$first: `$title_en`},
+                    status: {$first: `$status`},
                 }
             },
             {
@@ -356,15 +367,23 @@ EventSchema.static({
                 }
             },
             {
-                $count: 'total'
+                $limit:10
+            },
+            {
+                $project: {
+                    _id: 0,
+                    id: "$_id",
+                    title_en: 1,
+                    image: 1,
+                    isActive: {$cond: {if: {$eq: ["$status", 1]}, then: true, else: false}},
+                },
             }
         ])
             .then(result => {
-                if (result.length === 0) return 0;
-                return result[0].total;
+                return result;
             })
             .catch(err => console.error(err));
-    }
+    },
 
 
     /*********************************************/
