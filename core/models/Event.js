@@ -530,7 +530,7 @@ EventSchema.static({
      */
     getByIdAggregate: async function (id, lang, isApproved, userEventState = null) {
         const criteria = {_id: mongoose.Types.ObjectId(id)};
-        console.error("!!!!!!!! getEvent criteria: ", criteria);
+        console.log("!!!!!!!! getEvent criteria: ", criteria);
         return await this.aggregate([
             // {$lookup: {from: 'areas', localField: 'area', foreignField: `childs._id`, as: 'getArea'}}, //from: collection Name  of mongoDB
             {
@@ -546,9 +546,8 @@ EventSchema.static({
                 }
             },
             {$match: criteria},
-            {$unwind: "$images"},
+            {$unwind: {path: "$images", preserveNullAndEmptyArrays: true}},
             {$sort: {'images.order': 1}},
-            // {$replaceRoot: { newRoot: { $mergeObjects: [ { $arrayElemAt: [ "$area", 0 ] }, "$$ROOT" ] } }},
             {
                 $group: {
                     _id: "$_id",
@@ -606,8 +605,10 @@ EventSchema.static({
                 }
             },
         ])
-            // .exec()
-            .then(event => event[0])
+            .then(event => {
+                console.error("@@@@@@@@@@@@@@@ getByIdAggregate event: ", event);
+                return event[0]
+            })
             .catch(err => console.error("getByIdAggregate(Event Detail)  Catch", err));
     },
 
