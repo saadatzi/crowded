@@ -520,7 +520,7 @@ EventSchema.static({
             {
                 $group: {
                     _id: "$_id",
-                    images: {$push: {url: {$concat: [settings.media_domain, "$images.url"]}}}, //$push
+                    images: {$push: {url: {$concat: [settings.media_domain, {$ifNull: ["$images.url", settings.event.defaultImage]}]}}}, //$push
                     title: {$first: `$title_${lang}`},
                     desc: {$first: `$desc_${lang}`},
                     value: {$first: {$toString: "$value"}},
