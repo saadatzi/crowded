@@ -32,6 +32,7 @@ const listSchema = JoiConfigs.schemas.list({
         status: Joi.number().valid(0, 1).default(1),
     },
     sorts:{
+        price: Joi.number().valid(-1,1),
         situation: Joi.number().valid(-1,1),
         eventDate: Joi.number().valid(-1,1),
         createdAt: Joi.number().valid(-1,1),
