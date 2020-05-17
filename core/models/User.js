@@ -265,7 +265,8 @@ UserSchema.static({
                             '$phone',
                             null
                         ]
-                    }
+                    },
+                    isActive: {$cond: {if: {$eq: ["$status", 1]}, then: true, else: false}},
                 }
             }
         ])
