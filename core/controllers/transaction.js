@@ -253,14 +253,14 @@ transactionController.prototype.getTotalCostIncome = async (admin, accLevel) => 
  */
 transactionController.prototype.getPanelChart = async (admin, accLevel) => {
     if (accLevel === 'ANY')
-        return await Transaction.getPanelChart()
+        return await Transaction.getOrgPanelChart(admin)
             .then(transactions => transactions)
             .catch(err => {
                 console.error("!!!Transaction getAll failed: ", err);
                 throw err;
             });
     else
-        return await Transaction.getTotalPaid(admin)
+        return await Transaction.getOrgPanelChart(admin)
             .then(transactions => transactions)
             .catch(err => {
                 console.error("!!!Transaction getAll failed: ", err);

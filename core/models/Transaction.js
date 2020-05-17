@@ -267,8 +267,8 @@ TransactionSchema.static({
 
         const limit = settings.wallet.limitPage;
 
-        console.error("!!!!!!!! getMyTransaction userId: ", userId)
-        console.error("!!!!!!!! getMyTransaction criteria: ", criteria)
+        console.error("!!!!!!!! getMyTransaction userId: ", userId);
+        console.error("!!!!!!!! getMyTransaction criteria: ", criteria);
         return await this.aggregate([
             {$match: criteria},
             {$sort: {createdAt: -1}},
@@ -697,21 +697,78 @@ TransactionSchema.static({
     },
 
     /**
-     * Get Panel chart Data
+     * Get Adimn Panel chart Data
      *
-     * @param {Object} userId
      */
-    getPanelChart: async function (userId) {
-        const monthAgo = new Date(new Date().getTime() - 2678400000);//31*24*60*60*1000
+    getPanelChart: async function () {
+        const threeMonthAgo = new Date(new Date().getTime() - 7776000000);//90*24*60*60*1000
         const criteria = {
             // userId: mongoose.Types.ObjectId(userId),
             status: 1,
             isDebtor: false,
-            // createdAt: {$gt: monthAgo}
+            createdAt: {$gt: threeMonthAgo}
         };
 
         return await this.aggregate([
             {$match: criteria},
+            {
+                $group:
+                    {
+                        _id: {day: {$dayOfYear: "$createdAt"}, year: {$year: "$createdAt"}},
+                        date: {$first: "$createdAt"},
+                        totalAmount: {$sum: "$price"},
+                        count: {$sum: 1}
+                    }
+            },
+            {$sort: {date: -1}},
+            {
+                $project: {
+                    _id: 0,
+                    x: {
+                        $dateToString: {
+                            format: "%Y/%m/%d",
+                            date: "$date",
+                            timezone: "Asia/Kuwait"
+                        }
+                    },
+                    y: {$toDouble: "$totalAmount"}
+                }
+            }
+        ])
+            .then(async transactions => {
+                return transactions
+            })
+            .catch(err => console.error("getMyTransaction  Catch", err));
+    },
+
+    /**
+     * Get Organization Panel chart Data
+     *
+     */
+    getOrgPanelChart: async function (admin) {
+        const threeMonthAgo = new Date(new Date().getTime() - 7776000000);//90*24*60*60*1000
+        const criteria = {
+            // userId: mongoose.Types.ObjectId(userId),
+            status: 1,
+            isDebtor: false,
+            createdAt: {$gt: threeMonthAgo}
+        };
+
+        return await this.aggregate([
+            {$match: criteria},
+            //filter only this Organization
+            {
+                $lookup: {
+                    from: 'events',
+                    let: {primaryEventId: "$eventId"},
+                    pipeline: [
+                        {$match: {orgId: mongoose.Types.ObjectId(admin.organizationId)}},
+                        {$match: {$expr: {$eq: ["$$primaryEventId", "$_id"]}}},
+                    ],
+                    as: 'getOrgEvents'
+                }
+            },
+            {$unwind: {path: "$getOrgEvents", preserveNullAndEmptyArrays: false}},
             {
                 $group:
                     {
