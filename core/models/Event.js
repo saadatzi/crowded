@@ -375,7 +375,7 @@ EventSchema.static({
         /*        Access level tweak         */
         /* ********************************* */
 
-        const accessLevelMatch = [];
+        let accessLevelMatch = [];
         if (accessLevel === 'OWN') {
             accessLevelMatch = [{$match: {owner: mongoose.Types.ObjectId(userId)}}];
         } else if (accessLevel === 'GROUP') {
