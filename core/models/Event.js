@@ -368,7 +368,7 @@ EventSchema.static({
     /**
      * calendarEventCount OWN/Any
      */
-    calendarEventCount(userId, monthFlag, accessLevel) {
+    calendarData(userId, monthFlag, accessLevel) {
 
         console.log(userId, monthFlag, accessLevel);
 
@@ -377,41 +377,43 @@ EventSchema.static({
         /*        Access level tweak         */
         /* ********************************* */
 
-        let accessLevelMatch = [];
-        if (accessLevel === 'OWN') {
-            accessLevelMatch = [{$match: {owner: mongoose.Types.ObjectId(userId)}}];
-        } else if (accessLevel === 'GROUP') {
-            accessLevelMatch = [
+        let eventAccessLevelMatch = [];
+
+       if (accessLevel === 'OWN') {
+            eventAccessLevelMatch = [{ $match: { owner: mongoose.Types.ObjectId(userId) } }];
+        }
+        else if (accessLevel === 'GROUP') {
+            eventAccessLevelMatch = [
                 {
                     $lookup: {
                         from: 'admins',
                         pipeline: [
-                            {$match: {_id: mongoose.Types.ObjectId(userId)}},
+                            { $match: { _id: mongoose.Types.ObjectId(userId) } },
                         ],
                         as: 'getAdmin'
                     }
                 },
-                {$unwind: "$getAdmin"},
+                { $unwind: "$getAdmin" },
                 {
                     $lookup: {
                         from: 'admins',
-                        let: {orgId: "$getAdmin.organizationId", owner: "$owner"},
+                        let: { orgId: "$getAdmin.organizationId", owner: "$owner" },
                         pipeline: [
-                            {$match: {$expr: {$eq: ["$$orgId", "$organizationId"]}}},
-                            {$match: {$expr: {$eq: ["$$owner", "$_id"]}}},
+                            { $match: { $expr: { $eq: ["$$orgId", "$organizationId"] } } },
+                            { $match: { $expr: { $eq: ["$$owner", "$_id"] } } },
                             // {$project: {_id: 0, status: "$status"}},
                         ],
                         as: 'getOrgAdmin'
                     }
                 },
-                {$unwind: {path: "$getOrgAdmin", preserveNullAndEmptyArrays: false}}
+                { $unwind: { path: "$getOrgAdmin", preserveNullAndEmptyArrays: false } }
             ]
         }
 
 
         return this.aggregate([
             {$match: {status: {$in: [0, 1]}}},
-            ...accessLevelMatch,
+            ...eventAccessLevelMatch,
             {
                 $match: {
                     $expr: {
@@ -433,6 +435,32 @@ EventSchema.static({
                 }
             },
             {
+                $lookup: {
+                    from: "transactions",
+                    let: { primaryEventId: "$_id" },
+                    pipeline: [
+                        { $match:{isDebtor: false}},
+                        { $match: { $expr: { $eq: ["$$primaryEventId", '$eventId'] } } },
+                        {
+                            $group:
+                            {
+                                _id: null,
+                                transactionAmount: {$sum: "$price"},
+                                date: { $first: "$eventDate" },
+                            }
+                        },
+                        {
+                            $project:{
+                                _id:0,
+                                transactionAmount: {$toInt:"$transactionAmount"},
+                            }
+                        }
+                    ],
+                    as: "getTransactions"
+                }
+            },
+            { $unwind: { path: "$getTransactions", preserveNullAndEmptyArrays: true } },
+            {
                 $group:
                     {
                         _id:
@@ -441,8 +469,9 @@ EventSchema.static({
                                 month: {$month: "$from"},
                                 year: {$year: "$from"}
                             },
-                        count: {$sum: 1},
-                        date: {$first: "$from"}
+                        eventCount: {$sum: 1},
+                        date: {$first: "$from"},
+                        transactionAmount: {$sum:"$getTransactions.transactionAmount"}
                     }
             },
             {
@@ -450,9 +479,11 @@ EventSchema.static({
                     _id: 0,
                     day: "$_id.day",
                     date: 1,
-                    count: 1
+                    eventCount: 1,
+                    transactionAmount:1,
                 }
             }
+
         ])
             .then(result => {
                 return result;

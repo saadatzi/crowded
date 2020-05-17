@@ -60,7 +60,7 @@ router.post('/calendar', verifyTokenPanel(), joiValidate(calendarFiltersSchema, 
     //TODO why try catch, controller is promise
     try {
         let calendar = await dashboardController.getCalendar(req.userId, monthFlag, req.auth.accessLevel);
-        new NZ.Response(calendar).send(res);
+        new NZ.Response({items:calendar}).send(res);
     } catch (err) {
         new NZ.Response(err.message, err.code).send(res);
     }
