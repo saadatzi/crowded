@@ -23,12 +23,15 @@ dashboardController.prototype.getStats = async (admin, optFilter, accessLevel) =
 
         let totalCostIncome = await transactionController.getTotalCostIncome(admin, accessLevel.EVENT[0].R.level);
 
+        let panelChart = await transactionController.getPanelChart(admin, accessLevel.EVENT[0].R.level);
+
 
         return {
             totalEventsCount,
             waitingForApprovalCount,
             upcomingEvents,
-            totalCostIncome
+            totalCostIncome,
+            panelChart
         };
     } catch (err) {
         console.error('getStat Failed', err);

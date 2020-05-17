@@ -176,6 +176,7 @@ EventSchema.static({
     /**
      * Waiting for Approval Own/Any
      */
+    //TODO go to UserEvent
     countWaitingForApprovalOwnAny(userId, optFilter, accessLevel) {
         console.log(userId, optFilter, accessLevel);
         const accessLevelMatch = {status: {$in: [0, 1]}};
@@ -225,6 +226,7 @@ EventSchema.static({
     /**
      * Waiting for Approval group
      */
+    //TODO go to UserEvent
     countWaitingForApprovalGroup(userId, optFilter) {
         console.log(userId, optFilter);
         const baseCriteria = {status: {$in: [0, 1]}};
@@ -254,11 +256,11 @@ EventSchema.static({
                 }
             },
             {$unwind: {path: "$getOrgAdmin", preserveNullAndEmptyArrays: false}},
-            {
-                $group: {
-                    _id: "$_id",
-                }
-            },
+            // {
+            //     $group: {
+            //         _id: "$_id",
+            //     }
+            // },
             {
                 $lookup: {
                     from: 'userevents',
@@ -454,8 +456,7 @@ EventSchema.static({
         ])
             .then(result => {
                 return result;
-                if (result.length === 0) return 0;
-                return result[0].total;
+                // return result.length > 0 ? result[0].total : 0;
             })
             .catch(err => console.error(err));
     },

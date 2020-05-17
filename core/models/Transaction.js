@@ -77,6 +77,8 @@ TransactionSchema.static({
         // ***********************************
         // ************Mock Data**************
         // ***********************************
+        console.log(admin, monthFlag, accessLevel);
+
         return [
                 {
                     "day": 18,
@@ -112,7 +114,6 @@ TransactionSchema.static({
                 }
         ];
 
-        console.log(admin, monthFlag, accessLevel);
 
 
         /* ********************************* */
@@ -691,6 +692,52 @@ TransactionSchema.static({
         ])
             .then(async result => {
                 return {type: 'paid', total: result.length > 0 && result[0].total ? result[0].total : 0};
+            })
+            .catch(err => console.error("getMyTransaction  Catch", err));
+    },
+
+    /**
+     * Get Panel chart Data
+     *
+     * @param {Object} userId
+     */
+    getPanelChart: async function (userId) {
+        const monthAgo = new Date(new Date().getTime() - 2678400000);//31*24*60*60*1000
+        const criteria = {
+            // userId: mongoose.Types.ObjectId(userId),
+            status: 1,
+            isDebtor: false,
+            // createdAt: {$gt: monthAgo}
+        };
+
+        return await this.aggregate([
+            {$match: criteria},
+            {
+                $group:
+                    {
+                        _id: {day: {$dayOfYear: "$createdAt"}, year: {$year: "$createdAt"}},
+                        date: {$first: "$createdAt"},
+                        totalAmount: {$sum: "$price"},
+                        count: {$sum: 1}
+                    }
+            },
+            {$sort: {date: -1}},
+            {
+                $project: {
+                    _id: 0,
+                    x: {
+                        $dateToString: {
+                            format: "%Y/%m/%d",
+                            date: "$date",
+                            timezone: "Asia/Kuwait"
+                        }
+                    },
+                    y: {$toDouble: "$totalAmount"}
+                }
+            }
+        ])
+            .then(async transactions => {
+                return transactions
             })
             .catch(err => console.error("getMyTransaction  Catch", err));
     },
