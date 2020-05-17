@@ -4,81 +4,98 @@ const app = express.Router();
 const deviceController = require('../../controllers/device');
 
 const NZ = require('../../utils/nz');
-const {sign} = require('../../utils/validation');
+const {sign, verifyToken} = require('../../utils/validation');
 
 const Joi = require('@hapi/joi');
+const JoiConfigs = require('./../joiConfigs');
+const {joiValidate} = require('./../utils');
 
-app.post('/auth', async (req, res, next) => {
-	let result;
-	const schema = Joi.object().keys({
-		device:	Joi.object().keys({
-			name:		Joi.string().required(),
-			capacity:	Joi.string().regex(/^[0-9.GB]{3,18}$/).required(),
-			uid:		Joi.string().regex(/^[A-F0-9-]{36}$/).required(),
-			platform:	Joi.string().required(),
-			disk:		Joi.optional()
-		}).required(),
+const deviceSchema = Joi.object().keys({
+	name:		JoiConfigs.title,
+	capacity:	Joi.string().regex(/^[0-9.GB]{3,18}$/).required(),
+	uid:		Joi.string().regex(/^[A-F0-9-]{36}$/).required(),
+	platform:	JoiConfigs.title,
+	disk:		Joi.optional()
+});
 
-		os: Joi.object().keys({
-			version:	Joi.string().required(),
-			type:		Joi.string().allow('iOS', 'Android').required()
-		}).required(),
+const deviceOsSchema = Joi.object().keys({
+	version:	Joi.string().required(),
+	type:		Joi.string().allow('iOS', 'Android').required()
+});
 
-		carriers: 		Joi.optional()
-	});
+const addSchema = Joi.object().keys({
+	device: 	deviceSchema,
+	os: 		deviceOsSchema,
+	carriers: 	Joi.optional()
+});
 
-	result = schema.validate({
-		device:	req.body.device,
-		os:		req.body.os
-	});
+const pushTokenSchema = Joi.object().keys({
+	notificationToken: 	JoiConfigs.title,
+});
 
-	let response = {};
+app.post('/auth', joiValidate(addSchema), async (req, res) => {
+	await deviceController.get(req.body.device.uid)
+		.then(async device => {
+			if (device) {
+				// maybe changed some value
+				device.osVersion = req.body.os.version;
+				device.name =  req.body.device.name;
+				await device.save();
 
-	if (result.error)
-		return new NZ.Response(result.error, 'input error.', 400).send(res);
-	
-	const device = await deviceController.get(req.body.device.uid);
-
-
-	if (device) {
-		// maybe changed some value
-		device.osVersion = req.body.os.version;
-		device.name =  req.body.device.name;
-		await device.save();
-
-		response = {
-			access_token:	device.token,
-			access_type:	device.userId ? 'private' : 'public'
-		};
-		// if (user_id)
-		// 	response.user = NZ.outputUser(await userModel.get(device.user_id));
-
-	} else {
-
-		const deviceInfo = {
-			identifier: req.body.device.uid,
-			osType: req.body.os.type,
-			osVersion: req.body.os.version,
-			title: req.body.device.platform,
-			name: req.body.device.name,
-			capacity: req.body.device.capacity
-		};
-		await deviceController.add(deviceInfo)
-			.then(newDevice => {
-				const newToken = sign({deviceId: newDevice._id});
-				newDevice.token = newToken;
-				newDevice.save();
-				response = {
-					access_token: newToken,
-					access_type: 'public'
+				const response = {
+					access_token:	device.token,
+					access_type:	device.userId ? 'private' : 'public'
 				};
-			})
-			.catch(err => {});
+				return new NZ.Response(response).send(res);
+			} else {
 
+				const deviceInfo = {
+					identifier: req.body.device.uid,
+					osType: req.body.os.type,
+					osVersion: req.body.os.version,
+					title: req.body.device.platform,
+					name: req.body.device.name,
+					capacity: req.body.device.capacity
+				};
+				await deviceController.add(deviceInfo)
+					.then(newDevice => {
+						const newToken = sign({deviceId: newDevice._id});
+						newDevice.token = newToken;
+						newDevice.save();
+						const response = {
+							access_token: newToken,
+							access_type: 'public'
+						};
+						return new NZ.Response(response).send(res);
+					})
+					.catch(err => {
+						console.error("Device Add Catch err:", err);
+						new NZ.Response(null, err.message, 500).send(res);
+					});
+			}
+		})
+		.catch(err => {
+			console.error("Device auth Catch err:", err);
+			new NZ.Response(null, err.message, 500).send(res);
+		});
+});
 
-	}
-
-	return new NZ.Response(response).send(res);
+/**
+ *  set Push notification Toke
+ * -Update Device in db
+ * @return status
+ */
+//______________________Update Device_____________________//
+app.post('/setPushToken', joiValidate(pushTokenSchema), verifyToken(), async (req, res) => {
+	console.info('API: Update Device setPushToken/init %j', {body: req.body});
+	deviceController.update(req.deviceId, req.body)
+		.then(result => {
+			new NZ.Response().send(res);
+		})
+		.catch(err => {
+			console.error("Device Update setPushToken Catch err:", err);
+			new NZ.Response(null, err.message, 500).send(res);
+		});
 });
 
 module.exports = app;

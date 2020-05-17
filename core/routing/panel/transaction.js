@@ -39,7 +39,7 @@ const listSchema = JoiConfigs.schemas.list({
     },
     defaultSorts:{
         situation: -1,
-        eventDate: -1
+        createdAt: -1
     }
 });
 
