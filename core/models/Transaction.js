@@ -724,19 +724,19 @@ TransactionSchema.static({
                     }
             },
             {$sort: {date: -1}},
-            // {
-            //     $project: {
-            //         _id: 0,
-            //         x: {
-            //             $dateToString: {
-            //                 format: "%Y/%m/%d",
-            //                 date: "$date",
-            //                 timezone: "Asia/Kuwait"
-            //             }
-            //         },
-            //         y: {$toDouble: "$totalAmount"}
-            //     }
-            // }
+            {
+                $project: {
+                    _id: 0,
+                    x: {
+                        $dateToString: {
+                            format: "%Y/%m/%d",
+                            date: "$date",
+                            timezone: "Asia/Kuwait"
+                        }
+                    },
+                    y: {$toDouble: "$totalAmount"}
+                }
+            }
         ])
             .then(async transactions => {
                 console.info("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ getPanelChart transactions: ", transactions);

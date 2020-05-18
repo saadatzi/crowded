@@ -105,17 +105,14 @@ EventSchema.static({
 
 
     /**
-     * Event list OWN/Any
+     * Event list OWN/Any Count
      */
-    countListOwnAny(userId, optFilter, accessLevel) {
-        console.log(userId, optFilter, accessLevel);
-        const ownAny = accessLevel === 'OWN' ? {
-            owner: mongoose.Types.ObjectId(userId),
-            status: {$in: [0, 1]}
-        } : {status: {$in: [0, 1]}};
-        console.log(ownAny);
+    countListOwnAny(userId, accessLevel, from, to) {
+        const baseCriteria = {status: {$in: [0, 1]}};
+        if ( accessLevel === 'OWN') baseCriteria.owner = mongoose.Types.ObjectId(userId);
+        if (from) baseCriteria.from = {$gte: from, $lte: to};
         return this.aggregate([
-            {$match: ownAny},
+            {$match: baseCriteria},
             {$count: 'total'}
         ])
             .then(result => {
@@ -127,12 +124,12 @@ EventSchema.static({
 
 
     /**
-     * Event list Group
+     * Event list Group Count
      */
-    async countListGroup(userId, optFilter) {
+    async countListGroup(userId, from , to) {
         const baseCriteria = {status: {$in: [0, 1]}};
+        if (from) baseCriteria.from = {$gte: from, $lte: to};
 
-        console.log("async countListGroup(userId, optFilter) {const baseCriteria = {status: {$in: [0, 1]}};");
         return await this.aggregate([
             {$match: baseCriteria},
             {
@@ -177,8 +174,7 @@ EventSchema.static({
      * Waiting for Approval Own/Any
      */
     //TODO go to UserEvent
-    countWaitingForApprovalOwnAny(userId, optFilter, accessLevel) {
-        console.log(userId, optFilter, accessLevel);
+    countWaitingForApprovalOwnAny(userId, accessLevel) {
         const accessLevelMatch = {status: {$in: [0, 1]}};
 
         if (accessLevel === 'OWN') accessLevelMatch.owner = mongoose.Types.ObjectId(userId);
@@ -217,8 +213,7 @@ EventSchema.static({
             }
         ])
             .then(result => {
-                if (result.length === 0) return 0;
-                return result[0].total;
+                return result.length > 0 ? result[0].total : 0;
             })
             .catch(err => console.error(err));
     },
@@ -227,8 +222,7 @@ EventSchema.static({
      * Waiting for Approval group
      */
     //TODO go to UserEvent
-    countWaitingForApprovalGroup(userId, optFilter) {
-        console.log(userId, optFilter);
+    countWaitingForApprovalGroup(userId) {
         const baseCriteria = {status: {$in: [0, 1]}};
 
 
@@ -299,7 +293,7 @@ EventSchema.static({
             .catch(err => console.error(err));
     },
 
-    async listUpcomingEventsOwnAny(userId, optFilter, accessLevel) {
+    async listUpcomingEventsOwnAny(userId, accessLevel) {
         const accessLevelMatch = {status: {$in: [0, 1]}};
         if (accessLevel === 'OWN') accessLevelMatch.owner = mongoose.Types.ObjectId(userId);
         return this.aggregate([
@@ -321,7 +315,7 @@ EventSchema.static({
             .catch(err => console.error(err));
     },
 
-    async listUpcomingEventsGroup(userId, optFilter, accessLevel) {
+    async listUpcomingEventsGroup(userId) {
         const accessLevelMatch = {status: {$in: [0, 1]}};
         return this.aggregate([
             {$match: accessLevelMatch},

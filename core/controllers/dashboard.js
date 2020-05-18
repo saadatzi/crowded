@@ -33,9 +33,9 @@ dashboardController.prototype.getStats = async (admin, optFilter, accessLevel) =
     try {
         let totalEventsCount = await eventController.countTotal(admin._id, accessLevel.EVENT[0].R.level, from, to);
 
-        let waitingForApprovalCount = await eventController.countWatingForApproval(admin._id, accessLevel.EVENT[0].R.level, from, to);
+        let waitingForApprovalCount = await eventController.countWatingForApproval(admin._id, accessLevel.EVENT[0].R.level);
 
-        let upcomingEvents = await eventController.listUpcomingEvents(admin._id, accessLevel.EVENT[0].R.level, from, to);
+        let upcomingEvents = await eventController.listUpcomingEvents(admin._id, accessLevel.EVENT[0].R.level);
 
         let totalCostIncome = await transactionController.getTotalCostIncome(admin, accessLevel.EVENT[0].R.level, from, to);
 
