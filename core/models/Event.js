@@ -461,14 +461,13 @@ EventSchema.static({
                                                     $divide:
                                                         ["$transactionAmount", 100]
                                                 },
-                                                3
-                                                // {
-                                                //     $arrayElemAt:
-                                                //         [
-                                                //             '$getOrganization.commissionPercentage',
-                                                //              0
-                                                //         ]
-                                                // }
+                                                {
+                                                    $arrayElemAt:
+                                                        [
+                                                            '$getOrganization.commissionPercentage',
+                                                             0
+                                                        ]
+                                                }
                                             ]
                                     },
                                     "$transactionAmount"
