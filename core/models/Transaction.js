@@ -636,8 +636,9 @@ TransactionSchema.static({
      * Total Earned Transaction
      *
      */
-    getTotalEarned: async function () {
+    getTotalEarned: async function (from, to) {
         const criteria = {isDebtor: false};
+        if (from) criteria.createdAt = {$and: [{$gte: from}, {$lte: to}]};
 
         //TODO imp commissionPercentage
         return await this.aggregate([
@@ -653,10 +654,11 @@ TransactionSchema.static({
 
     /**
      * Total Paid for Organization Transaction
-     * @param {Object} admin
      */
-    getTotalPaid: async function (admin) {
+    getTotalPaid: async function (admin, from , to) {
         const criteria = {isDebtor: false};
+        if (from) criteria.createdAt = {$and: [{$gte: from}, {$lte: to}]};
+
         return await this.aggregate([
             {$match: criteria},
             //filter only this Organization
@@ -700,21 +702,22 @@ TransactionSchema.static({
      * Get Adimn Panel chart Data
      *
      */
-    getPanelChart: async function () {
-        const threeMonthAgo = new Date(new Date().getTime() - 7776000000);//90*24*60*60*1000
+    getPanelChart: async function (from , to, groupBy) {
+        // const threeMonthAgo = new Date(new Date().getTime() - 7776000000);//90*24*60*60*1000
         const criteria = {
             // userId: mongoose.Types.ObjectId(userId),
             status: 1,
             isDebtor: false,
-            createdAt: {$gt: threeMonthAgo}
         };
+        if (from) criteria.createdAt = {$and: [{$gte: from}, {$lte: to}]};
+
 
         return await this.aggregate([
             {$match: criteria},
             {
                 $group:
                     {
-                        _id: {day: {$dayOfYear: "$createdAt"}, year: {$year: "$createdAt"}},
+                        _id: groupBy,
                         date: {$first: "$createdAt"},
                         totalAmount: {$sum: "$price"},
                         count: {$sum: 1}
@@ -736,6 +739,7 @@ TransactionSchema.static({
             }
         ])
             .then(async transactions => {
+                console.info("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ getPanelChart transactions: ", transactions);
                 return transactions
             })
             .catch(err => console.error("getMyTransaction  Catch", err));
@@ -745,14 +749,9 @@ TransactionSchema.static({
      * Get Organization Panel chart Data
      *
      */
-    getOrgPanelChart: async function (admin) {
-        const threeMonthAgo = new Date(new Date().getTime() - 7776000000);//90*24*60*60*1000
-        const criteria = {
-            // userId: mongoose.Types.ObjectId(userId),
-            status: 1,
-            isDebtor: false,
-            createdAt: {$gt: threeMonthAgo}
-        };
+    getOrgPanelChart: async function (admin, from, to, groupBy) {
+        const criteria = {status: 1, isDebtor: false};
+        if (from) criteria.createdAt = {$and: [{$gte: from}, {$lte: to}]};
 
         return await this.aggregate([
             {$match: criteria},
@@ -772,7 +771,7 @@ TransactionSchema.static({
             {
                 $group:
                     {
-                        _id: {day: {$dayOfYear: "$createdAt"}, year: {$year: "$createdAt"}},
+                        _id: groupBy,
                         date: {$first: "$createdAt"},
                         totalAmount: {$sum: "$price"},
                         count: {$sum: 1}

@@ -222,19 +222,21 @@ transactionController.prototype.getPanelTransaction = async (optFilter) => {
  *
  * @param {Object} admin
  * @param {String} accLevel
+ * @param {Date} from
+ * @param {Date} to
  *
  * @return List Transaction
  */
-transactionController.prototype.getTotalCostIncome = async (admin, accLevel) => {
+transactionController.prototype.getTotalCostIncome = async (admin, accLevel,from , to) => {
     if (accLevel === 'ANY')
-        return await Transaction.getTotalEarned()
+        return await Transaction.getTotalEarned(from, to)
             .then(transactions => transactions)
             .catch(err => {
                 console.error("!!!Transaction getAll failed: ", err);
                 throw err;
             });
     else
-        return await Transaction.getTotalPaid(admin)
+        return await Transaction.getTotalPaid(admin, from, to)
             .then(transactions => transactions)
             .catch(err => {
                 console.error("!!!Transaction getAll failed: ", err);
@@ -248,19 +250,36 @@ transactionController.prototype.getTotalCostIncome = async (admin, accLevel) => 
  *
  * @param {Object} admin
  * @param {String} accLevel
+ * @param {Object} optFilter
  *
  * @return List Transaction per Day
  */
-transactionController.prototype.getPanelChart = async (admin, accLevel) => {
+transactionController.prototype.getPanelChart = async (admin, accLevel, optFilter) => {
+    let from = moment.unix(Date.now()).startOf('month').toDate(),
+        to = moment.unix(Date.now()).endOf('month').toDate();
+
+    let groupBy = {day: {$dayOfYear: "$createdAt"}, year: {$year: "$createdAt"}};
+    if (optFilter.allTime) {
+        from = null;
+        to = null;
+        groupBy = {year: {$year: "$createdAt"}};
+    } else if (optFilter.month) {
+        from = moment.unix(optFilter.month.date).startOf('month').toDate();
+        to = moment.unix(optFilter.month.date).endOf('month').toDate();
+    } else if (optFilter.year) {
+        from = moment.unix(optFilter.year.date).startOf('year').toDate();
+        to = moment.unix(optFilter.year.date).endOf('year').toDate();
+        groupBy = {day: {$month: "$createdAt"}, year: {$year: "$createdAt"}};
+    }
     if (accLevel === 'ANY')
-        return await Transaction.getPanelChart()
+        return await Transaction.getPanelChart(from, to, groupBy)
             .then(transactions => transactions)
             .catch(err => {
                 console.error("!!!Transaction getAll failed: ", err);
                 throw err;
             });
     else
-        return await Transaction.getOrgPanelChart(admin)
+        return await Transaction.getOrgPanelChart(admin, from, to, groupBy)
             .then(transactions => transactions)
             .catch(err => {
                 console.error("!!!Transaction getAll failed: ", err);

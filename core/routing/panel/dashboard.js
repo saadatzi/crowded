@@ -19,15 +19,19 @@ const settings = require('../../utils/settings');
 
 
 const getStatsSchema = Joi.object().keys({
-        from: Joi.string().default(() => {
-                return moment.unix(Date.now()).startOf('month').toDate()
-        }),
-        to: Joi.string().default(() => {
-                return moment.unix(Date.now()).endOf('month').toDate()
-        })
-});
+    today: Joi.boolean(),
+    allTime: Joi.boolean(),
+    month: Joi.object().keys({date: JoiConfigs.timeStamp}),
+    year: Joi.object().keys({date: JoiConfigs.timeStamp}),
+    // from: Joi.string().default(() => {
+    //     return moment.unix(Date.now()).startOf('month').toDate()
+    // }),
+    // to: Joi.string().default(() => {
+    //     return moment.unix(Date.now()).endOf('month').toDate()
+    // })
+}).min(0).max(1);
 
-const calendarFiltersSchema =Joi.object().keys({
+const calendarFiltersSchema = Joi.object().keys({
     monthFlag: Joi.string(),
 });
 
@@ -55,7 +59,7 @@ router.post('/calendar', verifyTokenPanel(), joiValidate(calendarFiltersSchema, 
     console.info('API: Dashboard calendar/init %j', {body: req._body});
 
     // normalize
-    let monthFlag = new Date(req._body.monthFlag/1);
+    let monthFlag = new Date(req._body.monthFlag / 1);
 
     //TODO why try catch, controller is promise
     try {
@@ -66,7 +70,6 @@ router.post('/calendar', verifyTokenPanel(), joiValidate(calendarFiltersSchema, 
     }
 
 });
-
 
 
 module.exports = router;
