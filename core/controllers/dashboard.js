@@ -1,7 +1,7 @@
 /**
  * Module dependencies.
  */
-
+const moment = require('moment-timezone');
 const eventController = require('./event');
 const transactionController = require('./transaction');
 
