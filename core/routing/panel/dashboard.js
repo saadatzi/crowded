@@ -19,16 +19,20 @@ const settings = require('../../utils/settings');
 
 
 const getStatsSchema = Joi.object().keys({
-        from: Joi.string().default(() => {
-                return moment.unix(Date.now()).startOf('month').toDate()
-        }),
-        to: Joi.string().default(() => {
-                return moment.unix(Date.now()).endOf('month').toDate()
-        })
-});
+    today: Joi.boolean(),
+    allTime: Joi.boolean(),
+    month: Joi.object().keys({date: JoiConfigs.timeStamp}),
+    year: Joi.object().keys({date: JoiConfigs.timeStamp}),
+    // from: Joi.string().default(() => {
+    //     return moment.unix(Date.now()).startOf('month').toDate()
+    // }),
+    // to: Joi.string().default(() => {
+    //     return moment.unix(Date.now()).endOf('month').toDate()
+    // })
+}).min(0).max(1);
 
-const calendarFiltersSchema =Joi.object().keys({
-    monthFlag: Joi.string().min(10),
+const calendarFiltersSchema = Joi.object().keys({
+    monthFlag: Joi.string(),
 });
 
 
@@ -36,11 +40,11 @@ const calendarFiltersSchema =Joi.object().keys({
  *  Get everything
  */
 router.post('/', joiValidate(getStatsSchema), verifyTokenPanel(), authorization([{EVENT: 'R'}, {TRANSACTION: 'R'}]), async (req, res) => {
-    console.info('API: Dashboard getStats/init %j', {body: req._body});
+    console.info('API: Dashboard getStats/init %j', {body: req.body});
 
     //TODO why try catch, controller is promise
     try {
-        let stats = await dashboardController.getStats(req._admin, req._body, req.auth.accessLevel);
+        let stats = await dashboardController.getStats(req._admin, req.body, req.auth.accessLevel);
         new NZ.Response(stats).send(res);
     } catch (err) {
         new NZ.Response(err.message, err.code).send(res);
@@ -51,7 +55,7 @@ router.post('/', joiValidate(getStatsSchema), verifyTokenPanel(), authorization(
 /**
  * Get calendar data
  */
-router.post('/calendar', verifyTokenPanel(), joiValidate(calendarFiltersSchema, 0), authorization([{EVENT: 'R'}]), async (req, res) => {
+router.post('/calendar', verifyTokenPanel(), joiValidate(calendarFiltersSchema), authorization([{EVENT: 'R'}]), async (req, res) => {
     console.info('API: Dashboard calendar/init %j', {body: req._body});
 
     //  in case, convert milliseconds to seconds, anyway, turn it to Date
@@ -69,7 +73,6 @@ router.post('/calendar', verifyTokenPanel(), joiValidate(calendarFiltersSchema, 
     }
 
 });
-
 
 
 module.exports = router;

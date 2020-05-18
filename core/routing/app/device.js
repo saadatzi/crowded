@@ -37,13 +37,18 @@ app.post('/auth', joiValidate(addSchema), async (req, res) => {
 	await deviceController.get(req.body.device.uid)
 		.then(async device => {
 			if (device) {
+				const tokenPayload = {deviceId: device._id};
+				if (device.userId) tokenPayload.userId = device.userId;
+				const newToken = sign(tokenPayload);
+
 				// maybe changed some value
 				device.osVersion = req.body.os.version;
 				device.name =  req.body.device.name;
+				device.token = newToken;
 				await device.save();
 
 				const response = {
-					access_token:	device.token,
+					access_token:	newToken,
 					access_type:	device.userId ? 'private' : 'public'
 				};
 				return new NZ.Response(response).send(res);

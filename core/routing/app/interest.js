@@ -53,17 +53,6 @@ router.get('/', verifyToken(), async function (req, res) {
 router.post('/', joiValidate(setSchema),  verifyToken(), async function (req, res) {
     console.info('API: Set interest/init %j', {body: req.body});
 
-    //TODO when must to merge?!
-    //Added 'You must choose at least one interest.'
-    // let lastInterests;
-    // if (req.userId)
-    //     lastInterests = await userController.get(req.userId, 'interest');
-    // else
-    //     lastInterests = await deviceController.get(req.deviceId, 'id');
-    // const uniqueInterests = Array.from(new Set([...lastInterests.interests.map(item => item.toString()), ...req.body.selected]));
-    // console.info('API: Set interest/lastInterests %j', lastInterests);
-    // console.info('API: Set interest/uniqueInterests %j', uniqueInterests);
-    //Replace req.body.selected
     const updateValue = {interests: req.body.selected};
 
 
