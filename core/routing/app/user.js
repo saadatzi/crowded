@@ -167,19 +167,24 @@ router.post('/login', verifyToken(), async (req, res) => {
             if (!user || (user.password !== NZ.sha512Hmac(req.body.password, user.salt)))
                 return new NZ.Response(null, 'Wrong email or password, Try again', 400).send(res);
             const newToken = sign({deviceId: req.deviceId, userId: user._id});
-            //update device(toke,userId,updateAt)
-            deviceController.update(req.deviceId, {userId: user._id, token: newToken})
-                .then(device => {
-                    //interest selected from device to user & merge & unique
-                    user.interests = Array.from(new Set([...user.interests.map(item => item.toString()), ...device.interests.map(item => item.toString())]));
-                    // user.interests.addToSet(device.interests);
-                    //update user lastLogin
-                    user.lastLogin = Date.now();
-                    user.lastInteract = Date.now();
-                    user.save();
-                    //remove selected interest from device
-                    device.interests = [];
-                    device.save();
+            //remove userId from other device
+            deviceController.update({userId: user._id}, {userId: null, token: null, lastInteract: new Date()})
+                .then(result => {
+                    //update device(toke,userId)
+                    deviceController.update(req.deviceId, {userId: user._id, token: newToken, lastInteract: new Date()})
+                        .then(device => {
+                            //interest selected from device to user & merge & unique
+                            user.interests = Array.from(new Set([...user.interests.map(item => item.toString()), ...device.interests.map(item => item.toString())]));
+
+                            //update user lastLogin
+                            user.lastLogin = new Date();
+                            user.lastInteract = new Date();
+                            user.save();
+
+                            //remove selected interest from device
+                            device.interests = [];
+                            device.save();
+                        }).catch(err => console.error("User Login update device Catch err:", err));
                 }).catch(err => console.error("User Login update device Catch err:", err));
             new NZ.Response({
                 access_token: newToken,
