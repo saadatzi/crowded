@@ -211,14 +211,14 @@ eventController.prototype.listUpcomingEvents = async (userId, accessLevel) => {
 /**
  * listUpcomingEvents (OWN,GROUP,ANY)
  *
- * @param {ObjectId} userId
- * @param {Object} monthFlag
+ * @param {Object} admin
+ * @param {Date} monthFlag
  * @param {String} accessLevel
  *
  * @return 10 next Events
  */
-eventController.prototype.calendar = (userId, monthFlag, accessLevel) => {
-    return Event.calendarData(userId, monthFlag, accessLevel)
+eventController.prototype.calendar = (admin, monthFlag, accessLevel) => {
+    return Event.calendarData(admin, monthFlag, accessLevel)
         .catch(err => {
             console.error("!!!Event calendarEventCount failed: ", err);
             throw err;

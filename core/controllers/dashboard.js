@@ -66,11 +66,11 @@ dashboardController.prototype.getStats = async (admin, optFilter, accessLevel) =
  * Login User Panel
  *
  */
-dashboardController.prototype.getCalendar = async (userId, monthFlag, accessLevel) => {
+dashboardController.prototype.getCalendar = async (admin, monthFlag, accessLevel) => {
 
     try {
 
-        let calendar = await eventController.calendar(userId, monthFlag, accessLevel.EVENT[0].R.level);
+        let calendar = await eventController.calendar(admin, monthFlag, accessLevel.EVENT[0].R.level);
 
         return calendar
     } catch (err) {

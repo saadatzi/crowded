@@ -425,25 +425,64 @@ EventSchema.static({
     /**
      * calendarEventCount OWN/Any
      */
-    calendarData(userId, monthFlag, accessLevel) {
+    calendarData(admin, monthFlag, accessLevel) {
 
-        console.log(userId, monthFlag, accessLevel);
+        console.log(admin._id, monthFlag, accessLevel);
 
 
         /*        Access level tweak         */
 
+        let transactionAccessLevelMatch = [];
         let eventAccessLevelMatch = [];
 
        if (accessLevel === 'OWN') {
-            eventAccessLevelMatch = [{ $match: { owner: mongoose.Types.ObjectId(userId) } }];
+            eventAccessLevelMatch = [{ $match: { owner: mongoose.Types.ObjectId(admin._id) } }];
         }
         else if (accessLevel === 'GROUP') {
+            transactionAccessLevelMatch = [
+                {
+                    $lookup: {
+                        from: 'organizations',
+                        pipeline: [
+                            {$match: {_id: mongoose.Types.ObjectId(admin.organizationId)}},
+                        ],
+                        as: 'getOrganization'
+                    }
+                },
+                {
+                    $project: {
+                        transactionAmount: {
+                            $add:
+                                [
+                                    {
+                                        $multiply:
+                                            [
+                                                {
+                                                    $divide:
+                                                        ["$transactionAmount", 100]
+                                                },
+                                                3
+                                                // {
+                                                //     $arrayElemAt:
+                                                //         [
+                                                //             '$getOrganization.commissionPercentage',
+                                                //              0
+                                                //         ]
+                                                // }
+                                            ]
+                                    },
+                                    "$transactionAmount"
+                                ]
+                        }
+                    }
+                },
+            ];
             eventAccessLevelMatch = [
                 {
                     $lookup: {
                         from: 'admins',
                         pipeline: [
-                            { $match: { _id: mongoose.Types.ObjectId(userId) } },
+                            { $match: { _id: mongoose.Types.ObjectId(admin._id) } },
                         ],
                         as: 'getAdmin'
                     }
@@ -504,6 +543,7 @@ EventSchema.static({
                                 date: { $first: "$eventDate" },
                             }
                         },
+                        ...transactionAccessLevelMatch,
                         {
                             $project:{
                                 _id:0,
