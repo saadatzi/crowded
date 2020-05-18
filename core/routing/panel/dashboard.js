@@ -55,7 +55,7 @@ router.post('/', joiValidate(getStatsSchema), verifyTokenPanel(), authorization(
 /**
  * Get calendar data
  */
-router.post('/calendar', verifyTokenPanel(), joiValidate(calendarFiltersSchema, 0), authorization([{EVENT: 'R'}]), async (req, res) => {
+router.post('/calendar', verifyTokenPanel(), joiValidate(calendarFiltersSchema), authorization([{EVENT: 'R'}]), async (req, res) => {
     console.info('API: Dashboard calendar/init %j', {body: req._body});
 
     // normalize
