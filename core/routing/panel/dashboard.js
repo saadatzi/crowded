@@ -28,7 +28,7 @@ const getStatsSchema = Joi.object().keys({
 });
 
 const calendarFiltersSchema =Joi.object().keys({
-    monthFlag: Joi.string(),
+    monthFlag: Joi.string().min(10),
 });
 
 
@@ -54,8 +54,11 @@ router.post('/', joiValidate(getStatsSchema), verifyTokenPanel(), authorization(
 router.post('/calendar', verifyTokenPanel(), joiValidate(calendarFiltersSchema, 0), authorization([{EVENT: 'R'}]), async (req, res) => {
     console.info('API: Dashboard calendar/init %j', {body: req._body});
 
-    // normalize
-    let monthFlag = new Date(req._body.monthFlag/1);
+    //  in case, convert milliseconds to seconds, anyway, turn it to Date
+    let monthFlag = Number(req._body.monthFlag)
+    monthFlag = monthFlag.toString().length > 10? monthFlag / 1000 : monthFlag;
+    monthFlag = moment.unix(monthFlag).toDate();
+
 
     //TODO why try catch, controller is promise
     try {
