@@ -60,14 +60,14 @@ router.post('/calendar', verifyTokenPanel(), joiValidate(calendarFiltersSchema),
 
     //  in case, convert milliseconds to seconds, anyway, turn it to Date
     let monthFlag = Number(req._body.monthFlag)
-    monthFlag = monthFlag.toString().length > 10? monthFlag / 1000 : monthFlag;
+    monthFlag = monthFlag.toString().length > 10 ? monthFlag / 1000 : monthFlag;
     monthFlag = moment.unix(monthFlag).toDate();
 
 
     //TODO why try catch, controller is promise
     try {
         let calendar = await dashboardController.getCalendar(req.userId, monthFlag, req.auth.accessLevel);
-        new NZ.Response({items:calendar}).send(res);
+        new NZ.Response({items: calendar}).send(res);
     } catch (err) {
         new NZ.Response(err.message, err.code).send(res);
     }
