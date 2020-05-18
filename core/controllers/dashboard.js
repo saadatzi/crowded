@@ -32,6 +32,9 @@ dashboardController.prototype.getStats = async (admin, optFilter, accessLevel) =
     }
 
     try {
+        
+        let availableYears = await eventController.getAvailableYears(admin._id, accessLevel.EVENT[0].R.level);
+
         let totalEventsCount = await eventController.countTotal(admin._id, accessLevel.EVENT[0].R.level, from, to);
 
         let waitingForApprovalCount = await eventController.countWatingForApproval(admin._id, accessLevel.EVENT[0].R.level);
@@ -44,6 +47,7 @@ dashboardController.prototype.getStats = async (admin, optFilter, accessLevel) =
 
 
         return {
+            availableYears,
             totalEventsCount,
             waitingForApprovalCount,
             upcomingEvents,

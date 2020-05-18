@@ -107,6 +107,24 @@ eventController.prototype.list = async (userId, optFilter, accessLevel) => {
     }
 };
 
+
+
+/**
+ * getAvailableYears (OWN,GROUP,ANY)
+ *
+ * @param {ObjectId} userId
+ * @param {String} accessLevel
+ *
+ * @return {Array} availableYears
+ */
+eventController.prototype.getAvailableYears = async (userId, accessLevel) => {
+    return Event.getAvailableYears(userId, accessLevel)
+        .catch(err => {
+            console.error("!!!Event getAvailableYears failed: ", err);
+            throw err;
+        });
+};
+
 /**
  * countTotal Events (OWN,GROUP,ANY)
  *
