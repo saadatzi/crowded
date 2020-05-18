@@ -13,15 +13,16 @@ const dashboardController = function () {
  *
  */
 dashboardController.prototype.getStats = async (admin, optFilter, accessLevel) => {
-    let from = moment.unix(Date.now()).startOf('month').toDate(),
-        to = moment.unix(Date.now()).endOf('month').toDate();
+    const epoch = Date.now() / 1000;
+    let from = moment.unix(epoch).startOf('month').toDate(),
+        to = moment.unix(epoch).endOf('month').toDate();
 
     if (optFilter.allTime) {
         from = null;
         to = null;
     } else if (optFilter.today) {
-        from = moment.unix(Date.now()).startOf('day').toDate();
-        to = moment.unix(Date.now()).endOf('day').toDate();
+        from = moment.unix(epoch).startOf('day').toDate();
+        to = moment.unix(epoch).endOf('day').toDate();
     } else if (optFilter.month) {
         from = moment.unix(optFilter.month.date).startOf('month').toDate();
         to = moment.unix(optFilter.month.date).endOf('month').toDate();

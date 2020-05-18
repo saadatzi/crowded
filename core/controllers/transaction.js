@@ -256,8 +256,9 @@ transactionController.prototype.getTotalCostIncome = async (admin, accLevel,from
  * @return List Transaction per Day
  */
 transactionController.prototype.getPanelChart = async (admin, accLevel, optFilter) => {
-    let from = moment.unix(Date.now()).startOf('month').toDate(),
-        to = moment.unix(Date.now()).endOf('month').toDate();
+    const epoch = Date.now() / 1000;
+    let from = moment.unix(epoch).startOf('month').toDate(),
+        to = moment.unix(epoch).endOf('month').toDate();
 
     let groupBy = {day: {$dayOfYear: "$createdAt"}, year: {$year: "$createdAt"}};
     if (optFilter.allTime) {
