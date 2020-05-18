@@ -723,7 +723,7 @@ TransactionSchema.static({
                         count: {$sum: 1}
                     }
             },
-            {$sort: {date: -1}},
+            {$sort: {date: 1}},
             {
                 $project: {
                     _id: 0,
@@ -777,7 +777,7 @@ TransactionSchema.static({
                         count: {$sum: 1}
                     }
             },
-            {$sort: {date: -1}},
+            {$sort: {date: 1}},
             {
                 $project: {
                     _id: 0,
