@@ -40,11 +40,11 @@ const calendarFiltersSchema = Joi.object().keys({
  *  Get everything
  */
 router.post('/', joiValidate(getStatsSchema), verifyTokenPanel(), authorization([{EVENT: 'R'}, {TRANSACTION: 'R'}]), async (req, res) => {
-    console.info('API: Dashboard getStats/init %j', {body: req._body});
+    console.info('API: Dashboard getStats/init %j', {body: req.body});
 
     //TODO why try catch, controller is promise
     try {
-        let stats = await dashboardController.getStats(req._admin, req._body, req.auth.accessLevel);
+        let stats = await dashboardController.getStats(req._admin, req.body, req.auth.accessLevel);
         new NZ.Response(stats).send(res);
     } catch (err) {
         new NZ.Response(err.message, err.code).send(res);
