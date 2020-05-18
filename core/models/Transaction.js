@@ -638,7 +638,7 @@ TransactionSchema.static({
      */
     getTotalEarned: async function (from, to) {
         const criteria = {isDebtor: false};
-        if (from) criteria.createdAt = {$and: [{$gte: from}, {$lte: to}]};
+        if (from) criteria.createdAt = {$gte: from, $lte: to};
 
         //TODO imp commissionPercentage
         return await this.aggregate([
@@ -657,7 +657,7 @@ TransactionSchema.static({
      */
     getTotalPaid: async function (admin, from , to) {
         const criteria = {isDebtor: false};
-        if (from) criteria.createdAt = {$and: [{$gte: from}, {$lte: to}]};
+        if (from) criteria.createdAt = {$gte: from, $lte: to};
 
         return await this.aggregate([
             {$match: criteria},
@@ -709,7 +709,7 @@ TransactionSchema.static({
             status: 1,
             isDebtor: false,
         };
-        if (from) criteria.createdAt = {$and: [{$gte: from}, {$lte: to}]};
+        if (from) criteria.createdAt = {$gte: from, $lte: to};
 
 
         return await this.aggregate([
@@ -751,7 +751,7 @@ TransactionSchema.static({
      */
     getOrgPanelChart: async function (admin, from, to, groupBy) {
         const criteria = {status: 1, isDebtor: false};
-        if (from) criteria.createdAt = {$and: [{$gte: from}, {$lte: to}]};
+        if (from) criteria.createdAt = {$gte: from, $lte: to};
 
         return await this.aggregate([
             {$match: criteria},
