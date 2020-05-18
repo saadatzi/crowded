@@ -66,11 +66,9 @@ dashboardController.prototype.getCalendar = async (userId, monthFlag, accessLeve
 
     try {
 
-        let eventCount = await eventController.calendarEventCount(userId, monthFlag, accessLevel.EVENT[0].R.level);
+        let calendar = await eventController.calendar(userId, monthFlag, accessLevel.EVENT[0].R.level);
 
-        return {
-            eventCount
-        };
+        return calendar
     } catch (err) {
         console.error('getCalendar Failed', err);
         throw err;
