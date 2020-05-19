@@ -124,10 +124,7 @@ roleController.prototype.update = async (optFilter, newValue) => {
         } else {
             const updateValue = {permissions: newValue}
             return await Role.findByIdAndUpdate(optFilter, updateValue)
-                .then(result => {
-                    console.log(`***Role Update by id ${optFilter} result: `, result);
-                    return result;
-                })
+                // .then(result => result)
                 .catch(err => {
                     console.error("!!!Role Update by id failed: ", err);
                     throw err;
