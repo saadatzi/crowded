@@ -247,7 +247,7 @@ eventController.prototype.getByIdAggregate = async (eventId, lang, userId = null
                 throw err;
             })
     }
-    const isApproved = ['APPROVED', 'ACTIVE', 'LEFT', 'PAUSED', 'SUCCESS'].includes(userEventStatus);
+    const isApproved = ['APPROVED', 'ACTIVE', 'CONTINUE', 'LEFT', 'PAUSED', 'SUCCESS'].includes(userEventStatus);
     return await Event.getByIdAggregate(eventId, lang, isApproved, userEventStatus)
         .then(async event => {
             if (isApproved) event = Object.assign(event, {map: isApproved ? {url: await googleStaticImage(event.coordinates[0], event.coordinates[1])} : null});

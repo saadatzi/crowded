@@ -124,7 +124,7 @@ EventSchema.static({
                          as: 'getAdmin'
                      }
                  },
-                 { $unwind: "$getAdmin" },
+                 {$unwind: "$getAdmin" },
                  {
                      $lookup: {
                          from: 'admins',
