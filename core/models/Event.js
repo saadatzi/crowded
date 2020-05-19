@@ -988,7 +988,7 @@ EventSchema.static({
                     id: "$_id",
                     title_en: 1,
                     image: 1,
-                    isActive: {$cond: {if: {$eq: ["$status", 1]}, then: true, else: false}},
+                    isActive: "$status",
                 },
             },
             {$sort: optFilter.sorts},
