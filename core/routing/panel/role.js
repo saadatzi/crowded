@@ -65,7 +65,7 @@ router.put('/edit', joiValidate(updateSchema), verifyTokenPanel(), authorization
             name: req.body.name,
             permissions: req.body.permissions
         }
-    }
+    };
     roleController.update(req.body.roleId, updateRole)
         .then(role => {
             new NZ.Response(null, role ? 'Role has been successfully update!' : 'Not found!', role ? 200 : 404 ).send(res);
