@@ -185,6 +185,7 @@ OrganizationSchema.static({
         let currentState = record.status;
         if (!validateCurrent(currentState)) throw {message: "Changing status not permitted!"};
         record.status = newStatus;
+        if (newStatus === 2) record.title = record.title + '_DELETED_' + Date.now();
         return record.save();
     }
 

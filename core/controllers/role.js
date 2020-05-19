@@ -126,7 +126,7 @@ roleController.prototype.update = async (optFilter, newValue) => {
                 // .then(result => result)
                 .catch(err => {
                     console.error("!!!Role Update by id failed: ", err);
-                    if (err.code === 11000) throw {message: "The entered title is duplicated!", code: 424};
+                    // if (err.code === 11000) throw {message: "The entered title is duplicated!", code: 424};
                     throw err;
                 })
         }

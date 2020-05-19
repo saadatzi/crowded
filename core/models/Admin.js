@@ -474,6 +474,7 @@ AdminSchema.static({
         let currentState = record.status;
         if (!validateCurrent(currentState)) throw {message: "Changing status not permitted!"};
         record.status = newStatus;
+        if (newStatus === 2) record.email = record.email + '_DELETED_' + Date.now();
         return record.save();
     },
 
