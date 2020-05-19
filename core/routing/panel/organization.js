@@ -39,7 +39,7 @@ const hasValidIdSchema = Joi.object().keys({
 
 const listSchema = JoiConfigs.schemas.list({
     filters:{
-        status: Joi.number().valid(0, 1, 2).default(1)
+        status: Joi.number().valid(0, 1)
     },
     sorts:{
         createdAt: Joi.number().valid(-1,1),
@@ -51,6 +51,11 @@ const listSchema = JoiConfigs.schemas.list({
     }
 });
 
+
+const activateSchema = Joi.object().keys({
+    orgId: JoiConfigs.isMongoId,
+    isActive: JoiConfigs.boolInt,
+});
 
 
 /**
@@ -101,6 +106,26 @@ router.put('/edit', uploader, joiValidate(updateSchema), verifyTokenPanel(), aut
         })
         .catch(err => {
             console.error("Organization update Catch err:", err);
+            new NZ.Response(null, err.message, err.code || 500).send(res);
+        })
+});
+
+/**
+ *  Activation Organization
+ * -UPDATE org status in db
+ * @return status
+ */
+//______________________Add Event_____________________//
+router.put('/activate', joiValidate(activateSchema), verifyTokenPanel(), authorization([{ORGANIZATION: 'RU'}]), async (req, res) => {
+    console.info('API: Activation Org/init %j', {body: req.body});
+
+    organizationController.update(req.body.orgId, {status: req.body.isActive})
+        .then(org => {
+            const resultMessage = req.body.isActive ? 'Organization Activation successful!' : 'Organization Deactivation successful!';
+            new NZ.Response(!!org, org ? resultMessage : 'Not Found!', org ? 200 : 404).send(res);
+        })
+        .catch(err => {
+            console.error("Org Activation Catch err:", err);
             new NZ.Response(null, err.message, err.code || 500).send(res);
         })
 });

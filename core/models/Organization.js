@@ -156,6 +156,7 @@ OrganizationSchema.static({
                     updatedAt: 1,
                     phones: 1,
                     isActive: {$cond: {if: {$eq: ["$status", 1]}, then: true, else: false}},
+                    commissionPercentage: 1,
                     image: {
                         $cond: [
                             {$ne: ["$image", ""]},

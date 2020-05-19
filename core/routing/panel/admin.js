@@ -201,14 +201,15 @@ router.put('/edit', joiValidate(updateSchema), verifyTokenPanel(), authorization
  */
 //______________________Add Event_____________________//
 router.put('/activate', joiValidate(activateSchema), verifyTokenPanel(), authorization([{ADMIN: 'RU'}]), async (req, res) => {
-    console.info('API: Activation event/init %j', {body: req.body});
+    console.info('API: Activation Admin/init %j', {body: req.body});
 
-    eventController.update(req.body.eventId, {status: req.body.isActive})
-        .then(event => {
-            new NZ.Response(!!event, event ? 'Event Update successful!' : 'Not Found!').send(res);
+    adminController.update(req.body.adminId, {status: req.body.isActive})
+        .then(admin => {
+            const resultMessage = req.body.isActive ? 'Admin Activation successful!' : 'Admin Deactivation successful!';
+            new NZ.Response(!!admin, admin ? resultMessage : 'Not Found!', admin ? 200 : 404).send(res);
         })
         .catch(err => {
-            console.error("Event Update Catch err:", err);
+            console.error("Admin Activation Catch err:", err);
             new NZ.Response(null, err.message, err.code || 500).send(res);
         })
 });

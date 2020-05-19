@@ -58,10 +58,10 @@ router.post('/add', joiValidate(addSchema, 0), verifyTokenPanel(), authorization
  * @return status
  */
 //______________________Update Role_____________________//
-router.put('/edit', joiValidate(updateSchema, 0), verifyTokenPanel(), authorization([{ROLE: 'RU'}]), async (req, res) => {
+router.put('/edit', joiValidate(updateSchema), verifyTokenPanel(), authorization([{ROLE: 'RU'}]), async (req, res) => {
     console.info('API: update Role/init %j', {body: req.body});
 
-    roleController.update(req.body.roleId, req.body.permissions)
+    roleController.update(req.body.roleId, req.body)
         .then(role => {
             new NZ.Response(null, role ? 'Role has been successfully update!' : 'Not found!', role ? 200 : 404 ).send(res);
         })
