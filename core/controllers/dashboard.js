@@ -68,6 +68,7 @@ dashboardController.prototype.getStats = async (admin, optFilter, accessLevel) =
  */
 dashboardController.prototype.getCalendar = async (admin, monthFlag, accessLevel) => {
 
+    // TODO: use a single aggregation for this
     // By: Kazem
     // 💩⏱️
     // I had to, I'll fix it ASAP
@@ -79,19 +80,22 @@ dashboardController.prototype.getCalendar = async (admin, monthFlag, accessLevel
 
         let eventsLen = events.length;
         let transactionsLen = transactions.length;
+
+
+
         let calendar = [];
 
         for (let i = 0; i < transactionsLen; i++) {
             let day = transactions[i].day;
-            calendar[day] = {...transactions[i],eventCount:0};
+            calendar[day] = transactions[i];
         }
 
         for (let i = 0; i < eventsLen; i++) {
             let day = events[i].day;
             if (calendar[day]) {
-                calendar[day].eventCount += events[i].eventCount;
+                calendar[day].eventCount = events[i].eventCount;
             } else {
-                calendar[day] = {...events[i], transactionAmount:0, transactionCount:0};
+                calendar[day] = events[i];
             }
         }
 
