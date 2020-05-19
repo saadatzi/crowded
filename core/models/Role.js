@@ -38,7 +38,7 @@ RoleSchema.static({
      * @api private
      */
     async getById(id) {
-        const baseCriteria = {status: {$in: [0, 1]}, _id: mongoose.Types.ObjectId(id)};
+        const baseCriteria = {_id: mongoose.Types.ObjectId(id), status: {$in: [0, 1]}};
         return await this.aggregate([
             {$match: baseCriteria},
             {$unwind: "$permissions"},
@@ -76,6 +76,7 @@ RoleSchema.static({
             },
         ])
             .then(result => {
+                console.log(">>>>>>>>>>>>>>>>>>>>>> role detail result:", result);
                 result.map(r => {
                     r.permissions.map(rp => rp.accesssLevel = binLevel2Bool(rp.accessLevelNum))
                 });

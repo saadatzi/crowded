@@ -26,7 +26,7 @@ const addSchema = Joi.object().keys({
 const updateSchema = Joi.object().keys({
     roleId:       	JoiConfigs.isMongoId,
     name:           JoiConfigs.strOptional,
-    permissions:    JoiConfigs.arrayLength(1, 50, permissionSchema),
+    permissions:    JoiConfigs.array(false, permissionSchema),
 });
 
 const deleteSchema = Joi.object().keys({
@@ -60,13 +60,18 @@ router.post('/add', joiValidate(addSchema, 0), verifyTokenPanel(), authorization
 //______________________Update Role_____________________//
 router.put('/edit', joiValidate(updateSchema), verifyTokenPanel(), authorization([{ROLE: 'RU'}]), async (req, res) => {
     console.info('API: update Role/init %j', {body: req.body});
-
-    roleController.update(req.body.roleId, req.body)
+    const updateRole = {
+        $set: {
+            name: req.body.name,
+            permissions: req.body.permissions
+        }
+    }
+    roleController.update(req.body.roleId, updateRole)
         .then(role => {
             new NZ.Response(null, role ? 'Role has been successfully update!' : 'Not found!', role ? 200 : 404 ).send(res);
         })
         .catch(err => {
-            console.error("Role update Catch err:", err)
+            console.error("Role update Catch err:", err);
             new NZ.Response(null, err.message, err.code || 500).send(res);
         })
 });

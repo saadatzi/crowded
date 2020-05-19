@@ -122,11 +122,11 @@ roleController.prototype.update = async (optFilter, newValue) => {
                     throw err;
                 })
         } else {
-            const updateValue = {permissions: newValue}
-            return await Role.findByIdAndUpdate(optFilter, updateValue)
+            return await Role.findByIdAndUpdate(optFilter, newValue)
                 // .then(result => result)
                 .catch(err => {
                     console.error("!!!Role Update by id failed: ", err);
+                    if (err.code === 11000) throw {message: "The entered title is duplicated!", code: 424};
                     throw err;
                 })
         }
