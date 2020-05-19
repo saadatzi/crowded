@@ -1325,8 +1325,18 @@ EventSchema.static({
                     value: 1,
                     attendance: 1,
                     allowedApplyTime: "$_allowedApplyTime",
-                    from: 1,
-                    to: 1,
+                    from: {
+                        $dateToString: { 
+                            date: '$from', 
+                            timezone: "Asia/Kuwait" 
+                          } 
+                    },
+                    to: {
+                        $dateToString: { 
+                            date: '$to', 
+                            timezone: "Asia/Kuwait" 
+                          } 
+                    },
                     address_en: {$concat: [{$arrayElemAt: ['$getArea_en', 0]}, ', ', "$_address_en"]},
                     address_ar: {$concat: [{$arrayElemAt: ['$getArea_ar', 0]}, '، ', "$_address_ar"]},
                     lat: {$arrayElemAt: ["$coordinates", 0]},
