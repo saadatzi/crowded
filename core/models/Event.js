@@ -53,7 +53,7 @@ EventSchema.pre('remove', function (next) {
  */
 EventSchema.pre('save', function (next) {
     var event = this;
-    if (!event.isNew && !event.images[event.images.length - 1].order) {
+    if (!event.isNew && event.images[event.images.length - 1]&& !event.images[event.images.length - 1].order) {
         const maxOrder = Math.max.apply(Math, event.images.map(function (o) {
             return o.order
         }))
