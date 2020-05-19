@@ -96,8 +96,7 @@ module.exports = {
 
 
 
-	email_logo:		'https://media.kids.dev.nizek.com/_email/Kidadvisor-white.png',
-	// TODO!
+	email_logo:		'https://media.crowded.dev.nizek.com/_email/__.png',
 
 	db_date_format: 	'YYYY-MM-DD HH:mm:ss',
 	date_format:		'DD-MM-YYYY',
