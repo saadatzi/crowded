@@ -72,177 +72,126 @@ TransactionSchema.static({
 
 
 
-    calendarTotalEarned(admin, monthFlag, accessLevel) {
+    /**
+     * calendarData
+     */
+    calendarData(admin, monthFlag, accessLevel) {
 
-        // ***********************************
-        // ************Mock Data**************
-        // ***********************************
-        console.log(admin, monthFlag, accessLevel);
-
-        return [
-                {
-                    "day": 18,
-                    "TransactionAmount": 100
-                },
-                {
-                    "day": 13,
-                    "TransactionAmount": 300
-                },
-                {
-                    "day": 10,
-                    "TransactionAmount": 2000
-                },
-                {
-                    "day": 2,
-                    "TransactionAmount": 400
-                },
-                {
-                    "day": 30,
-                    "TransactionAmount": 100
-                },
-                {
-                    "day": 24,
-                    "TransactionAmount": 100
-                },
-                {
-                    "day": 20,
-                    "TransactionAmount": 10000
-                },
-                {
-                    "day": 23,
-                    "TransactionAmount": 10
-                }
-        ];
+        console.log(admin._id, monthFlag, accessLevel);
 
 
-
-        /* ********************************* */
         /*        Access level tweak         */
-        /* ********************************* */
 
-        let accessLevelMatch = [];
+        let appendOrgCommittion = [];
+        let transactionAccessLevelMatch = [];
 
-        if (accessLevel === "ANY") {
-            let criteria = { isDebtor: false };
 
-            accessLevelMatchForTransactions = [
-                {
-                    $match: criteria
-                }
-            ]
-        } else {
-            let criteria = { isDebtor: false };
-
-            accessLevelMatchForTransactions = [
-                { $match: criteria },
-                //filter only this Organization
+        if(accessLevel !== 'ANY'){
+            appendOrgCommittion = [
                 {
                     $lookup: {
-                        from: 'events',
-                        let: { primaryEventId: "$eventId" },
+                        from: 'organizations',
                         pipeline: [
-                            { $match: { orgId: mongoose.Types.ObjectId(admin.organizationId) } },
-                            // ??
-                            { $match: { $expr: { $eq: ["$$primaryEventId", "$_id"] } } },// TODO: What?? 
-                            // ??
+                            {$match: {_id: mongoose.Types.ObjectId(admin.organizationId)}},
                         ],
-                        as: 'getOrgEvents'
+                        as: 'getOrganization'
                     }
                 },
-                { $unwind: { path: "$getOrgEvents", preserveNullAndEmptyArrays: false } },
-                // { $group: { _id: null, total: { $sum: "$price" } } },
-                //get organization percent //commissionPercentage
-                // {
-                //     $lookup: {
-                //         from: 'organizations',
-                //         pipeline: [
-                //             { $match: { _id: mongoose.Types.ObjectId(admin.organizationId) } },
-                //         ],
-                //         as: 'getOrganization'
-                //     }
-                // },
                 {
                     $project: {
-                        totalPercent: {
-                            $add: [
-                                {
-                                    $multiply:
-                                        [
-                                            {
-                                                $divide:
-                                                    ["$total", 100]
-                                            },
-                                            {
-                                                $arrayElemAt:
-                                                    ['$getOrganization.commissionPercentage',
-                                                        0]
-                                            }
-                                        ]
-                                },
-                                "$total"
-                            ]
+                        createdAt:1,
+                        price: {
+                            $add:
+                                [
+                                    {
+                                        $multiply:
+                                            [
+                                                {
+                                                    $divide:
+                                                        ["$price", 100]
+                                                },
+                                                {
+                                                    $arrayElemAt:
+                                                        [
+                                                            '$getOrganization.commissionPercentage',
+                                                             0
+                                                        ]
+                                                }
+                                            ]
+                                    },
+                                    "$price"
+                                ]
                         }
                     }
-                },
-                // {
-                //     $project: {
-                //         total: { $toString: { $round: ["$totalPercent", 2] } },
-                //     }
-                // },
+                }
             ]
         }
 
-
-
-        
+       if (accessLevel === 'OWN') {
+            transactionAccessLevelMatch = [
+                {$lookup:{
+                    from:'events',
+                    let: {primaryEventId: '$eventId'},
+                    pipeline:[
+                        {$match:{$expr:{$eq:["$$primaryEventId","_id"]}}},
+                        {$match:{owner: mongoose.Types.ObjectId(admin._id)}}
+                    ],
+                    as:'getEvents'
+                }},
+                { $unwind: { path: "$getEvents", preserveNullAndEmptyArrays: false } }
+            ];
+        }
+        else if (accessLevel === 'GROUP') {
+            transactionAccessLevelMatch = [
+                {$lookup:{
+                    from:'events',
+                    let: {primaryEventId: '$eventId'},
+                    pipeline:[
+                        {$match:{$expr:{$eq:["$$primaryEventId","_id"]}}},
+                        {$match:{orgId: mongoose.Types.ObjectId(admin.organizationId)}}
+                    ],
+                    as:'getEvents'
+                }},
+                { $unwind: { path: "$getEvents", preserveNullAndEmptyArrays: false } }
+            ];
+        }
 
 
         return this.aggregate([
-            {$match: {status: { $in: [0, 1] } }},
-            ...accessLevelMatch,
+            {$match: {status: {$in: [0, 1]}, isDebtor: false}},
+            ...transactionAccessLevelMatch,
             {
                 $match: {
                     $expr: {
-                        $and: [
-                            {
-                                $eq: [
-                                    { $month: monthFlag },
-                                    { $month: "$from" }
-                                ]
-                            },
-                            {
-                                $eq: [
-                                    { $year: monthFlag },
-                                    { $year: "$from" }
-                                ]
-                            }
-                        ]
+                        $eq: [{ $month: monthFlag }, { $month: "$createdAt" }]
                     }
                 }
             },
+            ...appendOrgCommittion,
             {
                 $group:
-                {
-                    _id:
                     {
-                        day: { $dayOfMonth: "$from" },
-                        month: { $month: "$from" },
-                        year: { $year: "$from" }
-                    },
-                    count: { $sum: 1 },
-                    date: { $first: "$from" }
-                }
+                        _id:
+                            {
+                                day: {$dayOfMonth: "$createdAt"},
+                                month: {$month: "$createdAt"},
+                                year: {$year: "$createdAt"}
+                            },
+                        date: {$first: "$createdAt"},
+                        transactionAmount: {$sum:"$price"},
+                        transactionCount: {$sum:1}
+                    }
             },
             {
                 $project: {
                     _id: 0,
                     day: "$_id.day",
-                    month: "$_id.month",
-                    year: "$_id.year",
                     date: 1,
-                    eventCount: '$count'
+                    transactionAmount:{$toDouble:"$transactionAmount"},
+                    transactionCount:1,
                 }
             }
+
         ])
             .then(result => {
                 return result;

@@ -423,7 +423,7 @@ EventSchema.static({
     },
 
     /**
-     * calendarEventCount OWN/Any
+     * calendarData
      */
     calendarData(admin, monthFlag, accessLevel) {
 
@@ -432,50 +432,12 @@ EventSchema.static({
 
         /*        Access level tweak         */
 
-        let transactionAccessLevelMatch = [];
         let eventAccessLevelMatch = [];
 
        if (accessLevel === 'OWN') {
             eventAccessLevelMatch = [{ $match: { owner: mongoose.Types.ObjectId(admin._id) } }];
         }
         else if (accessLevel === 'GROUP') {
-            transactionAccessLevelMatch = [
-                {
-                    $lookup: {
-                        from: 'organizations',
-                        pipeline: [
-                            {$match: {_id: mongoose.Types.ObjectId(admin.organizationId)}},
-                        ],
-                        as: 'getOrganization'
-                    }
-                },
-                {
-                    $project: {
-                        transactionAmount: {
-                            $add:
-                                [
-                                    {
-                                        $multiply:
-                                            [
-                                                {
-                                                    $divide:
-                                                        ["$transactionAmount", 100]
-                                                },
-                                                {
-                                                    $arrayElemAt:
-                                                        [
-                                                            '$getOrganization.commissionPercentage',
-                                                             0
-                                                        ]
-                                                }
-                                            ]
-                                    },
-                                    "$transactionAmount"
-                                ]
-                        }
-                    }
-                },
-            ];
             eventAccessLevelMatch = [
                 {
                     $lookup: {
@@ -528,33 +490,6 @@ EventSchema.static({
                 }
             },
             {
-                $lookup: {
-                    from: "transactions",
-                    let: { primaryEventId: "$_id" },
-                    pipeline: [
-                        { $match:{isDebtor: false}},
-                        { $match: { $expr: { $eq: ["$$primaryEventId", '$eventId'] } } },
-                        {
-                            $group:
-                            {
-                                _id: null,
-                                transactionAmount: {$sum: "$price"},
-                                date: { $first: "$eventDate" },
-                            }
-                        },
-                        ...transactionAccessLevelMatch,
-                        {
-                            $project:{
-                                _id:0,
-                                transactionAmount: {$toInt:"$transactionAmount"},
-                            }
-                        }
-                    ],
-                    as: "getTransactions"
-                }
-            },
-            { $unwind: { path: "$getTransactions", preserveNullAndEmptyArrays: true } },
-            {
                 $group:
                     {
                         _id:
@@ -565,7 +500,6 @@ EventSchema.static({
                             },
                         eventCount: {$sum: 1},
                         date: {$first: "$from"},
-                        transactionAmount: {$sum:"$getTransactions.transactionAmount"}
                     }
             },
             {
@@ -574,7 +508,6 @@ EventSchema.static({
                     day: "$_id.day",
                     date: 1,
                     eventCount: 1,
-                    transactionAmount:1,
                 }
             }
 
@@ -1324,7 +1257,12 @@ EventSchema.static({
                     area: {$arrayElemAt: ['$area', 0]},
                     value: 1,
                     attendance: 1,
-                    allowedApplyTime: "$_allowedApplyTime",
+                    allowedApplyTime: {
+                        $dateToString: { 
+                            date: '$_allowedApplyTime', 
+                            timezone: "Asia/Kuwait" 
+                          } 
+                    },
                     from: {
                         $dateToString: { 
                             date: '$from', 

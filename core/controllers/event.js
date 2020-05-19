@@ -209,13 +209,13 @@ eventController.prototype.listUpcomingEvents = async (userId, accessLevel) => {
 
 
 /**
- * listUpcomingEvents (OWN,GROUP,ANY)
+ * calendar Events (OWN,GROUP,ANY)
  *
  * @param {Object} admin
  * @param {Date} monthFlag
  * @param {String} accessLevel
  *
- * @return 10 next Events
+ * @return {Array} calendar
  */
 eventController.prototype.calendar = (admin, monthFlag, accessLevel) => {
     return Event.calendarData(admin, monthFlag, accessLevel)

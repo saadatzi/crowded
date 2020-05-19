@@ -68,11 +68,36 @@ dashboardController.prototype.getStats = async (admin, optFilter, accessLevel) =
  */
 dashboardController.prototype.getCalendar = async (admin, monthFlag, accessLevel) => {
 
+    // By: Kazem
+    // 💩⏱️
+    // I had to, I'll fix it ASAP
+
     try {
 
-        let calendar = await eventController.calendar(admin, monthFlag, accessLevel.EVENT[0].R.level);
+        let events = await eventController.calendar(admin, monthFlag, accessLevel.EVENT[0].R.level);
+        let transactions = await transactionController.calendar(admin, monthFlag, accessLevel.EVENT[0].R.level);
 
-        return calendar
+        let eventsLen = events.length;
+        let transactionsLen = transactions.length;
+        let calendar = [];
+
+        for (let i = 0; i < transactionsLen; i++) {
+            let day = transactions[i].day;
+            calendar[day] = {...transactions[i],eventCount:0};
+        }
+
+        for (let i = 0; i < eventsLen; i++) {
+            let day = events[i].day;
+            if (calendar[day]) {
+                calendar[day].eventCount += events[i].eventCount;
+            } else {
+                calendar[day] = {...events[i], transactionAmount:0, transactionCount:0};
+            }
+        }
+
+        calendar = calendar.filter(i=>!!i);
+
+        return calendar;
     } catch (err) {
         console.error('getCalendar Failed', err);
         throw err;

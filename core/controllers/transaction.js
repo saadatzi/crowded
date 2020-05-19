@@ -11,6 +11,24 @@ const moment = require('moment-timezone');
 const transactionController = function () {
 };
 
+
+/**
+ * calendar Transactions (OWN,GROUP,ANY)
+ *
+ * @param {Object} admin
+ * @param {Date} monthFlag
+ * @param {String} accessLevel
+ *
+ * @return {Array} calendar
+ */
+transactionController.prototype.calendar = (admin, monthFlag, accessLevel) => {
+    return Transaction.calendarData(admin, monthFlag, accessLevel)
+        .catch(err => {
+            console.error("!!!Transaction calendarData failed: ", err);
+            throw err;
+        });
+};
+
 /**
  * Add new Transaction
  *
