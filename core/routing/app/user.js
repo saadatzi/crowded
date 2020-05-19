@@ -304,7 +304,7 @@ router.post('/resetPassword/claim', joiValidate(claimResetPasswordSchema, 0), as
             if (user) {
                 const hash = await controllerUtils.createResetPasswordHash(user.id);
                 await controllerUtils.sendEmail(req.body.email, 'Reset Password', 'resetPassword', {
-                    name: user.name,
+                    name: user.firstname,
                     logo: settings.email_logo,
                     cdn_domain: settings.cdn_domain,
                     primary_domain: settings.primary_domain,
