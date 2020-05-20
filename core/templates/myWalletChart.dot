@@ -34,7 +34,7 @@
             				datasets: [{
                                 label: 'Dataset with point data',
             					borderColor: gradientStroke,
-                                borderWidth: 30,
+                                borderWidth: 10,
                                 pointHoverBackgroundColor: gradientStroke,
                                 pointHoverRadius: 10,
                                 pointHoverBorderWidth: 1,
