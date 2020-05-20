@@ -22,7 +22,6 @@
             		var myChart = new Chart(ctx, {
             			type: 'line',
             			data: {
-            				labels: [newDate(0), newDate(1), newDate(2), newDate(3), newDate(4), newDate(5), newDate(6)], // Date Objects
             				datasets: [{
                                 label: 'Dataset with point data',
             					borderColor: gradientStroke,
