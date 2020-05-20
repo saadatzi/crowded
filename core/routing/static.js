@@ -13,6 +13,7 @@ const {getHash} = require('../utils/cacheLayer');
 //______________________Get Wallet_____________________//
 app.get('/myWalletChart/:hash', async function (req, res) {
 	console.info('API: Get appMyWalletChart/init userId:', req.params.hash);
+	//TODO boolean to True(now for test is false)
 	await getHash(req.params.hash, false)
 		.then(userId => {
 			transactionController.myTransactionChart(userId)
