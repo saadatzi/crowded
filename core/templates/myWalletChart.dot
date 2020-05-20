@@ -18,6 +18,7 @@
 
 
                     const dataChart = JSON.parse('[[=JSON.stringify(model.chartData.result)]]');
+                    console.log(">>>>>>>>>>>>> dataChart: ", dataChart)
 
             		var myChart = new Chart(ctx, {
             			type: 'line',
