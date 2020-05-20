@@ -53,6 +53,7 @@ adminController.prototype.add = async (newAdmin) => {
             })
             .catch(err => {
                 console.error("!!!Admin save failed: ", err);
+                if (err.code === 11000) throw {message: "The entered Email is duplicated!", code: 424};
                 throw err;
             })
     }

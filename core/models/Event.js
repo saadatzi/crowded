@@ -1260,19 +1260,19 @@ EventSchema.static({
                     allowedApplyTime: {
                         $dateToString: { 
                             date: '$_allowedApplyTime', 
-                            timezone: "Asia/Kuwait" 
+                            // timezone: "Asia/Kuwait"
                           } 
                     },
                     from: {
                         $dateToString: { 
                             date: '$from', 
-                            timezone: "Asia/Kuwait" 
+                            // timezone: "Asia/Kuwait"
                           } 
                     },
                     to: {
                         $dateToString: { 
                             date: '$to', 
-                            timezone: "Asia/Kuwait" 
+                            // timezone: "Asia/Kuwait"
                           } 
                     },
                     address_en: {$concat: [{$arrayElemAt: ['$getArea_en', 0]}, ', ', "$_address_en"]},
