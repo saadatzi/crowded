@@ -78,6 +78,7 @@ dashboardController.prototype.getCalendar = async (admin, monthFlag, accessLevel
         let events = await eventController.calendar(admin, monthFlag, accessLevel.EVENT[0].R.level);
         let transactions = await transactionController.calendar(admin, monthFlag, accessLevel.EVENT[0].R.level);
 
+
         let eventsLen = events.length;
         let transactionsLen = transactions.length;
 
