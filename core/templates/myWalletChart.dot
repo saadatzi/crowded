@@ -8,11 +8,13 @@
     <div style="width: 100%;height: 100%;">
         <canvas id="canvas" style="background-color: rgb(27,27,27)"></canvas>
     </div>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.13.0/moment.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.1"></script>
         <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
         <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@0.7.4"></script>
         <script>
                     var timeFormat = 'YYYY/MM/DD';
+
 
                     const ctx = document.getElementById('canvas').getContext('2d');
 
