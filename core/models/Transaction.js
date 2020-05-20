@@ -7,8 +7,7 @@ const settings = require('../utils/settings');
 // Aggregation pipes
 const PIPE = {
     ACCESS_MATCH_ANY(){
-        return [];
-        
+        return []; 
     },
     ACCESS_MATCH_OWN(ownerId) {
         return [
@@ -206,7 +205,7 @@ TransactionSchema.static({
                     commissionSum: { $sum: "$CALC_COMMISSION" },
                     paidSum: { $sum: "$CALC_PAID" },
                     baseSum: { $sum: "$price" },
-                    count: { $sum: 1 },
+                    transactionCount: { $sum: 1 },
                 }
             },
             {
@@ -677,24 +676,41 @@ TransactionSchema.static({
      * Get Adimn Panel chart Data
      *
      */
-    getPanelChart: async function (from , to, groupBy) {
+    getPanelChart: async function (admin, from , to, groupBy, accessLevel) {
         // const threeMonthAgo = new Date(new Date().getTime() - 7776000000);//90*24*60*60*1000
+        // userId: mongoose.Types.ObjectId(userId),
         const criteria = {
-            // userId: mongoose.Types.ObjectId(userId),
             status: 1,
             isDebtor: false,
         };
         if (from) criteria.createdAt = {$gte: from, $lte: to};
+        let ACCESS_MATCH;
+        switch (accessLevel) {
+            case "OWN":
+                ACCESS_MATCH = PIPE.ACCESS_MATCH_OWN(admin._id);
+                break;
+            case "GROUP":
+                ACCESS_MATCH = PIPE.ACCESS_MATCH_GROUP(admin.organizationId);
+                break;
+            case "ANY":
+                ACCESS_MATCH = PIPE.ACCESS_MATCH_ANY();
+                break;
+        }
 
 
         return await this.aggregate([
             {$match: criteria},
+            ...PIPE.JOIN_EVENT(),
+            ...ACCESS_MATCH,
+            ...PIPE.JOIN_ORGANIZATION(),
+            ...PIPE.CALC_COMMISSION(),
+            ...PIPE.CALC_PAID(),
             {
                 $group:
                     {
                         _id: groupBy,
                         date: {$first: "$createdAt"},
-                        totalAmount: {$sum: "$price"},
+                        totalAmount: {$sum: accessLevel == 'ANY' ? "$CALC_COMMISSION": "$CALC_PAID"},
                         count: {$sum: 1}
                     }
             },
@@ -717,63 +733,11 @@ TransactionSchema.static({
                 console.info("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ getPanelChart transactions: ", transactions);
                 return transactions
             })
-            .catch(err => console.error("getMyTransaction  Catch", err));
+            .catch(err => console.error("getPanelChart  Catch", err));
     },
 
-    /**
-     * Get Organization Panel chart Data
-     *
-     */
-    getOrgPanelChart: async function (admin, from, to, groupBy) {
-        const criteria = {status: 1, isDebtor: false};
-        if (from) criteria.createdAt = {$gte: from, $lte: to};
-
-        return await this.aggregate([
-            {$match: criteria},
-            //filter only this Organization
-            {
-                $lookup: {
-                    from: 'events',
-                    let: {primaryEventId: "$eventId"},
-                    pipeline: [
-                        {$match: {orgId: mongoose.Types.ObjectId(admin.organizationId)}},
-                        {$match: {$expr: {$eq: ["$$primaryEventId", "$_id"]}}},
-                    ],
-                    as: 'getOrgEvents'
-                }
-            },
-            {$unwind: {path: "$getOrgEvents", preserveNullAndEmptyArrays: false}},
-            {
-                $group:
-                    {
-                        _id: groupBy,
-                        date: {$first: "$createdAt"},
-                        totalAmount: {$sum: "$price"},
-                        count: {$sum: 1}
-                    }
-            },
-            {$sort: {date: 1}},
-            {
-                $project: {
-                    _id: 0,
-                    x: {
-                        $dateToString: {
-                            format: "%Y/%m/%d",
-                            date: "$date",
-                            timezone: "Asia/Kuwait"
-                        }
-                    },
-                    y: {$toDouble: "$totalAmount"}
-                }
-            }
-        ])
-            .then(async transactions => {
-                return transactions
-            })
-            .catch(err => console.error("getMyTransaction  Catch", err));
-    },
-})
-;
+  
+});
 
 const Transaction = mongoose.model('Transaction', TransactionSchema);
 module.exports = Transaction;
