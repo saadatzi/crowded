@@ -34,7 +34,10 @@ userEventController.prototype.add = async (eventId, userId) => {
                     })
                     .catch(err => {
                         console.error("!!!UserEvent save failed: ", err);
-                        if (err.code === 11000) throw {message: "You have already registered for this event", code: 424};
+                        if (err.code === 11000) throw {
+                            message: "You have already registered for this event",
+                            code: 424
+                        };
                         throw err;
                     })
             }
@@ -126,9 +129,18 @@ userEventController.prototype.setStatus = async (userId, eventId, status, newVal
         await UserEvent.getOne({userId, eventId})
             .then(async userEvent => {
                 if (!userEvent) throw {code: 404, message: 'Not found!'}
-                if (status === 'ACTIVE'  && userEvent.status !== 'APPROVED') throw {code: 406, message: 'Active status mismatch!'};
-                if (status === 'PAUSED'  && (userEvent.status !== 'ACTIVE' && userEvent.status !== 'CONTINUE')) throw {code: 406, message: 'Paused status mismatch!'};
-                if (status === 'CONTINUE'  && userEvent.status !== 'PAUSED') throw {code: 406, message: 'Active again status mismatch!'}
+                if (status === 'ACTIVE' && userEvent.status !== 'APPROVED') throw {
+                    code: 406,
+                    message: 'Active status mismatch!'
+                };
+                if (status === 'PAUSED' && (userEvent.status !== 'ACTIVE' && userEvent.status !== 'CONTINUE')) throw {
+                    code: 406,
+                    message: 'Paused status mismatch!'
+                };
+                if (status === 'CONTINUE' && userEvent.status !== 'PAUSED') throw {
+                    code: 406,
+                    message: 'Active again status mismatch!'
+                }
             })
             .catch(err => {
                 console.error("!!!UserEvent getOne check Approved failed: ", err);
@@ -158,7 +170,6 @@ userEventController.prototype.setStatus = async (userId, eventId, status, newVal
 };
 
 
-
 /**
  * manage Participants
  *
@@ -170,36 +181,40 @@ userEventController.prototype.setStatus = async (userId, eventId, status, newVal
  */
 userEventController.prototype.manageParticipant = async (admin, reqInfo, auth) => {
     const mpLevel = auth.accessLevel.PARTICIPANTS[0].U.level;
-    if (mpLevel === 'OWN' || mpLevel === 'GROUP') {
-        await eventController.get(reqInfo.eventId)
-            .then(async event => {
-                if (!event) throw {code: 404, message: 'Event not found!'}
-                if (mpLevel === 'GROUP' && (event.orgId).toString() !== (admin.organizationId).toString())
-                    throw new {code: 403, message: 'You are not authorized to manage participants for this event!'};
-                if (mpLevel === 'OWN' && (event.owner).toString() !== (admin._id).toString())
-                    throw {code: 403, message: 'You are not authorized to manage participants for this event!'}
-            })
-            .catch(err => {
-                console.error("!!!User getParticipants eventController failed: ", err);
-                throw err;
-            })
-    }
+    return await eventController.get(reqInfo.eventId)
+        .then(async event => {
+            if (!event) throw {code: 404, message: 'Event not found!'}
+            if (mpLevel === 'GROUP' && (event.orgId).toString() !== (admin.organizationId).toString())
+                throw new {code: 403, message: 'You are not authorized to manage participants for this event!'};
+            if (mpLevel === 'OWN' && (event.owner).toString() !== (admin._id).toString())
+                throw {code: 403, message: 'You are not authorized to manage participants for this event!'}
 
-    await UserEvent.getOne({userId: reqInfo.userId, eventId: reqInfo.eventId})
-        .then(async userEvent => {
-            if (!userEvent) throw {code: 404, message: 'Not found!'};
-            if (reqInfo.isApproved && (userEvent.status !== 'APPLIED' && userEvent.status !== 'REJECTED')) throw {code: 406, message: 'request Approved has status mismatch!'};
-            if (!reqInfo.isApproved  && userEvent.status !== 'APPLIED') throw {code: 406, message: 'request Rejected has status mismatch!'};
-            userEvent.status = reqInfo.isApproved ? 'APPROVED' : 'REJECTED';
-            userEvent.save();
+            return await UserEvent.getOne({userId: reqInfo.userId, eventId: reqInfo.eventId})
+                .then(async userEvent => {
+                    if (!userEvent) throw {code: 404, message: 'Not found!'};
+                    if (reqInfo.isApproved && (userEvent.status !== 'APPLIED' && userEvent.status !== 'REJECTED')) throw {
+                        code: 406,
+                        message: 'request Approved has status mismatch!'
+                    };
+                    if (!reqInfo.isApproved && userEvent.status !== 'APPLIED') throw {
+                        code: 406,
+                        message: 'request Rejected has status mismatch!'
+                    };
+                    userEvent.status = reqInfo.isApproved ? 'APPROVED' : 'REJECTED';
+                    userEvent.save();
+                    return event;
+                })
+                .catch(err => {
+                    console.error("!!!UserEvent getOne check Approved failed: ", err);
+                    throw err;
+                })
         })
         .catch(err => {
-            console.error("!!!UserEvent getOne check Approved failed: ", err);
+            console.error("!!!User getParticipants eventController failed: ", err);
             throw err;
         })
 
 };
-
 
 
 /**

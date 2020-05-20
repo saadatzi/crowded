@@ -114,6 +114,12 @@ module.exports = {
 		adnroid_debug: '317747001343-f4309nthjktfftj4iurpob6n2gmqvm50.apps.googleusercontent.com'
 	},
 
+	countly: {
+		baseUrl: 	'https://nizek.count.ly/',
+		apiKey: 	'52865796cd908403ea8e3a9645f7a949',
+		appId: 		'5e8c4e06836390542628dd39',
+	},
+
 	facebook_login: {
 		secret:		'14f8f8d7aca68358eddb4179777d87ae',
 		client_id:	'408352710035595',

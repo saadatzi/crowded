@@ -87,6 +87,25 @@ deviceController.prototype.get = async (optFilter, type = 'identifier') => {
 };
 
 /**
+ * get Device Notification
+ *
+ * @param {ObjectId}  userId
+ *
+ * @return notificationId
+ */
+deviceController.prototype.getNotificationId = async (userId) => {
+        return await Device.findOne({userId: userId})
+            .then(device => {
+                console.log("***Device getNotificationId result: ", device);
+                return device.notificationToken;
+            })
+            .catch(err => {
+                console.error("!!!Device getNotificationId failed: ", err);
+                throw err;
+            })
+};
+
+/**
  * remove Device (by id or filtered)
  *
  * @param {Object || ObjectId} optFilter

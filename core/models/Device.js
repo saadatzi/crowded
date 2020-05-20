@@ -8,7 +8,6 @@ const DeviceSchema = new Schema({
     status: { type: Number, default: 1 },
     interests: [{ type: Schema.Types.ObjectId, ref: 'Interest' }],
     notificationToken: { type: String, index: true },
-    notificationTokenDev: { type: String, index: true },
     osType: String,
     osVersion: String,
     title: String,
