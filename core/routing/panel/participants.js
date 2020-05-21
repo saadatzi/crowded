@@ -55,7 +55,7 @@ router.post('/manage', joiValidate(manageSchema), verifyTokenPanel(), authorizat
                 udeviceController.getNotificationId(req.body.userId)
                     .then(notificationId => {
                         console.info("~~~~~~~~~~~~~~~~~ getNotificationId sendNotification notificationId:", notificationId);
-                        sendNotification([notificationId], 'Request APPROVED', `ِYour request for ${event.title_en} has been approved! :)`, event._id)
+                        sendNotification([notificationId], 'Request APPROVED', `Your request for ${event.title_en} has been approved! :)`, event._id)
                     })
                     .catch(err => {
                         console.error("manage Participants sendNotification get User Catch:", err);

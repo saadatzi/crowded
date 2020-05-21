@@ -83,7 +83,7 @@ cron.schedule("0 9 * * *", function () { //
         .then(result => {
             console.info("^^^^^^^^^^^^^^^^^^^^Cron.schedule every day in 9:00am Kuwait result: ", result)
             result.map(te => {
-                sendNotification(te.notificationIds, 'Reminder of participation in the event', `Reminder of participation in the ${te.title} event.\n Tomorrow at ${te.time}`, te.eventId)
+                sendNotification(te.notificationIds, 'Reminder for tomorrow\'s event', `Reminder of participation in the ${te.title} event.\n Tomorrow at ${te.time}`, te.eventId)
             })
         })
         .catch(err => console.error("!!!Cron.schedule tomorrowEvent failed err: ", err))
