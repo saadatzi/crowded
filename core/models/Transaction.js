@@ -3,6 +3,105 @@ const Schema = mongoose.Schema;
 const AutoIncrement = require('mongoose-sequence')(mongoose);
 const settings = require('../utils/settings');
 
+
+// Aggregation pipes
+const PIPE = {
+    ACCESS_MATCH_ANY(){
+        return []; 
+    },
+    ACCESS_MATCH_OWN(ownerId) {
+        return [
+            { $match: { 'JOIN_EVENT.owner': mongoose.Types.ObjectId(ownerId) } }
+        ]
+    },
+    ACCESS_MATCH_GROUP(orgId) {
+        return [
+            { $match: { 'JOIN_EVENT.orgId': mongoose.Types.ObjectId(orgId) } } 
+        ]
+    },
+    ACCESS_MATCH(accessLevel,admin){
+        let ACCESS_MATCH;
+        switch (accessLevel) {
+            case "OWN":
+                ACCESS_MATCH = PIPE.ACCESS_MATCH_OWN(admin._id);
+                break;
+            case "GROUP":
+                ACCESS_MATCH = PIPE.ACCESS_MATCH_GROUP(admin.organizationId);
+                break;
+            case "ANY":
+                ACCESS_MATCH = PIPE.ACCESS_MATCH_ANY();
+                break;
+        }
+        return ACCESS_MATCH;
+    },
+    JOIN_EVENT() {
+        return [
+            {
+                $lookup: {
+                    from: 'events',
+                    let: { primaryEventId: "$eventId" },
+                    pipeline: [
+                        { $match: { $expr: { $eq: ["$$primaryEventId", "$_id"] } } },
+                    ],
+                    as: 'JOIN_EVENT'
+                }
+            },
+            { $unwind: { path: "$JOIN_EVENT" } },
+        ]
+    },
+    JOIN_ORGANIZATION() {
+        return [
+            {
+                $lookup: {
+                    from: 'organizations',
+                    let: { primaryOrgId: "$JOIN_EVENT.orgId" },
+                    pipeline: [
+                        { $match: { $expr: { $eq: ["$$primaryOrgId", "$_id"] } } },
+                    ],
+                    as: 'JOIN_ORGANIZATION'
+                }
+            },
+            { $unwind: { path: "$JOIN_ORGANIZATION"}}
+        ]
+    },
+    CALC_PAID() {
+        return [
+            {
+                $addFields: {
+                    CALC_PAID: {
+                        $add: ["$CALC_COMMISSION", { $toDouble: "$price" }]
+                    }
+                }
+            }
+        ];
+    },
+    CALC_COMMISSION() {
+        return [
+            {
+                $addFields: {
+                    CALC_COMMISSION: {
+                        $toDouble: {
+
+                            $multiply:
+                                [
+                                    {
+                                        $divide:
+                                            ["$price", 100]
+                                    },
+                                    '$JOIN_ORGANIZATION.commissionPercentage'
+                                ]
+                        }
+
+                    },
+                }
+            }
+        ];
+    }
+
+}
+
+
+
 const TransactionSchema = new Schema({
     userId: {type: Schema.ObjectId, ref: 'User'},
     eventId: {type: Schema.ObjectId, ref: 'Event'},
@@ -77,126 +176,54 @@ TransactionSchema.static({
      */
     calendarData(admin, monthFlag, accessLevel) {
 
-        console.log(admin._id, monthFlag, accessLevel);
-
-
         /*        Access level tweak         */
-
-        let appendOrgCommittion = [];
-        let transactionAccessLevelMatch = [];
-
-
-        if(accessLevel !== 'ANY'){
-            appendOrgCommittion = [
-                {
-                    $lookup: {
-                        from: 'organizations',
-                        pipeline: [
-                            {$match: {_id: mongoose.Types.ObjectId(admin.organizationId)}},
-                        ],
-                        as: 'getOrganization'
-                    }
-                },
-                {
-                    $project: {
-                        createdAt:1,
-                        price: {
-                            $add:
-                                [
-                                    {
-                                        $multiply:
-                                            [
-                                                {
-                                                    $divide:
-                                                        ["$price", 100]
-                                                },
-                                                {
-                                                    $arrayElemAt:
-                                                        [
-                                                            '$getOrganization.commissionPercentage',
-                                                             0
-                                                        ]
-                                                }
-                                            ]
-                                    },
-                                    "$price"
-                                ]
-                        }
-                    }
-                }
-            ]
-        }
-
-       if (accessLevel === 'OWN') {
-            transactionAccessLevelMatch = [
-                {$lookup:{
-                    from:'events',
-                    let: {primaryEventId: '$eventId'},
-                    pipeline:[
-                        {$match:{$expr:{$eq:["$$primaryEventId","_id"]}}},
-                        {$match:{owner: mongoose.Types.ObjectId(admin._id)}}
-                    ],
-                    as:'getEvents'
-                }},
-                { $unwind: { path: "$getEvents", preserveNullAndEmptyArrays: false } }
-            ];
-        }
-        else if (accessLevel === 'GROUP') {
-            transactionAccessLevelMatch = [
-                {$lookup:{
-                    from:'events',
-                    let: {primaryEventId: '$eventId'},
-                    pipeline:[
-                        {$match:{$expr:{$eq:["$$primaryEventId","_id"]}}},
-                        {$match:{orgId: mongoose.Types.ObjectId(admin.organizationId)}}
-                    ],
-                    as:'getEvents'
-                }},
-                { $unwind: { path: "$getEvents", preserveNullAndEmptyArrays: false } }
-            ];
-        }
 
 
         return this.aggregate([
-            {$match: {status: {$in: [0, 1]}, isDebtor: false}},
-            ...transactionAccessLevelMatch,
             {
                 $match: {
+                    status: { $in: [0, 1] },
+                    isDebtor: false,
                     $expr: {
                         $eq: [{ $month: monthFlag }, { $month: "$createdAt" }]
                     }
                 }
             },
-            ...appendOrgCommittion,
+            ...PIPE.JOIN_EVENT(),
+            ...PIPE.ACCESS_MATCH(accessLevel,admin),
+            ...PIPE.JOIN_ORGANIZATION(),
+            ...PIPE.CALC_COMMISSION(),
+            ...PIPE.CALC_PAID(),
             {
                 $group:
+                {
+                    _id:
                     {
-                        _id:
-                            {
-                                day: {$dayOfMonth: "$createdAt"},
-                                month: {$month: "$createdAt"},
-                                year: {$year: "$createdAt"}
-                            },
-                        date: {$first: "$createdAt"},
-                        transactionAmount: {$sum:"$price"},
-                        transactionCount: {$sum:1}
-                    }
+                        day: { $dayOfMonth: "$createdAt" },
+                        month: { $month: "$createdAt" },
+                        year: { $year: "$createdAt" }
+                    },
+                    date: { $first: "$createdAt" },
+                    commissionSum: { $sum: "$CALC_COMMISSION" },
+                    paidSum: { $sum: "$CALC_PAID" },
+                    baseSum: { $sum: "$price" },
+                    transactionCount: { $sum: 1 },
+                }
             },
             {
                 $project: {
                     _id: 0,
                     day: "$_id.day",
                     date: 1,
-                    transactionAmount:{$toDouble:"$transactionAmount"},
-                    transactionCount:1,
+                    commissionSum: accessLevel === 'ANY' ? 1 : null,
+                    paidSum: accessLevel !== 'ANY' ? 1 : null,
+                    // baseSum:{$toDouble:"$baseSum"}, 
+                    // transactionCount:1,
                 }
             }
+        ]).catch(err => console.error(err));
 
-        ])
-            .then(result => {
-                return result;
-            })
-            .catch(err => console.error(err));
+
     },
 
 
@@ -585,90 +612,53 @@ TransactionSchema.static({
      * Total Earned Transaction
      *
      */
-    getTotalEarned: async function (from, to) {
+    getTotal: async function (admin, from, to, accessLevel) {
         const criteria = {isDebtor: false};
         if (from) criteria.createdAt = {$gte: from, $lte: to};
 
-        //TODO imp commissionPercentage
+        console.log(admin,from,to,accessLevel);
         return await this.aggregate([
             {$match: criteria},
-            {$group: {_id: null, total: {$sum: "$price"}}},
+            ...PIPE.JOIN_EVENT(),
+            ...PIPE.ACCESS_MATCH(accessLevel, admin),
+            ...PIPE.JOIN_ORGANIZATION(),
+            ...PIPE.CALC_COMMISSION(),
+            ...PIPE.CALC_PAID(),
+            { $group: { _id: null, total: { $sum: accessLevel == 'ANY' ? "$CALC_COMMISSION" : "$CALC_PAID" } } },
             {$project: {_id: 0, total: {$toString: "$total"}}},
         ])
             .then(async result => {
-                return {type: 'earned', total: result.length > 0 && result[0].total ? result[0].total : 0};
+                console.log(result);
+                return {type: accessLevel == 'ANY' ? "earned" : "paid", total: result.length > 0 && result[0].total ? result[0].total : 0};
             })
             .catch(err => console.error("getMyTransaction  Catch", err));
     },
 
-    /**
-     * Total Paid for Organization Transaction
-     */
-    getTotalPaid: async function (admin, from , to) {
-        const criteria = {isDebtor: false};
-        if (from) criteria.createdAt = {$gte: from, $lte: to};
-
-        return await this.aggregate([
-            {$match: criteria},
-            //filter only this Organization
-            {
-                $lookup: {
-                    from: 'events',
-                    let: {primaryEventId: "$eventId"},
-                    pipeline: [
-                        {$match: {orgId: mongoose.Types.ObjectId(admin.organizationId)}},
-                        {$match: {$expr: {$eq: ["$$primaryEventId", "$_id"]}}},
-                    ],
-                    as: 'getOrgEvents'
-                }
-            },
-            {$unwind: {path: "$getOrgEvents", preserveNullAndEmptyArrays: false}},
-            {$group: {_id: null, total: {$sum: "$price"}}},
-            //get organization percent //commissionPercentage
-            {
-                $lookup: {
-                    from: 'organizations',
-                    pipeline: [
-                        {$match: {_id: mongoose.Types.ObjectId(admin.organizationId)}},
-                    ],
-                    as: 'getOrganization'
-                }
-            },
-            {$project: {totalPercent: {$add: [{$multiply: [{$divide: ["$total", 100]}, {$arrayElemAt: ['$getOrganization.commissionPercentage', 0]}]}, "$total"]}}},
-            {
-                $project: {
-                    total: {$toString: {$round: ["$totalPercent", 2]}},
-                }
-            },
-        ])
-            .then(async result => {
-                return {type: 'paid', total: result.length > 0 && result[0].total ? result[0].total : 0};
-            })
-            .catch(err => console.error("getMyTransaction  Catch", err));
-    },
 
     /**
      * Get Adimn Panel chart Data
      *
      */
-    getPanelChart: async function (from , to, groupBy) {
+    getPanelChart: async function (admin, from , to, groupBy, accessLevel) {
         // const threeMonthAgo = new Date(new Date().getTime() - 7776000000);//90*24*60*60*1000
-        const criteria = {
-            // userId: mongoose.Types.ObjectId(userId),
-            status: 1,
-            isDebtor: false,
-        };
+        // userId: mongoose.Types.ObjectId(userId),
+        const criteria = {status: 1,isDebtor: false};
         if (from) criteria.createdAt = {$gte: from, $lte: to};
 
 
         return await this.aggregate([
             {$match: criteria},
+            ...PIPE.JOIN_EVENT(),
+            ...PIPE.ACCESS_MATCH(accessLevel, admin),
+            ...PIPE.JOIN_ORGANIZATION(),
+            ...PIPE.CALC_COMMISSION(),
+            ...PIPE.CALC_PAID(),
             {
                 $group:
                     {
                         _id: groupBy,
                         date: {$first: "$createdAt"},
-                        totalAmount: {$sum: "$price"},
+                        totalAmount: {$sum: accessLevel == 'ANY' ? "$CALC_COMMISSION": "$CALC_PAID"},
                         count: {$sum: 1}
                     }
             },
@@ -691,63 +681,11 @@ TransactionSchema.static({
                 console.info("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ getPanelChart transactions: ", transactions);
                 return transactions
             })
-            .catch(err => console.error("getMyTransaction  Catch", err));
+            .catch(err => console.error("getPanelChart  Catch", err));
     },
 
-    /**
-     * Get Organization Panel chart Data
-     *
-     */
-    getOrgPanelChart: async function (admin, from, to, groupBy) {
-        const criteria = {status: 1, isDebtor: false};
-        if (from) criteria.createdAt = {$gte: from, $lte: to};
-
-        return await this.aggregate([
-            {$match: criteria},
-            //filter only this Organization
-            {
-                $lookup: {
-                    from: 'events',
-                    let: {primaryEventId: "$eventId"},
-                    pipeline: [
-                        {$match: {orgId: mongoose.Types.ObjectId(admin.organizationId)}},
-                        {$match: {$expr: {$eq: ["$$primaryEventId", "$_id"]}}},
-                    ],
-                    as: 'getOrgEvents'
-                }
-            },
-            {$unwind: {path: "$getOrgEvents", preserveNullAndEmptyArrays: false}},
-            {
-                $group:
-                    {
-                        _id: groupBy,
-                        date: {$first: "$createdAt"},
-                        totalAmount: {$sum: "$price"},
-                        count: {$sum: 1}
-                    }
-            },
-            {$sort: {date: 1}},
-            {
-                $project: {
-                    _id: 0,
-                    x: {
-                        $dateToString: {
-                            format: "%Y/%m/%d",
-                            date: "$date",
-                            timezone: "Asia/Kuwait"
-                        }
-                    },
-                    y: {$toDouble: "$totalAmount"}
-                }
-            }
-        ])
-            .then(async transactions => {
-                return transactions
-            })
-            .catch(err => console.error("getMyTransaction  Catch", err));
-    },
-})
-;
+  
+});
 
 const Transaction = mongoose.model('Transaction', TransactionSchema);
 module.exports = Transaction;

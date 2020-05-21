@@ -247,20 +247,12 @@ transactionController.prototype.getPanelTransaction = async (optFilter) => {
  * @return List Transaction
  */
 transactionController.prototype.getTotalCostIncome = async (admin, accLevel,from , to) => {
-    if (accLevel === 'ANY')
-        return await Transaction.getTotalEarned(from, to)
+    return await Transaction.getTotal(admin,from, to,accLevel)
             .then(transactions => transactions)
             .catch(err => {
                 console.error("!!!Transaction getAll failed: ", err);
                 throw err;
             });
-    else
-        return await Transaction.getTotalPaid(admin, from, to)
-            .then(transactions => transactions)
-            .catch(err => {
-                console.error("!!!Transaction getAll failed: ", err);
-                throw err;
-            })
 
 };
 
@@ -291,20 +283,15 @@ transactionController.prototype.getPanelChart = async (admin, accLevel, optFilte
         to = moment.unix(optFilter.year.date).endOf('year').toDate();
         groupBy = {day: {$month: "$createdAt"}, year: {$year: "$createdAt"}};
     }
-    if (accLevel === 'ANY')
-        return await Transaction.getPanelChart(from, to, groupBy)
-            .then(transactions => transactions)
-            .catch(err => {
-                console.error("!!!Transaction getAll failed: ", err);
-                throw err;
-            });
-    else
-        return await Transaction.getOrgPanelChart(admin, from, to, groupBy)
-            .then(transactions => transactions)
-            .catch(err => {
-                console.error("!!!Transaction getAll failed: ", err);
-                throw err;
-            })
+
+
+    return await Transaction.getPanelChart(admin, from, to, groupBy, accLevel)
+    .catch(err => {
+        console.error("!!!Transaction getAll failed: ", err);
+        throw err;
+    });
+
+
 
 };
 
