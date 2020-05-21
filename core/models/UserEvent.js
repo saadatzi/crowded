@@ -102,7 +102,77 @@ UserEventSchema.static({
                 });
                 return groupResult
             })
-   },
+    },
+
+    /**
+     * job PushNotification Tomorrow Event
+     *
+     */
+    async jobTomorrowEvent(startDay, endDay) {
+        const criteria = {status: 'APPROVED'};
+
+        return await this.aggregate([
+            {$match: criteria},
+            {
+                $lookup: {
+                    from: 'events',
+                    let: {primaryEventId: "$eventId"},
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: {
+                                    $and: [
+                                        {$eq: ["$_id", "$$primaryEventId"]},
+                                        {$gte: ["$from", startDay]},
+                                        {$lte: ["$from", endDay]},
+                                    ]
+                                }
+                            }
+                        },
+                    ],
+                    as: 'getEvents'
+                }
+            },
+            {$unwind: {path: "$getEvents", preserveNullAndEmptyArrays: false}},
+            {
+                $lookup: {
+                    from: 'devices',
+                    let: {primaryUserId: "$userId"},
+                    pipeline: [
+                        {$match: {$expr: {$eq: ["$userId", "$$primaryUserId"]}}},
+                    ],
+                    as: 'getDevice'
+                }
+            },
+            {$unwind: "$getDevice"},
+            // {$unwind: {path: "$getDevice", preserveNullAndEmptyArrays: false}},
+
+            // {$set: {status: {$cond: {if: {$eq: ["$status", 'APPLIED']}, then: 'UNAPPROVED', else: 'MISSED'}}}},
+            {
+                $group: {
+                    _id: {eventId: "$getEvents._id"},
+                    title: {$first: "$getEvents.title_en"},
+                    time: {
+                        $first: {
+                            $dateToString: {
+                                format: "%H:%M",
+                                date: "$getEvents.from",
+                                timezone: "Asia/Kuwait"
+                            }
+                        }
+                    },
+                    notificationIds: {$push: '$getDevice.notificationToken'}
+                }
+            },
+            {$project: {eventId: "$_id.eventId", _id: 0, title: 1, time: 1, notificationIds: 1}},
+            {$sort: {eventId: 1}},
+
+        ])
+            .then(tomorrowResult => {
+                // console.info("~~~~~~~~~~~~~~~~~~ tomorrowResult: ", tomorrowResult);
+                return tomorrowResult
+            })
+    },
 
     /**
      * List all userEvent

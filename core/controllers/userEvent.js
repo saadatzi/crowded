@@ -5,7 +5,7 @@
 const UserEvent = require('../models/UserEvent');
 const eventController = require('./event');
 const transactionController = require('./transaction');
-
+const moment = require('moment-timezone');
 
 const userEventController = function () {
 };
@@ -210,7 +210,7 @@ userEventController.prototype.manageParticipant = async (admin, reqInfo, auth) =
                 })
         })
         .catch(err => {
-            console.error("!!!User getParticipants eventController failed: ", err);
+            console.error("!!!User manageParticipant eventController failed: ", err);
             throw err;
         })
 
@@ -379,6 +379,20 @@ userEventController.prototype.update = async (optFilter, newValue) => {
  */
 userEventController.prototype.finalStatus = async () => {
     return await UserEvent.jobFinalStatus()
+        .catch(err => {
+            // console.error("!!!UserEvent FinalStatus failed: ", err);
+            throw err;
+        })
+
+};
+
+/**
+ * fix final status
+ */
+userEventController.prototype.tomorrowEvent = async () => {
+    const startDay = moment().add(1, "d").startOf('day').toDate(),
+        endDay = moment().add(1, "d").endOf('day').toDate();
+    return await UserEvent.jobTomorrowEvent(startDay, endDay)
         .catch(err => {
             // console.error("!!!UserEvent FinalStatus failed: ", err);
             throw err;
