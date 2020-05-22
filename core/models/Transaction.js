@@ -613,7 +613,6 @@ TransactionSchema.static({
         const criteria = {isDebtor: false};
         if (from) criteria.createdAt = {$gte: from, $lte: to};
 
-        console.log(admin, from, to, accessLevel);
         return await this.aggregate([
             {$match: criteria},
             ...PIPE.JOIN_EVENT(),
