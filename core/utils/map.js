@@ -163,10 +163,55 @@ function sign(path, secret) {
 
  const googleMapsStaticUrl = (lat, lng) => {
     console.log(">>>>>>>>>>>>> lat: %j, long: %j", lat, lng)
-	const url = `${settings.mapImage.url}staticmap?style=${get_static_style(style1)}&key=${settings.mapImage.key}&center=${lat},${lng}&zoom=${settings.mapImage.zoom}&scale=false&size=${settings.mapImage.sizeW}x${settings.mapImage.sizeH}&maptype=${settings.mapImage.mapType}&format=png&visual_refresh=true&markers=icon:${settings.mapImage.marker}%7Cshadow:true%7C${lat},${lng}`;
+	const url = `${settings.mapImage.url}staticmap?
+	    style=${get_static_style(style1)}
+	    &key=${settings.mapImage.key}
+	    &center=${lat},${lng}
+	    &zoom=${settings.mapImage.zoom}
+	    &scale=false
+	    &size=${settings.mapImage.sizeW}x${settings.mapImage.sizeH}
+	    &maptype=${settings.mapImage.mapType}
+	    &format=png&visual_refresh=true&markers=icon:${settings.mapImage.marker}%7Cshadow:true%7C${lat},${lng}`;
      console.log(">>>>>>>>>>>>> url:", url);
 	return sign(url, settings.googlemapsstaticsign);
+};
+
+function getCirclePoints(lat, lng, radius) {
+    const circlePoints = [];
+    // convert center coordinates to radians
+    const lat_rad = toRadians(lat);
+    const lon_rad = toRadians(lng);
+    const dist = radius / 6378137;
+
+    // calculate circle path point for each 5 degrees
+    for (let deg = 0; deg < 360; deg += 5) {
+        const rad = toRadians(deg);
+
+        // calculate coordinates of next circle path point
+        const new_lat = Math.asin(Math.sin(lat_rad) * Math.cos(dist) + Math.cos(lat_rad) * Math.sin(dist) * Math.cos(rad));
+        const new_lon = lon_rad + Math.atan2(Math.sin(rad) * Math.sin(dist) * Math.cos(lat_rad), Math.cos(dist)
+            - Math.sin(lat_rad) * Math.sin(new_lat));
+
+        // convert new lat and lon to degrees
+        const new_lat_deg = toDegrees(new_lat);
+        const new_lon_deg = toDegrees(new_lon);
+
+        circlePoints.push(`|${new_lat_deg},${new_lon_deg}`);
+    }
+
+    return circlePoints;
 }
+
+function toRadians(degrees) {
+    var pi = Math.PI;
+    return degrees * (pi/180);
+}
+
+function toDegrees(radians) {
+    var pi = Math.PI;
+    return radians * (180/pi);
+}
+
 
 function get_static_style(styles) {
     var result = [];
@@ -181,7 +226,7 @@ function get_static_style(styles) {
           style += propertyname + ':' + propertyval + '|';
         });
       }
-      result.push('style='+encodeURIComponent(style))
+      result.push('style='+encodeURIComponent(style))&path
     });
 
     return result.join('&');

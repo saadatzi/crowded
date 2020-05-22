@@ -136,14 +136,12 @@ eventController.prototype.getAvailableYears = async (userId, accessLevel) => {
  */
 eventController.prototype.countTotal = async (userId, accessLevel, from , to) => {
     if (accessLevel === 'GROUP') {
-        console.log(">>>>>>>>>>>>>>>> accessLevel: %s", accessLevel);
         return await Event.countListGroup(userId, from , to)
             .catch(err => {
                 console.error("!!!Event countListGroup failed: ", err);
                 throw err;
             })
     } else {
-        console.log(">>>>>>>>>>>>>>>> accessLevel: %s", accessLevel);
         return await Event.countListOwnAny(userId, accessLevel, from , to)
             .catch(err => {
                 console.error("!!!Event countListOwnAny failed: ", err);
@@ -163,14 +161,12 @@ eventController.prototype.countTotal = async (userId, accessLevel, from , to) =>
 eventController.prototype.countWatingForApproval = async (userId, accessLevel) => {
 
     if (accessLevel === 'GROUP') {
-        console.log(">>>>>>>>>>>>>>>> accessLevel: %s", accessLevel);
         return await Event.countWaitingForApprovalGroup(userId)
             .catch(err => {
                 console.error("!!!Event countWaitingForApprovalGroup failed: ", err);
                 throw err;
             })
     } else {
-        console.log(">>>>>>>>>>>>>>>> accessLevel: %s", accessLevel);
         return await Event.countWaitingForApprovalOwnAny(userId, accessLevel)
             .catch(err => {
                 console.error("!!!Event countWaitingForApprovalOwnAny failed: ", err);
@@ -192,14 +188,12 @@ eventController.prototype.countWatingForApproval = async (userId, accessLevel) =
 eventController.prototype.listUpcomingEvents = async (userId, accessLevel) => {
 
     if (accessLevel === 'GROUP') {
-        console.log(">>>>>>>>>>>>>>>> accessLevel: %s", accessLevel);
         return await Event.listUpcomingEventsGroup(userId)
             .catch(err => {
                 console.error("!!!Event listUpcomingEventsGroup failed: ", err);
                 throw err;
             })
     } else {
-        console.log(">>>>>>>>>>>>>>>> accessLevel: %s", accessLevel);
         return await Event.listUpcomingEventsOwnAny(userId, accessLevel)
             .catch(err => {
                 console.error("!!!Event listUpcomingEventsOwnAny failed: ", err);

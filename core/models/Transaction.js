@@ -625,7 +625,6 @@ TransactionSchema.static({
             {$project: {_id: 0, total: {$toString: "$total"}}},
         ])
             .then(async result => {
-                console.log(result);
                 return {
                     type: accessLevel === 'ANY' ? "earned" : "paid",
                     total: result.length > 0 && result[0].total ? result[0].total : 0
@@ -677,10 +676,7 @@ TransactionSchema.static({
                 }
             }
         ])
-            .then(async transactions => {
-                console.info("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ getPanelChart transactions: ", transactions);
-                return transactions
-            })
+            // .then(async transactions =>  transactions)
             .catch(err => console.error("getPanelChart  Catch", err));
     },
 

@@ -28,10 +28,7 @@ userEventController.prototype.add = async (eventId, userId) => {
         .then(async event => {
             if (event) {
                 return await UserEvent.create(applyUserEvent)
-                    .then(event => {
-                        console.log("***UserEvent save success event", event);
-                        return event;
-                    })
+                    // .then(event => event)
                     .catch(err => {
                         console.error("!!!UserEvent save failed: ", err);
                         if (err.code === 11000) throw {

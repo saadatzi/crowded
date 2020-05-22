@@ -95,10 +95,7 @@ deviceController.prototype.get = async (optFilter, type = 'identifier') => {
  */
 deviceController.prototype.getNotificationId = async (userId) => {
         return await Device.findOne({userId: userId})
-            .then(device => {
-                console.log("***Device getNotificationId result: ", device);
-                return device.notificationToken;
-            })
+            .then(device => device.notificationToken)
             .catch(err => {
                 console.error("!!!Device getNotificationId failed: ", err);
                 throw err;

@@ -50,11 +50,9 @@ router.post('/manage', joiValidate(manageSchema), verifyTokenPanel(), authorizat
 
     userEventController.manageParticipant(req._admin, req.body, req.auth)
         .then(event => {
-            console.info("~~~~~~~~~~~~~~~~~ manageParticipant sendNotification event:", event);
             if (req.body.isApproved) {
                 udeviceController.getNotificationId(req.body.userId)
                     .then(notificationId => {
-                        console.info("~~~~~~~~~~~~~~~~~ getNotificationId sendNotification notificationId:", notificationId);
                         sendNotification([notificationId], 'Request APPROVED', `Your request for ${event.title_en} has been approved! :)`, event._id)
                     })
                     .catch(err => {
