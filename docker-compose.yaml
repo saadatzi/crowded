@@ -74,7 +74,7 @@ services:
 #      - mongod --auth
 #      - /docker-entrypoint-initdb.d/startup_script.sh
   mongo-express:
-    image: mongo-express
+    image: mongo-express:latest
     restart: always
     ports:
       - 8081:8081

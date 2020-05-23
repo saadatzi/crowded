@@ -16,12 +16,16 @@ const adminController = require('./controllers/admin');
 const interestController = require('./controllers/interest');
 const staticController = require('./controllers/static');
 const settingController = require('./controllers/setting');
+const eventController = require('./controllers/event');
 
 
 (async () => {
     console.log("******* single run **********");
     googleStaticImage(35.7485728, 51.4080562);
     //TODO initDATABASE
+
+    eventController.update({},{$set: {informed: false}})
+
     if (settings.initDataDB) {
         // Add area
         areaController.get({})

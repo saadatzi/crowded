@@ -32,6 +32,7 @@ const EventSchema = new Schema({
     //TODO why comment allowedApplyTime???!!
     allowedApplyTime: Date,
     orgId: {type: Schema.Types.ObjectId, ref: 'Organization'},
+    informed: {type: Boolean, default: false},
 }, {timestamps: true});
 
 //index for geo location
