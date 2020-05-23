@@ -174,11 +174,10 @@ const googleMapsStaticUrl = (lat, lng) => {
 	    &path=color:0x0076FFA8|weight:3|fillcolor:0x0076FF41`;
     const circlePoints = getCirclePoints(lat, lng);
     url = url.concat(circlePoints.join(''));
-    console.log(">>>>>>>>>>>>> url:", url);
     return sign(url, settings.googlemapsstaticsign);
 };
 
-function getCirclePoints(lat, lng, radius = 200) {
+function getCirclePoints(lat, lng, radius = 150) {
     const circlePoints = [];
     // convert center coordinates to radians
     const lat_rad = toRadians(lat);
