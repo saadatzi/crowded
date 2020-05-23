@@ -40,7 +40,7 @@ UserSchema.method({
             email: this.email,
             firstname: this.firstname,
             lastname: this.lastname,
-            image: {url: settings.media_domain + this.image},
+            image: {url: this.image ? settings.media_domain + this.image : settings.userProfilePic},
             sex: this.sex,
             birthDate: this.birthDate,
             phone: this.phone,

@@ -1,5 +1,4 @@
 const axios = require('axios');
-const fetch = require('node-fetch');
 const CryptoJS = require('crypto-js');
 
 let appId = '';
@@ -27,14 +26,14 @@ const init = async (id, options) => {
 	pushIntervalInit();
 	pullIntervalInit();
 };
-const ptest = () => {
-	fetch(`https://api.ncs.nizek.com/localization/${appId}`).then(res => res.json())
-	.then(res => {
-		console.log('good', res)
-	}).catch(err => {
-		console.error('ptest error', err);
-	})
-}
+// const ptest = () => {
+// 	fetch(`https://api.ncs.nizek.com/localization/${appId}`).then(res => res.json())
+// 	.then(res => {
+// 		console.log('good', res)
+// 	}).catch(err => {
+// 		console.error('ptest error', err);
+// 	})
+// }
 const pullLocalizations = async () => {
 	try {
 		// ptest();

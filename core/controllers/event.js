@@ -56,6 +56,7 @@ eventController.prototype.get = async (optFilter, type = 'id') => {
             })
     } else {
         if (type === 'id') {
+            console.log("((((((((((((( eventController getById:", optFilter);
             return await Event.getById(optFilter)
                 .then(result => result)
                 .catch(err => {
@@ -135,14 +136,12 @@ eventController.prototype.getAvailableYears = async (userId, accessLevel) => {
  */
 eventController.prototype.countTotal = async (userId, accessLevel, from , to) => {
     if (accessLevel === 'GROUP') {
-        console.log(">>>>>>>>>>>>>>>> accessLevel: %s", accessLevel);
         return await Event.countListGroup(userId, from , to)
             .catch(err => {
                 console.error("!!!Event countListGroup failed: ", err);
                 throw err;
             })
     } else {
-        console.log(">>>>>>>>>>>>>>>> accessLevel: %s", accessLevel);
         return await Event.countListOwnAny(userId, accessLevel, from , to)
             .catch(err => {
                 console.error("!!!Event countListOwnAny failed: ", err);
@@ -162,14 +161,12 @@ eventController.prototype.countTotal = async (userId, accessLevel, from , to) =>
 eventController.prototype.countWatingForApproval = async (userId, accessLevel) => {
 
     if (accessLevel === 'GROUP') {
-        console.log(">>>>>>>>>>>>>>>> accessLevel: %s", accessLevel);
         return await Event.countWaitingForApprovalGroup(userId)
             .catch(err => {
                 console.error("!!!Event countWaitingForApprovalGroup failed: ", err);
                 throw err;
             })
     } else {
-        console.log(">>>>>>>>>>>>>>>> accessLevel: %s", accessLevel);
         return await Event.countWaitingForApprovalOwnAny(userId, accessLevel)
             .catch(err => {
                 console.error("!!!Event countWaitingForApprovalOwnAny failed: ", err);
@@ -191,14 +188,12 @@ eventController.prototype.countWatingForApproval = async (userId, accessLevel) =
 eventController.prototype.listUpcomingEvents = async (userId, accessLevel) => {
 
     if (accessLevel === 'GROUP') {
-        console.log(">>>>>>>>>>>>>>>> accessLevel: %s", accessLevel);
         return await Event.listUpcomingEventsGroup(userId)
             .catch(err => {
                 console.error("!!!Event listUpcomingEventsGroup failed: ", err);
                 throw err;
             })
     } else {
-        console.log(">>>>>>>>>>>>>>>> accessLevel: %s", accessLevel);
         return await Event.listUpcomingEventsOwnAny(userId, accessLevel)
             .catch(err => {
                 console.error("!!!Event listUpcomingEventsOwnAny failed: ", err);
@@ -250,7 +245,7 @@ eventController.prototype.getByIdAggregate = async (eventId, lang, userId = null
     const isApproved = ['APPROVED', 'ACTIVE', 'CONTINUE', 'LEFT', 'PAUSED', 'SUCCESS'].includes(userEventStatus);
     return await Event.getByIdAggregate(eventId, lang, isApproved, userEventStatus)
         .then(async event => {
-            if (isApproved) event = Object.assign(event, {map: isApproved ? {url: await googleStaticImage(event.coordinates[0], event.coordinates[1])} : null});
+            if (isApproved) event = Object.assign(event, {map: {url: await googleStaticImage(event.coordinates[0], event.coordinates[1])}});
             return event
         })
         .catch(err => {

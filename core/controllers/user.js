@@ -21,10 +21,7 @@ const userController = function () {
  */
 userController.prototype.getManyPanel = async (optFilter) => {
     return await User.getManyPanel(optFilter)
-        .then(result => {
-            console.log("***User getManyPanel success result", result);
-            return result;
-        })
+        // .then(result =>  result)
         .catch(err => {
             console.error("!!!User getManyPanel failed: ", err);
             throw err;
@@ -129,10 +126,7 @@ userController.prototype.add = async (newUser) => {
             })
     } else {
         return await User.create(newUser)
-            .then(user => {
-                console.log("*** User save success user", user);
-                return user;
-            })
+            // .then(user => user)
             .catch(err => {
                 console.error("!!!User save failed: ", err);
                 throw err;

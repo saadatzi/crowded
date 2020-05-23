@@ -18,7 +18,6 @@ app.get('/myWalletChart/:hash', async function (req, res) {
 		.then(userId => {
 			transactionController.myTransactionChart(userId)
 				.then(result => {
-					console.info('API: Get appMyWalletChart result:', result);
 					res.render('myWalletChart', {
 						project_name:	settings.project_name,
 						title:			'My wallet Chart',

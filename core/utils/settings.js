@@ -97,6 +97,7 @@ module.exports = {
 
 
 	email_logo:		'https://media.crowded.dev.nizek.com/_email/__.png',
+	userProfilePic:	'https://media.crowded.dev.nizek.com/propic.png',
 
 	db_date_format: 	'YYYY-MM-DD HH:mm:ss',
 	date_format:		'DD-MM-YYYY',
@@ -114,6 +115,12 @@ module.exports = {
 		adnroid_debug: '317747001343-f4309nthjktfftj4iurpob6n2gmqvm50.apps.googleusercontent.com'
 	},
 
+	countly: {
+		baseUrl: 	'https://nizek.count.ly/',
+		apiKey: 	'52865796cd908403ea8e3a9645f7a949',
+		appId: 		'5e8c4e06836390542628dd39',
+	},
+
 	facebook_login: {
 		secret:		'14f8f8d7aca68358eddb4179777d87ae',
 		client_id:	'408352710035595',
@@ -125,9 +132,9 @@ module.exports = {
 	mapImage: {
 		url: 'https://maps.googleapis.com/maps/api/',
 		key: 'AIzaSyDpjwTyUmC9yKpctL5dZdj9nzE3j2ykgyU',
-		zoom: 17,
-		sizeW: 625,
-		sizeH: 300,
+		zoom: 14,
+		sizeW: 322,
+		sizeH: 291,
 		mapType: 'roadmap',
 		marker: 'https://mactehran.com/assets/images/-map-marker-2.png'
 	},

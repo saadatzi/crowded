@@ -8,8 +8,10 @@ const {joiValidate} = require('../utils');
 // Instantiate the Device Model
 const userEventController = require('../../controllers/userEvent');
 const userController = require('../../controllers/user');
+const udeviceController = require('../../controllers/device');
 const NZ = require('../../utils/nz');
 const {verifyTokenPanel, authorization} = require('../../utils/validation');
+const {sendNotification} = require('../../utils/call');
 
 
 // Joi validator schemas
@@ -47,11 +49,20 @@ router.post('/manage', joiValidate(manageSchema), verifyTokenPanel(), authorizat
     console.info('API: Get Participants event/init %j', {body: req.body});
 
     userEventController.manageParticipant(req._admin, req.body, req.auth)
-        .then(item => {
+        .then(event => {
+            if (req.body.isApproved) {
+                udeviceController.getNotificationId(req.body.userId)
+                    .then(notificationId => {
+                        sendNotification([notificationId], 'Request APPROVED', `Your request for ${event.title_en} has been approved! :)`, event._id)
+                    })
+                    .catch(err => {
+                        console.error("manage Participants sendNotification get User Catch:", err);
+                    });
+            }
             new NZ.Response(true, 'Your request has been successfully submitted').send(res);
         })
         .catch(err => {
-            console.error("Get Participants Catch err:", err);
+            console.error("manage Participants Catch err:", err);
             new NZ.Response(null, err.message, err.code || 500).send(res);
         })
 });

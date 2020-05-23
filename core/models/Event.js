@@ -225,8 +225,7 @@ EventSchema.static({
             {$count: 'total'}
         ])
             .then(result => {
-                if (!result.length) return 0;
-                return result[0].total;
+                return result.length > 0 ? result[0].total : 0;
             })
             .catch(err => console.error(err));
 
@@ -350,8 +349,7 @@ EventSchema.static({
             }
         ])
             .then(result => {
-                if (result.length === 0) return 0;
-                return result[0].total;
+                return result.length > 0 ? result[0].total : 0;
             })
             .catch(err => console.error(err));
     },
@@ -372,9 +370,7 @@ EventSchema.static({
                 },
             },
         ])
-            .then(result => {
-                return result;
-            })
+            // .then(result => result)
             .catch(err => console.error(err));
     },
 
@@ -416,9 +412,7 @@ EventSchema.static({
                 },
             },
         ])
-            .then(result => {
-                return result;
-            })
+            // .then(result => result)
             .catch(err => console.error(err));
     },
 
@@ -632,10 +626,7 @@ EventSchema.static({
                 }
             },
         ])
-            .then(event => {
-                console.error("@@@@@@@@@@@@@@@ getByIdAggregate event: ", event);
-                return event[0]
-            })
+            .then(event =>  event[0])
             .catch(err => console.error("getByIdAggregate(Event Detail)  Catch", err));
     },
 

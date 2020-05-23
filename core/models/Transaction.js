@@ -6,20 +6,20 @@ const settings = require('../utils/settings');
 
 // Aggregation pipes
 const PIPE = {
-    ACCESS_MATCH_ANY(){
-        return []; 
+    ACCESS_MATCH_ANY() {
+        return [];
     },
     ACCESS_MATCH_OWN(ownerId) {
         return [
-            { $match: { 'JOIN_EVENT.owner': mongoose.Types.ObjectId(ownerId) } }
+            {$match: {'JOIN_EVENT.owner': mongoose.Types.ObjectId(ownerId)}}
         ]
     },
     ACCESS_MATCH_GROUP(orgId) {
         return [
-            { $match: { 'JOIN_EVENT.orgId': mongoose.Types.ObjectId(orgId) } } 
+            {$match: {'JOIN_EVENT.orgId': mongoose.Types.ObjectId(orgId)}}
         ]
     },
-    ACCESS_MATCH(accessLevel,admin){
+    ACCESS_MATCH(accessLevel, admin) {
         let ACCESS_MATCH;
         switch (accessLevel) {
             case "OWN":
@@ -39,14 +39,14 @@ const PIPE = {
             {
                 $lookup: {
                     from: 'events',
-                    let: { primaryEventId: "$eventId" },
+                    let: {primaryEventId: "$eventId"},
                     pipeline: [
-                        { $match: { $expr: { $eq: ["$$primaryEventId", "$_id"] } } },
+                        {$match: {$expr: {$eq: ["$$primaryEventId", "$_id"]}}},
                     ],
                     as: 'JOIN_EVENT'
                 }
             },
-            { $unwind: { path: "$JOIN_EVENT" } },
+            {$unwind: {path: "$JOIN_EVENT"}},
         ]
     },
     JOIN_ORGANIZATION() {
@@ -54,14 +54,14 @@ const PIPE = {
             {
                 $lookup: {
                     from: 'organizations',
-                    let: { primaryOrgId: "$JOIN_EVENT.orgId" },
+                    let: {primaryOrgId: "$JOIN_EVENT.orgId"},
                     pipeline: [
-                        { $match: { $expr: { $eq: ["$$primaryOrgId", "$_id"] } } },
+                        {$match: {$expr: {$eq: ["$$primaryOrgId", "$_id"]}}},
                     ],
                     as: 'JOIN_ORGANIZATION'
                 }
             },
-            { $unwind: { path: "$JOIN_ORGANIZATION"}}
+            {$unwind: {path: "$JOIN_ORGANIZATION"}}
         ]
     },
     CALC_PAID() {
@@ -69,7 +69,7 @@ const PIPE = {
             {
                 $addFields: {
                     CALC_PAID: {
-                        $add: ["$CALC_COMMISSION", { $toDouble: "$price" }]
+                        $add: ["$CALC_COMMISSION", {$toDouble: "$price"}]
                     }
                 }
             }
@@ -85,8 +85,7 @@ const PIPE = {
                             $multiply:
                                 [
                                     {
-                                        $divide:
-                                            ["$price", 100]
+                                        $divide: ["$price", 100]
                                     },
                                     '$JOIN_ORGANIZATION.commissionPercentage'
                                 ]
@@ -99,7 +98,6 @@ const PIPE = {
     }
 
 }
-
 
 
 const TransactionSchema = new Schema({
@@ -170,7 +168,6 @@ TransactionSchema.static({
     },
 
 
-
     /**
      * calendarData
      */
@@ -182,33 +179,33 @@ TransactionSchema.static({
         return this.aggregate([
             {
                 $match: {
-                    status: { $in: [0, 1] },
+                    status: {$in: [0, 1]},
                     isDebtor: false,
                     $expr: {
-                        $eq: [{ $month: monthFlag }, { $month: "$createdAt" }]
+                        $eq: [{$month: monthFlag}, {$month: "$createdAt"}]
                     }
                 }
             },
             ...PIPE.JOIN_EVENT(),
-            ...PIPE.ACCESS_MATCH(accessLevel,admin),
+            ...PIPE.ACCESS_MATCH(accessLevel, admin),
             ...PIPE.JOIN_ORGANIZATION(),
             ...PIPE.CALC_COMMISSION(),
             ...PIPE.CALC_PAID(),
             {
                 $group:
-                {
-                    _id:
                     {
-                        day: { $dayOfMonth: "$createdAt" },
-                        month: { $month: "$createdAt" },
-                        year: { $year: "$createdAt" }
-                    },
-                    date: { $first: "$createdAt" },
-                    commissionSum: { $sum: "$CALC_COMMISSION" },
-                    paidSum: { $sum: "$CALC_PAID" },
-                    baseSum: { $sum: "$price" },
-                    transactionCount: { $sum: 1 },
-                }
+                        _id:
+                            {
+                                day: {$dayOfMonth: "$createdAt"},
+                                month: {$month: "$createdAt"},
+                                year: {$year: "$createdAt"}
+                            },
+                        date: {$first: "$createdAt"},
+                        commissionSum: {$sum: "$CALC_COMMISSION"},
+                        paidSum: {$sum: "$CALC_PAID"},
+                        baseSum: {$sum: "$price"},
+                        transactionCount: {$sum: 1},
+                    }
             },
             {
                 $project: {
@@ -623,11 +620,14 @@ TransactionSchema.static({
             ...PIPE.JOIN_ORGANIZATION(),
             ...PIPE.CALC_COMMISSION(),
             ...PIPE.CALC_PAID(),
-            { $group: { _id: null, total: { $sum: accessLevel == 'ANY' ? "$CALC_COMMISSION" : "$CALC_PAID" } } },
+            {$group: {_id: null, total: {$sum: accessLevel === 'ANY' ? "$CALC_COMMISSION" : "$CALC_PAID"}}},
             {$project: {_id: 0, total: {$toString: "$total"}}},
         ])
             .then(async result => {
-                return {type: accessLevel == 'ANY' ? "earned" : "paid", total: result.length > 0 && result[0].total ? result[0].total : 0};
+                return {
+                    type: accessLevel === 'ANY' ? "earned" : "paid",
+                    total: result.length > 0 && result[0].total ? result[0].total : 0
+                };
             })
             .catch(err => console.error("getMyTransaction  Catch", err));
     },
@@ -637,10 +637,10 @@ TransactionSchema.static({
      * Get Adimn Panel chart Data
      *
      */
-    getPanelChart: async function (admin, from , to, groupBy, accessLevel) {
+    getPanelChart: async function (admin, from, to, groupBy, accessLevel) {
         // const threeMonthAgo = new Date(new Date().getTime() - 7776000000);//90*24*60*60*1000
         // userId: mongoose.Types.ObjectId(userId),
-        const criteria = {status: 1,isDebtor: false};
+        const criteria = {status: 1, isDebtor: false};
         if (from) criteria.createdAt = {$gte: from, $lte: to};
 
 
@@ -656,7 +656,7 @@ TransactionSchema.static({
                     {
                         _id: groupBy,
                         date: {$first: "$createdAt"},
-                        totalAmount: {$sum: accessLevel == 'ANY' ? "$CALC_COMMISSION": "$CALC_PAID"},
+                        totalAmount: {$sum: accessLevel === 'ANY' ? "$CALC_COMMISSION" : "$CALC_PAID"},
                         count: {$sum: 1}
                     }
             },
@@ -675,14 +675,11 @@ TransactionSchema.static({
                 }
             }
         ])
-            .then(async transactions => {
-                console.info("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ getPanelChart transactions: ", transactions);
-                return transactions
-            })
+            // .then(async transactions =>  transactions)
             .catch(err => console.error("getPanelChart  Catch", err));
     },
 
-  
+
 });
 
 const Transaction = mongoose.model('Transaction', TransactionSchema);

@@ -1,4 +1,3 @@
-
 const crypto = require('crypto');
 const url = require('url');
 const settings = require('./settings');
@@ -101,7 +100,7 @@ const style1 = [
                 "saturation": -72
             }
         ]
-	}];
+    }];
 
 /**
  * Convert from 'web safe' base64 to true base64.
@@ -111,7 +110,7 @@ const style1 = [
  * @return {string}
  */
 function removeWebSafe(safeEncodedString) {
-  return safeEncodedString.replace(/-/g, '+').replace(/_/g, '/');
+    return safeEncodedString.replace(/-/g, '+').replace(/_/g, '/');
 }
 
 /**
@@ -122,7 +121,7 @@ function removeWebSafe(safeEncodedString) {
  * @return {string}
  */
 function makeWebSafe(encodedString) {
-  return encodedString.replace(/\+/g, '-').replace(/\//g, '_');
+    return encodedString.replace(/\+/g, '-').replace(/\//g, '_');
 }
 
 /**
@@ -132,8 +131,8 @@ function makeWebSafe(encodedString) {
  * @return {string}
  */
 function decodeBase64Hash(code) {
-  // "new Buffer(...)" is deprecated. Use Buffer.from if it exists.
-  return Buffer.from ? Buffer.from(code, 'base64') : new Buffer(code, 'base64');
+    // "new Buffer(...)" is deprecated. Use Buffer.from if it exists.
+    return Buffer.from ? Buffer.from(code, 'base64') : new Buffer(code, 'base64');
 }
 
 /**
@@ -144,7 +143,7 @@ function decodeBase64Hash(code) {
  * @return {string}
  */
 function encodeBase64Hash(key, data) {
-  return crypto.createHmac('sha1', key).update(data).digest('base64');
+    return crypto.createHmac('sha1', key).update(data).digest('base64');
 }
 
 /**
@@ -155,39 +154,84 @@ function encodeBase64Hash(key, data) {
  * @return {string}
  */
 function sign(path, secret) {
-  const uri = url.parse(path);
-  const safeSecret = decodeBase64Hash(removeWebSafe(secret));
-  const hashedSignature = makeWebSafe(encodeBase64Hash(safeSecret, uri.path));
-  return url.format(uri) + '&signature=' + hashedSignature;
+    const uri = url.parse(path);
+    const safeSecret = decodeBase64Hash(removeWebSafe(secret));
+    const hashedSignature = makeWebSafe(encodeBase64Hash(safeSecret, uri.path));
+    return url.format(uri) + '&signature=' + hashedSignature;
 }
 
- const googleMapsStaticUrl = (lat, lng) => {
+const googleMapsStaticUrl = (lat, lng) => {
     console.log(">>>>>>>>>>>>> lat: %j, long: %j", lat, lng)
-	const url = `${settings.mapImage.url}staticmap?style=${get_static_style(style1)}&key=${settings.mapImage.key}&center=${lat},${lng}&zoom=${settings.mapImage.zoom}&scale=false&size=${settings.mapImage.sizeW}x${settings.mapImage.sizeH}&maptype=${settings.mapImage.mapType}&format=png&visual_refresh=true&markers=icon:${settings.mapImage.marker}%7Cshadow:true%7C${lat},${lng}`;
-     console.log(">>>>>>>>>>>>> url:", url);
-	return sign(url, settings.googlemapsstaticsign);
+    let url = `${settings.mapImage.url}staticmap?
+	    style=${get_static_style(style1)}
+	    &key=${settings.mapImage.key}
+	    &center=${lat},${lng}
+	    &zoom=${settings.mapImage.zoom}
+	    &scale=false
+	    &size=${settings.mapImage.sizeW}x${settings.mapImage.sizeH}
+	    &maptype=${settings.mapImage.mapType}
+	    &format=png&visual_refresh=true&markers=icon:${settings.mapImage.marker}%7Cshadow:true%7C${lat},${lng}
+	    &path=color:0x0076FFA8|weight:3|fillcolor:0x0076FF41`;
+    const circlePoints = getCirclePoints(lat, lng);
+    url = url.concat(circlePoints.join(''));
+    return sign(url, settings.googlemapsstaticsign);
+};
+
+function getCirclePoints(lat, lng, radius = 150) {
+    const circlePoints = [];
+    // convert center coordinates to radians
+    const lat_rad = toRadians(lat);
+    const lon_rad = toRadians(lng);
+    const dist = radius / 6378137;
+
+    // calculate circle path point for each 5 degrees
+    for (let deg = 0; deg < 360; deg += 5) {
+        const rad = toRadians(deg);
+
+        // calculate coordinates of next circle path point
+        const new_lat = Math.asin(Math.sin(lat_rad) * Math.cos(dist) + Math.cos(lat_rad) * Math.sin(dist) * Math.cos(rad));
+        const new_lon = lon_rad + Math.atan2(Math.sin(rad) * Math.sin(dist) * Math.cos(lat_rad), Math.cos(dist)
+            - Math.sin(lat_rad) * Math.sin(new_lat));
+
+        // convert new lat and lon to degrees
+        const new_lat_deg = toDegrees(new_lat);
+        const new_lon_deg = toDegrees(new_lon);
+
+        circlePoints.push(`|${new_lat_deg},${new_lon_deg}`);
+    }
+    return circlePoints;
 }
+
+function toRadians(degrees) {
+    var pi = Math.PI;
+    return degrees * (pi / 180);
+}
+
+function toDegrees(radians) {
+    var pi = Math.PI;
+    return radians * (180 / pi);
+}
+
 
 function get_static_style(styles) {
     var result = [];
-    styles.forEach(function(v, i, a){
-      var style='';
-      if (v.stylers.length > 0) { // Needs to have a style rule to be valid.
-        style += (v.hasOwnProperty('featureType') ? 'feature:' + v.featureType : 'feature:all') + '|';
-        style += (v.hasOwnProperty('elementType') ? 'element:' + v.elementType : 'element:all') + '|';
-        v.stylers.forEach(function(val, i, a){
-          var propertyname = Object.keys(val)[0];
-          var propertyval = val[propertyname].toString().replace('#', '0x');
-          style += propertyname + ':' + propertyval + '|';
-        });
-      }
-      result.push('style='+encodeURIComponent(style))
+    styles.forEach(function (v, i, a) {
+        var style = '';
+        if (v.stylers.length > 0) { // Needs to have a style rule to be valid.
+            style += (v.hasOwnProperty('featureType') ? 'feature:' + v.featureType : 'feature:all') + '|';
+            style += (v.hasOwnProperty('elementType') ? 'element:' + v.elementType : 'element:all') + '|';
+            v.stylers.forEach(function (val, i, a) {
+                var propertyname = Object.keys(val)[0];
+                var propertyval = val[propertyname].toString().replace('#', '0x');
+                style += propertyname + ':' + propertyval + '|';
+            });
+        }
+        result.push('style=' + encodeURIComponent(style))
     });
 
     return result.join('&');
-  }
+}
 
-  
 
 const download = require('image-downloader');
 if (!fs.existsSync(`${settings.media_path}_map`)) {
@@ -196,33 +240,33 @@ if (!fs.existsSync(`${settings.media_path}_map`)) {
 
 
 const googleStaticImage = (lat, lng) => {
-	return new Promise(resolve => {
-		const url = googleMapsStaticUrl(lat, lng);
+    return new Promise(resolve => {
+        const url = googleMapsStaticUrl(lat, lng);
 
-		const filename = NZ.sha256Hmac(url, 'myMAPKEY_SECUR3') + '.png';
+        const filename = NZ.sha256Hmac(url, 'myMAPKEY_SECUR3') + '.png';
 
-		fs.exists(`${settings.media_path}_map/${filename}`, exists => {
-			if(exists)
-				return resolve(`${settings.media_domain}_map/${filename}`);
+        fs.exists(`${settings.media_path}_map/${filename}`, exists => {
+            if (exists)
+                return resolve(`${settings.media_domain}_map/${filename}`);
 
-			options = {
-				url: 	url,
-				dest: 	`${settings.media_path}_map/${filename}`
-			};
-	
-			download.image(options).then(({ mfilename, image }) => {
-				console.log('map downloaded');
-				resolve(`${settings.media_domain}_map/${filename}`);
-			})
-			.catch((err) => {
-				console.error(err);
-				resolve(null);
-			})
+            options = {
+                url: url,
+                dest: `${settings.media_path}_map/${filename}`
+            };
 
-		});
-	});
+            download.image(options).then(({mfilename, image}) => {
+                console.log('map downloaded');
+                resolve(`${settings.media_domain}_map/${filename}`);
+            })
+                .catch((err) => {
+                    console.error(err);
+                    resolve(null);
+                })
+
+        });
+    });
 }
 
 module.exports = {
-	googleStaticImage
+    googleStaticImage
 };
