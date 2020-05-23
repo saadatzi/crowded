@@ -24,7 +24,7 @@ const eventController = require('./controllers/event');
     googleStaticImage(35.7485728, 51.4080562);
     //TODO initDATABASE
 
-    eventController.update({},{$set: {informed: false}})
+    // eventController.update({},{$set: {informed: false}})
 
     if (settings.initDataDB) {
         // Add area

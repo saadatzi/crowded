@@ -71,7 +71,7 @@ const utcToKuwaitTimezone = async ({collection, utcKey = 'CDate', kuwaitKey = 'C
 };
 
 // schedule tasks to be run on the server
-cron.schedule("*/10 * * * * *", function () {
+cron.schedule("*/5 * * * *", function () {
     // Final Status user in event
     userEventController.finalStatus()
         .then(result => console.info("^^^^^^^^^^^^^^^^^^^^Cron.schedule every 5 min FinalStatus result: ", result))
