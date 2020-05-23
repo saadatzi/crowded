@@ -132,7 +132,7 @@ module.exports = {
 	mapImage: {
 		url: 'https://maps.googleapis.com/maps/api/',
 		key: 'AIzaSyDpjwTyUmC9yKpctL5dZdj9nzE3j2ykgyU',
-		zoom: 15,
+		zoom: 14,
 		sizeW: 322,
 		sizeH: 291,
 		mapType: 'roadmap',
