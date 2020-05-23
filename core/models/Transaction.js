@@ -616,7 +616,6 @@ TransactionSchema.static({
         const criteria = {isDebtor: false};
         if (from) criteria.createdAt = {$gte: from, $lte: to};
 
-        console.log(admin,from,to,accessLevel);
         return await this.aggregate([
             {$match: criteria},
             ...PIPE.JOIN_EVENT(),
@@ -628,7 +627,6 @@ TransactionSchema.static({
             {$project: {_id: 0, total: {$toString: "$total"}}},
         ])
             .then(async result => {
-                console.log(result);
                 return {type: accessLevel == 'ANY' ? "earned" : "paid", total: result.length > 0 && result[0].total ? result[0].total : 0};
             })
             .catch(err => console.error("getMyTransaction  Catch", err));
