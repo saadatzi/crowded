@@ -132,9 +132,9 @@ module.exports = {
 	mapImage: {
 		url: 'https://maps.googleapis.com/maps/api/',
 		key: 'AIzaSyDpjwTyUmC9yKpctL5dZdj9nzE3j2ykgyU',
-		zoom: 17,
-		sizeW: 625,
-		sizeH: 300,
+		zoom: 15,
+		sizeW: 322,
+		sizeH: 291,
 		mapType: 'roadmap',
 		marker: 'https://mactehran.com/assets/images/-map-marker-2.png'
 	},
