@@ -21,11 +21,10 @@ const eventController = require('./controllers/event');
 
 (async () => {
     console.log("******* single run **********");
-    googleStaticImage(35.7485728, 51.4080562);
-    //TODO initDATABASE
-
+    // googleStaticImage(35.7485728, 51.4080562);
     // eventController.update({},{$set: {informed: false}})
 
+    //TODO initDATABASE
     if (settings.initDataDB) {
         // Add area
         areaController.get({})
