@@ -1,7 +1,11 @@
 const express = require('express')
     , router = express.Router();
 const mongoose = require('mongoose');
+
+// Validation requirements
 const Joi = require('@hapi/joi');
+const JoiConfigs = require('./../joiConfigs');
+const { joiValidate } = require('./../utils');
 
 // Instantiate the Device Model
 const eventController = require('../../controllers/event');
@@ -13,6 +17,18 @@ const {uploader} = require('../../utils/fileManager');
 const {verifyToken} = require('../../utils/validation');
 const settings = require('../../utils/settings');
 
+/*
+
+*/
+const feedbackSchema = Joi.object().keys({
+    eventId: JoiConfigs.isMongoId,
+    star: JoiConfigs.numberOptional,
+    desc: JoiConfigs.description(false),
+});
+
+const detailSchema =  Joi.object().keys({
+    id: JoiConfigs.isMongoId
+});
 
 /**
  * Get Event
@@ -296,22 +312,13 @@ router.post('/leftFeedback', verifyToken(true), async function (req, res) {
  * set success feedback
  */
 //______________________Set successFeedback Event_____________________//
-router.post('/feedback', verifyToken(true), async function (req, res) {
+router.post('/feedback', joiValidate(feedbackSchema), verifyToken(true), async function (req, res) {
     console.info('API: Set successFeedback event/init');
-    //TODO JOE validation
-    const setStatusJoi = Joi.object().keys({
-        eventId: Joi.string().length(24).required(),
-        star: Joi.number().optional(),
-        desc: Joi.string().optional(),
-    });
-    let setStatusValidation = setStatusJoi.validate(req.body);
-    if (setStatusValidation.error)
-        return new NZ.Response(setStatusValidation.error, 'input error.', 400).send(res);
 
     const updateSuccessValue = {
         feedbackDesc: req.body.desc,
         star: Number(req.body.star),
-    }
+    };
     userEventController.setStatus(req.userId, req.body.eventId, 'SUCCESS', updateSuccessValue)
         .then(event => {
             console.info("*** Set successFeedback  : %j", event);
@@ -366,7 +373,7 @@ router.get('/myEvent', verifyToken(true), async function (req, res) {
  * @return Detail of event
  */
 //______________________Get Event_____________________//
-router.get('/:id', verifyToken(), async function (req, res) {
+router.get('/:id', joiValidate(detailSchema, 2), verifyToken(), async function (req, res) {
     console.info('API: Get detail event/init');
     eventController.getByIdAggregate(req.params.id, req.headers['lang'] ? (req.headers['lang']).toLowerCase() : 'en', req.userId)
         .then(event => {

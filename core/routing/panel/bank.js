@@ -34,7 +34,7 @@ const editSchema = addSchema.keys({
 
 const deleteSchema =  Joi.object().keys({
     id: JoiConfigs.isMongoId
-})
+});
 
 const detailSchema = deleteSchema;
 

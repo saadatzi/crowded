@@ -21,7 +21,7 @@ const LogSchema = new Schema({
  */
 
 LogSchema.pre('remove', function (next) {
-    //TODO pre-remove required...
+    // pre-remove required...
     next();
 });
 

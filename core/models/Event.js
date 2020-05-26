@@ -45,7 +45,7 @@ EventSchema.index({location: '2dsphere'});
 
  */
 EventSchema.pre('remove', function (next) {
-    //TODO pre-remove required...
+    // pre-remove required...
     next();
 });
 

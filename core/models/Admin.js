@@ -38,7 +38,7 @@ AdminSchema.virtual('isLocked').get(function () {
  */
 
 AdminSchema.pre('remove', function (next) {
-    //TODO pre-remove required...
+    //pre-remove required...
     next();
 });
 

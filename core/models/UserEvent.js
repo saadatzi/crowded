@@ -31,7 +31,7 @@ UserEventSchema.index({userId: 1, eventId: 1}, {unique: true});
  */
 
 UserEventSchema.pre('remove', function (next) {
-    //TODO pre-remove required...
+    // pre-remove required...
     next();
 });
 
