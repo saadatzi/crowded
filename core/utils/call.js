@@ -21,7 +21,6 @@ const sendNotification = async (deviceNotificationIds, title, desc, eventId) => 
                 },
                 url: `crowdedApp://event/${eventId}`,
                 userConditions: {did: {$in: deviceNotificationIds}},
-                buttons: 1,
                 sound: "default",
                 media: settings.email_logo,
                 source: "api",
