@@ -69,6 +69,11 @@ OrganizationSchema.static({
             regexMatch = {
                 title: {$regex: regex, $options: "i"}
             };
+            if(optFilter.search.length>7){
+                regexMatch.$or.push({
+                    phones: {$regex: regex, $options:"i"}
+                })
+            }
         }
 
 

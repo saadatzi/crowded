@@ -290,6 +290,11 @@ AdminSchema.static({
                     }
                 ]
             };
+            if(optFilter.search.length>7){
+                regexMatch.$or.push({
+                    call: {$regex: regex, $options:"i"}
+                })
+            }
         }
 
 

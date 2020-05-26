@@ -137,6 +137,11 @@ UserSchema.static({
                     }
                 ]
             };
+            if(optFilter.search.length>7){
+                regexMatch.$or.push({
+                    phone: {$regex: regex, $options:"i"}
+                })
+            }
         }
 
 
@@ -312,6 +317,11 @@ UserSchema.static({
                     }
                 ]
             };
+            if(optFilter.search.length>7){
+                regexMatch.$or.push({
+                    phone: {$regex: regex, $options:"i"}
+                })
+            }
         }
 
         return await this.aggregate([
