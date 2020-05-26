@@ -25,16 +25,14 @@ const DeviceSchema = new Schema({
  */
 
 DeviceSchema.pre('remove', function (next) {
-    //TODO pre-remove required...
+    // pre-remove required...
     next();
 });
 
 /**
  * Methods
  */
-DeviceSchema.method({
-    //TODO method need... this.model('Animal')
-});
+DeviceSchema.method({});
 
 /**
  * Statics

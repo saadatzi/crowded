@@ -18,7 +18,7 @@ const OrganizationSchema = new Schema({
  */
 
 OrganizationSchema.pre('remove', function (next) {
-    //TODO pre-remove required...
+    // pre-remove required...
     next();
 });
 

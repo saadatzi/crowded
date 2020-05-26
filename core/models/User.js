@@ -26,7 +26,7 @@ const UserSchema = new Schema({
  */
 
 UserSchema.pre('remove', function (next) {
-    //TODO pre-remove required...
+    // pre-remove required...
     next();
 });
 

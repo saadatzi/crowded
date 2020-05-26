@@ -373,6 +373,7 @@ userEventController.prototype.update = async (optFilter, newValue) => {
 
 /**
  * fix final status
+ *
  */
 userEventController.prototype.finalStatus = async () => {
     return await UserEvent.jobFinalStatus()
@@ -384,12 +385,32 @@ userEventController.prototype.finalStatus = async () => {
 };
 
 /**
- * fix final status
+ * send Notification for tomorrow event
  */
 userEventController.prototype.tomorrowEvent = async () => {
     const startDay = moment().add(1, "d").startOf('day').toDate(),
         endDay = moment().add(1, "d").endOf('day').toDate();
     return await UserEvent.jobTomorrowEvent(startDay, endDay)
+        .catch(err => {
+            // console.error("!!!UserEvent FinalStatus failed: ", err);
+            throw err;
+        })
+
+};
+
+/**
+ * send Notification for 1 hour next event
+ */
+userEventController.prototype.nextHourEvent = async () => {
+    return await UserEvent.jobNextHourEvent()
+        .then(result => {
+            //Update informed notification Event
+            const eventIds = [];
+            result.map(hr => {eventIds.push(hr.eventId)});
+            eventController.update({_id: {$in: eventIds}}, {informed: true})
+                .catch(err => console.error("eventController updateMany informed notification Catch", err));
+            return result;
+        })
         .catch(err => {
             // console.error("!!!UserEvent FinalStatus failed: ", err);
             throw err;

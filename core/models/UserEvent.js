@@ -31,7 +31,7 @@ UserEventSchema.index({userId: 1, eventId: 1}, {unique: true});
  */
 
 UserEventSchema.pre('remove', function (next) {
-    //TODO pre-remove required...
+    // pre-remove required...
     next();
 });
 
@@ -102,6 +102,7 @@ UserEventSchema.static({
                 });
                 return groupResult
             })
+            .catch(err => console.error("!!!!!!!! jobFinalStatus catch err: ", err))
     },
 
     /**
@@ -168,11 +169,84 @@ UserEventSchema.static({
             {$sort: {eventId: 1}},
 
         ])
-            .then(tomorrowResult => {
-                // console.info("~~~~~~~~~~~~~~~~~~ tomorrowResult: ", tomorrowResult);
-                return tomorrowResult
-            })
+            // .then(tomorrowResult => {
+            //     // console.info("~~~~~~~~~~~~~~~~~~ tomorrowResult: ", tomorrowResult);
+            //     return tomorrowResult
+            // })
+            .catch(err => console.error("!!!!!!!! jobTomorrowEvent catch err: ", err))
     },
+
+    /**
+     * job PushNotification new hour Event
+     *
+     */
+    async jobNextHourEvent() {
+        const criteria = {status: 'APPROVED'};
+        const nextHour = new Date(new Date().getTime() + 3600000);//1*60*60*1000
+
+        return await this.aggregate([
+            {$match: criteria},
+            {
+                $lookup: {
+                    from: 'events',
+                    let: {primaryEventId: "$eventId"},
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: {
+                                    $and: [
+                                        {$eq:   ["$_id", "$$primaryEventId"]},
+                                        {$gte:  ["$from", new Date()]},
+                                        {$lte:  ["$from", nextHour]},
+                                        {$eq:   ["$informed", false]},
+                                    ]
+                                }
+                            }
+                        },
+                    ],
+                    as: 'getEvents'
+                }
+            },
+            {$unwind: {path: "$getEvents", preserveNullAndEmptyArrays: false}},
+            {
+                $lookup: {
+                    from: 'devices',
+                    let: {primaryUserId: "$userId"},
+                    pipeline: [
+                        {$match: {$expr: {$eq: ["$userId", "$$primaryUserId"]}}},
+                    ],
+                    as: 'getDevice'
+                }
+            },
+            {$unwind: "$getDevice"},
+            // {$unwind: {path: "$getDevice", preserveNullAndEmptyArrays: false}},
+
+            // {$set: {status: {$cond: {if: {$eq: ["$status", 'APPLIED']}, then: 'UNAPPROVED', else: 'MISSED'}}}},
+            {
+                $group: {
+                    _id: {eventId: "$getEvents._id"},
+                    title: {$first: "$getEvents.title_en"},
+                    time: {
+                        $first: {
+                            $dateToString: {
+                                format: "%H:%M",
+                                date: "$getEvents.from",
+                                timezone: "Asia/Kuwait"
+                            }
+                        }
+                    },
+                    notificationIds: {$push: '$getDevice.notificationToken'}
+                }
+            },
+            {$project: {eventId: "$_id.eventId", _id: 0, title: 1, time: 1, notificationIds: 1}},
+            {$sort: {eventId: 1}},
+
+        ])
+            // .then(nextHourResult => nextHourResult)
+            .catch(err => console.error("!!!!!!!! jobNextHourEvent catch err: ", err))
+    },
+
+
 
     /**
      * List all userEvent

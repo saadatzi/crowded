@@ -32,6 +32,7 @@ const EventSchema = new Schema({
     //TODO why comment allowedApplyTime???!!
     allowedApplyTime: Date,
     orgId: {type: Schema.Types.ObjectId, ref: 'Organization'},
+    informed: {type: Boolean, default: false},
 }, {timestamps: true});
 
 //index for geo location
@@ -44,7 +45,7 @@ EventSchema.index({location: '2dsphere'});
 
  */
 EventSchema.pre('remove', function (next) {
-    //TODO pre-remove required...
+    // pre-remove required...
     next();
 });
 

@@ -27,7 +27,7 @@ ReportUserSchema.index({userId: 1, eventId: 1}, {unique: true});
  * Pre-remove hook
  */
 ReportUserSchema.pre('remove', function (next) {
-    //TODO pre-remove required...
+    // pre-remove required...
     next();
 });
 
