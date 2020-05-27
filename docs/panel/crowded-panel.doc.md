@@ -24,16 +24,16 @@ So a short answer to *Who can use it?* would be:
 - *Super Admin*(s)
   - Has access to almost anything, can view/alter all the information and can assign permissions to others
 - *Agent*s
-  - They are technically at the lowest level of this hierarchy, they can sure manage their own work but they can't alter/view others' (eg. an agent doesn't/shouldn't have access to financial reports from another agent)
+  - They are technically at the lowest level of this hierarchy, sure they can manage their own work but they can't alter/view others' (eg. an agent doesn't/shouldn't have access to financial reports from another agent)
 - *Organization Admin*s
-  - Agent's can be promoted to be the manager of the *organization* they're currenty assigned to, by that, they'll become able to not only doing they're own job, but alter/viewing other agents' work as long as they'r on the same organization.
+  - Agent's can be promoted to be the manager of the *organization* they're currently assigned to, by that, they'll become able to not only doing they're own job, but alter/viewing other agents' work as long as they're on the same organization.
 
 this might sound a bit confusing,
 ___
 
 ## What is an organization?
-An organization is basically a group where admins belong to, defined in it's own place, partitionning *finances*, *events* etc.
-Cnsidering *organization X* as an example, *X* is in fact the name of a corporation, typically holding a many event's every month, Well, not all their events are held by a single person and more important than that, *X* cannot create a new event cause it's not an *admin*!, it's an *organization*, therefore *X* can have many *agents*/*organization-admins*, so that the information will be managed (by the organization-admin) and will be altered/views by the agents of it's own.
+An organization is basically a group where admins belong to, defined in it's own place, partitioning *finances*, *events* etc.
+Considering *organization X* as an example, *X* is in fact the name of a corporation, typically holding a many event's every month, Well, not all their events are held by a single person and more important than that, *X* cannot create a new event cause it's not an *admin*!, it's an *organization*, therefore *X* can have many *agents*/*organization-admins*, so that the information will be managed (by the organization-admin) and will be altered/views by the agents of it's own.
 
 **summary**
 - Organization X
@@ -65,7 +65,7 @@ This tab is there you can see records of *debts* alongside with information abou
 ## Banks (super-admin-only)
 As people sign up in your applications (Android/IOS), they can/should provide information about their bank-accounts so that we'll be able to actually pay them.
 When an app user want's to add a bank-account, they can select their *bank-name* from a list in a form shown to them.
-This tab is where you can define those banks, so that they can pick one of em where as you have added them to the list as a sign of *approval* and *safety*.
+This tab is where you can define those banks, so that they can pick one of them where as you have added them to the list as a sign of *approval* and *safety*.
 
 ## Interests (super-admin-only)
 At the other side, when a user logs into our mobile-apps, the very first thing they is a list of interests they can pick from, (eg. Sports, Tech, Music, Architecture etc.), in this tab you can define the available/optional list of interests.
@@ -75,7 +75,7 @@ you can manage organizations from here.
 
 ## Roles (super-admin-only)
 This is he answer to all the terms *super-admin*,*organization-admin*,*agent* etc.
-There will be loads of information on our server and we want everyone to be just able to do their own thing, but we wan't this process to be as flexible as possible, therefore you can always have your own custom roles, now inside of a role many permissions are defined, you'll find a form containing:
+There will be loads of information on our server and we want everyone to be just able to do their own thing, but we want this process to be as flexible as possible, therefore you can always have your own custom roles, now inside of a role many permissions are defined, you'll find a form containing:
 - Detail box
   - Simply, title of the role goes here
 - Different categories of information
@@ -102,7 +102,7 @@ but as you see some boxes have tabs in them, that's to manage the border between
 In here as a *super-admin* you may alter/view the information about all admins, you can add new ones, alter access levels, change/set corresponding organization of an admin.
 
 ## Pages (super-admins-only)
-Some pages shown in the apps (Android/IOS) are dynamic, which means they should be tweakable from the admin-panel, in here you can see a list of those pages, were as for now there's only an *about-us* page which you can change the content of.
+Some pages shown in the apps (Android/IOS) are dynamic, which means they should be changable from the admin-panel, in here you can see a list of those pages, were as for now there's only an *about-us* page which you can change the content of.
 
 ## Settings (super-admins-only)
 This is important, you can change some variables from here but beware that they WILL actually make a change in process, (eg. changing the *support-email* will cause support messages to be headed to the new given email address) 
