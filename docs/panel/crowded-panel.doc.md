@@ -74,7 +74,7 @@ At the other side, when a user logs into our mobile-apps, the very first thing t
 you can manage organizations from here.
 
 ## Roles (super-admin-only)
-This is he answer to all the *super-admin*,*organization-admin*,*agent* etc.
+This is he answer to all the terms *super-admin*,*organization-admin*,*agent* etc.
 There will be loads of information on our server and we want everyone to be just able to do their own thing, but we wan't this process to be as flexible as possible, therefore you can always have your own custom roles, now inside of a role many permissions are defined, you'll find a form containing:
 - Detail box
   - Simply, title of the role goes here
@@ -99,14 +99,19 @@ eg, we can define a role called *reports-only* and just permit actions under tha
 but as you see some boxes have tabs in them, that's to manage the border between *super-admins*, *organization-admins* and *agents*, managed by levels of *any*, *group* and *own*, so that an agent has only access to their own data, *organization-admins* have access to all data in their organization and *super-admins* have access to all the data.
 
 ## Admins (super-admin-only)
+In here as a *super-admin* you may alter/view the information about all admins, you can add new ones, alter access levels, change/set corresponding organization of an admin.
 
 ## Pages (super-admins-only)
+Some pages shown in the apps (Android/IOS) are dynamic, which means they should be tweakable from the admin-panel, in here you can see a list of those pages, were as for now there's only an *about-us* page which you can change the content of.
 
 ## Settings (super-admins-only)
+This is important, you can change some variables from here but beware that they WILL actually make a change in process, (eg. changing the *support-email* will cause support messages to be headed to the new given email address) 
 
 ## FAQ (super-admins-only)
+*Frequently asked questions* must be dynamic, that being said we need a place to add/edit/delete them. this is the place.
 
-## Customers
+## Customers (super-admins-only)
+Here you have access to your *end-users*, meaning *users of the apps*, further in detail, you can see their profile picture, profile information, events they've attended to, their reports and their bank-account information.
 
 ## Profile
 Personal account information, individually for the logged-in admin.
