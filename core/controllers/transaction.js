@@ -281,7 +281,7 @@ transactionController.prototype.getPanelChart = async (admin, accLevel, optFilte
     } else if (optFilter.year) {
         from = moment.unix(optFilter.year.date).startOf('year').toDate();
         to = moment.unix(optFilter.year.date).endOf('year').toDate();
-        groupBy = {day: {$month: "$createdAt"}, year: {$year: "$createdAt"}};
+        groupBy = {month: {$month: "$createdAt"}, year: {$year: "$createdAt"}};
     }
 
 
