@@ -687,14 +687,18 @@ TransactionSchema.static({
                         const _to = moment.tz(to, "Asia/Kuwait");
                         for (let m = moment(_from); m.isBefore(_to); m.add(1, 'days')) {
                             console.log("%%%%%%%%%%%%%%%%%%%%%%%% m.format('YYYY/MM/DD')", m.format('YYYY/MM/DD'));
-                            let isSame = transactions.find(obj => m.isSame(obj.x));
+                            let isSame = transactions.find(obj => m.format('YYYY/MM/DD').isSame(obj.x));
                             withZero.push(isSame ? isSame : {x: m.format('YYYY/MM/DD'), y: 0});
-
                         }
 
                     } else if (groupBy.month) { // of Month
-                        // march from 2020 to currentYear and fill the gaps (years)
-                        console.log('gpbyearrrrrrrrrrrrrrrrrrrrrrrrrr')
+                        const _from = moment.tz(from, "Asia/Kuwait");
+                        const _to = moment.tz(to, "Asia/Kuwait");
+                        for (let m = moment(_from); m.isBefore(_to); m.add(1, 'month')) {
+                            console.log("%%%%%%%%%%%%%%%%%%%%%%%% month m.format('YYYY/MM/DD')", m.format('YYYY/MM/DD'));
+                            let isSame = transactions.find(obj => m.format('YYYY/MM/DD').isSame(obj.x));
+                            withZero.push(isSame ? isSame : {x: m.format('YYYY/MM/DD'), y: 0});
+                        }
                     }
 
                 } else { //of ever
