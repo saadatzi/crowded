@@ -678,23 +678,18 @@ TransactionSchema.static({
             }
         ])
             .then(transactions =>  {
-
+                const withZero = [];
                 if (from) { // of month
                     // let duration = moment.duration(moment(from).startOf('month').diff(moment(to).endOf('month')));
 
                     if (groupBy.day) { // of Day
-                        // march from "from" to "to" and fill the gaps (months)
-                        console.log('gpbmonthhhhhhhhhhhhhhhhhhhhhhhh', transactions )
-
                         const _from = moment.tz(from, "Asia/Kuwait");
                         const _to = moment.tz(to, "Asia/Kuwait");
-                        console.log('$$$$$$$$$$$$$$$$$$$$$$$$$ _from', _from );
-                        console.log('$$$$$$$$$$$$$$$$$$$$$$$$$ _to', _to );
-
                         for (let m = moment(_from); m.isBefore(_to); m.add(1, 'days')) {
-                            console.log("%%%%%%%%%%%%%%%%%%%%%%%% m.format('YYYY-MM-DD')", m.format('YYYY-MM-DD'));
+                            console.log("%%%%%%%%%%%%%%%%%%%%%%%% m.format('YYYY/MM/DD')", m.format('YYYY/MM/DD'));
                             let isSame = transactions.find(obj => m.isSame(obj.x));
-                            if (isSame) console.log("&&&&&&&&&&&&&&&&&& isSame:", isSame.x);
+                            withZero.push(isSame ? isSame : {x: m.format('YYYY/MM/DD'), y: 0});
+
                         }
 
                     } else if (groupBy.month) { // of Month
@@ -705,7 +700,7 @@ TransactionSchema.static({
                 } else { //of ever
 
                 }
-                return transactions;
+                return withZero;
             })
             .catch(err => console.error("getPanelChart  Catch", err));
     },
