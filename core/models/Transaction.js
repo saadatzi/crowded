@@ -681,6 +681,7 @@ TransactionSchema.static({
                 const withZero = [];
                 if (from) { // of month
                     // let duration = moment.duration(moment(from).startOf('month').diff(moment(to).endOf('month')));
+                    console.log("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& transactions", transactions);
 
                     if (groupBy.day) { // of Day
                         const _from = moment.tz(from, "Asia/Kuwait");
@@ -697,6 +698,7 @@ TransactionSchema.static({
                         for (let m = moment(_from); m.isBefore(_to); m.add(1, 'month')) {
                             console.log("%%%%%%%%%%%%%%%%%%%%%%%% month m.format('YYYY/MM/DD')", m.format('YYYY/MM/DD'));
                             let isSame = transactions.find(obj => m.isSame(obj.x));
+                            if (isSame) console.log("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& transactions isSame", isSame);
                             withZero.push(isSame ? isSame : {x: m.format('YYYY/MM/DD'), y: 0});
                         }
                     }
