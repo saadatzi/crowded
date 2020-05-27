@@ -95,13 +95,13 @@ const listSchema = JoiConfigs.schemas.list({
         orgId: JoiConfigs.isMongoIdOpt,
         interests: JoiConfigs.isMongoIdOpt,
     },
-    sorts:{
-        status: Joi.number().valid(-1,1),
-        from: Joi.number().valid(-1,1),
-        title_en: Joi.number().valid(-1,1),
-        title_ar: Joi.number().valid(-1,1),
+    sorts: {
+        status: Joi.number().valid(-1, 1),
+        from: Joi.number().valid(-1, 1),
+        title_en: Joi.number().valid(-1, 1),
+        title_ar: Joi.number().valid(-1, 1),
     },
-    defaultSorts:{
+    defaultSorts: {
         status: -1,
         from: 1
     }

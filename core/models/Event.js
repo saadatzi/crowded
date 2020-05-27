@@ -946,6 +946,7 @@ EventSchema.static({
             },
         ])
             .then(result => {
+                // console.warn("$$$$$$$$$$$$$$$$$$$$$$ Event result: ", result);
                 let items = [],
                     total = 0;
                 if (result.length > 0) {

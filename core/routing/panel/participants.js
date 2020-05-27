@@ -8,7 +8,7 @@ const {joiValidate} = require('../utils');
 // Instantiate the Device Model
 const userEventController = require('../../controllers/userEvent');
 const userController = require('../../controllers/user');
-const udeviceController = require('../../controllers/device');
+const deviceController = require('../../controllers/device');
 const NZ = require('../../utils/nz');
 const {verifyTokenPanel, authorization} = require('../../utils/validation');
 const {sendNotification} = require('../../utils/call');
@@ -51,7 +51,7 @@ router.post('/manage', joiValidate(manageSchema), verifyTokenPanel(), authorizat
     userEventController.manageParticipant(req._admin, req.body, req.auth)
         .then(event => {
             if (req.body.isApproved) {
-                udeviceController.getNotificationId(req.body.userId)
+                deviceController.getNotificationId(req.body.userId)
                     .then(notificationId => {
                         sendNotification([notificationId], 'Request APPROVED', `Your request for ${event.title_en} has been approved! :)`, event._id)
                     })

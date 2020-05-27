@@ -82,7 +82,7 @@ cron.schedule("*/5 * * * *", function () {
         .then(result => {
             console.info("^^^^^^^^^^^^^^^^^^^^Cron.schedule Event of the next hour result: ", result);
             result.map(nhe => {
-                sendNotification(nhe.notificationIds, 'Reminder for the upcoming event', `Reminder of participation in the ${nhe.title} event.\n Today at ${nhe.time}`, nhe.eventId)
+                sendNotification(nhe.notificationIds, 'Reminder for the upcoming event', `Reminder of participation in the ${nhe.title} event.\n Today at ${nhe.time}`, nhe.eventId, nhe.image)
             })
         })
         .catch(err => console.error("!!!Cron.schedule Event of the next hour failed err: ", err))
@@ -94,7 +94,7 @@ cron.schedule("0 9 * * *", function () { //
         .then(result => {
             console.info("^^^^^^^^^^^^^^^^^^^^Cron.schedule every day in 9:00am Kuwait result: ", result);
             result.map(te => {
-                sendNotification(te.notificationIds, 'Reminder for tomorrow\'s event', `Reminder of participation in the ${te.title} event.\n Tomorrow at ${te.time}`, te.eventId)
+                sendNotification(te.notificationIds, 'Reminder for tomorrow\'s event', `Reminder of participation in the ${te.title} event.\n Tomorrow at ${te.time}`, te.eventId, te.image)
             })
         })
         .catch(err => console.error("!!!Cron.schedule tomorrowEvent failed err: ", err))

@@ -14,7 +14,7 @@ const {sign, verifyToken} = require('../../utils/validation');
 const settings = require('../../utils/settings');
 const nationalities = require('../../utils/nationalities');
 
-const {getHash} = require('../../utils/cacheLayer')
+const {getHash} = require('../../utils/cacheLayer');
 
 
 

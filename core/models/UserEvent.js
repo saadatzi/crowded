@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+const settings = require('../utils/settings');
 
 const UserEventSchema = new Schema({
     status: {
@@ -152,6 +153,7 @@ UserEventSchema.static({
             {
                 $group: {
                     _id: {eventId: "$getEvents._id"},
+                    image: {$first: "$getEvents.imagePicker"},
                     title: {$first: "$getEvents.title_en"},
                     time: {
                         $first: {
@@ -165,7 +167,16 @@ UserEventSchema.static({
                     notificationIds: {$push: '$getDevice.notificationToken'}
                 }
             },
-            {$project: {eventId: "$_id.eventId", _id: 0, title: 1, time: 1, notificationIds: 1}},
+            {
+                $project: {
+                    eventId: "$_id.eventId",
+                    _id: 0,
+                    title: 1,
+                    time: 1,
+                    notificationIds: 1,
+                    image: {$concat: [settings.media_domain, '$image']}
+                }
+            },
             {$sort: {eventId: 1}},
 
         ])
@@ -184,6 +195,9 @@ UserEventSchema.static({
         const criteria = {status: 'APPROVED'};
         const nextHour = new Date(new Date().getTime() + 3600000);//1*60*60*1000
 
+        console.log("Now: ", new Date());
+        console.log("nextHour: ", nextHour);
+
         return await this.aggregate([
             {$match: criteria},
             {
@@ -195,10 +209,10 @@ UserEventSchema.static({
                             $match: {
                                 $expr: {
                                     $and: [
-                                        {$eq:   ["$_id", "$$primaryEventId"]},
-                                        {$gte:  ["$from", new Date()]},
-                                        {$lte:  ["$from", nextHour]},
-                                        {$eq:   ["$informed", false]},
+                                        {$eq: ["$_id", "$$primaryEventId"]},
+                                        {$gte: ["$from", new Date()]},
+                                        {$lte: ["$from", nextHour]},
+                                        {$eq: ["$informed", false]},
                                     ]
                                 }
                             }
@@ -225,6 +239,7 @@ UserEventSchema.static({
             {
                 $group: {
                     _id: {eventId: "$getEvents._id"},
+                    image: {$first: "$getEvents.imagePicker"},
                     title: {$first: "$getEvents.title_en"},
                     time: {
                         $first: {
@@ -238,14 +253,22 @@ UserEventSchema.static({
                     notificationIds: {$push: '$getDevice.notificationToken'}
                 }
             },
-            {$project: {eventId: "$_id.eventId", _id: 0, title: 1, time: 1, notificationIds: 1}},
+            {
+                $project: {
+                    eventId: "$_id.eventId",
+                    _id: 0,
+                    title: 1,
+                    time: 1,
+                    notificationIds: 1,
+                    image: {$concat: [settings.media_domain, '$image']},
+                }
+            },
             {$sort: {eventId: 1}},
 
         ])
-            // .then(nextHourResult => nextHourResult)
+            // .then(nextHourResult => console.info("~~~~~~~~~~~~~~~~~~~~~~~ jobNextHourEvent: ", nextHourResult))
             .catch(err => console.error("!!!!!!!! jobNextHourEvent catch err: ", err))
     },
-
 
 
     /**
