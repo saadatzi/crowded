@@ -686,24 +686,26 @@ TransactionSchema.static({
                     const _from = moment.tz(from, 'YYYY/MM/DD', "Asia/Kuwait");
                     const _to = moment.tz(to, 'YYYY/MM/DD', "Asia/Kuwait");
                     if (groupBy.day) { // of Day
-
                         for (let m = moment(_from); m.isBefore(_to); m.add(1, 'days')) {
                             console.log("%%%%%%%%%%%%%%%%%%%%%%%% m.format('YYYY/MM/DD')", m.format('YYYY/MM/DD'));
                             let isSame = transactions.find(obj => m.isSame(moment(obj.x, ['YYYY/MM/DD', 'MM/DD/YYYY', 'M/D/YYYY'])));
                             withZero.push(isSame ? isSame : {x: m.format('YYYY/MM/DD'), y: 0});
                         }
-
                     } else if (groupBy.month) { // of Month
                         for (let m = moment(_from); m.isBefore(_to); m.add(1, 'month')) {
                             console.log("%%%%%%%%%%%%%%%%%%%%%%%% month m.format('YYYY/MM/DD')", m.format('YYYY/MM/DD'));
-                            let isSame = transactions.find(obj => m.isSame(obj.x, 'month'));
+                            let isSame = transactions.find(obj => m.isSame(moment(obj.x, ['YYYY/MM/DD', 'MM/DD/YYYY', 'M/D/YYYY']), 'month'));
                             if (isSame) console.log("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& transactions isSame", isSame);
                             withZero.push(isSame ? isSame : {x: m.format('YYYY/MM/DD'), y: 0});
                         }
                     }
-
                 } else { //of ever
-
+                    for (let m = moment('2020/01/01'); m.isBefore(new Date()); m.add(1, 'year')) {
+                        console.log("%%%%%%%%%%%%%%%%%%%%%%%% month m.format('YYYY/MM/DD')", m.format('YYYY/MM/DD'));
+                        let isSame = transactions.find(obj => m.isSame(moment(obj.x, ['YYYY/MM/DD', 'MM/DD/YYYY', 'M/D/YYYY']), 'year'));
+                        if (isSame) console.log("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& transactions isSame", isSame);
+                        withZero.push(isSame ? isSame : {x: m.format('YYYY/MM/DD'), y: 0});
+                    }
                 }
                 return withZero;
             })
