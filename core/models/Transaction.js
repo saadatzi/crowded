@@ -686,12 +686,15 @@ TransactionSchema.static({
                         // march from "from" to "to" and fill the gaps (months)
                         console.log('gpbmonthhhhhhhhhhhhhhhhhhhhhhhh', transactions )
 
-                        const _from = moment.tz(from, "Asia/Kuwait").date();
-                        const _to = moment.tz(to, "Asia/Kuwait").date();
+                        const _from = moment.tz(from, "Asia/Kuwait");
+                        const _to = moment.tz(to, "Asia/Kuwait");
+                        console.log('$$$$$$$$$$$$$$$$$$$$$$$$$ _from', _from );
+                        console.log('$$$$$$$$$$$$$$$$$$$$$$$$$ _to', _to );
+
                         for (let m = moment(_from); m.isBefore(_to); m.add(1, 'days')) {
+                            console.log("%%%%%%%%%%%%%%%%%%%%%%%% m.format('YYYY-MM-DD')", m.format('YYYY-MM-DD'));
                             let isSame = transactions.find(obj => m.isSame(obj.x));
                             if (isSame) console.log("&&&&&&&&&&&&&&&&&& isSame:", isSame.x);
-                            console.log(m.format('YYYY-MM-DD'));
                         }
 
                     } else if (groupBy.month) { // of Month
