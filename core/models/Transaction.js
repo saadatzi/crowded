@@ -689,7 +689,7 @@ TransactionSchema.static({
 
                         for (let m = moment(_from); m.isBefore(_to); m.add(1, 'days')) {
                             console.log("%%%%%%%%%%%%%%%%%%%%%%%% m.format('YYYY/MM/DD')", m.format('YYYY/MM/DD'));
-                            let isSame = transactions.find(obj => m.isSame(obj.x));
+                            let isSame = transactions.find(obj => m.isSame(moment(obj.x)));
                             withZero.push(isSame ? isSame : {x: m.format('YYYY/MM/DD'), y: 0});
                         }
 
