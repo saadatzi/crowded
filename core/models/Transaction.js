@@ -676,24 +676,24 @@ TransactionSchema.static({
             }
         ])
             .then(transactions =>  {
-                let duration = moment.duration(moment(from).diff(moment(to)));
+                // let duration = moment.duration(moment(from).diff(moment(to)));
 
-                if (groupBy.day) {
-                    // march from "from" to "to" and fill the gaps (days)
-                    console.log('gpbdayyyyyyyyyyyyyyyyyyyyyyyyyy');
-                    console.log(duration.asDays());
-                    console.log(duration.asMonths());
+                // if (groupBy.day) {
+                //     // march from "from" to "to" and fill the gaps (days)
+                //     console.log('gpbdayyyyyyyyyyyyyyyyyyyyyyyyyy');
+                //     console.log(duration.asDays());
+                //     console.log(duration.asMonths());
 
-                } else if (groupBy.month) {
-                    // march from "from" to "to" and fill the gaps (months)
-                    console.log('gpbmonthhhhhhhhhhhhhhhhhhhhhhhh')
-                    console.log(duration.asDays());
-                    console.log(duration.asMonths());
+                // } else if (groupBy.month) {
+                //     // march from "from" to "to" and fill the gaps (months)
+                //     console.log('gpbmonthhhhhhhhhhhhhhhhhhhhhhhh')
+                //     console.log(duration.asDays());
+                //     console.log(duration.asMonths());
 
-                } else if (groupBy.year) {
-                    // march from 2020 to currentYear and fill the gaps (years)
-                    console.log('gpbyearrrrrrrrrrrrrrrrrrrrrrrrrr')
-                }
+                // } else if (groupBy.year) {
+                //     // march from 2020 to currentYear and fill the gaps (years)
+                //     console.log('gpbyearrrrrrrrrrrrrrrrrrrrrrrrrr')
+                // }
                 return transactions;
             })
             .catch(err => console.error("getPanelChart  Catch", err));
