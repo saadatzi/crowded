@@ -897,28 +897,19 @@ EventSchema.static({
             {$match: ownAny},
             {$match: regexMatch},
             {$match: optFilter.filters},
-            // {$unwind: "$images"},
-            // {$sort: {'images.order': 1}},
-            {
-                $group: {
-                    _id: "$_id",
-                    image: {$first: {url: {$concat: [settings.media_domain, "$imagePicker"]}}},
-                    title_en: {$first: `$title_en`},
-                    status: {$first: `$status`},
-                }
-            },
+
+            {$sort: optFilter.sorts},
+            {$skip: optFilter.pagination.page * optFilter.pagination.limit},
+            {$limit: optFilter.pagination.limit},
             {
                 $project: {
                     _id: 0,
                     id: "$_id",
                     title_en: 1,
-                    image: 1,
+                    image: {url: {$concat: [settings.media_domain, "$imagePicker"]}},
                     isActive: {$cond: {if: {$eq: ["$status", 1]}, then: true, else: false}},
                 },
             },
-            {$sort: optFilter.sorts},
-            {$skip: optFilter.pagination.page * optFilter.pagination.limit},
-            {$limit: optFilter.pagination.limit},
             {
                 $group: {
                     _id: null,
@@ -946,7 +937,6 @@ EventSchema.static({
             },
         ])
             .then(result => {
-                // console.warn("$$$$$$$$$$$$$$$$$$$$$$ Event result: ", result);
                 let items = [],
                     total = 0;
                 if (result.length > 0) {
@@ -1015,28 +1005,18 @@ EventSchema.static({
                 }
             },
             {$unwind: {path: "$getOrgAdmin", preserveNullAndEmptyArrays: false}},
-            // {$unwind: {path: "$images", preserveNullAndEmptyArrays: true}},
-            // {$sort: {'images.order': 1}},
-            {
-                $group: {
-                    _id: "$_id",
-                    image: {$first: {url: {$concat: [settings.media_domain, "$imagePicker"]}}},
-                    title_en: {$first: `$title_en`},
-                    status: {$first: `$status`},
-                }
-            },
+            {$sort: optFilter.sorts},
+            {$skip: optFilter.pagination.page * optFilter.pagination.limit},
+            {$limit: optFilter.pagination.limit},
             {
                 $project: {
                     _id: 0,
                     id: "$_id",
                     title_en: 1,
-                    image: 1,
+                    image: {url: {$concat: [settings.media_domain, "$imagePicker"]}},
                     isActive: {$cond: {if: {$eq: ["$status", 1]}, then: true, else: false}}
                 },
             },
-            {$sort: optFilter.sorts},
-            {$skip: optFilter.pagination.page * optFilter.pagination.limit},
-            {$limit: optFilter.pagination.limit},
             {
                 $group: {
                     _id: null,
@@ -1363,32 +1343,17 @@ EventSchema.static({
                 }
             },
             {$unwind: {path: "$getUserEvents", preserveNullAndEmptyArrays: false}},
-            // {$unwind: "$images"},
-            // {$sort: {'images.order': 1}},
-            {
-                $group: {
-                    _id: "$_id",
-                    image: {$first: {url: {$concat: [settings.media_domain, "$imagePicker"]}}}, //$push
-                    title_en: {$first: `$title_en`},
-                    value: {$first: {$toString: "$value"}},
-                    attendance: {$first: `$attendance`},
-                    from: {$first: `$from`},
-                    to: {$first: `$to`},
-                    userEventStatus: {$first: `$getUserEvents.status`},
-                    status: {$first: `$status`}
-                }
-            },
             {
                 $project: {
                     _id: 0,
                     id: "$_id",
-                    image: 1,
+                    image: {url: {$concat: [settings.media_domain, "$imagePicker"]}},
                     title_en: 1,
-                    value: 1,
+                    value: {$toString: "$value"},
                     attendance: 1,
                     from: 1,
                     to: 1,
-                    userEventStatus: 1,
+                    userEventStatus: `$getUserEvents.status`,
                     isActive: {$cond: {if: {$eq: ["$status", 1]}, then: true, else: false}}
                 }
             },

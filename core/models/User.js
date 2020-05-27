@@ -160,6 +160,9 @@ UserSchema.static({
                     as: 'getReportTotal'
                 }
             },
+            {$sort: optFilter.sorts},
+            {$skip: optFilter.pagination.page * optFilter.pagination.limit},
+            {$limit: optFilter.pagination.limit},
             {
                 $project: {
                     _id: 0,
@@ -171,9 +174,6 @@ UserSchema.static({
                     isActive: {$cond: {if: {$eq: ["$status", 1]}, then: true, else: false}},
                 }
             },
-            {$sort: optFilter.sorts},
-            {$skip: optFilter.pagination.page * optFilter.pagination.limit},
-            {$limit: optFilter.pagination.limit},
             {
                 $group: {
                     _id: null,
