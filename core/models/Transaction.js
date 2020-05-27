@@ -697,7 +697,7 @@ TransactionSchema.static({
                         const _to = moment.tz(to, "Asia/Kuwait");
                         for (let m = moment(_from); m.isBefore(_to); m.add(1, 'month')) {
                             console.log("%%%%%%%%%%%%%%%%%%%%%%%% month m.format('YYYY/MM/DD')", m.format('YYYY/MM/DD'));
-                            let isSame = transactions.find(obj => m.isSame(obj.x));
+                            let isSame = transactions.find(obj => m.isSame(obj.x, 'month'));
                             if (isSame) console.log("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& transactions isSame", isSame);
                             withZero.push(isSame ? isSame : {x: m.format('YYYY/MM/DD'), y: 0});
                         }
