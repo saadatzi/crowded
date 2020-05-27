@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const AutoIncrement = require('mongoose-sequence')(mongoose);
 const settings = require('../utils/settings');
-const moment = require('moment');
+const moment = require('moment-timezone');
 
 
 // Aggregation pipes
@@ -556,6 +556,7 @@ TransactionSchema.static({
             {
                 $group: {
                     _id: null,
+
                     items: {$push: '$$ROOT'},
                     total: {$sum: 1}
                 }
@@ -677,23 +678,29 @@ TransactionSchema.static({
             }
         ])
             .then(transactions =>  {
-                let duration = moment.duration(moment(from).startOf('month').diff(moment(to).endOf('month')));
 
-                if (groupBy.day) { // of month
-                    // march from "from" to "to" and fill the gaps (days)
-                    console.log('gpbdayyyyyyyyyyyyyyyyyyyyyyyyyy');
-                    console.log(duration.asDays());
-                    console.log(duration.asMonths());
+                if (from) { // of month
+                    // let duration = moment.duration(moment(from).startOf('month').diff(moment(to).endOf('month')));
 
-                } else if (groupBy.month) { // of year
-                    // march from "from" to "to" and fill the gaps (months)
-                    console.log('gpbmonthhhhhhhhhhhhhhhhhhhhhhhh')
-                    console.log(duration.asDays());
-                    console.log(duration.asMonths());
+                    if (groupBy.day) { // of Day
+                        // march from "from" to "to" and fill the gaps (months)
+                        console.log('gpbmonthhhhhhhhhhhhhhhhhhhhhhhh', transactions )
 
-                } else if (groupBy.year) { // of ever
-                    // march from 2020 to currentYear and fill the gaps (years)
-                    console.log('gpbyearrrrrrrrrrrrrrrrrrrrrrrrrr')
+                        const _from = moment.tz(from, "Asia/Kuwait").date();
+                        const _to = moment.tz(to, "Asia/Kuwait").date();
+                        for (let m = moment(_from); m.isBefore(_to); m.add(1, 'days')) {
+                            let isSame = transactions.find(obj => m.isSame(obj.x));
+                            if (isSame) console.log("&&&&&&&&&&&&&&&&&& isSame:", isSame.x);
+                            console.log(m.format('YYYY-MM-DD'));
+                        }
+
+                    } else if (groupBy.month) { // of Month
+                        // march from 2020 to currentYear and fill the gaps (years)
+                        console.log('gpbyearrrrrrrrrrrrrrrrrrrrrrrrrr')
+                    }
+
+                } else { //of ever
+
                 }
                 return transactions;
             })
