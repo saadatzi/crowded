@@ -681,7 +681,8 @@ TransactionSchema.static({
                 const withZero = [];
                 if (from) { // of month
                     // let duration = moment.duration(moment(from).startOf('month').diff(moment(to).endOf('month')));
-                    console.log("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& transactions", transactions);
+                    console.log("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& from", from);
+                    console.log("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& to", to);
                     const _from = moment.tz(from, 'YYYY/MM/DD', "Asia/Kuwait");
                     const _to = moment.tz(to, 'YYYY/MM/DD', "Asia/Kuwait");
                     if (groupBy.day) { // of Day
