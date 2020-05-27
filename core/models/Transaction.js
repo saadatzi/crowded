@@ -675,7 +675,12 @@ TransactionSchema.static({
                 }
             }
         ])
-            // .then(async transactions =>  transactions)
+            .then(transactions =>  {
+                console.log('***********************************')
+                console.log(transactions, groupBy, from, to);
+                console.log('***********************************')
+                return transactions;
+            })
             .catch(err => console.error("getPanelChart  Catch", err));
     },
 
