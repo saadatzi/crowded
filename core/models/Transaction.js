@@ -700,7 +700,7 @@ TransactionSchema.static({
                         }
                     }
                 } else { //of ever
-                    for (let m = moment('2010/01/01'); m.isBefore(new Date()); m.add(1, 'year')) {
+                    for (let m = moment('2010/01/01', ['YYYY/MM/DD', 'MM/DD/YYYY', 'M/D/YYYY']); m.isBefore(moment().format("YYYY/MM/DD")); m.add(1, 'year')) {
                         console.log("%%%%%%%%%%%%%%%%%%%%%%%% month m.format('YYYY/MM/DD')", m.format('YYYY/MM/DD'));
                         let isSame = transactions.find(obj => m.isSame(moment(obj.x, ['YYYY/MM/DD', 'MM/DD/YYYY', 'M/D/YYYY']), 'year'));
                         if (isSame) console.log("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& transactions isSame", isSame);
