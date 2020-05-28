@@ -860,7 +860,11 @@ EventSchema.static({
         let panelFilter = [];
         if (optFilter.filters) {
             const _filter = {};
-            if (optFilter.filters.interests) _filter['$expr'] = {$in: ['$interests', optFilter.filters.interests]};
+            if (optFilter.filters.interests) {
+                const _interests = [];
+                optFilter.filters.interests.map(interest => _interests.push(mongoose.Types.ObjectId(interest)))
+                _filter.interests = {$in: _interests};
+            }
             if (optFilter.filters.orgId) _filter.orgId = mongoose.Types.ObjectId(optFilter.filters.orgId);
             if (optFilter.filters.hasOwnProperty('status')) _filter.status = optFilter.filters.status;
             panelFilter.push({$match: _filter});
@@ -956,7 +960,11 @@ EventSchema.static({
         let panelFilter = [];
         if (optFilter.filters) {
             const _filter = {};
-            if (optFilter.filters.interests) _filter.interests = {$in: optFilter.filters.interests};
+            if (optFilter.filters.interests) {
+                const _interests = [];
+                optFilter.filters.interests.map(interest => _interests.push(mongoose.Types.ObjectId(interest)))
+                _filter.interests = {$in: _interests};
+            }
             if (optFilter.filters.orgId) _filter.orgId = mongoose.Types.ObjectId(optFilter.filters.orgId);
             if (optFilter.filters.hasOwnProperty('status')) _filter.status = optFilter.filters.status;
             panelFilter = [{$match: _filter}]
