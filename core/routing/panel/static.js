@@ -63,7 +63,7 @@ router.put('/edit', verifyTokenPanel(), joiValidate(editSchema, 0), authorizatio
     staticController.update(req._body)
         .then(result => {
             if(!result) throw {message: "StaticPage not found!", code:404};
-            new NZ.Response(null, "Static page succefully edited", 200).send(res);
+            new NZ.Response(result, "Static page succefully edited", 200).send(res);
         })
         .catch(err => {
             console.error("Static Get Catch err:", err)

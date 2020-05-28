@@ -66,7 +66,7 @@ router.post('/add', joiValidate(addSchema), verifyTokenPanel(), authorization([{
 router.put('/edit', joiValidate(editSchema), verifyTokenPanel(), authorization([{FAQ: 'RU'}]), async (req, res) => {
     faqController.update(req.body)
         .then(result => {
-            new NZ.Response(null, "Faq edited successfully.").send(res);
+            new NZ.Response(true, "Faq update successfully.").send(res);
         })
         .catch(err => {
             new NZ.Response(null, err.message, 500).send(res);

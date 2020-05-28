@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const AutoIncrement = require('mongoose-sequence')(mongoose);
 const settings = require('../utils/settings');
-const moment = require('moment');
+const moment = require('moment-timezone');
 
 
 // Aggregation pipes
@@ -556,6 +556,7 @@ TransactionSchema.static({
             {
                 $group: {
                     _id: null,
+
                     items: {$push: '$$ROOT'},
                     total: {$sum: 1}
                 }
@@ -677,25 +678,36 @@ TransactionSchema.static({
             }
         ])
             .then(transactions =>  {
-                let duration = moment.duration(moment(from).startOf('month').diff(moment(to).endOf('month')));
-
-                if (groupBy.day) { // of month
-                    // march from "from" to "to" and fill the gaps (days)
-                    console.log('gpbdayyyyyyyyyyyyyyyyyyyyyyyyyy');
-                    console.log(duration.asDays());
-                    console.log(duration.asMonths());
-
-                } else if (groupBy.month) { // of year
-                    // march from "from" to "to" and fill the gaps (months)
-                    console.log('gpbmonthhhhhhhhhhhhhhhhhhhhhhhh')
-                    console.log(duration.asDays());
-                    console.log(duration.asMonths());
-
-                } else if (groupBy.year) { // of ever
-                    // march from 2020 to currentYear and fill the gaps (years)
-                    console.log('gpbyearrrrrrrrrrrrrrrrrrrrrrrrrr')
+                const withZero = [];
+                if (from) { // of month
+                    // let duration = moment.duration(moment(from).startOf('month').diff(moment(to).endOf('month')));
+                    console.log("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& from", from);
+                    console.log("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& to", to);
+                    const _from = moment.tz(from, 'YYYY/MM/DD', "Asia/Kuwait");
+                    const _to = moment.tz(to, 'YYYY/MM/DD', "Asia/Kuwait");
+                    if (groupBy.day) { // of Day
+                        for (let m = moment(_from); m.isBefore(_to); m.add(1, 'days')) {
+                            console.log("%%%%%%%%%%%%%%%%%%%%%%%% m.format('YYYY/MM/DD')", m.format('YYYY/MM/DD'));
+                            let isSame = transactions.find(obj => m.isSame(moment(obj.x, ['YYYY/MM/DD', 'MM/DD/YYYY', 'M/D/YYYY'])));
+                            withZero.push(isSame ? isSame : {x: m.format('YYYY/MM/DD'), y: 0});
+                        }
+                    } else if (groupBy.month) { // of Month
+                        for (let m = moment(_from); m.isBefore(_to); m.add(1, 'month')) {
+                            console.log("%%%%%%%%%%%%%%%%%%%%%%%% month m.format('YYYY/MM/DD')", m.format('YYYY/MM/DD'));
+                            let isSame = transactions.find(obj => m.isSame(moment(obj.x, ['YYYY/MM/DD', 'MM/DD/YYYY', 'M/D/YYYY']), 'month'));
+                            if (isSame) console.log("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& transactions isSame", isSame);
+                            withZero.push(isSame ? isSame : {x: m.format('YYYY/MM/DD'), y: 0});
+                        }
+                    }
+                } else { //of ever
+                    for (let m = moment('2020/01/01'); m.isBefore(moment().format("YYYY/MM/DD")); m.add(1, 'year')) {
+                        console.log("%%%%%%%%%%%%%%%%%%%%%%%% month m.format('YYYY/MM/DD')", m.format('YYYY/MM/DD'));
+                        let isSame = transactions.find(obj => m.isSame(moment(obj.x, ['YYYY/MM/DD', 'MM/DD/YYYY', 'M/D/YYYY']), 'year'));
+                        if (isSame) console.log("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& transactions isSame", isSame);
+                        withZero.push(isSame ? isSame : {x: m.format('YYYY/MM/DD'), y: 0});
+                    }
                 }
-                return transactions;
+                return withZero;
             })
             .catch(err => console.error("getPanelChart  Catch", err));
     },

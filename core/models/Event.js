@@ -54,7 +54,7 @@ EventSchema.pre('remove', function (next) {
  */
 EventSchema.pre('save', function (next) {
     var event = this;
-    if (!event.isNew && event.images[event.images.length - 1]&& !event.images[event.images.length - 1].order) {
+    if (!event.isNew && event.images[event.images.length - 1] && !event.images[event.images.length - 1].order) {
         const maxOrder = Math.max.apply(Math, event.images.map(function (o) {
             return o.order
         }))
@@ -104,65 +104,63 @@ EventSchema.static({
     /*           FOR DASHBOARD START             */
     /*********************************************/
 
-    getAvailableYears(userId, accessLevel){
-
+    getAvailableYears(userId, accessLevel) {
 
 
         let baseCriteria = {status: {$in: [0, 1]}};
         let eventAccessLevelMatch = [];
 
         if (accessLevel === 'OWN') {
-             eventAccessLevelMatch = [{ $match: { owner: mongoose.Types.ObjectId(userId) } }];
-         }
-         else if (accessLevel === 'GROUP') {
-             eventAccessLevelMatch = [
-                 {
-                     $lookup: {
-                         from: 'admins',
-                         pipeline: [
-                             { $match: { _id: mongoose.Types.ObjectId(userId) } },
-                         ],
-                         as: 'getAdmin'
-                     }
-                 },
-                 {$unwind: "$getAdmin" },
-                 {
-                     $lookup: {
-                         from: 'admins',
-                         let: { orgId: "$getAdmin.organizationId", owner: "$owner" },
-                         pipeline: [
-                             { $match: { $expr: { $eq: ["$$orgId", "$organizationId"] } } },
-                             { $match: { $expr: { $eq: ["$$owner", "$_id"] } } },
-                             // {$project: {_id: 0, status: "$status"}},
-                         ],
-                         as: 'getOrgAdmin'
-                     }
-                 },
-                 { $unwind: { path: "$getOrgAdmin", preserveNullAndEmptyArrays: false } }
-             ]
-         }
+            eventAccessLevelMatch = [{$match: {owner: mongoose.Types.ObjectId(userId)}}];
+        } else if (accessLevel === 'GROUP') {
+            eventAccessLevelMatch = [
+                {
+                    $lookup: {
+                        from: 'admins',
+                        pipeline: [
+                            {$match: {_id: mongoose.Types.ObjectId(userId)}},
+                        ],
+                        as: 'getAdmin'
+                    }
+                },
+                {$unwind: "$getAdmin"},
+                {
+                    $lookup: {
+                        from: 'admins',
+                        let: {orgId: "$getAdmin.organizationId", owner: "$owner"},
+                        pipeline: [
+                            {$match: {$expr: {$eq: ["$$orgId", "$organizationId"]}}},
+                            {$match: {$expr: {$eq: ["$$owner", "$_id"]}}},
+                            // {$project: {_id: 0, status: "$status"}},
+                        ],
+                        as: 'getOrgAdmin'
+                    }
+                },
+                {$unwind: {path: "$getOrgAdmin", preserveNullAndEmptyArrays: false}}
+            ]
+        }
 
-         
+
         return this.aggregate([
             {$match: baseCriteria},
             ...eventAccessLevelMatch,
             {
-                $group:{
-                        _id:
-                            {
-                                year: {$year: "$from"}
-                            }
+                $group: {
+                    _id:
+                        {
+                            year: {$year: "$from"}
+                        }
                 }
             },
             {
-                $project:{
-                    _id:0,
+                $project: {
+                    _id: 0,
                     year: "$_id.year"
                 }
             }
         ])
             .then(result => {
-                return result.map(yearObj=>yearObj.year);
+                return result.map(yearObj => yearObj.year);
             })
             .catch(err => console.error(err));
     },
@@ -173,7 +171,7 @@ EventSchema.static({
      */
     countListOwnAny(userId, accessLevel, from, to) {
         const baseCriteria = {status: {$in: [0, 1]}};
-        if ( accessLevel === 'OWN') baseCriteria.owner = mongoose.Types.ObjectId(userId);
+        if (accessLevel === 'OWN') baseCriteria.owner = mongoose.Types.ObjectId(userId);
         if (from) baseCriteria.from = {$gte: from, $lte: to};
         return this.aggregate([
             {$match: baseCriteria},
@@ -190,7 +188,7 @@ EventSchema.static({
     /**
      * Event list Group Count
      */
-    async countListGroup(userId, from , to) {
+    async countListGroup(userId, from, to) {
         const baseCriteria = {status: {$in: [0, 1]}};
         if (from) baseCriteria.from = {$gte: from, $lte: to};
 
@@ -429,34 +427,33 @@ EventSchema.static({
 
         let eventAccessLevelMatch = [];
 
-       if (accessLevel === 'OWN') {
-            eventAccessLevelMatch = [{ $match: { owner: mongoose.Types.ObjectId(admin._id) } }];
-        }
-        else if (accessLevel === 'GROUP') {
+        if (accessLevel === 'OWN') {
+            eventAccessLevelMatch = [{$match: {owner: mongoose.Types.ObjectId(admin._id)}}];
+        } else if (accessLevel === 'GROUP') {
             eventAccessLevelMatch = [
                 {
                     $lookup: {
                         from: 'admins',
                         pipeline: [
-                            { $match: { _id: mongoose.Types.ObjectId(admin._id) } },
+                            {$match: {_id: mongoose.Types.ObjectId(admin._id)}},
                         ],
                         as: 'getAdmin'
                     }
                 },
-                { $unwind: "$getAdmin" },
+                {$unwind: "$getAdmin"},
                 {
                     $lookup: {
                         from: 'admins',
-                        let: { orgId: "$getAdmin.organizationId", owner: "$owner" },
+                        let: {orgId: "$getAdmin.organizationId", owner: "$owner"},
                         pipeline: [
-                            { $match: { $expr: { $eq: ["$$orgId", "$organizationId"] } } },
-                            { $match: { $expr: { $eq: ["$$owner", "$_id"] } } },
+                            {$match: {$expr: {$eq: ["$$orgId", "$organizationId"]}}},
+                            {$match: {$expr: {$eq: ["$$owner", "$_id"]}}},
                             // {$project: {_id: 0, status: "$status"}},
                         ],
                         as: 'getOrgAdmin'
                     }
                 },
-                { $unwind: { path: "$getOrgAdmin", preserveNullAndEmptyArrays: false } }
+                {$unwind: {path: "$getOrgAdmin", preserveNullAndEmptyArrays: false}}
             ]
         }
 
@@ -627,7 +624,7 @@ EventSchema.static({
                 }
             },
         ])
-            .then(event =>  event[0])
+            .then(event => event[0])
             .catch(err => console.error("getByIdAggregate(Event Detail)  Catch", err));
     },
 
@@ -646,7 +643,7 @@ EventSchema.static({
         criteria.status = 1;
         criteria.allowedApplyTime = {$gt: new Date()};
 
-        const geoNear = options.lat ? {
+        const geoNear = options.lat ? [{
             $geoNear: {
                 near: {
                     type: "Point",
@@ -654,15 +651,15 @@ EventSchema.static({
                 },
                 distanceField: "distance",
                 maxDistance: 3000000,
-                // spherical: true
+                spherical: true
             }
-        } : {$addFields: {empty: ''}};
+        }] : [];
 
-        const sortValue = !options.lat ? {$sort: {value: -1}} : {$addFields: {empty: ''}};
+        const sortValue = !options.lat ? [{$sort: {value: -1}}] : [];
 
 
         return await this.aggregate([
-            geoNear,
+            ...geoNear,
             {$match: criteria},
             //get Area name
             {
@@ -677,43 +674,19 @@ EventSchema.static({
                     as: 'getArea'
                 }
             },
-            // {$unwind: "$images"},
-            // {$sort: {'images.order': 1}},
-            {
-                $group: {
-                    _id: "$_id",
-                    image: {$first: {url: {$concat: [settings.media_domain, "$imagePicker"]}}}, //$push
-                    title: {$first: `$title_${options.lang}`},
-                    // dec: {$first: `$desc_${options.lang}`},
-                    value: {$first: "$value"},
-                    // attendance: {$first: `$attendance`},
-                    from: {$first: `$from`},
-                    to: {$first: `$to`},
-                    // createdAt: {$first: `$createdAt`},
-                    // allowedApplyTime: {$first: `$allowedApplyTime`},
-                    // date: {$first: moment.tz("$from", 'Asia/Kuwait').format('YYYY-MM-DD HH:MM')},
-                    // date: {$first: {$dateToString: {date: `$to`, timezone: "Asia/Kuwait", format: "%m-%d-%Y"}}},
-                    getArea: {$first: `$getArea.childs.name_${options.lang}`}, //
-                    address: {$first: `$address_${options.lang}`},
-                    distance: {$first: "$distance"}
-
-                }
-            },
-            sortValue,
+            {$addFields: {areaName: `$getArea.childs.name_${options.lang}`}},
+            ...sortValue,
             {$skip: limit * page},
             {$limit: limit + 1},
             {
                 $project: {
                     _id: 0,
                     id: "$_id",
-                    title: 1,
-                    image: 1,
-                    // dec: 1,
-                    area: {$arrayElemAt: ['$getArea', 0]},
+                    title: `$title_${options.lang}`,
+                    image: {url: {$concat: [settings.media_domain, "$imagePicker"]}},
+                    area: {$arrayElemAt: ['$areaName', 0]},
                     value: {$toString: "$value"},
                     count: 1,
-                    // attendance: 1,
-                    //{$dateToString: {date: `$to`, timezone: "Asia/Kuwait", format: "%m-%d"}}
                     date: {
                         day: {$toString: {$dayOfMonth: {date: "$from", timezone: "Asia/Kuwait"}}},
                         month: {
@@ -726,17 +699,9 @@ EventSchema.static({
                         },
                         from: {$dateToString: {date: `$from`, timezone: "Asia/Kuwait", format: "%H:%M"}},
                         to: {$dateToString: {date: `$to`, timezone: "Asia/Kuwait", format: "%H:%M"}}
-                        // from: {$concat: [{$toString: {$hour: "$from"}}, ":", {$toString: {$minute: "$from"}}]},
-                        // to: {$concat: [{$toString: {$hour: {$dateToString: {date: `$to`, timezone: "Asia/Kuwait", format: "%H:%M"}}}}, ":", {$toString: {$minute: {$dateToString: {date: `$to`, timezone: "Asia/Kuwait", format: "%m-%d"}}}}]},
                     },
-                    // createdAt: 0
-                    // date: 1,
-                    // from: 1,
-                    // to: 1,
-                    // address: 1
                 }
             },
-            // {$sort: {id: -1}},
         ])
             .then(events => events)
             .catch(err => console.error("getAllMyInterestEvent  Catch", err));
@@ -1023,7 +988,6 @@ EventSchema.static({
                     items: {$push: '$$ROOT'},
                 }
             },
-            //TODO check valid Count!
             {
                 $lookup: {
                     from: 'events',
@@ -1031,6 +995,29 @@ EventSchema.static({
                         {$match: baseCriteria},
                         {$match: regexMatch},
                         {$match: optFilter.filters},
+                        {
+                            $lookup: {
+                                from: 'admins',
+                                pipeline: [
+                                    {$match: {_id: mongoose.Types.ObjectId(userId)}},
+                                ],
+                                as: 'getAdmin'
+                            }
+                        },
+                        {$unwind: "$getAdmin"},
+                        {
+                            $lookup: {
+                                from: 'admins',
+                                let: {orgId: "$getAdmin.organizationId", owner: "$owner"},
+                                pipeline: [
+                                    {$match: {$expr: {$eq: ["$$orgId", "$organizationId"]}}},
+                                    {$match: {$expr: {$eq: ["$$owner", "$_id"]}}},
+                                    // {$project: {_id: 0, status: "$status"}},
+                                ],
+                                as: 'getOrgAdmin'
+                            }
+                        },
+                        {$unwind: {path: "$getOrgAdmin", preserveNullAndEmptyArrays: false}},
                         {$count: 'total'},
                     ],
                     as: 'getTotal'
@@ -1231,22 +1218,22 @@ EventSchema.static({
                     value: 1,
                     attendance: 1,
                     allowedApplyTime: {
-                        $dateToString: { 
-                            date: '$_allowedApplyTime', 
+                        $dateToString: {
+                            date: '$_allowedApplyTime',
                             // timezone: "Asia/Kuwait"
-                          } 
+                        }
                     },
                     from: {
-                        $dateToString: { 
-                            date: '$from', 
+                        $dateToString: {
+                            date: '$from',
                             // timezone: "Asia/Kuwait"
-                          } 
+                        }
                     },
                     to: {
-                        $dateToString: { 
-                            date: '$to', 
+                        $dateToString: {
+                            date: '$to',
                             // timezone: "Asia/Kuwait"
-                          } 
+                        }
                     },
                     address_en: {$concat: [{$arrayElemAt: ['$getArea_en', 0]}, ', ', "$_address_en"]},
                     address_ar: {$concat: [{$arrayElemAt: ['$getArea_ar', 0]}, '، ', "$_address_ar"]},

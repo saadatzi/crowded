@@ -39,7 +39,7 @@ const calendarFiltersSchema = Joi.object().keys({
 /**
  *  Get everything
  */
-router.post('/', joiValidate(getStatsSchema), verifyTokenPanel(), authorization([{EVENT: 'R'}, {TRANSACTION: 'R'}]), async (req, res) => {
+router.post('/', joiValidate(getStatsSchema), verifyTokenPanel(), authorization([{EVENT: 'R'}]), async (req, res) => {
     console.info('API: Dashboard getStats/init %j', {body: req.body});
 
     //TODO why try catch, controller is promise

@@ -118,10 +118,7 @@ faqController.prototype.remove = async (id) => {
 faqController.prototype.update = async (updateValue) => {
 
     return await Faq.findByIdAndUpdate(updateValue.faqId, updateValue)
-        .then(result => {
-            console.log(`***Faq Update by id ${updateValue.id} result: `, result);
-            return result;
-        })
+        // .then(result => {return result;})
         .catch(err => {
             console.error("!!!Faq Update failed: ", err);
             throw err;
