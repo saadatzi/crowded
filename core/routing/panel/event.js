@@ -93,7 +93,7 @@ const listSchema = JoiConfigs.schemas.list({
     filters: {
         status: Joi.number().valid(0, 1).optional(),
         orgId: JoiConfigs.isMongoIdOpt,
-        interests: JoiConfigs.isMongoIdOpt,
+        interests: JoiConfigs.array(false, JoiConfigs.isMongoId),
     },
     sorts: {
         status: Joi.number().valid(-1, 1),
