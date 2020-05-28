@@ -860,7 +860,7 @@ EventSchema.static({
         let panelFilter = [];
         if (optFilter.filters) {
             const _filter = {};
-            if (optFilter.filters.interests) _filter.interests = {$in: optFilter.filters.interests};
+            if (optFilter.filters.interests) _filter['$expr'] = {$in: ['$interests', optFilter.filters.interests]};
             if (optFilter.filters.orgId) _filter.orgId = mongoose.Types.ObjectId(optFilter.filters.orgId);
             if (optFilter.filters.hasOwnProperty('status')) _filter.status = optFilter.filters.status;
             panelFilter.push({$match: _filter});
