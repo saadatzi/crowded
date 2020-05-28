@@ -655,7 +655,7 @@ EventSchema.static({
             }
         }] : [];
 
-        const sortValue = !options.lat ? {$sort: {value: -1}} : {$addFields: {empty: ''}};
+        const sortValue = !options.lat ? [{$sort: {value: -1}}] : [];
 
 
         return await this.aggregate([
@@ -674,39 +674,38 @@ EventSchema.static({
                     as: 'getArea'
                 }
             },
-            // {$unwind: "$images"},
-            // {$sort: {'images.order': 1}},
-            {
-                $group: {
-                    _id: "$_id",
-                    image: {$first: {url: {$concat: [settings.media_domain, "$imagePicker"]}}}, //$push
-                    title: {$first: `$title_${options.lang}`},
-                    // dec: {$first: `$desc_${options.lang}`},
-                    value: {$first: "$value"},
-                    // attendance: {$first: `$attendance`},
-                    from: {$first: `$from`},
-                    to: {$first: `$to`},
-                    // createdAt: {$first: `$createdAt`},
-                    // allowedApplyTime: {$first: `$allowedApplyTime`},
-                    // date: {$first: moment.tz("$from", 'Asia/Kuwait').format('YYYY-MM-DD HH:MM')},
-                    // date: {$first: {$dateToString: {date: `$to`, timezone: "Asia/Kuwait", format: "%m-%d-%Y"}}},
-                    getArea: {$first: `$getArea.childs.name_${options.lang}`}, //
-                    address: {$first: `$address_${options.lang}`},
-                    distance: {$first: "$distance"}
-
-                }
-            },
-            sortValue,
+            {$addFields: {areaName: `$getArea.childs.name_${options.lang}`}},
+            // {
+            //     $group: {
+            //         _id: "$_id",
+            //         image: {$first: }, //$push
+            //         title: {$first: },
+            //         // dec: {$first: `$desc_${options.lang}`},
+            //         value: {$first: "$value"},
+            //         // attendance: {$first: `$attendance`},
+            //         from: {$first: `$from`},
+            //         to: {$first: `$to`},
+            //         // createdAt: {$first: `$createdAt`},
+            //         // allowedApplyTime: {$first: `$allowedApplyTime`},
+            //         // date: {$first: moment.tz("$from", 'Asia/Kuwait').format('YYYY-MM-DD HH:MM')},
+            //         // date: {$first: {$dateToString: {date: `$to`, timezone: "Asia/Kuwait", format: "%m-%d-%Y"}}},
+            //         getArea: {$first:}, //
+            //         address: {$first: },
+            //         distance: {$first: "$distance"}
+            //
+            //     }
+            // },
+            ...sortValue,
             {$skip: limit * page},
             {$limit: limit + 1},
             {
                 $project: {
                     _id: 0,
                     id: "$_id",
-                    title: 1,
-                    image: 1,
+                    title: `$title_${options.lang}`,
+                    image: {url: {$concat: [settings.media_domain, "$imagePicker"]}},
                     // dec: 1,
-                    area: {$arrayElemAt: ['$getArea', 0]},
+                    area: {$arrayElemAt: ['$areaName', 0]},
                     value: {$toString: "$value"},
                     count: 1,
                     // attendance: 1,
