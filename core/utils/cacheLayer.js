@@ -21,13 +21,15 @@ const setHash = async (hash, userId) => {
 
 
 const getHash = async (hash, shouldRemove) => {
-    return new Promise((resolve,reject) => {
+    return new Promise((resolve, reject) => {
         hashForgotPassCache.get(hash, async function (err, result) {
             if (err) {
                 reject(err)
             }
             if (result) {
-                if(shouldRemove) hashForgotPassCache.del(hash, function(err) {console.error("!!!! remove hash forgot Password catch err:", err)});
+                if (shouldRemove) hashForgotPassCache.del(hash, function (err) {
+                    if (err) console.error("!!!! remove hash forgot Password catch err:", err)
+                });
                 resolve(result);
             }
             reject({code: 400, message: 'The link has expired or invalid request!'});
