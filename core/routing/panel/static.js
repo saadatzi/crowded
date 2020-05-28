@@ -43,12 +43,13 @@ router.post('/', verifyTokenPanel(), joiValidate(listSchema, 0), authorization([
  * Edit Static
  * @return Static
  */
+//TODO kazem validation?!
 router.put('/edit', verifyTokenPanel(), authorization([{PAGE: 'RU'}]), async (req, res) => {
     console.info('API: Edit Static %j', {body: req.body});
 
     staticController.update(req.body)
         .then(result => {
-            new NZ.Response(null, "Static page succefully edited", 200).send(res);
+            new NZ.Response(!!result, "Static page succefully edited", 200).send(res);
         })
         .catch(err => {
             console.error("Static Get Catch err:", err)
