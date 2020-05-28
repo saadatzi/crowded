@@ -2,10 +2,10 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const SupportSchema = new Schema({
-    question_ar: {type: String, required: [true, "can't be blank"]},
     question_en: {type: String, required: [true, "can't be blank"]},
-    answer_ar: {type: String, required: [true, "can't be blank"]},
     answer_en: {type: String, required: [true, "can't be blank"]},
+    question_ar: {type: String, required: [true, "can't be blank"]},
+    answer_ar: {type: String, required: [true, "can't be blank"]},
     order: Number,
     status: {type: Number, default: 1},
 }, {timestamps: true});
@@ -29,7 +29,6 @@ SupportSchema.method({
             question_en: this.question_en,
             answer_ar: this.answer_ar,
             answer_en: this.answer_en,
-            lastname: this.lastname,
             order: this.order,
             isActive: this.status === 1,
         }
@@ -67,10 +66,11 @@ SupportSchema.static({
                 $project: {
                     _id: 0,
                     id: '$_id',
-                    question_ar: 1,
                     question_en: 1,
-                    answer_ar: 1,
                     answer_en: 1,
+                    question_ar: 1,
+                    answer_ar: 1,
+                    order: 1,
                     isActive: {$cond: {if: {$eq: ["$status", 1]}, then: true, else: false}},
                 }
             },
