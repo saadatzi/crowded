@@ -870,9 +870,7 @@ EventSchema.static({
             panelFilter.push({$match: _filter});
         }
 
-        console.warn(">>>>>>>>>>>>> listOwnAny ownAny: ", ownAny);
         console.warn(">>>>>>>>>>>>> listOwnAny optFilter: ", optFilter);
-        console.warn(">>>>>>>>>>>>> listOwnAny panelFilter: ", panelFilter);
         return await this.aggregate([
             {$match: ownAny},
             ...panelFilter,
@@ -916,7 +914,6 @@ EventSchema.static({
             },
         ])
             .then(result => {
-                console.log("$$$$$$$$$$$$$$$$$$$$$$ event result: ", result);
                 let items = [],
                     total = 0;
                 if (result.length > 0) {
