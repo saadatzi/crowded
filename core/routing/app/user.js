@@ -317,7 +317,7 @@ router.post('/resetPassword/claim', joiValidate(claimResetPasswordSchema, 0), as
                 email = 'Email has been sent.';
                 return new NZ.Response(true, `Reset-password link generated! ${email}`).send(res);
             } else {
-                return new NZ.Response(false, `${req.body.email} is not valid email!`).send(res);
+                return new NZ.Response(false, `${req.body.email} is not valid email!`, 404).send(res);
             }
 
 
