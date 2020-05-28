@@ -95,8 +95,8 @@ SupportSchema.static({
             {
                 $project: {
                     _id: 0,
-                    question: `question_${lang}`,
-                    answer: `answer_${lang}`,
+                    question: `$question_${lang}`,
+                    answer: `$answer_${lang}`,
                 }
             },
         ])
