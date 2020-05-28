@@ -863,10 +863,11 @@ EventSchema.static({
             if (optFilter.filters.interests) _filter.interests = {$in: optFilter.filters.interests};
             if (optFilter.filters.orgId) _filter.orgId = mongoose.Types.ObjectId(optFilter.filters.orgId);
             if (optFilter.filters.status) _filter.status = optFilter.filters.status;
-            panelFilter = [{$match: _filter}]
+            panelFilter.push({$match: _filter});
         }
 
         console.warn(">>>>>>>>>>>>> listOwnAny optFilter: ", optFilter);
+        console.warn(">>>>>>>>>>>>> listOwnAny panelFilter: ", panelFilter);
         return await this.aggregate([
             {$match: ownAny},
             {$match: regexMatch},
