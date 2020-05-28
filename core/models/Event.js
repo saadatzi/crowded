@@ -862,7 +862,7 @@ EventSchema.static({
             const _filter = {};
             if (optFilter.filters.interests) _filter.interests = {$in: optFilter.filters.interests};
             if (optFilter.filters.orgId) _filter.orgId = mongoose.Types.ObjectId(optFilter.filters.orgId);
-            if (optFilter.filters.status) _filter.status = optFilter.filters.status;
+            if (optFilter.filters.hasOwnProperty('status')) _filter.status = optFilter.filters.status;
             panelFilter.push({$match: _filter});
         }
 
@@ -871,8 +871,8 @@ EventSchema.static({
         console.warn(">>>>>>>>>>>>> listOwnAny panelFilter: ", panelFilter);
         return await this.aggregate([
             {$match: ownAny},
-            {$match: regexMatch},
             ...panelFilter,
+            {$match: regexMatch},
             {$sort: optFilter.sorts},
             {$skip: optFilter.pagination.page * optFilter.pagination.limit},
             {$limit: optFilter.pagination.limit},
@@ -897,7 +897,7 @@ EventSchema.static({
                     pipeline: [
                         {$match: ownAny},
                         {$match: regexMatch},
-                        {$match: optFilter.filters},
+                        ...panelFilter,
                         {$count: 'total'},
                     ],
                     as: 'getTotal'
@@ -912,6 +912,7 @@ EventSchema.static({
             },
         ])
             .then(result => {
+                console.log("$$$$$$$$$$$$$$$$$$$$$$ event result: ", result);
                 let items = [],
                     total = 0;
                 if (result.length > 0) {
@@ -957,7 +958,7 @@ EventSchema.static({
             const _filter = {};
             if (optFilter.filters.interests) _filter.interests = {$in: optFilter.filters.interests};
             if (optFilter.filters.orgId) _filter.orgId = mongoose.Types.ObjectId(optFilter.filters.orgId);
-            if (optFilter.filters.status) _filter.status = optFilter.filters.status;
+            if (optFilter.filters.hasOwnProperty('status')) _filter.status = optFilter.filters.status;
             panelFilter = [{$match: _filter}]
         }
 
@@ -1012,7 +1013,7 @@ EventSchema.static({
                     pipeline: [
                         {$match: baseCriteria},
                         {$match: regexMatch},
-                        {$match: optFilter.filters},
+                        ...panelFilter,
                         {
                             $lookup: {
                                 from: 'admins',
