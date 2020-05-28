@@ -21,6 +21,19 @@ const listSchema = JoiConfigs.schemas.list({
         createdAt: -1,
     }
 });
+const detailSchema = Joi.object().keys({
+    id: JoiConfigs.isMongoId
+});
+
+const editSchema = Joi.object().keys({
+    id: JoiConfigs.isMongoId,
+    name_en: JoiConfigs.title,
+    name_ar: JoiConfigs.title,
+    html_en: JoiConfigs.html,
+    html_ar: JoiConfigs.html,
+    in_app: JoiConfigs.booleanVal
+})
+
 
 /**
  * Get Statics
@@ -43,11 +56,13 @@ router.post('/', verifyTokenPanel(), joiValidate(listSchema, 0), authorization([
  * Edit Static
  * @return Static
  */
-router.put('/edit', verifyTokenPanel(), authorization([{PAGE: 'RU'}]), async (req, res) => {
-    console.info('API: Edit Static %j', {body: req.body});
+router.put('/edit', verifyTokenPanel(), joiValidate(editSchema, 0), authorization([{PAGE: 'RU'}]), async (req, res) => {
+    console.info('API: Edit Static %j', {body: req._body});
+    console.log(req.body);
 
-    staticController.update(req.body)
+    staticController.update(req._body)
         .then(result => {
+            if(!result) throw {message: "StaticPage not found!", code:404};
             new NZ.Response(null, "Static page succefully edited", 200).send(res);
         })
         .catch(err => {
@@ -60,8 +75,8 @@ router.put('/edit', verifyTokenPanel(), authorization([{PAGE: 'RU'}]), async (re
  * Get Static detail
  * @return List Static
  */
-router.get('/:id', verifyTokenPanel(), authorization([{PAGE: 'R'}]), async (req, res) => {
-    console.info('API: Get Static detail %j', {body: req.params});
+router.get('/:id', verifyTokenPanel(),  joiValidate(detailSchema, 2),  authorization([{PAGE: 'R'}]), async (req, res) => {
+    console.info('API: Get Static detail %j', {params: req.params});
 
     staticController.getById(req.params.id)
         .then(result => {

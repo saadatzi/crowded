@@ -99,7 +99,7 @@ staticController.prototype.list = async (optFilter) => {
  *
  * @return Events
  */
-staticController.prototype.update = async (payload) => {
+staticController.prototype.update = (payload) => {
 
     let toUpdate = {};
     payload.name_en ? toUpdate.name_en = payload.name_en : null;
@@ -108,7 +108,10 @@ staticController.prototype.update = async (payload) => {
     payload.html_ar ? toUpdate.html_ar = payload.html_ar : null;
     payload.in_app !== undefined ? toUpdate.in_app = payload.in_app : null;
 
-    return await StaticPage.findByIdAndUpdate(payload.id, toUpdate)
+    return StaticPage.findByIdAndUpdate(payload.id, toUpdate)
+        .then(res => {
+            return !!res;
+        })
         .catch(err => {
             console.error("!!!Static update failed: ", err);
             throw err;
