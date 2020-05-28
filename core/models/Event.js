@@ -870,7 +870,6 @@ EventSchema.static({
         return await this.aggregate([
             {$match: ownAny},
             {$match: regexMatch},
-            {$match: optFilter.filters},
             ...panelFilter,
             {$sort: optFilter.sorts},
             {$skip: optFilter.pagination.page * optFilter.pagination.limit},
