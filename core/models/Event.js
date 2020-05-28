@@ -651,7 +651,7 @@ EventSchema.static({
                 },
                 distanceField: "distance",
                 maxDistance: 3000000,
-                // spherical: true
+                spherical: true
             }
         }] : [];
 
