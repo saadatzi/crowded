@@ -145,7 +145,7 @@ userEventController.prototype.setStatus = async (userId, eventId, status, newVal
             })
     }
     // must be event from =< current && current < to
-    if (status === 'ACTIVE' && status === 'CONTINUE') {
+    if (status === 'ACTIVE' || status === 'CONTINUE') {
         await eventController.get(eventId, 'validActiveEvent')
             .then(event => {
                 if (!event) throw {code: 400, message: 'The event has not started or ended!'};
