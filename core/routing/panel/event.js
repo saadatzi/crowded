@@ -102,7 +102,7 @@ const listSchema = JoiConfigs.schemas.list({
         title_ar: Joi.number().valid(-1, 1),
     },
     defaultSorts: {
-        status: -1,
+        status: 1,
         from: 1
     }
 });

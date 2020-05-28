@@ -1023,7 +1023,6 @@ EventSchema.static({
                     items: {$push: '$$ROOT'},
                 }
             },
-            //TODO check valid Count!
             {
                 $lookup: {
                     from: 'events',
@@ -1031,6 +1030,29 @@ EventSchema.static({
                         {$match: baseCriteria},
                         {$match: regexMatch},
                         {$match: optFilter.filters},
+                        {
+                            $lookup: {
+                                from: 'admins',
+                                pipeline: [
+                                    {$match: {_id: mongoose.Types.ObjectId(userId)}},
+                                ],
+                                as: 'getAdmin'
+                            }
+                        },
+                        {$unwind: "$getAdmin"},
+                        {
+                            $lookup: {
+                                from: 'admins',
+                                let: {orgId: "$getAdmin.organizationId", owner: "$owner"},
+                                pipeline: [
+                                    {$match: {$expr: {$eq: ["$$orgId", "$organizationId"]}}},
+                                    {$match: {$expr: {$eq: ["$$owner", "$_id"]}}},
+                                    // {$project: {_id: 0, status: "$status"}},
+                                ],
+                                as: 'getOrgAdmin'
+                            }
+                        },
+                        {$unwind: {path: "$getOrgAdmin", preserveNullAndEmptyArrays: false}},
                         {$count: 'total'},
                     ],
                     as: 'getTotal'
