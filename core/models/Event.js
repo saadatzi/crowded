@@ -950,11 +950,19 @@ EventSchema.static({
             };
         }
 
+        let panelFilter = [];
+        if (optFilter.filters) {
+            const _filter = {};
+            if (optFilter.filters.interests) _filter.interests = {$in: optFilter.filters.interests};
+            if (optFilter.filters.orgId) _filter.orgId = mongoose.Types.ObjectId(optFilter.filters.orgId);
+            if (optFilter.filters.status) _filter.status = optFilter.filters.status;
+            panelFilter = [{$match: _filter}]
+        }
 
         return await this.aggregate([
             {$match: baseCriteria},
             {$match: regexMatch},
-            {$match: optFilter.filters},
+            ...panelFilter,
             {
                 $lookup: {
                     from: 'admins',
