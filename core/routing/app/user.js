@@ -14,9 +14,6 @@ const {sign, verifyToken} = require('../../utils/validation');
 const settings = require('../../utils/settings');
 const nationalities = require('../../utils/nationalities');
 
-const {getHash} = require('../../utils/cacheLayer');
-
-
 
 const userRegisterSchema = Joi.object().keys({
     firstname:	    JoiConfigs.title,
@@ -329,50 +326,6 @@ router.post('/resetPassword/claim', joiValidate(claimResetPasswordSchema, 0), as
             console.log('!!!! user forgot catch err: ', err);
             new NZ.Response(null, err.message, 400).send(res);
         });
-});
-
-
-/**
- * reset Password verify hash
- * check if the given hash if valid and points to a user
- */
-router.post('/resetPassword/verify/', joiValidate(verifyResetPasswordSchema, 0), async (req, res) => {
-    return getHash(req.body.hash)
-        .then(userId => {
-            return userController.get(userId, 'id')
-        })
-        .then(user => {
-            if (!user) return new NZ.Response(null, 'Hash Invalid, Try resetting again...', 400).send(res);
-            // else
-            return new NZ.Response(true, 'Good to go!').send(res);
-
-        })
-        .catch(err => {
-            console.log('!!!! user verify hash catch err: ', err);
-            new NZ.Response(null, err.message, 400).send(res);
-        });
-});
-
-
-/**
- *  reset Password use hash
- *  check hash, reset the password
- */
-router.post('/resetPassword/use', joiValidate(useResetPasswordSchema), async (req, res) => {
-
-    try {
-        let userId = await getHash(req.body.hash, true);
-        let user = await userController.get(userId, 'id')
-        if (!user) return new NZ.Response(null, 'Hash Invalid, Try resetting again...', 400).send(res);
-        // else
-        // !!! update password !!!
-        user.password = NZ.sha512Hmac(req.body.password, user.salt);
-        await user.save();
-        return new NZ.Response(true,'OK.').send(res);
-    } catch (err) {
-        console.log('!!!! user use hash catch err: ', err);
-        new NZ.Response(null, err.message, 400).send(res);
-    }
 });
 
 
