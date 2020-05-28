@@ -26,7 +26,7 @@ const manageSchema = Joi.object().keys({
  * @return Users
  */
 //______________________Get Participants Event_____________________//
-router.post('/', verifyTokenPanel(), authorization([{EVENT: 'R'}, {USER: 'R'}, {PARTICIPANTS: 'R'}]), async (req, res) => {
+router.post('/', verifyTokenPanel(), authorization([{EVENT: 'R'}, {PARTICIPANTS: 'R'}]), async (req, res) => {
     console.info('API: Get Participants event/init %j', {body: req.body});
 
     userController.getParticipants(req._admin, req.body, req.auth)
@@ -45,7 +45,7 @@ router.post('/', verifyTokenPanel(), authorization([{EVENT: 'R'}, {USER: 'R'}, {
  * @return Boolean
  */
 //______________________Set Participants Event_____________________//
-router.post('/manage', joiValidate(manageSchema), verifyTokenPanel(), authorization([{EVENT: 'R'}, {USER: 'R'}, {PARTICIPANTS: 'U'}]), async (req, res) => {
+router.post('/manage', joiValidate(manageSchema), verifyTokenPanel(), authorization([{EVENT: 'R'}, {PARTICIPANTS: 'RU'}]), async (req, res) => {
     console.info('API: Get Participants event/init %j', {body: req.body});
 
     userEventController.manageParticipant(req._admin, req.body, req.auth)

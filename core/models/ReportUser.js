@@ -60,7 +60,6 @@ ReportUserSchema.static({
      */
     async getManyPanel(optFilter) {
 
-        console.warn('@@@@@@@@@@@@@@@@@@ Report manyPanel optFilter: ', optFilter);
         const baseCriteria = {isDeleted: false};
 
         let regexMatch = {};
