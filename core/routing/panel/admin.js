@@ -281,28 +281,26 @@ router.post('/resetPassword/claim', joiValidate(claimResetPasswordSchema), async
 
     adminController.get(req.body.email, 'email')
         .then(async admin => {
+            if (!admin) return new NZ.Response(false, `${req.body.email} is not valid email!`, 404).send(res);
+
             let email = '';
-            if (admin) {
-                const hash = await controllerUtils.createResetPasswordHash(admin.id);
-                await controllerUtils.sendEmail(req.body.email, 'Reset Password', 'resetPassword', {
-                    name: admin.name,
-                    logo: settings.email_logo,
-                    cdn_domain: settings.cdn_domain,
-                    primary_domain: settings.primary_domain,
-                    contact_email: settings.contact.email,
-                    contact_phone: settings.contact.phone,
-                    contact_address: settings.contact.address,
-                    contact_copy: settings.contact.copyright,
-                    contact_project: settings.project_name,
-                    contact_privacy: settings.contact.privacy,
-                    contact_terms: settings.contact.terms,
-                    link: `${settings.base_panel_route}reset-password-panel/${hash}`
-                });
-                email = 'Email has been sent.';
-                return new NZ.Response(true, `Reset-password link generated! ${email}`).send(res);
-            } else {
-                return new NZ.Response(false, `${req.body.email} is not valid email!`).send(res);
-            }
+            const hash = await controllerUtils.createResetPasswordHash(admin.id);
+            await controllerUtils.sendEmail(req.body.email, 'Reset Password', 'resetPassword', {
+                name: admin.name,
+                logo: settings.email_logo,
+                cdn_domain: settings.cdn_domain,
+                primary_domain: settings.primary_domain,
+                contact_email: settings.contact.email,
+                contact_phone: settings.contact.phone,
+                contact_address: settings.contact.address,
+                contact_copy: settings.contact.copyright,
+                contact_project: settings.project_name,
+                contact_privacy: settings.contact.privacy,
+                contact_terms: settings.contact.terms,
+                link: `${settings.base_panel_route}reset-password-panel/${hash}`
+            });
+            email = 'Email has been sent.';
+            return new NZ.Response(true, `Reset-password link generated! ${email}`).send(res);
 
 
         })
@@ -342,7 +340,7 @@ router.post('/resetPassword/verify', joiValidate(verifyResetPasswordSchema), asy
  */
 router.post('/resetPassword/use', joiValidate(useResetPasswordSchema), async (req, res) => {
 
-    return getHash(req.body.hash,true)
+    return getHash(req.body.hash, true)
         .then(adminId => {
             return adminController.get(adminId, 'id')
         })
@@ -354,7 +352,7 @@ router.post('/resetPassword/use', joiValidate(useResetPasswordSchema), async (re
             return admin.save();
         })
         .then(admin => {
-           return new NZ.Response(true, 'OK.').send(res);
+            return new NZ.Response(true, 'OK.').send(res);
         })
         .catch(err => {
             console.log('!!!! admin login catch err: ', err);
@@ -431,7 +429,7 @@ router.post('/user/resetPassword/use', joiValidate(useResetPasswordSchema), asyn
         // !!! update password !!!
         user.password = NZ.sha512Hmac(req.body.password, user.salt);
         await user.save();
-        return new NZ.Response(true,'OK.').send(res);
+        return new NZ.Response(true, 'OK.').send(res);
     } catch (err) {
         console.log('!!!! user use hash catch err: ', err);
         new NZ.Response(null, err.message, 400).send(res);

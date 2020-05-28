@@ -16,30 +16,30 @@ const nationalities = require('../../utils/nationalities');
 
 
 const userRegisterSchema = Joi.object().keys({
-    firstname:	    JoiConfigs.title,
-    lastname:	    JoiConfigs.title,
-    sex:	        JoiConfigs.gender,
-    email:          JoiConfigs.email(),
-    password:       JoiConfigs.password,
-    nationality:    JoiConfigs.title,
-    birthDate:      JoiConfigs.datetime,
-    });
+    firstname: JoiConfigs.title,
+    lastname: JoiConfigs.title,
+    sex: JoiConfigs.gender,
+    email: JoiConfigs.email(),
+    password: JoiConfigs.password,
+    nationality: JoiConfigs.title,
+    birthDate: JoiConfigs.datetime,
+});
 
 const userUpdateSchema = Joi.object().keys({
-    firstname:	    JoiConfigs.title,
-    lastname:	    JoiConfigs.title,
-    sex:	        JoiConfigs.gender,
-    nationality:    JoiConfigs.title,
-    birthDate:      JoiConfigs.datetime(false),
-    civilId:        JoiConfigs.strOptional,
-    phone:          JoiConfigs.phone(false)
+    firstname: JoiConfigs.title,
+    lastname: JoiConfigs.title,
+    sex: JoiConfigs.gender,
+    nationality: JoiConfigs.title,
+    birthDate: JoiConfigs.datetime(false),
+    civilId: JoiConfigs.strOptional,
+    phone: JoiConfigs.phone(false)
 });
 const forgotSchema = Joi.object().keys({
     email: JoiConfigs.email(),
 });
 const changePassSchema = Joi.object().keys({
-    oldPassword:    JoiConfigs.password,
-    password:       JoiConfigs.password,
+    oldPassword: JoiConfigs.password,
+    password: JoiConfigs.password,
 });
 
 const claimResetPasswordSchema = Joi.object().keys({
@@ -150,9 +150,9 @@ router.post('/login', verifyToken(), async (req, res) => {
     console.info('API: Login User/init %j', {body: req.body});
     // req.body.email = (req.body.email).toString().toLowerCase();
     const loginSchema = Joi.object().keys({
-        login:	Joi.object().keys({
-            email:          Joi.string().email({ minDomainSegments: 2, tlds: { allow: ['com', 'net', 'org'] } }).required(),
-            password:       Joi.string().min(6).max(63).required(),
+        login: Joi.object().keys({
+            email: Joi.string().email({minDomainSegments: 2, tlds: {allow: ['com', 'net', 'org']}}).required(),
+            password: Joi.string().min(6).max(63).required(),
         }).required(),
     });
 
@@ -228,7 +228,7 @@ router.get('/', function (req, res) {
         .then(result => {
             console.info("*** interest List : %j", result);
             new NZ.Response({
-                items:  result,
+                items: result,
             }).send(res);
         })
         .catch(err => {
@@ -259,7 +259,7 @@ router.get('/profile', verifyToken(true), function (req, res) {
  *  Change Password
  */
 //______________________Forgot Password_____________________//
-router.post('/changePassword',joiValidate(changePassSchema), verifyToken(true), async (req, res) => {
+router.post('/changePassword', joiValidate(changePassSchema), verifyToken(true), async (req, res) => {
     console.info('API: Change Password User/init %j', {body: req.body});
     userController.get(req.userId, 'id')
         .then(user => {
@@ -292,40 +292,36 @@ router.get('/nationalities', verifyToken(), function (req, res) {
  *  Request a password reset link
  */
 //______________________Forgot Password_____________________//
-router.post('/resetPassword/claim', joiValidate(claimResetPasswordSchema, 0), async (req, res) => {
-    console.info('API: Forgot Password Admin/init %j', {body: req.body});
-
+router.post('/resetPassword/claim', joiValidate(claimResetPasswordSchema), async (req, res) => {
     userController.get(req.body.email, 'email')
         .then(async user => {
+            if (!user) return new NZ.Response(false, `${req.body.email} is not valid email!`, 404).send(res);
+
             let email = '';
-            if (user) {
-                const hash = await controllerUtils.createResetPasswordHash(user.id);
-                await controllerUtils.sendEmail(req.body.email, 'Reset Password', 'resetPassword', {
-                    name: user.firstname,
-                    logo: settings.email_logo,
-                    cdn_domain: settings.cdn_domain,
-                    primary_domain: settings.primary_domain,
-                    contact_email: settings.contact.email,
-                    contact_phone: settings.contact.phone,
-                    contact_address: settings.contact.address,
-                    contact_copy: settings.contact.copyright,
-                    contact_project: settings.project_name,
-                    contact_privacy: settings.contact.privacy,
-                    contact_terms: settings.contact.terms,
-                    link: `${settings.base_panel_route}reset-password-app/${hash}`
-                });
-                email = 'Email has been sent.';
-                return new NZ.Response(true, `Reset-password link generated! ${email}`).send(res);
-            } else {
-                return new NZ.Response(false, `${req.body.email} is not valid email!`, 404).send(res);
-            }
-
-
+            const hash = await controllerUtils.createResetPasswordHash(user.id);
+            await controllerUtils.sendEmail(req.body.email, 'Reset Password', 'resetPassword', {
+                name: user.firstname,
+                logo: settings.email_logo,
+                cdn_domain: settings.cdn_domain,
+                primary_domain: settings.primary_domain,
+                contact_email: settings.contact.email,
+                contact_phone: settings.contact.phone,
+                contact_address: settings.contact.address,
+                contact_copy: settings.contact.copyright,
+                contact_project: settings.project_name,
+                contact_privacy: settings.contact.privacy,
+                contact_terms: settings.contact.terms,
+                link: `${settings.base_panel_route}reset-password-app/${hash}`
+            });
+            email = 'Email has been sent.';
+            return new NZ.Response(true, `Reset-password link generated! ${email}`).send(res);
         })
         .catch(err => {
             console.log('!!!! user forgot catch err: ', err);
             new NZ.Response(null, err.message, 400).send(res);
         });
+
+    console.info('API: Forgot Password Admin/init %j', {body: req.body});
 });
 
 
