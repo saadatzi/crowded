@@ -72,14 +72,11 @@ router.post('/manage', joiValidate(manageSchema), verifyTokenPanel(), authorizat
 
     transactionController.manageTransaction(req.body.transactionId, req.body.isPaid, req._admin)
         .then(item => {
-            console.info("manageTransaction item:", item);
-            console.info("################### manageTransaction item.price:", item.price.toString());
-
             if (item && req.body.isPaid) {
                 deviceController.getNotificationId(item.userId)
                     .then(notificationId => {
-                        const message = settings.notification(item.price.toString()).paid;
-
+                        const value = Math.abs(item.price.toString());
+                        const message = settings.notification(value).paid;
                         sendNotification(`myWallet`, [notificationId], message.title, message.desc)
                     })
                     .catch(err => {
