@@ -142,7 +142,7 @@ RoleSchema.static({
                         let tempMerge = merged.find(old => old.title === rp.title);
                         if (!tempMerge) merged.push(rp);
                         else {
-                            rp.accesssLevel = mergeAccessLevel(tempMerge.accesssLevel ,rp.accesssLevel)
+                            rp.accesssLevel = mergeAccessLevel(tempMerge.accesssLevel, rp.accesssLevel)
                             const foundIndex = merged.findIndex(old => old.title === rp.title);
                             merged[foundIndex] = rp;
                         }
@@ -220,7 +220,9 @@ RoleSchema.static({
      */
     async authorize(userId, needPermissions) {
         let perNames = [];
-        needPermissions.map(per => {perNames.push((Object.keys(per)[0]).toUpperCase());});
+        needPermissions.map(per => {
+            perNames.push((Object.keys(per)[0]).toUpperCase());
+        });
         return await this.aggregate([
             {$match: {status: 1}},
             {
@@ -363,10 +365,12 @@ RoleSchema.static({
      * @param {Number} newStatus - new status you want to set
      * @param {Number} validateCurrent - a function returning a boolean checking old status
      */
-    async setStatus(id, newStatus, validateCurrent = function(old){return true}) {
-        let record = await this.findOne({_id:id}).catch(err=>console.error(err));
+    async setStatus(id, newStatus, validateCurrent = function (old) {
+        return true
+    }) {
+        let record = await this.findOne({_id: id}).catch(err => console.error(err));
         let currentState = record.status;
-        if (!validateCurrent(currentState)) throw {message:"Changing status not permitted!"};
+        if (!validateCurrent(currentState)) throw {message: "Changing status not permitted!"};
         record.status = newStatus;
         if (newStatus === 2) record.name = record.name + '_DELETED_' + Date.now();
         return record.save();
@@ -387,7 +391,7 @@ function binLevel2Bool(number) {
 function mergeAccessLevel(oldAL, newAL) {
     return {
         create: oldAL.create || newAL.create,
-        read:   oldAL.read   || newAL.read,
+        read: oldAL.read || newAL.read,
         update: oldAL.update || newAL.update,
         delete: oldAL.delete || newAL.delete,
     }

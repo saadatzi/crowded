@@ -72,6 +72,17 @@ router.post('/manage', joiValidate(manageSchema), verifyTokenPanel(), authorizat
 
     transactionController.manageTransaction(req.body.transactionId, req.body.isPaid, req._admin)
         .then(item => {
+            console.info("manageTransaction item:", item);
+
+            if (req.body.isPaid) {
+                deviceController.getNotificationId(req.body.userId)
+                    .then(notificationId => {
+                        sendNotification([notificationId], 'Request APPROVED', `Your request for ${event.title_en} has been approved! :)`, event._id)
+                    })
+                    .catch(err => {
+                        console.error("manage Participants sendNotification get User Catch:", err);
+                    });
+            }
             new NZ.Response(true, 'Your request has been successfully submitted').send(res);
         })
         .catch(err => {
