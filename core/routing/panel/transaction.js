@@ -73,11 +73,14 @@ router.post('/manage', joiValidate(manageSchema), verifyTokenPanel(), authorizat
     transactionController.manageTransaction(req.body.transactionId, req.body.isPaid, req._admin)
         .then(item => {
             console.info("manageTransaction item:", item);
+            console.info("################### manageTransaction item.price:", item.price.toString());
 
-            if (req.body.isPaid) {
-                deviceController.getNotificationId(req.body.userId)
+            if (item && req.body.isPaid) {
+                deviceController.getNotificationId(item.userId)
                     .then(notificationId => {
-                        sendNotification([notificationId], 'Request APPROVED', `Your request for ${event.title_en} has been approved! :)`, event._id)
+                        const message = settings.notification(item.price.toString()).paid;
+
+                        sendNotification(`myWallet`, [notificationId], message.title, message.desc)
                     })
                     .catch(err => {
                         console.error("manage Participants sendNotification get User Catch:", err);

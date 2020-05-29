@@ -358,10 +358,7 @@ transactionController.prototype.update = async (optFilter, newValue) => {
                 })
         } else {
             return await Transaction.findByIdAndUpdate(optFilter, newValue)
-                .then(result => {
-                    console.log(`***Transaction Update by id ${optFilter} result: `, result);
-                    return result;
-                })
+                // .then(result => result)
                 .catch(err => {
                     console.error("!!!Transaction Update failed: ", err);
                     throw err;

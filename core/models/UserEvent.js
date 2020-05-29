@@ -154,7 +154,8 @@ UserEventSchema.static({
                 $group: {
                     _id: {eventId: "$getEvents._id"},
                     image: {$first: "$getEvents.imagePicker"},
-                    title: {$first: "$getEvents.title_en"},
+                    title_en: {$first: "$getEvents.title_en"},
+                    title_ar: {$first: "$getEvents.title_ar"},
                     time: {
                         $first: {
                             $dateToString: {
@@ -171,7 +172,8 @@ UserEventSchema.static({
                 $project: {
                     eventId: "$_id.eventId",
                     _id: 0,
-                    title: 1,
+                    title_en: 1,
+                    title_ar: 1,
                     time: 1,
                     notificationIds: 1,
                     image: {$concat: [settings.media_domain, '$image']}
@@ -240,7 +242,8 @@ UserEventSchema.static({
                 $group: {
                     _id: {eventId: "$getEvents._id"},
                     image: {$first: "$getEvents.imagePicker"},
-                    title: {$first: "$getEvents.title_en"},
+                    title_en: {$first: "$getEvents.title_en"},
+                    title_ar: {$first: "$getEvents.title_ar"},
                     time: {
                         $first: {
                             $dateToString: {
@@ -257,7 +260,8 @@ UserEventSchema.static({
                 $project: {
                     eventId: "$_id.eventId",
                     _id: 0,
-                    title: 1,
+                    title_en: 1,
+                    title_ar: 1,
                     time: 1,
                     notificationIds: 1,
                     image: {$concat: [settings.media_domain, '$image']},

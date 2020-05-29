@@ -7,7 +7,7 @@ const axiosInstance = axios.create({
     headers: {Accept: 'application/json', 'Content-Type': 'application/json'}
 });
 
-const sendNotification = async (deviceNotificationIds, title, desc, eventId, image = null) => {
+const sendNotification = async (url, deviceNotificationIds, title, desc, image = null) => {
     axiosInstance.post(`i/pushes/create?api_key=${settings.countly.apiKey}`,
         {
             args: {
@@ -15,11 +15,14 @@ const sendNotification = async (deviceNotificationIds, title, desc, eventId, ima
                 apps: [settings.countly.appId],
                 platforms: ["a", "i"],
                 messagePerLocale: {
-                    default: "Approved or alarm of start Event",
-                    en: desc,
-                    "default|t": title,
+                    default: "Approved, Paid or alarm of start Event",
+                    en: desc.en,
+                    ar: desc.ar,
+                    "default|t": title.en,
+                    "en|t": title.en,
+                    "ar|t": title.ar,
                 },
-                url: `crowdedApp://event/${eventId}`,
+                url: `crowdedApp://${url}`,
                 userConditions: {did: {$in: deviceNotificationIds}},
                 sound: "default",
                 media: image ? image : settings.email_logo,

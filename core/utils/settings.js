@@ -145,5 +145,25 @@ module.exports = {
 	},
 	panel: {
 		defaultLimitPage: 20
+	},
+	notification: (value) => {
+		return {
+			approval: {
+				title: {en: 'Request APPROVED', ar: 'تمت الموافقة على الطلب'},
+				desc: {en: `Your request for ${value.title_en} has been approved! :)`, ar: ` تمت الموافقة على طلبك للحصول على ${value.title_ar}! :)`}
+			},
+			nextHour: {
+				title: {en: 'Reminder for the upcoming event', ar: 'تذكير للحدث القادم'},
+				desc: {en: `Reminder of participation in the ${value.title_en} event.\n Today at ${value.time}`, ar: `تذكير بالمشاركة في حدث ${value.title_ar}. \n اليوم في ${value.time}`}
+			},
+			tomorrowEvent: {
+				title: {en: 'Reminder for tomorrow\'s event', ar: 'تذكير لحدث الغد'},
+				desc: {en: `Reminder of participation in the ${value.title_en} event.\n Tomorrow at ${value.time}`, ar: `تذكير بالمشاركة في حدث ${value.title_ar}. \n غدًا في ${value.time}`}
+			},
+			paid: {
+				title: {en: 'Settlement', ar: 'مستوطنة'},
+				desc: {en: `${value} kd has been credited to your account`, ar: ` تمت إضافة ${value} kd إلى حسابك`}
+			},
+		}
 	}
 }
