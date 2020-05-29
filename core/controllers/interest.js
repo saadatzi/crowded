@@ -48,10 +48,7 @@ interestController.prototype.add = async (newInterest) => {
 interestController.prototype.getOnePanel = async (optFilter) => {
 
     return await Interest.getOnePanel(optFilter)
-        .then(result => {
-            console.log(`***Interest get by id ${optFilter} result: `, result);
-            return result;
-        })
+        // .then(result =>  result)
         .catch(err => {
             console.error("!!!Interest get failed: ", err);
             throw err;
@@ -97,10 +94,7 @@ interestController.prototype.get = async (optFilter) => {
             })
     } else {
         return await Interest.get(optFilter)
-            .then(result => {
-                console.log(`***Interest get by id ${optFilter} result: `, result);
-                return result;
-            })
+            .then(result => result)
             .catch(err => {
                 console.error("!!!Interest get failed: ", err);
                 throw err;

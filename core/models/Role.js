@@ -301,27 +301,38 @@ RoleSchema.static({
 
                     accessLevel[perName] = [];
 
+                    //iterate ['C', 'R', 'U', 'D']
                     arrValue.map(value => {
                         let maxValue = 0;
                         let accessPerNeed = [],
                             isNewValue = true;
                         permissions.map(permission => {
-                            const findPermission = permission.perResult.find(find => find.title === perName);
-                            if (findPermission) {
-                                const arrayAccess = Array.from(String((findPermission.access).toString(2)), Number);
+                            // console.log(`//////////////////////////////////////////////////////////////////////////////`);
+                            // console.log("permission **************", permission);
+                            const findPermissions = permission.perResult.filter(find => find.title === perName);
+                            findPermissions.map(fp => {
+                                const arrayAccess = Array.from(String((fp.access).toString(2)), Number);
                                 const len = arrayAccess.length;
-                                if (findPermission.access > maxValue && !!arrayAccess[len - valueMap[value]]) {
-                                    maxValue = findPermission.access;
+
+                                // console.log(`==========================================================================`);
+                                // console.log(`@@@@@@@@@@@@@@@@@@ np: %j`, np);
+                                // console.log(`@@@@@@@@@@@@@@@@@@ findPermission: %j`, fp);
+                                // console.log(`@@@@@@@@@@@@@@@@@@ perName: ${perName}, value: ${value}, arrayAccess: ${arrayAccess}`);
+                                // console.log(`@@@@@@@@@@@@@@@@@@ arrayAccess[len - valueMap[value]]`, arrayAccess[len - valueMap[value]]);
+                                // console.log(`@@@@@@@@@@@@@@@@@@ !!arrayAccess[len - valueMap[value]]`, !!arrayAccess[len - valueMap[value]]);
+
+                                if (fp.access > maxValue && !!arrayAccess[len - valueMap[value]]) {
+                                    maxValue = fp.access;
                                     const level = maxValue > 160 ? 'ANY' : maxValue > 144 ? 'GROUP' : 'OWN';
                                     if (!isNewValue) accessLevel[perName].pop();
                                     accessLevel[perName].push({[value]: {level, value: maxValue}});
                                     isNewValue = false;
                                 }
-                                accessPerNeed.push(!!arrayAccess[len - valueMap[value]])
-                            }
+                                accessPerNeed.push(!!arrayAccess[len - valueMap[value]]);
+                                // console.log(`@@@@@@@@@@@@@@@@@@ accessPerNeed: %j`, accessPerNeed);
+                            })
                         });
                         resultAccess.push(accessPerNeed.some(Boolean));
-
                     })
                 });
                 return {access: resultAccess.every(Boolean), accessLevel};
