@@ -496,14 +496,11 @@ TransactionSchema.static({
                 };
             } else if (key.length > 3) {
                 strMatch = {
-                    $or: [
-                        {
-                            name_en: { $regex: regex, $options: "i" }
-                        },
-                        {
-                            name_ar: { $regex: regex, $options: "i" }
+                    getAccount: {
+                        $elemMatch: {
+                            fullName: { $regex: regex, $options: "i" }
                         }
-                    ]
+                    }
                 };
             }
         }
@@ -565,6 +562,7 @@ TransactionSchema.static({
                     as: 'getAccount'
                 }
             },
+            {$match: strMatch},
             {$match: NumMatch},
             {$sort: optFilter.sorts},
             {$skip: optFilter.pagination.page * optFilter.pagination.limit},
