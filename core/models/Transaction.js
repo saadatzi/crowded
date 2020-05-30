@@ -471,8 +471,10 @@ TransactionSchema.static({
             if (parseInt(key) == key) {// pure numeric
                 if (parseInt(key) > 10000) {// might be IBAN
                     NumMatch = {
-                        $getAccount:{
-                            IBAN: { $regex: regex, $options: "i" }
+                        getAccount:{
+                            $elemMatch: {
+                               IBAN: { $regex: regex, $options: "i" }
+                            }
                         }
                     };
                 } else {
