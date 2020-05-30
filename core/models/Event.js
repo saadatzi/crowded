@@ -908,6 +908,7 @@ EventSchema.static({
                     id: "$_id",
                     title_en: 1,
                     image: {url: {$concat: [settings.media_domain, "$imagePicker"]}},
+                    holdState: {$cond: [{$gt: ["$from", new Date()]}, 'UPCOMING', {$cond: [{$gt: [new Date(), "$to"]}, 'FINISHED', 'RUNNING']}]},
                     from: {$dateToString: {date: "$from", timezone: "Asia/Kuwait"}},
                     to: {$dateToString: {date: "$to", timezone: "Asia/Kuwait"}},
                     isActive: {$cond: {if: {$eq: ["$status", 1]}, then: true, else: false}},
