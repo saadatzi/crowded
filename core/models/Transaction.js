@@ -461,23 +461,61 @@ TransactionSchema.static({
 
         optFilter.filters = optFilter.filters || {};
 
-        let regexMatch = {};
+        let regexIBAN = 
+        regexUsername =
+        regexBankName =
+        regexTransactionId =
+        {};
         if (optFilter.search) {
-            let regex = new RegExp(optFilter.search);
-            regexMatch = {
-                $or: [
-                    {
-                        firstname: {$regex: regex, $options: "i"}
-                    },
-                    {
-                        lastname: {$regex: regex, $options: "i"}
-                    }
-                ]
-            };
+            let key = optFilter.search;
+            let regex = new RegExp(key);
+
+            if (parseInt(key) == key) {// pure numeric
+                if (parseInt(key) > 10000) {// might be IBAN
+                    regexIBAN = {
+
+                        IBAN: { $regex: regex, $options: "i" }
+
+                    };
+                }else{
+                    regexTransactionId = {
+                        $or: [
+                        {
+                            transactionId: parseInt(key)
+                        }
+                        ]
+                    };
+                }
+            } else if (key.length > 6) {
+                
+                regexUsername = {
+                    $or: [
+                        {
+                            firstname: { $regex: regex, $options: "i" }
+                        },
+                        {
+                            lastname: { $regex: regex, $options: "i" }
+                        }
+                    ]
+                };
+            } else if (key.length>3){
+                regexBankName = {
+                    $or: [
+                        {
+                            name_en: { $regex: regex, $options: "i" }
+                        },
+                        {
+                            name_ar: { $regex: regex, $options: "i" }
+                        }
+                    ]
+                };
+            }
         }
+
 
         return await this.aggregate([
             {$match: {$and: [criteria, optFilter.filters]}}, //Optimization
+            {$match:regexTransactionId},
             // {$match: optFilter.filters},
             //get user info
             {
@@ -486,7 +524,6 @@ TransactionSchema.static({
                     let: {primaryUserId: "$userId"},
                     pipeline: [
                         {$match: {$expr: {$eq: ["$$primaryUserId", "$_id"]}}},
-                        {$match: regexMatch},
                         {
                             $project: {
                                 _id: 0,
@@ -510,6 +547,7 @@ TransactionSchema.static({
                     let: {primaryAccountId: "$accountId"},
                     pipeline: [
                         {$match: {$expr: {$eq: ["$$primaryAccountId", "$_id"]}}},
+                        {$match: regexIBAN},
                         {
                             $lookup: {
                                 from: 'banknames',
@@ -574,7 +612,7 @@ TransactionSchema.static({
                                 let: {primaryUserId: "$userId"},
                                 pipeline: [
                                     {$match: {$expr: {$eq: ["$$primaryUserId", "$_id"]}}},
-                                    {$match: regexMatch},
+                                    {$match: regexUsername},
                                 ],
                                 as: 'getUser'
                             }
@@ -597,6 +635,7 @@ TransactionSchema.static({
                 let items = [],
                     total = 0;
                 if (result.length > 0) {
+                    console.log(result);
                     total = result[0].total.total;
                     delete result[0].total;
                     items = result[0].items;
