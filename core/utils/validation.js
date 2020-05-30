@@ -86,7 +86,7 @@ module.exports = {
                 // Remove Bearer from string
                 token = token.slice(7, token.length);
             }
-            console.log("********************** verifyTokenPanel token: ", token);
+            // console.log("********************** verifyTokenPanel token: ", token);
             if (token) {
                 try {
                     let tokenObj = validation.verify(token, publicKEY, tokenOption);

@@ -862,7 +862,7 @@ EventSchema.static({
             const _filter = {};
             if (optFilter.filters.interests) {
                 const _interests = [];
-                optFilter.filters.interests.map(interest => _interests.push(mongoose.Types.ObjectId(interest)))
+                optFilter.filters.interests.map(interest => _interests.push(mongoose.Types.ObjectId(interest)));
                 _filter.interests = {$in: _interests};
             }
             if (optFilter.filters.orgId) _filter.orgId = mongoose.Types.ObjectId(optFilter.filters.orgId);
@@ -879,12 +879,39 @@ EventSchema.static({
             {$skip: optFilter.pagination.page * optFilter.pagination.limit},
             {$limit: optFilter.pagination.limit},
             {
+                $lookup: {
+                    from: 'organizations',
+                    let: {primaryOrgId: "$orgId"},
+                    pipeline: [
+                        {$match: {$expr: {$eq: ["$$primaryOrgId", "$_id"]}}},
+                        {
+                            $project: {
+                                _id: 0,
+                                id: '$_id',
+                                title: 1,
+                                image: {
+                                    $cond: [
+                                        {$ne: ["$image", ""]},
+                                        {url: {$concat: [settings.media_domain, "$image"]}},
+                                        null
+                                    ]
+                                }
+                            }
+                        },
+                    ],
+                    as: 'getOrganization'
+                }
+            },
+            {
                 $project: {
                     _id: 0,
                     id: "$_id",
                     title_en: 1,
                     image: {url: {$concat: [settings.media_domain, "$imagePicker"]}},
+                    from: {$dateToString: {date: "$from", timezone: "Asia/Kuwait"}},
+                    to: {$dateToString: {date: "$to", timezone: "Asia/Kuwait"}},
                     isActive: {$cond: {if: {$eq: ["$status", 1]}, then: true, else: false}},
+                    organization: {$arrayElemAt: ["$getOrganization", 0]}
                 },
             },
             {
@@ -959,7 +986,7 @@ EventSchema.static({
             const _filter = {};
             if (optFilter.filters.interests) {
                 const _interests = [];
-                optFilter.filters.interests.map(interest => _interests.push(mongoose.Types.ObjectId(interest)))
+                optFilter.filters.interests.map(interest => _interests.push(mongoose.Types.ObjectId(interest)));
                 _filter.interests = {$in: _interests};
             }
             if (optFilter.filters.orgId) _filter.orgId = mongoose.Types.ObjectId(optFilter.filters.orgId);
@@ -998,12 +1025,39 @@ EventSchema.static({
             {$skip: optFilter.pagination.page * optFilter.pagination.limit},
             {$limit: optFilter.pagination.limit},
             {
+                $lookup: {
+                    from: 'organizations',
+                    let: {primaryOrgId: "$orgId"},
+                    pipeline: [
+                        {$match: {$expr: {$eq: ["$$primaryOrgId", "$_id"]}}},
+                        {
+                            $project: {
+                                _id: 0,
+                                id: '$_id',
+                                title: 1,
+                                image: {
+                                    $cond: [
+                                        {$ne: ["$image", ""]},
+                                        {url: {$concat: [settings.media_domain, "$image"]}},
+                                        null
+                                    ]
+                                }
+                            }
+                        },
+                    ],
+                    as: 'getOrganization'
+                }
+            },
+            {
                 $project: {
                     _id: 0,
                     id: "$_id",
                     title_en: 1,
                     image: {url: {$concat: [settings.media_domain, "$imagePicker"]}},
-                    isActive: {$cond: {if: {$eq: ["$status", 1]}, then: true, else: false}}
+                    isActive: {$cond: {if: {$eq: ["$status", 1]}, then: true, else: false}},
+                    from: {$dateToString: {date: "$from", timezone: "Asia/Kuwait"}},
+                    to: {$dateToString: {date: "$to", timezone: "Asia/Kuwait"}},
+                    organization: {$arrayElemAt: ["$getOrganization", 0]}
                 },
             },
             {
