@@ -5,6 +5,8 @@ const Joi = require('@hapi/joi');
 const JoiConfigs = require('../joiConfigs');
 const {joiValidate} = require('../utils');
 
+const settings = require('../../utils/settings');
+
 // Instantiate the Device Model
 const transactionController = require('../../controllers/transaction');
 const deviceController = require('../../controllers/device');
@@ -85,7 +87,7 @@ router.post('/manage', joiValidate(manageSchema), verifyTokenPanel(), authorizat
                         sendNotification(`myWallet`, [notificationId], message.title, message.desc)
                     })
                     .catch(err => {
-                        console.error("manage Participants sendNotification get User Catch:", err);
+                        console.error("manage Transaction sendNotification, getNotificationId Catch:", err);
                     });
             }
             new NZ.Response(true, 'Your request has been successfully submitted').send(res);
