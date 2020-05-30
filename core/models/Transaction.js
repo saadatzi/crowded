@@ -471,6 +471,9 @@ TransactionSchema.static({
             let regex = new RegExp(key);
 
             if (parseInt(key) == key) {// pure numeric
+                console.log('is number')
+                console.log('is number')
+                console.log('is number')
                 // might be transactionId
                 regexTransactionId = {
 
@@ -478,6 +481,9 @@ TransactionSchema.static({
 
                 };
                 if (parseInt(key) > 10000) {// might be IBAN
+                    console.log('perhaps iban')
+                    console.log('perhaps iban')
+                    console.log('perhaps iban')
                     regexIBAN = {
 
                         IBAN: { $regex: regex, $options: "i" }
@@ -485,6 +491,12 @@ TransactionSchema.static({
                     };
                 }
             } else if (key.length > 3) {
+                console.log('text')
+                console.log('text')
+                console.log('text')
+                console.log('text')
+                console.log('text')
+                console.log('text')
                 regexBankName = {
                     $or: [
                         {
