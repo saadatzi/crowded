@@ -35,9 +35,13 @@ const storage = multer.diskStorage({
 * */
 const uploader = async (req, res, next) => {
     // 2MB max file size
+    console.log("********************** uploader before init");
     const upload = await multer({storage, limits: { fileSize: 1024 * 1024 * 2 }}).single('fileUpload');
+    console.log("********************** uploader After init");
+
     upload(req, res, (err) => {
         if (err) {
+            console.log("********************** uploader err: ", err);
             return new NZ.Response(null, 'Nothing uploaded.', 400).send(res);
         }
         next();
