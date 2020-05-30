@@ -635,8 +635,9 @@ TransactionSchema.static({
                 let items = [],
                     total = 0;
                 if (result.length > 0) {
-                    console.log(result);
-                    total = result[0].total.total;
+                    console.log(result[0].total)
+                    console.log(result[0].items);
+                    total = result[0].total? result[0].total.total : 0;
                     delete result[0].total;
                     items = result[0].items;
                 }
