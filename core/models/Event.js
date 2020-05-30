@@ -833,7 +833,7 @@ EventSchema.static({
      */
     async listOwnAny(userId, optFilter, accessLevel) {
 
-        const pageLimit = await settingController.getByKey('Number of lists (limitation per page)')
+        optFilter.pagination.limit = await settingController.getByKey('Number of lists (limitation per page)')
             .then(limitation => {
                 if (limitation && !isNaN(limitation.value)) return parseInt(limitation.value);
                 return settings.panel.defaultLimitPage;
@@ -884,8 +884,8 @@ EventSchema.static({
             ...panelFilter,
             {$match: regexMatch},
             {$sort: optFilter.sorts},
-            {$skip: optFilter.pagination.page * pageLimit},
-            {$limit: pageLimit},
+            {$skip: optFilter.pagination.page * optFilter.pagination.limit},
+            {$limit: optFilter.pagination.limit},
             {
                 $lookup: {
                     from: 'organizations',
@@ -967,7 +967,7 @@ EventSchema.static({
      * Event list Group
      */
     async listGroup(userId, optFilter) {
-        const pageLimit = await settingController.getByKey('Number of lists (limitation per page)')
+        optFilter.pagination.limit = await settingController.getByKey('Number of lists (limitation per page)')
             .then(limitation => {
                 if (limitation && !isNaN(limitation.value)) return parseInt(limitation.value);
                 return settings.panel.defaultLimitPage;
@@ -1037,8 +1037,8 @@ EventSchema.static({
             },
             {$unwind: {path: "$getOrgAdmin", preserveNullAndEmptyArrays: false}},
             {$sort: optFilter.sorts},
-            {$skip: optFilter.pagination.page * pageLimit},
-            {$limit: pageLimit},
+            {$skip: optFilter.pagination.page * optFilter.pagination.limit},
+            {$limit: optFilter.pagination.limit},
             {
                 $lookup: {
                     from: 'organizations',
