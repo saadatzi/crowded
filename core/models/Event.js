@@ -878,7 +878,7 @@ EventSchema.static({
             panelFilter.push({$match: _filter});
         }
 
-        console.warn(">>>>>>>>>>>>> listOwnAny optFilter: ", optFilter);
+        console.warn(">>>>>>>>>>>>>????????????????? listOwnAny optFilter: ", optFilter);
         return await this.aggregate([
             {$match: ownAny},
             ...panelFilter,
