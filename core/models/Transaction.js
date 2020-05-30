@@ -471,43 +471,23 @@ TransactionSchema.static({
             let regex = new RegExp(key);
 
             if (parseInt(key) == key) {// pure numeric
-                console.log('is number')
-                console.log('is number')
-                console.log('is number')
-                // might be transactionId
-                regexTransactionId = {
-                    $or: [
-                    {
-                        transactionId: parseInt(key)
-                    }
-                    ]
-                };
                 if (parseInt(key) > 10000) {// might be IBAN
-                    console.log('perhaps iban')
-                    console.log('perhaps iban')
-                    console.log('perhaps iban')
                     regexIBAN = {
 
                         IBAN: { $regex: regex, $options: "i" }
 
                     };
-                }
-            } else if (key.length > 3) {
-                console.log('text')
-                console.log('text')
-                console.log('text')
-                console.log('text')
-                console.log('text')
-                regexBankName = {
-                    $or: [
+                }else{
+                    regexTransactionId = {
+                        $or: [
                         {
-                            name_en: { $regex: regex, $options: "i" }
-                        },
-                        {
-                            name_ar: { $regex: regex, $options: "i" }
+                            transactionId: parseInt(key)
                         }
-                    ]
-                };
+                        ]
+                    };
+                }
+            } else if (key.length > 6) {
+                
                 regexUsername = {
                     $or: [
                         {
@@ -515,6 +495,17 @@ TransactionSchema.static({
                         },
                         {
                             lastname: { $regex: regex, $options: "i" }
+                        }
+                    ]
+                };
+            } else if (key.length>3){
+                regexBankName = {
+                    $or: [
+                        {
+                            name_en: { $regex: regex, $options: "i" }
+                        },
+                        {
+                            name_ar: { $regex: regex, $options: "i" }
                         }
                     ]
                 };
