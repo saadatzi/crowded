@@ -3,6 +3,8 @@ const Schema = mongoose.Schema;
 const settings = require('../utils/settings');
 const moment = require('moment-timezone');
 const areaController = require('../controllers/area');
+const settingController = require('../controllers/setting');
+
 // mongoose.Types.ObjectId.isValid()
 const EventSchema = new Schema({
     owner: {type: Schema.Types.ObjectId, ref: 'Admin'},
@@ -831,6 +833,12 @@ EventSchema.static({
      */
     async listOwnAny(userId, optFilter, accessLevel) {
 
+        const pageLimit = await settingController.getByKey('Number of lists (limitation per page)')
+            .then(limitation => {
+                if (limitation && !isNaN(limitation.value)) return parseInt(limitation.value);
+                return settings.panel.defaultLimitPage;
+            }).catch(err => console.error("settingController.getByKey limitation per page catch err: ", err));
+
         const ownAny = accessLevel === 'OWN' ? {
             owner: mongoose.Types.ObjectId(userId),
             status: {$in: [0, 1]}
@@ -876,8 +884,8 @@ EventSchema.static({
             ...panelFilter,
             {$match: regexMatch},
             {$sort: optFilter.sorts},
-            {$skip: optFilter.pagination.page * optFilter.pagination.limit},
-            {$limit: optFilter.pagination.limit},
+            {$skip: optFilter.pagination.page * pageLimit},
+            {$limit: pageLimit},
             {
                 $lookup: {
                     from: 'organizations',
@@ -959,6 +967,12 @@ EventSchema.static({
      * Event list Group
      */
     async listGroup(userId, optFilter) {
+        const pageLimit = await settingController.getByKey('Number of lists (limitation per page)')
+            .then(limitation => {
+                if (limitation && !isNaN(limitation.value)) return parseInt(limitation.value);
+                return settings.panel.defaultLimitPage;
+            }).catch(err => console.error("settingController.getByKey limitation per page catch err: ", err));
+
         const baseCriteria = {status: {$in: [0, 1]}};
 
         let regexMatch = {};
@@ -1023,8 +1037,8 @@ EventSchema.static({
             },
             {$unwind: {path: "$getOrgAdmin", preserveNullAndEmptyArrays: false}},
             {$sort: optFilter.sorts},
-            {$skip: optFilter.pagination.page * optFilter.pagination.limit},
-            {$limit: optFilter.pagination.limit},
+            {$skip: optFilter.pagination.page * pageLimit},
+            {$limit: pageLimit},
             {
                 $lookup: {
                     from: 'organizations',

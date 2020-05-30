@@ -40,7 +40,6 @@ module.exports = {
             if (!optFilter || !Object.keys(optFilter).length) throw {message: "optFilter must be defined"};
             if (!optFilter.defaultSorts || !Object.keys(optFilter.defaultSorts).length) throw {message: "optFilter.defaultSorts must be defined and non-empty"};
 
-
             optFilter.filters = optFilter.filters && Object.keys(optFilter.filters).length ? optFilter.filters : {};
             optFilter.pagination = optFilter.pagination && Object.keys(optFilter.pagination).length ? optFilter.pagination : {};
             optFilter.sorts = optFilter.sorts && Object.keys(optFilter.sorts).length ? optFilter.sorts : {};
@@ -61,7 +60,7 @@ module.exports = {
                     Joi.object().optional()
                         .keys({
                             page: Joi.number().greater(-1).default(0),
-                            limit: Joi.number().greater(0).default(optFilter.limitPage || settings.panel.defaultLimitPage),
+                            limit: Joi.number().greater(0).default(settings.panel.defaultLimitPage),
                             ...optFilter.pagination
                         })
                         .default(),

@@ -14,7 +14,6 @@ const {uploader, multiUploader} = require('../../utils/fileManager');
 const {verifyTokenPanel, authorization} = require('../../utils/validation');
 const settings = require('../../utils/settings');
 
-
 const UserEvent = require('../../models/UserEvent');
 
 const locationSchema = Joi.object().keys({
@@ -107,7 +106,6 @@ const listSchema = JoiConfigs.schemas.list({
         from: 1
     }
 });
-
 
 /**
  *  Add Event Image

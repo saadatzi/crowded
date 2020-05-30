@@ -1,12 +1,5 @@
 const path = require('path');
-const settingController = require('../controllers/setting');
-const limitPage = (settingController.getByKey('Number of lists (limitation per page)')).value
-console.error("////////////////////////////// limitPage: ", limitPage);
 
-// .then(limitation => {
-// 		if (limitation && !isNaN(limitation.value)) return  parseInt(limitation.value);
-// 		return 20
-// 	}).catch(err => console.error("settingController.getByKey limitation per page catch err: ", err));
 module.exports = {
 	initDataDB: true,
 	contact:		{
@@ -152,7 +145,7 @@ module.exports = {
 		search: 2
 	},
 	panel: {
-		defaultLimitPage: limitPage && !isNaN(limitPage) ? parseInt(limitPage) : 20
+		defaultLimitPage: 20
 	},
 	notification: (value) => {
 		return {
