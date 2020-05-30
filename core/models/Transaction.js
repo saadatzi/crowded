@@ -477,7 +477,9 @@ TransactionSchema.static({
                 // might be transactionId
                 regexTransactionId = {
                     $or: [
-                    {transactionId: parseInt(key)}}
+                    {
+                        transactionId: parseInt(key)
+                    }
                     ]
                 };
                 if (parseInt(key) > 10000) {// might be IBAN
