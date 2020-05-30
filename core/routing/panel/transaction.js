@@ -5,6 +5,7 @@ const Joi = require('@hapi/joi');
 const JoiConfigs = require('../joiConfigs');
 const {joiValidate} = require('../utils');
 
+const {sendNotification} = require('../../utils/call');
 const settings = require('../../utils/settings');
 
 // Instantiate the Device Model
