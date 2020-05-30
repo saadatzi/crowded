@@ -197,9 +197,6 @@ UserEventSchema.static({
         const criteria = {status: 'APPROVED'};
         const nextHour = new Date(new Date().getTime() + 3600000);//1*60*60*1000
 
-        console.log("Now: ", new Date());
-        console.log("nextHour: ", nextHour);
-
         return await this.aggregate([
             {$match: criteria},
             {

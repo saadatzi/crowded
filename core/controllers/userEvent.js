@@ -123,6 +123,7 @@ userEventController.prototype.setStatus = async (userId, eventId, status, newVal
     let updateValue = {status};
     if (newValue) Object.assign(updateValue, newValue);
     if (status === 'ACTIVE' || status === 'PAUSED' || status === 'CONTINUE') {
+        //Check current status
         await UserEvent.getOne({userId, eventId})
             .then(async userEvent => {
                 if (!userEvent) throw {code: 404, message: 'Not found!'}
