@@ -44,7 +44,6 @@ module.exports = {
             optFilter.filters = optFilter.filters && Object.keys(optFilter.filters).length ? optFilter.filters : {};
             optFilter.pagination = optFilter.pagination && Object.keys(optFilter.pagination).length ? optFilter.pagination : {};
             optFilter.sorts = optFilter.sorts && Object.keys(optFilter.sorts).length ? optFilter.sorts : {};
-            console.error("////////////////////////////// optFilter.limitPage: ", optFilter.limitPage);
             return Joi.object().keys({
                 search:
                     Joi.string().allow("").optional().default(""),
