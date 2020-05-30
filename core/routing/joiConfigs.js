@@ -7,10 +7,7 @@ let pageLimit = settings.panel.defaultLimitPage;
 settingController.getByKey('Number of lists (limitation per page)')
     .then(limitation => {
         console.error("settingController.getByKey limitation: ", limitation);
-        if (limitation && !isNaN(limitation.value)) {
-            console.error("settingController.getByKey isNaN limitation.value: ", limitation.value);
-            pageLimit = parseInt(limitation.value)
-        }
+        if (limitation && !isNaN(limitation.value)) pageLimit = parseInt(limitation.value)
     }).catch(err => console.error("settingController.getByKey limitation per page catch err: ", err));
 
 module.exports = {
@@ -55,6 +52,7 @@ module.exports = {
             optFilter.filters = optFilter.filters && Object.keys(optFilter.filters).length ? optFilter.filters : {};
             optFilter.pagination = optFilter.pagination && Object.keys(optFilter.pagination).length ? optFilter.pagination : {};
             optFilter.sorts = optFilter.sorts && Object.keys(optFilter.sorts).length ? optFilter.sorts : {};
+            console.error("/////////////////////////// pageLimit ", pageLimit);
 
             return Joi.object().keys({
                 search:
