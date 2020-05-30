@@ -470,47 +470,39 @@ TransactionSchema.static({
             let key = optFilter.search;
             let regex = new RegExp(key);
 
-            if(parseInt(key) == key){// pure numeric
+            if (parseInt(key) == key) {// pure numeric
                 // might be transactionId
                 regexTransactionId = {
-                    $or: [
-                        {
-                            transactionId: {$regex: regex, $options: "i"}
-                        },
-                        {}
-                    ]
+
+                    transactionId: { $regex: regex, $options: "i" }
+
                 };
-                if (parseInt(key)>10000){// might be IBAN
+                if (parseInt(key) > 10000) {// might be IBAN
                     regexIBAN = {
-                        $or: [
-                            {
-                                IBAN: {$regex: regex, $options: "i"}
-                            },
-                            {}
-                        ]
+
+                        IBAN: { $regex: regex, $options: "i" }
+
                     };
                 }
-            }else if(key.length>3){
+            } else if (key.length > 3) {
                 regexBankName = {
                     $or: [
                         {
-                            name_en: {$regex: regex, $options: "i"}
+                            name_en: { $regex: regex, $options: "i" }
                         },
                         {
-                            name_ar: {$regex: regex, $options: "i"}
-                        },
-                        {}
+                            name_ar: { $regex: regex, $options: "i" }
+                        }
                     ]
                 };
                 regexUsername = {
                     $or: [
                         {
-                            firstname: {$regex: regex, $options: "i"}
+                            firstname: { $regex: regex, $options: "i" }
                         },
                         {
-                            lastname: {$regex: regex, $options: "i"}
-                        },
-                        {}
+                            lastname: { $regex: regex, $options: "i" }
+                        }
                     ]
                 };
             }
