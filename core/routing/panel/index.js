@@ -6,7 +6,7 @@ const {getHash} = require('../../utils/cacheLayer');
 const userController = require('../../controllers/user');
 const agentController = require('../../controllers/admin');
 app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
-app.use(bodyParser.json({limit: '5mb'}));
+app.use(bodyParser.json({limit: '50mb'}));
 const settings = require('../../utils/settings');
 
 
