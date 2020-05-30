@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Joi = require('@hapi/joi');
 const settings = require('../utils/settings');
+const settingController = require('../controllers/setting');
 
 
 module.exports = {
@@ -36,18 +37,23 @@ module.exports = {
     // Frequently used validation schemas
     schemas: {
 
-        list(optFilter) {
+        async list(optFilter) {
 
-            if(!optFilter || !Object.keys(optFilter).length) throw {message:"optFilter must be defined"};
-            if(!optFilter.defaultSorts || !Object.keys(optFilter.defaultSorts).length) throw {message:"optFilter.defaultSorts must be defined and non-empty"};
-            
+            if (!optFilter || !Object.keys(optFilter).length) throw {message: "optFilter must be defined"};
+            if (!optFilter.defaultSorts || !Object.keys(optFilter.defaultSorts).length) throw {message: "optFilter.defaultSorts must be defined and non-empty"};
+
 
             optFilter.filters = optFilter.filters && Object.keys(optFilter.filters).length ? optFilter.filters : {};
             optFilter.pagination = optFilter.pagination && Object.keys(optFilter.pagination).length ? optFilter.pagination : {};
             optFilter.sorts = optFilter.sorts && Object.keys(optFilter.sorts).length ? optFilter.sorts : {};
 
 
-
+            let pageLimit = settings.panel.defaultLimitPage;
+            await settingController.getByKey('Number of lists (limitation per page)')
+                .then(limitation => {
+                    if (limitation && !isNaN(limitation.value))
+                        pageLimit = parseInt(limitation.value)
+                }).catch(err => console.error("settingController.getByKey limitation per page catch err: ", err));
             return Joi.object().keys({
                 search:
                     Joi.string().allow("").optional().default(""),
@@ -65,7 +71,7 @@ module.exports = {
                     Joi.object().optional()
                         .keys({
                             page: Joi.number().greater(-1).default(0),
-                            limit: Joi.number().greater(0).default(settings.panel.defaultLimitPage),
+                            limit: Joi.number().greater(0).default(pageLimit),
                             ...optFilter.pagination
                         })
                         .default(),

@@ -36,7 +36,7 @@ settingController.prototype.add = async (newSetting) => {
  *
  * @param {Object} id
  *
- * @return Settings
+ * @return Setting
  */
 settingController.prototype.getById = async (id) => {
 
@@ -64,9 +64,9 @@ settingController.prototype.get = async (optFilter) => {
 
 /**
  *
- * @param {Object} key
+ * @param {String} key
  *
- * @return Settings
+ * @return Setting
  */
 settingController.prototype.getByKey = async (key) => {
 
