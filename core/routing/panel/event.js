@@ -12,7 +12,8 @@ const deviceController = require('../../controllers/device');
 const NZ = require('../../utils/nz');
 const {uploader, multiUploader} = require('../../utils/fileManager');
 const {verifyTokenPanel, authorization} = require('../../utils/validation');
-const settings = require('../../utils/settings')
+const settings = require('../../utils/settings');
+
 
 const UserEvent = require('../../models/UserEvent');
 
