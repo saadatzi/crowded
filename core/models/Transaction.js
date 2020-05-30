@@ -461,33 +461,27 @@ TransactionSchema.static({
 
         optFilter.filters = optFilter.filters || {};
 
-        let regexIBAN = 
-        regexUsername =
-        regexBankName =
-        regexTransactionId =
-        {};
+        let strMatch =
+            NumMatch =
+            {};
         if (optFilter.search) {
             let key = optFilter.search;
             let regex = new RegExp(key);
 
             if (parseInt(key) == key) {// pure numeric
                 if (parseInt(key) > 10000) {// might be IBAN
-                    regexIBAN = {
-
-                        IBAN: { $regex: regex, $options: "i" }
-
-                    };
-                }else{
-                    regexTransactionId = {
-                        $or: [
-                        {
-                            transactionId: parseInt(key)
+                    NumMatch = {
+                        $getAccount:{
+                            IBAN: { $regex: regex, $options: "i" }
                         }
-                        ]
+                    };
+                } else {
+                    NumMatch = {
+                        transactionId: parseInt(key)
                     };
                 }
             } else if (key.length > 6) {
-                
+
                 regexUsername = {
                     $or: [
                         {
@@ -498,7 +492,7 @@ TransactionSchema.static({
                         }
                     ]
                 };
-            } else if (key.length>3){
+            } else if (key.length > 3) {
                 regexBankName = {
                     $or: [
                         {
@@ -515,7 +509,6 @@ TransactionSchema.static({
 
         return await this.aggregate([
             {$match: {$and: [criteria, optFilter.filters]}}, //Optimization
-            {$match:regexTransactionId},
             // {$match: optFilter.filters},
             //get user info
             {
@@ -524,6 +517,7 @@ TransactionSchema.static({
                     let: {primaryUserId: "$userId"},
                     pipeline: [
                         {$match: {$expr: {$eq: ["$$primaryUserId", "$_id"]}}},
+                        {$match: regexUsername},
                         {
                             $project: {
                                 _id: 0,
@@ -547,7 +541,6 @@ TransactionSchema.static({
                     let: {primaryAccountId: "$accountId"},
                     pipeline: [
                         {$match: {$expr: {$eq: ["$$primaryAccountId", "$_id"]}}},
-                        {$match: regexIBAN},
                         {
                             $lookup: {
                                 from: 'banknames',
@@ -571,6 +564,7 @@ TransactionSchema.static({
                     as: 'getAccount'
                 }
             },
+            {$match: NumMatch},
             {$sort: optFilter.sorts},
             {$skip: optFilter.pagination.page * optFilter.pagination.limit},
             {$limit: optFilter.pagination.limit},
