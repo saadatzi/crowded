@@ -482,7 +482,7 @@ TransactionSchema.static({
                 }
             } else if (key.length > 6) {
 
-                regexUsername = {
+                strMatch = {
                     $or: [
                         {
                             firstname: { $regex: regex, $options: "i" }
@@ -493,7 +493,7 @@ TransactionSchema.static({
                     ]
                 };
             } else if (key.length > 3) {
-                regexBankName = {
+                strMatch = {
                     $or: [
                         {
                             name_en: { $regex: regex, $options: "i" }
@@ -517,7 +517,6 @@ TransactionSchema.static({
                     let: {primaryUserId: "$userId"},
                     pipeline: [
                         {$match: {$expr: {$eq: ["$$primaryUserId", "$_id"]}}},
-                        {$match: regexUsername},
                         {
                             $project: {
                                 _id: 0,
@@ -606,7 +605,6 @@ TransactionSchema.static({
                                 let: {primaryUserId: "$userId"},
                                 pipeline: [
                                     {$match: {$expr: {$eq: ["$$primaryUserId", "$_id"]}}},
-                                    {$match: regexUsername},
                                 ],
                                 as: 'getUser'
                             }
