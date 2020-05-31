@@ -248,8 +248,16 @@ const eventController = require('./controllers/event');
                 if (settings.length === 0) {
                     const newSettings = [
                         {
-                        	key: 	 'support-email',
+                        	key: 	'support-email',
                         	value:  'sup@nizek.com',
+                        },
+                        {
+                            key: 	'Number of lists (limitation per page)',
+                            value:  '20',
+                        },
+                        {
+                            key: 	'Allow too late(0: No, 1: Yes)',
+                            value:  '0',
                         }
                     ];
                     settingController.add(newSettings)

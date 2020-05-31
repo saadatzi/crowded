@@ -3,6 +3,8 @@ const Schema = mongoose.Schema;
 const settings = require('../utils/settings');
 const moment = require('moment-timezone');
 const areaController = require('../controllers/area');
+const settingController = require('../controllers/setting');
+
 // mongoose.Types.ObjectId.isValid()
 const EventSchema = new Schema({
     owner: {type: Schema.Types.ObjectId, ref: 'Admin'},
@@ -830,6 +832,11 @@ EventSchema.static({
      * Event list OWN/Any
      */
     async listOwnAny(userId, optFilter, accessLevel) {
+        optFilter.pagination.limit = await settingController.getByKey('Number of lists (limitation per page)')
+            .then(limitation => {
+                if (limitation && !isNaN(limitation.value)) return parseInt(limitation.value);
+                return settings.panel.defaultLimitPage;
+            }).catch(err => console.error("settingController.getByKey limitation per page catch err: ", err));
 
         const ownAny = accessLevel === 'OWN' ? {
             owner: mongoose.Types.ObjectId(userId),
@@ -862,7 +869,7 @@ EventSchema.static({
             const _filter = {};
             if (optFilter.filters.interests) {
                 const _interests = [];
-                optFilter.filters.interests.map(interest => _interests.push(mongoose.Types.ObjectId(interest)))
+                optFilter.filters.interests.map(interest => _interests.push(mongoose.Types.ObjectId(interest)));
                 _filter.interests = {$in: _interests};
             }
             if (optFilter.filters.orgId) _filter.orgId = mongoose.Types.ObjectId(optFilter.filters.orgId);
@@ -879,12 +886,40 @@ EventSchema.static({
             {$skip: optFilter.pagination.page * optFilter.pagination.limit},
             {$limit: optFilter.pagination.limit},
             {
+                $lookup: {
+                    from: 'organizations',
+                    let: {primaryOrgId: "$orgId"},
+                    pipeline: [
+                        {$match: {$expr: {$eq: ["$$primaryOrgId", "$_id"]}}},
+                        {
+                            $project: {
+                                _id: 0,
+                                id: '$_id',
+                                title: 1,
+                                image: {
+                                    $cond: [
+                                        {$ne: ["$image", ""]},
+                                        {url: {$concat: [settings.media_domain, "$image"]}},
+                                        null
+                                    ]
+                                }
+                            }
+                        },
+                    ],
+                    as: 'getOrganization'
+                }
+            },
+            {
                 $project: {
                     _id: 0,
                     id: "$_id",
                     title_en: 1,
                     image: {url: {$concat: [settings.media_domain, "$imagePicker"]}},
+                    holdState: {$cond: [{$gt: ["$from", new Date()]}, 'UPCOMING', {$cond: [{$gt: [new Date(), "$to"]}, 'FINISHED', 'RUNNING']}]},
+                    from: {$dateToString: {date: "$from", timezone: "Asia/Kuwait"}},
+                    to: {$dateToString: {date: "$to", timezone: "Asia/Kuwait"}},
                     isActive: {$cond: {if: {$eq: ["$status", 1]}, then: true, else: false}},
+                    organization: {$arrayElemAt: ["$getOrganization", 0]}
                 },
             },
             {
@@ -931,6 +966,12 @@ EventSchema.static({
      * Event list Group
      */
     async listGroup(userId, optFilter) {
+        optFilter.pagination.limit = await settingController.getByKey('Number of lists (limitation per page)')
+            .then(limitation => {
+                if (limitation && !isNaN(limitation.value)) return parseInt(limitation.value);
+                return settings.panel.defaultLimitPage;
+            }).catch(err => console.error("settingController.getByKey limitation per page catch err: ", err));
+
         const baseCriteria = {status: {$in: [0, 1]}};
 
         let regexMatch = {};
@@ -959,7 +1000,7 @@ EventSchema.static({
             const _filter = {};
             if (optFilter.filters.interests) {
                 const _interests = [];
-                optFilter.filters.interests.map(interest => _interests.push(mongoose.Types.ObjectId(interest)))
+                optFilter.filters.interests.map(interest => _interests.push(mongoose.Types.ObjectId(interest)));
                 _filter.interests = {$in: _interests};
             }
             if (optFilter.filters.orgId) _filter.orgId = mongoose.Types.ObjectId(optFilter.filters.orgId);
@@ -998,12 +1039,39 @@ EventSchema.static({
             {$skip: optFilter.pagination.page * optFilter.pagination.limit},
             {$limit: optFilter.pagination.limit},
             {
+                $lookup: {
+                    from: 'organizations',
+                    let: {primaryOrgId: "$orgId"},
+                    pipeline: [
+                        {$match: {$expr: {$eq: ["$$primaryOrgId", "$_id"]}}},
+                        {
+                            $project: {
+                                _id: 0,
+                                id: '$_id',
+                                title: 1,
+                                image: {
+                                    $cond: [
+                                        {$ne: ["$image", ""]},
+                                        {url: {$concat: [settings.media_domain, "$image"]}},
+                                        null
+                                    ]
+                                }
+                            }
+                        },
+                    ],
+                    as: 'getOrganization'
+                }
+            },
+            {
                 $project: {
                     _id: 0,
                     id: "$_id",
                     title_en: 1,
                     image: {url: {$concat: [settings.media_domain, "$imagePicker"]}},
-                    isActive: {$cond: {if: {$eq: ["$status", 1]}, then: true, else: false}}
+                    isActive: {$cond: {if: {$eq: ["$status", 1]}, then: true, else: false}},
+                    from: {$dateToString: {date: "$from", timezone: "Asia/Kuwait"}},
+                    to: {$dateToString: {date: "$to", timezone: "Asia/Kuwait"}},
+                    organization: {$arrayElemAt: ["$getOrganization", 0]}
                 },
             },
             {
@@ -1123,7 +1191,23 @@ EventSchema.static({
      * Check Valid Active Event
      */
     async validActiveEvent(id) {
-        return await this.findOne({_id: id, from: {$lte: new Date()}, to: {$gt: new Date()}})
+        let toDate = moment().toDate();
+        await settingController.getByKey('Allow too late(0: No, 1: Yes)')
+            .then(async tooLate => {
+                if (tooLate && !isNaN(tooLate.value)) {
+                    const isAllowTooLate =  parseInt(tooLate.value) === 1;
+                    //if not allow add attendance to end Date
+                    if (!isAllowTooLate) {
+                        await Event.findById(id)
+                            .then(event => {
+                                if (!event) throw {code: 404, message: 'not found!'};
+                                toDate = moment().add(event.attendance, 'minutes').toDate()
+                            })
+                            .catch(err => console.error("!!!!!!!! validActiveEvent getById catch err: ", err))
+                    }
+                }
+            }).catch(err => console.error("settingController.getByKey limitation per page catch err: ", err));
+        return await this.findOne({_id: id, from: {$lte: new Date()}, to: {$gte: toDate}})
             .then(events => events)
             .catch(err => console.error("Interest getAll Catch", err));
     },

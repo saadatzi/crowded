@@ -1,6 +1,7 @@
 const path = require('path');
+
 module.exports = {
-	initDataDB: true,
+	initDataDB: false,
 	contact:		{
 		email:		'info@crowdedapp.com',
 		phone:		'+965 9744 8984',

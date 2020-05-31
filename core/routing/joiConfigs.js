@@ -2,7 +2,6 @@ const mongoose = require('mongoose');
 const Joi = require('@hapi/joi');
 const settings = require('../utils/settings');
 
-
 module.exports = {
     title: Joi.string().min(3).max(255).required(),
     strOptional: Joi.string().optional(),
@@ -38,16 +37,12 @@ module.exports = {
 
         list(optFilter) {
 
-            if(!optFilter || !Object.keys(optFilter).length) throw {message:"optFilter must be defined"};
-            if(!optFilter.defaultSorts || !Object.keys(optFilter.defaultSorts).length) throw {message:"optFilter.defaultSorts must be defined and non-empty"};
-            
+            if (!optFilter || !Object.keys(optFilter).length) throw {message: "optFilter must be defined"};
+            if (!optFilter.defaultSorts || !Object.keys(optFilter.defaultSorts).length) throw {message: "optFilter.defaultSorts must be defined and non-empty"};
 
             optFilter.filters = optFilter.filters && Object.keys(optFilter.filters).length ? optFilter.filters : {};
             optFilter.pagination = optFilter.pagination && Object.keys(optFilter.pagination).length ? optFilter.pagination : {};
             optFilter.sorts = optFilter.sorts && Object.keys(optFilter.sorts).length ? optFilter.sorts : {};
-
-
-
             return Joi.object().keys({
                 search:
                     Joi.string().allow("").optional().default(""),
