@@ -32,7 +32,6 @@ const manageSchema = Joi.object().keys({
 const listSchema = JoiConfigs.schemas.list({
     filters:{
         situation: JoiConfigs.strValid(['PAID', 'UNPAID', 'PENDING'], false),
-        status: Joi.number().valid(0, 1).default(1),
         fromDate: Joi.date().timestamp(),
         toDate: Joi.date().timestamp(),
     },

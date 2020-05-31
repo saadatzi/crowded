@@ -459,12 +459,12 @@ TransactionSchema.static({
     getPanel: async function (optFilter) {
         const criteria = {isDebtor: true};
 
-        optFilter.filters = optFilter.filters || {};
+        console.info("##################### getPanel Transaction optFilter: ", optFilter);
         if (optFilter.filters.fromDate) {
             let fromDate = optFilter.filters.fromDate;
             let toDate = optFilter.filters.toDate;
-            // delete optFilter.filters.fromDate;
-            // delete optFilter.filters.toDate;
+            delete optFilter.filters.fromDate;
+            delete optFilter.filters.toDate;
             fromDate = String(fromDate).length > 10 ? fromDate / 1000 : fromDate;
             toDate = String(toDate).length > 10 ? toDate / 1000 : toDate;
 
@@ -472,7 +472,6 @@ TransactionSchema.static({
             toDate = moment.unix(toDate).endOf('day').toDate();
 
             optFilter.filters.createdAt = {$gt: fromDate, $lt: toDate};
-
         }
 
         let strMatch =
@@ -520,6 +519,7 @@ TransactionSchema.static({
             }
         }
 
+        console.info("##################### getPanel Transaction optFilter After: ", optFilter);
 
         return await this.aggregate([
             {$match: {$and: [criteria, optFilter.filters]}}, //Optimization
