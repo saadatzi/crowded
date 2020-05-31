@@ -1201,6 +1201,8 @@ EventSchema.static({
                         await Event.findById({id})
                             .then(event => {
                                 if (!event) throw {code: 404, message: 'not found!'};
+                                console.log("////////////////////////// Allow too late event: ", event);
+
                                 toDate = moment().add(event.attendance, 'minutes').toDate()
                             })
                             .catch(err => console.error("!!!!!!!! validActiveEvent getById catch err: ", err))
