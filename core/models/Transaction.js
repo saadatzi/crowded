@@ -468,7 +468,7 @@ TransactionSchema.static({
             let key = optFilter.search;
             let regex = new RegExp(key);
 
-            if (parseInt(key) == key) {// pure numeric
+            if (parseInt(key) == key) {// pure numeric //TODO !isNaN('123') true
                 NumMatch = {
                     $or: [
                         {
@@ -575,7 +575,7 @@ TransactionSchema.static({
                     user: '$getUser',
                     account: '$getAccount',
                     situation: 1,
-                    price: {$toString: "$price"},
+                    price: {$toString: {$abs: "$price"}},
                     date: {
                         $dateToString: {/*format: "%Y/%m/%d %H:%M:%S",*/
                             date: "$eventDate",
@@ -656,10 +656,11 @@ TransactionSchema.static({
             },
         ])
             .then(async result => {
+                console.log("&&&&&&&&&&&&&&&&&&&&&&&&&&&& transactrion result: ", result);
                 let items = [],
                     total = 0;
                 if (result.length > 0) {
-                    console.log(result[0].total)
+                    console.log(result[0].total);
                     console.log(result[0].items);
                     total = result[0].total? result[0].total.total : 0;
                     delete result[0].total;
