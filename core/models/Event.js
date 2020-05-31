@@ -1191,18 +1191,19 @@ EventSchema.static({
      * Check Valid Active Event
      */
     async validActiveEvent(id) {
-        let toDate = moment();
+        let toDate = moment().toDate();
+        console.log("////////////////////////// Allow too toDate: ", toDate);
         await settingController.getByKey('Allow too late(0: No, 1: Yes)')
-            .then(async value => {
-                if (value && !isNaN(value)) {
-                    const isAllowTooLate =  parseInt(value) === 1;
-                    console.log("////////////////////////// Allow too late: ", isAllowTooLate);
+            .then(async tooLate => {
+                console.log("======================= settingController.getByKey: ", tooLate);
+                if (tooLate && !isNaN(tooLate.value)) {
+                    const isAllowTooLate =  parseInt(tooLate.value) === 1;
+                    console.log("======================= Allow too late: ", isAllowTooLate);
                     if (isAllowTooLate) {
                         await Event.findById({id})
                             .then(event => {
                                 if (!event) throw {code: 404, message: 'not found!'};
-                                console.log("////////////////////////// Allow too late event: ", event);
-
+                                console.log("======================= Allow too late event: ", event);
                                 toDate = moment().add(event.attendance, 'minutes').toDate()
                             })
                             .catch(err => console.error("!!!!!!!! validActiveEvent getById catch err: ", err))
@@ -1210,7 +1211,6 @@ EventSchema.static({
                 }
             }).catch(err => console.error("settingController.getByKey limitation per page catch err: ", err));
         console.log("////////////////////////// Allow too new Date(): ", new Date());
-        console.log("////////////////////////// Allow too toDate: ", toDate);
         return await this.findOne({_id: id, from: {$lte: new Date()}, to: {$gte: toDate}})
             .then(events => events)
             .catch(err => console.error("Interest getAll Catch", err));
