@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
+const IBAN = require('iban');
 const Joi = require('@hapi/joi');
 const settings = require('../utils/settings');
+
 
 module.exports = {
     title: Joi.string().min(3).max(255).required(),
@@ -20,6 +22,13 @@ module.exports = {
     html: Joi.string().min(1).required(),
     isMongoId: Joi.string().regex(/^[0-9a-fA-F]{24}$/, 'ID is invalid').required(),
     isMongoIdOpt: Joi.string().regex(/^[0-9a-fA-F]{24}$/, 'ID is invalid').optional(),
+    IBAN: Joi.string().custom((value, helpers) => {
+        if (IBAN.isValid(value)) {
+            return value;
+        } else {
+            return helpers.error('any.invalid');
+        }
+    }, "custom validation"),
 
     strValid: (items, isRequired = true) => isRequired ? Joi.string().valid(...items).required() : Joi.string().valid(...items).optional(),
     phone: (isRequired = true) => isRequired ? Joi.string().min(4).max(13).required() : Joi.string().min(4).max(13).optional(),

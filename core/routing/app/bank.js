@@ -24,7 +24,7 @@ const addSchema = Joi.object().keys({
     firstname: JoiConfigs.title,
     lastname: JoiConfigs.title,
     bankNameId: JoiConfigs.isMongoId,
-    IBAN: JoiConfigs.title, //TODO: strong validation
+    IBAN: JoiConfigs.IBAN, //TODO: strong validation
     phoneNumber: JoiConfigs.phone, //TODO: strong validation
     civilId: JoiConfigs.title //TODO: strong validation
 });
