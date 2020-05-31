@@ -13,6 +13,7 @@ const storage = multer.diskStorage({
         if (!file) {
             return callback(true, null);
         }
+        console.log("********************** uploader destination file: ", file);
         const target = (req.originalUrl).slice(1).split('/');
         let folder = await NZ.generateRandomFolder(target[1]);
 		folder = path.join(settings.media_path, folder);
@@ -20,6 +21,8 @@ const storage = multer.diskStorage({
         callback(null, folder)
     },
     filename: (req, file, callback) => {
+        console.log("********************** uploader filename file: ", file);
+
         if (!file.originalname.match(/\.(png|PNG|jpeg|JPEG|jpg|JPG)$/)) {
             return callback(new Error('fileType'))
         } else {

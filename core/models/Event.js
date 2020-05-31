@@ -832,7 +832,6 @@ EventSchema.static({
      * Event list OWN/Any
      */
     async listOwnAny(userId, optFilter, accessLevel) {
-
         optFilter.pagination.limit = await settingController.getByKey('Number of lists (limitation per page)')
             .then(limitation => {
                 if (limitation && !isNaN(limitation.value)) return parseInt(limitation.value);
@@ -878,7 +877,7 @@ EventSchema.static({
             panelFilter.push({$match: _filter});
         }
 
-        console.warn(">>>>>>>>>>>>>????????????????? listOwnAny optFilter: ", optFilter);
+        console.warn(">>>>>>>>>>>>> listOwnAny optFilter: ", optFilter);
         return await this.aggregate([
             {$match: ownAny},
             ...panelFilter,
@@ -1192,7 +1191,25 @@ EventSchema.static({
      * Check Valid Active Event
      */
     async validActiveEvent(id) {
-        return await this.findOne({_id: id, from: {$lte: new Date()}, to: {$gt: new Date()}})
+        let toDate = moment();
+        await settingController.getByKey('Allow too late(0: No, 1: Yes)')
+            .then(async value => {
+                if (value && !isNaN(value)) {
+                    const isAllowTooLate =  parseInt(value) === 1;
+                    console.log("////////////////////////// Allow too late: ", isAllowTooLate);
+                    if (isAllowTooLate) {
+                        await Event.findById({id})
+                            .then(event => {
+                                if (!event) throw {code: 404, message: 'not found!'};
+                                toDate = moment().add(event.attendance, 'minutes').toDate()
+                            })
+                            .catch(err => console.error("!!!!!!!! validActiveEvent getById catch err: ", err))
+                    }
+                }
+            }).catch(err => console.error("settingController.getByKey limitation per page catch err: ", err));
+        console.log("////////////////////////// Allow too new Date(): ", new Date());
+        console.log("////////////////////////// Allow too toDate: ", toDate);
+        return await this.findOne({_id: id, from: {$lte: new Date()}, to: {$gte: toDate}})
             .then(events => events)
             .catch(err => console.error("Interest getAll Catch", err));
     },
