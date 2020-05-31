@@ -71,6 +71,7 @@ eventController.prototype.get = async (optFilter, type = 'id') => {
                     throw err;
                 })
         } else if (type === 'validActiveEvent') {
+            console.log("////////////////////////// validActiveEvent ", optFilter);
             return await Event.validActiveEvent(optFilter)
                 .then(result => result)
                 .catch(err => {
