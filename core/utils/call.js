@@ -7,7 +7,7 @@ const axiosInstance = axios.create({
     headers: {Accept: 'application/json', 'Content-Type': 'application/json'}
 });
 
-const sendNotification = async (url, deviceNotificationIds, title, desc, image = null) => {
+const sendNotification = async (url, deviceNotificationIds, title, desc, image = null, massageInApp = false) => {
     axiosInstance.post(`i/pushes/create?api_key=${settings.countly.apiKey}`,
         {
             args: {
@@ -23,6 +23,7 @@ const sendNotification = async (url, deviceNotificationIds, title, desc, image =
                     "ar|t": title.ar,
                 },
                 url: `crowdedApp://${url}`,
+                data: {massageInApp: massageInApp},
                 userConditions: {did: {$in: deviceNotificationIds}},
                 sound: "default",
                 media: image ? image : settings.email_logo,

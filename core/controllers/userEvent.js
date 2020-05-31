@@ -145,7 +145,7 @@ userEventController.prototype.setStatus = async (userId, eventId, status, newVal
                 throw err;
             })
     }
-    // must be event from =< current && current < to
+    // must be event from =< current && current/(+atendance) < to
     if (status === 'ACTIVE' || status === 'CONTINUE') {
         await eventController.get(eventId, 'validActiveEvent')
             .then(event => {
