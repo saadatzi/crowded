@@ -460,10 +460,24 @@ TransactionSchema.static({
         const criteria = {isDebtor: true};
 
         optFilter.filters = optFilter.filters || {};
+        if (optFilter.filters.fromDate) {
+            let fromDate = optFilter.filters.fromDate;
+            let toDate = optFilter.filters.toDate;
+            // delete optFilter.filters.fromDate;
+            // delete optFilter.filters.toDate;
+            fromDate = String(fromDate).length > 10 ? fromDate / 1000 : fromDate;
+            toDate = String(toDate).length > 10 ? toDate / 1000 : toDate;
+
+            fromDate = moment.unix(fromDate).startOf('day').toDate();
+            toDate = moment.unix(toDate).endOf('day').toDate();
+
+            optFilter.filters.createdAt = {$gt: fromDate, $lt: toDate};
+
+        }
 
         let strMatch =
             NumMatch =
-            {};
+                {};
         if (optFilter.search) {
             let key = optFilter.search;
             let regex = new RegExp(key);
@@ -472,9 +486,9 @@ TransactionSchema.static({
                 NumMatch = {
                     $or: [
                         {
-                            getAccount:{
+                            getAccount: {
                                 $elemMatch: {
-                                   IBAN: { $regex: regex, $options: "i" }
+                                    IBAN: {$regex: regex, $options: "i"}
                                 }
                             }
                         },
@@ -483,21 +497,21 @@ TransactionSchema.static({
                         }
                     ]
                 }
-             
+
             } else {
                 strMatch = {
                     $or: [
                         {
                             getAccount: {
                                 $elemMatch: {
-                                    bankName: { $regex: regex, $options: "i" }
+                                    bankName: {$regex: regex, $options: "i"}
                                 }
                             }
                         },
                         {
                             getAccount: {
                                 $elemMatch: {
-                                    fullName: { $regex: regex, $options: "i" }
+                                    fullName: {$regex: regex, $options: "i"}
                                 }
                             }
                         }
@@ -578,7 +592,7 @@ TransactionSchema.static({
                     price: {$toString: {$abs: "$price"}},
                     date: {
                         $dateToString: {/*format: "%Y/%m/%d %H:%M:%S",*/
-                            date: "$eventDate",
+                            date: "$createdAt", //$eventDate
                             timezone: "Asia/Kuwait"
                         }
                     },
@@ -593,7 +607,8 @@ TransactionSchema.static({
                 }
             },
             // get Total
-            // {
+            //TODO fix in group sum
+            //{
             //     $lookup: {
             //         from: 'transactions',
             //         pipeline: [
@@ -655,7 +670,7 @@ TransactionSchema.static({
             },
         ])
             .then(async result => {
-                console.info("&&&&&&&&&&&&&&&&&&&&&&&&&&&& transactrion result %j: ", result);
+                // console.info("&&&&&&&&&&&&&&&&&&&&&&&&&&&& transactrion result %j: ", result);
                 let items = [],
                     total = 0;
                 if (result.length > 0) {
@@ -739,7 +754,7 @@ TransactionSchema.static({
                 }
             }
         ])
-            .then(transactions =>  {
+            .then(transactions => {
                 const withZero = [];
                 if (from) { // of month
                     // let duration = moment.duration(moment(from).startOf('month').diff(moment(to).endOf('month')));
