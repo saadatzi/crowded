@@ -29,6 +29,7 @@ module.exports = {
             return helpers.error('any.invalid');
         }
     }, "custom validation"),
+    sort: Joi.number().valid(-1,1),
 
     strValid: (items, isRequired = true) => isRequired ? Joi.string().valid(...items).required() : Joi.string().valid(...items).optional(),
     phone: (isRequired = true) => isRequired ? Joi.string().min(4).max(13).required() : Joi.string().min(4).max(13).optional(),

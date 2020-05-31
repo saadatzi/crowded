@@ -474,6 +474,9 @@ TransactionSchema.static({
             optFilter.filters.createdAt = {$gt: fromDate, $lt: toDate};
         }
 
+        const sortFullName = optFilter.sorts.fullName ? [{$sort: {'getUser.fullName': optFilter.sorts.fullName}}] : [];
+        const sortBankName = optFilter.sorts.bankName ? [{$sort: {'getAccount.bankName': optFilter.sorts.bankName}}] : [];
+
         let strMatch =
             NumMatch =
                 {};
@@ -599,6 +602,8 @@ TransactionSchema.static({
                     transactionId: 1
                 },
             },
+            ...sortFullName,
+            ...sortBankName,
             {
                 $group: {
                     _id: null,

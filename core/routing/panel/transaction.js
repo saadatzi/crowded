@@ -36,10 +36,12 @@ const listSchema = JoiConfigs.schemas.list({
         toDate: Joi.date().timestamp(),
     },
     sorts:{
-        price: Joi.number().valid(-1,1),
-        situation: Joi.number().valid(-1,1),
-        eventDate: Joi.number().valid(-1,1),
-        createdAt: Joi.number().valid(-1,1),
+        fullName: JoiConfigs.sort,
+        transactionId: JoiConfigs.sort,
+        price: JoiConfigs.sort,
+        situation: JoiConfigs.sort,
+        createdAt: JoiConfigs.sort,
+        bankName: JoiConfigs.sort,
     },
     defaultSorts:{
         situation: -1,
