@@ -1199,7 +1199,7 @@ EventSchema.static({
                 if (tooLate && !isNaN(tooLate.value)) {
                     const isAllowTooLate =  parseInt(tooLate.value) === 1;
                     console.log("======================= Allow too late: ", isAllowTooLate);
-                    if (isAllowTooLate) {
+                    if (!isAllowTooLate) {
                         await Event.findById({id})
                             .then(event => {
                                 if (!event) throw {code: 404, message: 'not found!'};
@@ -1211,6 +1211,7 @@ EventSchema.static({
                 }
             }).catch(err => console.error("settingController.getByKey limitation per page catch err: ", err));
         console.log("////////////////////////// Allow too new Date(): ", new Date());
+        console.log("////////////////////////// Allow too After toDate: ", toDate);
         return await this.findOne({_id: id, from: {$lte: new Date()}, to: {$gte: toDate}})
             .then(events => events)
             .catch(err => console.error("Interest getAll Catch", err));
