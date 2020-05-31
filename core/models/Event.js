@@ -1200,7 +1200,7 @@ EventSchema.static({
                     const isAllowTooLate =  parseInt(tooLate.value) === 1;
                     console.log("======================= Allow too late: ", isAllowTooLate);
                     if (!isAllowTooLate) {
-                        await Event.findById({id})
+                        await Event.findById(id)
                             .then(event => {
                                 if (!event) throw {code: 404, message: 'not found!'};
                                 console.log("======================= Allow too late event: ", event);
