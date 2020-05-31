@@ -469,39 +469,40 @@ TransactionSchema.static({
             let regex = new RegExp(key);
 
             if (parseInt(key) == key) {// pure numeric
-                if (parseInt(key) > 10000) {// might be IBAN
-                    NumMatch = {
-                        getAccount:{
-                            $elemMatch: {
-                               IBAN: { $regex: regex, $options: "i" }
+                NumMatch = {
+                    $or: [
+                        {
+                            getAccount:{
+                                $elemMatch: {
+                                   IBAN: { $regex: regex, $options: "i" }
+                                }
                             }
+                        },
+                        {
+                            transactionId: parseInt(key)
                         }
-                    };
-                } else {
-                    NumMatch = {
-                        transactionId: parseInt(key)
-                    };
+                    ]
                 }
-            } else if (key.length > 6) {
-
+             
+            } else {
                 strMatch = {
                     $or: [
                         {
-                            firstname: { $regex: regex, $options: "i" }
+                            getAccount: {
+                                $elemMatch: {
+                                    bankName: { $regex: regex, $options: "i" }
+                                }
+                            }
                         },
                         {
-                            lastname: { $regex: regex, $options: "i" }
+                            getAccount: {
+                                $elemMatch: {
+                                    fullName: { $regex: regex, $options: "i" }
+                                }
+                            }
                         }
                     ]
-                };
-            } else if (key.length > 3) {
-                strMatch = {
-                    getAccount: {
-                        $elemMatch: {
-                            fullName: { $regex: regex, $options: "i" }
-                        }
-                    }
-                };
+                }
             }
         }
 
@@ -610,6 +611,37 @@ TransactionSchema.static({
                             }
                         },
                         {$unwind: {path: "$getUser", preserveNullAndEmptyArrays: false}},
+                        {
+                            $lookup: {
+                                from: 'bankaccounts',
+                                let: {primaryAccountId: "$accountId"},
+                                pipeline: [
+                                    {$match: {$expr: {$eq: ["$$primaryAccountId", "$_id"]}}},
+                                    {
+                                        $lookup: {
+                                            from: 'banknames',
+                                            foreignField: '_id',
+                                            localField: 'bankNameId',
+                                            as: "getBankName"
+                                        }
+                                    },
+                                    //get bank name
+                                    {
+                                        $project: {
+                                            _id: 0,
+                                            id: '$_id',
+                                            fullName: {$concat: ['$firstname', ' ', '$lastname']},
+                                            IBAN: 1,
+                                            civilId: 1,
+                                            bankName: {$arrayElemAt: ['$getBankName.name_en', 0]}
+                                        }
+                                    },
+                                ],
+                                as: 'getAccount'
+                            }
+                        },
+                        {$match: strMatch},
+                        {$match: NumMatch},
                         {$count: 'total'},
                     ],
                     as: 'getTotal'
