@@ -256,7 +256,7 @@ const eventController = require('./controllers/event');
                             value:  '20',
                         },
                         {
-                            key: 	'Allow limited time to start the event(0: No, 1: Yes)',
+                            key: 	'Allow too late(0: No, 1: Yes)',
                             value:  '0',
                         }
                     ];
