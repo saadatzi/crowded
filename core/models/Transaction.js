@@ -619,60 +619,59 @@ TransactionSchema.static({
                 }
             },
             // get Total
-            //TODO fix in group sum
-            //{
-            //     $lookup: {
-            //         from: 'transactions',
-            //         pipeline: [
-            //             {$match: criteria},
-            //             {$match: optFilter.filters},
-            //             {
-            //                 $lookup: {
-            //                     from: 'users',
-            //                     let: {primaryUserId: "$userId"},
-            //                     pipeline: [
-            //                         {$match: {$expr: {$eq: ["$$primaryUserId", "$_id"]}}},
-            //                     ],
-            //                     as: 'getUser'
-            //                 }
-            //             },
-            //             {$unwind: {path: "$getUser", preserveNullAndEmptyArrays: false}},
-            //             {
-            //                 $lookup: {
-            //                     from: 'bankaccounts',
-            //                     let: {primaryAccountId: "$accountId"},
-            //                     pipeline: [
-            //                         {$match: {$expr: {$eq: ["$$primaryAccountId", "$_id"]}}},
-            //                         {
-            //                             $lookup: {
-            //                                 from: 'banknames',
-            //                                 foreignField: '_id',
-            //                                 localField: 'bankNameId',
-            //                                 as: "getBankName"
-            //                             }
-            //                         },
-            //                         //get bank name
-            //                         {
-            //                             $project: {
-            //                                 _id: 0,
-            //                                 id: '$_id',
-            //                                 fullName: {$concat: ['$firstname', ' ', '$lastname']},
-            //                                 IBAN: 1,
-            //                                 civilId: 1,
-            //                                 bankName: {$arrayElemAt: ['$getBankName.name_en', 0]}
-            //                             }
-            //                         },
-            //                     ],
-            //                     as: 'getAccount'
-            //                 }
-            //             },
-            //             {$match: strMatch},
-            //             {$match: NumMatch},
-            //             {$count: 'total'},
-            //         ],
-            //         as: 'getTotal'
-            //     }
-            // },
+            {
+                $lookup: {
+                    from: 'transactions',
+                    pipeline: [
+                        {$match: criteria},
+                        {$match: optFilter.filters},
+                        {
+                            $lookup: {
+                                from: 'users',
+                                let: {primaryUserId: "$userId"},
+                                pipeline: [
+                                    {$match: {$expr: {$eq: ["$$primaryUserId", "$_id"]}}},
+                                ],
+                                as: 'getUser'
+                            }
+                        },
+                        {$unwind: {path: "$getUser", preserveNullAndEmptyArrays: false}},
+                        {
+                            $lookup: {
+                                from: 'bankaccounts',
+                                let: {primaryAccountId: "$accountId"},
+                                pipeline: [
+                                    {$match: {$expr: {$eq: ["$$primaryAccountId", "$_id"]}}},
+                                    {
+                                        $lookup: {
+                                            from: 'banknames',
+                                            foreignField: '_id',
+                                            localField: 'bankNameId',
+                                            as: "getBankName"
+                                        }
+                                    },
+                                    //get bank name
+                                    {
+                                        $project: {
+                                            _id: 0,
+                                            id: '$_id',
+                                            fullName: {$concat: ['$firstname', ' ', '$lastname']},
+                                            IBAN: 1,
+                                            civilId: 1,
+                                            bankName: {$arrayElemAt: ['$getBankName.name_en', 0]}
+                                        }
+                                    },
+                                ],
+                                as: 'getAccount'
+                            }
+                        },
+                        {$match: strMatch},
+                        {$match: NumMatch},
+                        {$count: 'total'},
+                    ],
+                    as: 'getTotal'
+                }
+            },
             {
                 $project: {
                     _id: 0,

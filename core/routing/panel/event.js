@@ -57,7 +57,7 @@ const addSchema = Joi.object().keys({
     lat: JoiConfigs.price,
     lng: JoiConfigs.price,
     interests: JoiConfigs.arrayLength(1, 100, JoiConfigs.isMongoId),
-    allowedRadius: JoiConfigs.number,
+    allowedRadius: Joi.number().integer().min(50).max(2000).required(),
 });
 
 const updateSchema = Joi.object().keys({
