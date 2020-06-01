@@ -460,17 +460,24 @@ TransactionSchema.static({
         const criteria = {isDebtor: true};
 
         console.info("##################### getPanel Transaction optFilter: ", optFilter);
-        if (optFilter.filters.fromDate) {
-            let fromDate = optFilter.filters.fromDate;
-            let toDate = optFilter.filters.toDate;
-            delete optFilter.filters.fromDate;
-            delete optFilter.filters.toDate;
-            fromDate = String(fromDate).length > 10 ? fromDate / 1000 : fromDate;
-            toDate = String(toDate).length > 10 ? toDate / 1000 : toDate;
 
-            fromDate = moment.unix(fromDate).startOf('day').toDate();
-            toDate = moment.unix(toDate).endOf('day').toDate();
+        if (optFilter.filters.fromDate || optFilter.filters.toDate) {
+            let fromDate = new Date(2020, 1, 1); // 2020/1/1
+            let toDate = new Date();
+            if (optFilter.filters.fromDate) {
+                fromDate = optFilter.filters.fromDate;
+                delete optFilter.filters.fromDate;
+                fromDate = String(fromDate).length > 10 ? fromDate / 1000 : fromDate;
 
+                fromDate = moment.unix(fromDate).startOf('day').toDate();
+            }
+            if (optFilter.filters.toDate) {
+                toDate = optFilter.filters.toDate;
+                delete optFilter.filters.toDate;
+                toDate = String(toDate).length > 10 ? toDate / 1000 : toDate;
+
+                toDate = moment.unix(toDate).endOf('day').toDate();
+            }
             optFilter.filters.createdAt = {$gt: fromDate, $lt: toDate};
         }
 
