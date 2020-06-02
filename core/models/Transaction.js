@@ -466,20 +466,21 @@ TransactionSchema.static({
             let toDate = new Date();
             if (optFilter.filters.fromDate) {
                 fromDate = optFilter.filters.fromDate;
-                delete optFilter.filters.fromDate;
+                // delete optFilter.filters.fromDate;
                 fromDate = String(fromDate).length > 10 ? fromDate / 1000 : fromDate;
 
                 fromDate = moment.unix(fromDate).startOf('day').toDate();
             }
             if (optFilter.filters.toDate) {
                 toDate = optFilter.filters.toDate;
-                delete optFilter.filters.toDate;
+                // delete optFilter.filters.toDate;
                 toDate = String(toDate).length > 10 ? toDate / 1000 : toDate;
 
                 toDate = moment.unix(toDate).endOf('day').toDate();
             }
-            optFilter.filters.createdAt = {$gt: fromDate, $lt: toDate};
+            criteria.createdAt = {$gt: fromDate, $lt: toDate};
         }
+        if (optFilter.filters.situation) criteria.situation = optFilter.filters.situation;
 
         const sortFullName = optFilter.sorts.fullName ? [{$sort: {'getUser.fullName': optFilter.sorts.fullName}}] : [];
         const sortBankName = optFilter.sorts.bankName ? [{$sort: {'getAccount.bankName': optFilter.sorts.bankName}}] : [];
@@ -532,7 +533,7 @@ TransactionSchema.static({
         console.info("##################### getPanel Transaction optFilter After: ", optFilter);
 
         return await this.aggregate([
-            {$match: {$and: [criteria, optFilter.filters]}}, //Optimization
+            {$match: criteria}, //Optimization
             // {$match: optFilter.filters},
             //get user info
             {

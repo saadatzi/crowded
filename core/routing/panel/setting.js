@@ -15,7 +15,11 @@ const {verifyTokenPanel, authorization} = require('../../utils/validation');
 
 const editSchema = Joi.object().keys({
     id: JoiConfigs.isMongoId,
-    value: Joi.string().required()
+    valueType: Joi.string().valid('String', 'Boolean', 'Number').required(),
+    value: Joi.any()
+        .when('valueType', {is: Joi.string().valid('String'), then: Joi.string().required()})
+        .when('valueType', {is: Joi.string().valid('Number'), then: JoiConfigs.number})
+        .when('valueType', {is: Joi.string().valid('Boolean'), then: JoiConfigs.boolInt})
 });
 
 const listSchema = JoiConfigs.schemas.list({
@@ -32,7 +36,7 @@ const listSchema = JoiConfigs.schemas.list({
  * Get Settings
  * @return List Setting
  */
-router.post('/', verifyTokenPanel(), grabSettings(), joiValidate(listSchema, 0), authorization([{SETTING: 'R'}]), async (req, res) => {
+router.post('/', verifyTokenPanel(), grabSettings(), joiValidate(listSchema), authorization([{SETTING: 'R'}]), async (req, res) => {
     console.info('API: Get Setting list %j', {body: req._body});
 
     settingController.list(req._body)
@@ -49,7 +53,7 @@ router.post('/', verifyTokenPanel(), grabSettings(), joiValidate(listSchema, 0),
  * Edit Setting
  * @return Setting
  */
-router.put('/edit', verifyTokenPanel(), joiValidate(editSchema, 0), authorization([{SETTING: 'RU'}]), async (req, res) => {
+router.put('/edit', verifyTokenPanel(), joiValidate(editSchema), authorization([{SETTING: 'RU'}]), async (req, res) => {
     console.info('API: Edit Setting %j', {body: req.body});
 
     settingController.update(req.body)

@@ -869,6 +869,23 @@ EventSchema.static({
             }
             if (optFilter.filters.orgId) _filter.orgId = mongoose.Types.ObjectId(optFilter.filters.orgId);
             if (optFilter.filters.hasOwnProperty('status')) _filter.status = optFilter.filters.status;
+
+            if (optFilter.filters.fromDate || optFilter.filters.toDate) {
+                let fromDate = new Date(2020, 1, 1); // 2020/1/1
+                let toDate = new Date();
+                if (optFilter.filters.fromDate) {
+                    fromDate = optFilter.filters.fromDate;
+                    fromDate = String(fromDate).length > 10 ? fromDate / 1000 : fromDate;
+                    fromDate = moment.unix(fromDate).startOf('day').toDate();
+                }
+                if (optFilter.filters.toDate) {
+                    toDate = optFilter.filters.toDate;
+                    toDate = String(toDate).length > 10 ? toDate / 1000 : toDate;
+                    toDate = moment.unix(toDate).endOf('day').toDate();
+                }
+                _filter.from = {$gt: fromDate, $lt: toDate};
+            }
+
             panelFilter.push({$match: _filter});
         }
 
@@ -877,9 +894,6 @@ EventSchema.static({
             {$match: ownAny},
             ...panelFilter,
             {$match: regexMatch},
-            {$sort: optFilter.sorts},
-            {$skip: optFilter.pagination.page * optFilter.pagination.limit},
-            {$limit: optFilter.pagination.limit},
             {
                 $lookup: {
                     from: 'organizations',
@@ -917,6 +931,9 @@ EventSchema.static({
                     organization: {$arrayElemAt: ["$getOrganization", 0]}
                 },
             },
+            {$sort: optFilter.sorts},
+            {$skip: optFilter.pagination.page * optFilter.pagination.limit},
+            {$limit: optFilter.pagination.limit},
             {
                 $group: {
                     _id: null,
@@ -1182,7 +1199,7 @@ EventSchema.static({
      */
     async validActiveEvent(id) {
         let toDate = moment().toDate();
-        await settingController.getByKey('Allow too late(0: No, 1: Yes)')
+        await settingController.getByKey('allowToLate')
             .then(async tooLate => {
                 if (tooLate && !isNaN(tooLate.value)) {
                     const isAllowTooLate =  parseInt(tooLate.value) === 1;
