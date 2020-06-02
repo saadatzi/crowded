@@ -102,7 +102,8 @@ const listSchema = JoiConfigs.schemas.list({
         from: JoiConfigs.sort,
         title_en: JoiConfigs.sort,
         'organization.title': JoiConfigs.sort,
-        holdState: JoiConfigs.sort
+        holdState: JoiConfigs.sort,
+        updatedAt: JoiConfigs.sort
     },
     defaultSorts: {
         status: 1,
