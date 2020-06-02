@@ -76,7 +76,7 @@ module.exports = {
                             .keys({
                                 page: Joi.number().greater(-1).default(0),
                                 limit: Joi.number().greater(0).default(() => {
-                                    return settings['Number of lists (limitation per page)'] || settingsConf.panel.defaultLimitPage
+                                    return settings['limitationList'] || settingsConf.panel.defaultLimitPage
                                 }),
                                 ...optFilter.pagination
                             })
