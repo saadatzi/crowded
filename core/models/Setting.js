@@ -7,7 +7,7 @@ const SettingSchema = new Schema({
     title: {type: String, required: true, unique: true},
     desc: String,
     valueType: {
-        type: Number,
+        type: String,
         required: true,
         enum: ['String', 'Boolean', 'Number', 'Date'],
         default: 'String'
