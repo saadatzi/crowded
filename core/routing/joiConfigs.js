@@ -77,6 +77,7 @@ module.exports = {
                                 page: Joi.number().greater(-1).default(0),
                                 limit: Joi.number().greater(0).default(() => {
                                     console.log('ARRRRRRRRRRRR!!!!')
+                                    console.log(settings);
                                     console.log(settings['limitationList'] || settingsConf.panel.defaultLimitPage)
                                     console.log('ARRRRRRRRRRRR!!!!')
                                     return 10;
