@@ -7,7 +7,7 @@ const NZ = require('../../utils/nz');
 // Validation requirements
 const Joi = require('@hapi/joi');
 const JoiConfigs = require('./../joiConfigs');
-const {joiValidate} = require('./../utils');
+const {joiValidate, grabSettings} = require('./../utils');
 
 // Grab controller
 const userController = require('../../controllers/user');
@@ -77,7 +77,7 @@ const activateSchema = Joi.object().keys({
 /**
  Get users (customers)
  */
-router.post('/', joiValidate(customerListSchema), verifyTokenPanel(), authorization([{USER: 'R'}]), async (req, res) => {
+router.post('/', grabSettings(), joiValidate(customerListSchema), verifyTokenPanel(), authorization([{USER: 'R'}]), async (req, res) => {
     userController.getManyPanel(req._body)
         .then(result => {
             new NZ.Response(result).send(res);
@@ -110,7 +110,7 @@ router.put('/activate', joiValidate(activateSchema), verifyTokenPanel(), authori
 /**
  Get user bank accounts
  */
-router.post('/:id/bankAccounts', verifyTokenPanel(), joiValidate(detailSchema, 2), joiValidate(bankAccountListSchema), authorization([{USER: 'R'}, {Bank: 'R'}, {ACCOUNT: 'R'}]), async (req, res) => {
+router.post('/:id/bankAccounts', verifyTokenPanel(), joiValidate(detailSchema, 2), grabSettings(), joiValidate(bankAccountListSchema), authorization([{USER: 'R'}, {Bank: 'R'}, {ACCOUNT: 'R'}]), async (req, res) => {
     userController.getBankAccountsList(req.params.id, req._body)
         .then(result => {
             new NZ.Response(result).send(res);
@@ -153,7 +153,7 @@ router.delete('/:id/bankAccounts', verifyTokenPanel(), joiValidate(detailSchema,
 /**
  Get users events (customers)
  */
-router.post('/:id/event', joiValidate(detailSchema, 2), joiValidate(eventListSchema), verifyTokenPanel(), authorization([{USER: 'R'}, {EVENT: 'R'}]), async (req, res) => {
+router.post('/:id/event', joiValidate(detailSchema, 2),  grabSettings(), joiValidate(eventListSchema), verifyTokenPanel(), authorization([{USER: 'R'}, {EVENT: 'R'}]), async (req, res) => {
     console.info('API: Get users events (customers)/init %j', {body: req.body});
     eventController.getCustomerEvent(req.params.id, req._body)
         .then(result => {

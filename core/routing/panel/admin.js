@@ -10,7 +10,7 @@ const {sign, verifyTokenPanel, authorization} = require('../../utils/validation'
 
 const Joi = require('@hapi/joi');
 const JoiConfigs = require('./../joiConfigs');
-const {joiValidate} = require('./../utils');
+const {joiValidate,grabSettings} = require('./../utils');
 
 const settings = require('../../utils/settings');
 
@@ -218,7 +218,7 @@ router.put('/activate', joiValidate(activateSchema), verifyTokenPanel(), authori
 /**
  *  List Admins
  */
-router.post('/', verifyTokenPanel(), joiValidate(listSchema), authorization([{ADMIN: 'R'}]), async (req, res) => {
+router.post('/', verifyTokenPanel(), grabSettings(), joiValidate(listSchema), authorization([{ADMIN: 'R'}]), async (req, res) => {
     console.info('API: List Admin/init %j', {body: req._body});
 
     adminController.getManyPanel(req._body)

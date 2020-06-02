@@ -3,7 +3,7 @@ const express = require('express')
 
 const Joi = require('@hapi/joi');
 const JoiConfigs = require('./../joiConfigs');
-const {joiValidate} = require('./../utils');
+const {joiValidate, grabSettings} = require('./../utils');
 
 // Instantiate the Device Model
 const settingController = require('../../controllers/setting');
@@ -32,7 +32,7 @@ const listSchema = JoiConfigs.schemas.list({
  * Get Settings
  * @return List Setting
  */
-router.post('/', verifyTokenPanel(), joiValidate(listSchema, 0), authorization([{SETTING: 'R'}]), async (req, res) => {
+router.post('/', verifyTokenPanel(), grabSettings(), joiValidate(listSchema, 0), authorization([{SETTING: 'R'}]), async (req, res) => {
     console.info('API: Get Setting list %j', {body: req._body});
 
     settingController.list(req._body)

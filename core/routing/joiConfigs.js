@@ -1,7 +1,8 @@
 const mongoose = require('mongoose');
 const IBAN = require('iban');
 const Joi = require('@hapi/joi');
-const settings = require('../utils/settings');
+const settingsConf = require('../utils/settings');
+
 
 
 module.exports = {
@@ -46,35 +47,43 @@ module.exports = {
     schemas: {
 
         list(optFilter) {
+            // this schema is two level dynamic
+            // gets built by the custom criteria
+            // then gets built by the settings coming from the middleware before it
+            return (settings) => {
 
-            if (!optFilter || !Object.keys(optFilter).length) throw {message: "optFilter must be defined"};
-            if (!optFilter.defaultSorts || !Object.keys(optFilter.defaultSorts).length) throw {message: "optFilter.defaultSorts must be defined and non-empty"};
+                if (!optFilter || !Object.keys(optFilter).length) throw { message: "optFilter must be defined" };
+                if (!optFilter.defaultSorts || !Object.keys(optFilter.defaultSorts).length) throw { message: "optFilter.defaultSorts must be defined and non-empty" };
 
-            optFilter.filters = optFilter.filters && Object.keys(optFilter.filters).length ? optFilter.filters : {};
-            optFilter.pagination = optFilter.pagination && Object.keys(optFilter.pagination).length ? optFilter.pagination : {};
-            optFilter.sorts = optFilter.sorts && Object.keys(optFilter.sorts).length ? optFilter.sorts : {};
-            return Joi.object().keys({
-                search:
-                    Joi.string().allow("").optional().default(""),
-                filters:
-                    Joi.object().optional()
-                        .keys({
-                            ...optFilter.filters
-                        })
-                        .default(),
+                optFilter.filters = optFilter.filters && Object.keys(optFilter.filters).length ? optFilter.filters : {};
+                optFilter.pagination = optFilter.pagination && Object.keys(optFilter.pagination).length ? optFilter.pagination : {};
+                optFilter.sorts = optFilter.sorts && Object.keys(optFilter.sorts).length ? optFilter.sorts : {};
+                return Joi.object().keys({
+                    search:
+                        Joi.string().allow("").optional().default(""),
+                    filters:
+                        Joi.object().optional()
+                            .keys({
+                                ...optFilter.filters
+                            })
+                            .default(),
 
-                sorts: Joi.object().keys(optFilter.sorts)
-                    .not().empty({})
-                    .default(optFilter.defaultSorts),
-                pagination:
-                    Joi.object().optional()
-                        .keys({
-                            page: Joi.number().greater(-1).default(0),
-                            limit: Joi.number().greater(0).default(settings.panel.defaultLimitPage),
-                            ...optFilter.pagination
-                        })
-                        .default(),
-            });
+                    sorts: Joi.object().keys(optFilter.sorts)
+                        .not().empty({})
+                        .default(optFilter.defaultSorts),
+                    pagination:
+                        Joi.object().optional()
+                            .keys({
+                                page: Joi.number().greater(-1).default(0),
+                                limit: Joi.number().greater(0).default(() => {
+                                    return settings['Number of lists (limitation per page)'] || settingsConf.panel.defaultLimitPage
+                                }),
+                                ...optFilter.pagination
+                            })
+                            .default(),
+                });
+            }
+
         }
 
 

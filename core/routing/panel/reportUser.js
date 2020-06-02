@@ -8,7 +8,7 @@ const settings = require('../../utils/settings');
 // Validation requirements
 const Joi = require('@hapi/joi');
 const JoiConfigs = require('./../joiConfigs');
-const {joiValidate} = require('./../utils');
+const {joiValidate, grabSettings} = require('./../utils');
 
 // Grab controller
 const reportUserController = require('../../controllers/reportUser');
@@ -85,7 +85,7 @@ router.post('/add', joiValidate(addSchema), verifyTokenPanel(), authorization([{
  * Get Reports user
  * @return list of Report
  */
-router.post('/', joiValidate(listSchema), verifyTokenPanel(), authorization([{REPORT: 'R'}]), async function (req, res) {
+router.post('/', grabSettings(), joiValidate(listSchema), verifyTokenPanel(), authorization([{REPORT: 'R'}]), async function (req, res) {
     // !! NOTE that joi-filtered data is now in req._body not req.body !!
     reportUserController.getManyPanel(req._body)
         .then(result => {

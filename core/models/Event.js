@@ -832,11 +832,6 @@ EventSchema.static({
      * Event list OWN/Any
      */
     async listOwnAny(userId, optFilter, accessLevel) {
-        optFilter.pagination.limit = await settingController.getByKey('Number of lists (limitation per page)')
-            .then(limitation => {
-                if (limitation && !isNaN(limitation.value)) return parseInt(limitation.value);
-                return settings.panel.defaultLimitPage;
-            }).catch(err => console.error("settingController.getByKey limitation per page catch err: ", err));
 
         const ownAny = accessLevel === 'OWN' ? {
             owner: mongoose.Types.ObjectId(userId),
@@ -966,11 +961,6 @@ EventSchema.static({
      * Event list Group
      */
     async listGroup(userId, optFilter) {
-        optFilter.pagination.limit = await settingController.getByKey('Number of lists (limitation per page)')
-            .then(limitation => {
-                if (limitation && !isNaN(limitation.value)) return parseInt(limitation.value);
-                return settings.panel.defaultLimitPage;
-            }).catch(err => console.error("settingController.getByKey limitation per page catch err: ", err));
 
         const baseCriteria = {status: {$in: [0, 1]}};
 
