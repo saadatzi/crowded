@@ -246,17 +246,29 @@ const eventController = require('./controllers/event');
         settingController.get({})
             .then(settings => {
                 if (settings.length === 0) {
+                    /*
+                    * title: {type: String, required: true, unique: true},
+    desc: String,
+    valueType enum: ['String', 'Boolean', 'Number', 'Date'],*/
                     const newSettings = [
                         {
-                        	key: 	'support-email',
-                        	value:  'sup@nizek.com',
+                        	key: 	'supportEmail',
+                            title:  'support email',
+                            desc:   'Send an email from this email',
+                        	value:  'sup@crowded.com',
                         },
                         {
-                            key: 	'Number of lists (limitation per page)',
+                            key: 	'limitationList',
+                            title:  'List number',
+                            desc:   'Number of lists (Limitation list per page)',
+                            valueType: 'Number',
                             value:  '20',
                         },
                         {
-                            key: 	'Allow too late(0: No, 1: Yes)',
+                            key: 	'allowToLate',
+                            title:  'Allow too late',
+                            desc:   '',
+                            valueType: 'Boolean',
                             value:  '0',
                         }
                     ];

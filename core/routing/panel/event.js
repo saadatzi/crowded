@@ -94,12 +94,15 @@ const listSchema = JoiConfigs.schemas.list({
         status: Joi.number().valid(0, 1).optional(),
         orgId: JoiConfigs.isMongoIdOpt,
         interests: JoiConfigs.array(false, JoiConfigs.isMongoId),
+        fromDate: Joi.date().timestamp(),
+        toDate: Joi.date().timestamp(),
     },
     sorts: {
-        status: Joi.number().valid(-1, 1),
-        from: Joi.number().valid(-1, 1),
-        title_en: Joi.number().valid(-1, 1),
-        title_ar: Joi.number().valid(-1, 1),
+        status: JoiConfigs.sort,
+        from: JoiConfigs.sort,
+        title_en: JoiConfigs.sort,
+        'organization.title': JoiConfigs.sort,
+        holdState: JoiConfigs.sort
     },
     defaultSorts: {
         status: 1,

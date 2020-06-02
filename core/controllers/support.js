@@ -19,7 +19,7 @@ const supportController = function () {
  */
 supportController.prototype.add = async (newSupport) => {
 
-    let supportEmail = (await Setting.getByKey('support-email')).value;
+    let supportEmail = (await Setting.getByKey('supportEmail')).value;
 
     return controllerUtils.sendEmail(supportEmail, 'Support message', 'contactForm', {
             email: newSupport.email,

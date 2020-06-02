@@ -3,36 +3,44 @@ const Schema = mongoose.Schema;
 const settings = require('../utils/settings');
 
 const SettingSchema = new Schema({
-    key: { type: String, required: true, unique: true },
-    value: { type: String, required: true },
+    key: {type: String, required: true, unique: true},
+    title: {type: String, required: true, unique: true},
+    desc: String,
+    valueType: {
+        type: Number,
+        required: true,
+        enum: ['String', 'Boolean', 'Number', 'Date'],
+        default: 'String'
+    },
+    value: {type: String, required: true},
 }, {timestamps: true});
-
 
 
 /**
  * Methods
  */
-SettingSchema.method({
-});
+SettingSchema.method({});
 
 /**
  * Statics
  */
 SettingSchema.static({
     /**
-    * Find Staicpage
-    *
-    * @param {ObjectId} _id
-    * @api private
-    */
+     * Find Staicpage
+     *
+     * @param {ObjectId} _id
+     * @api private
+     */
     getById(_id) {
         return this.aggregate([
-            { $match: { _id: mongoose.Types.ObjectId(_id) } },
+            {$match: {_id: mongoose.Types.ObjectId(_id)}},
             {
                 $project: {
                     _id: 0,
                     id: '$_id',
-                    key: 1,
+                    title: 1,
+                    desc: 1,
+                    valueType: 1,
                     value: 1,
                 }
             }
@@ -41,32 +49,34 @@ SettingSchema.static({
     },
 
     getByKey(key) {
-        return this.findOne({ key })
+        return this.findOne({key})
             .catch(err => console.error("!!!!!!!! Setting getByKey catch err: ", err));
     },
 
     list(optFilter) {
         return this.aggregate([
-            { $match: {} },
+            {$match: {}},
             {
                 $project: {
                     _id: 0,
                     id: '$_id',
-                    key: 1,
+                    title: 1,
+                    desc: 1,
+                    valueType: 1,
                     value: 1,
                 }
             },
             {
                 $group: {
                     _id: null,
-                    items: { $push: '$$ROOT' },
+                    items: {$push: '$$ROOT'},
                 }
             },
             {
                 $lookup: {
                     from: 'settings',
                     pipeline: [
-                        { $count: 'total' },
+                        {$count: 'total'},
                     ],
                     as: 'getTotal'
                 }
@@ -75,7 +85,7 @@ SettingSchema.static({
                 $project: {
                     _id: 0,
                     items: 1,
-                    total: { $arrayElemAt: ["$getTotal", 0] },
+                    total: {$arrayElemAt: ["$getTotal", 0]},
                 }
             }
         ])
@@ -88,7 +98,7 @@ SettingSchema.static({
                     items = result[0].items;
                 }
                 optFilter.pagination.total = total;
-                return { explain: optFilter, items };
+                return {explain: optFilter, items};
             })
             .catch(err => console.error(err));
     }
