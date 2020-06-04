@@ -596,9 +596,9 @@ TransactionSchema.static({
                         ...sortBankName,
                     ],
                     totalCount: [
-                        {
-                            $count: 'total'
-                        }
+                        {$match: strMatch},
+                        {$match: NumMatch},
+                        {$count: 'total'}
                     ]
                 }
             },
