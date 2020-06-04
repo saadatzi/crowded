@@ -480,8 +480,8 @@ TransactionSchema.static({
         }
         if (optFilter.filters.situation) criteria.situation = optFilter.filters.situation;
 
-        const sortFullName = optFilter.sorts.fullName ? [{$sort: {'getUser.fullName': optFilter.sorts.fullName}}] : [];
-        const sortBankName = optFilter.sorts.bankName ? [{$sort: {'getAccount.bankName': optFilter.sorts.bankName}}] : [];
+        const sortFullName = optFilter.sorts.fullName ? [{$sort: {'user.fullName': optFilter.sorts.fullName}}] : [];
+        const sortBankName = optFilter.sorts.bankName ? [{$sort: {'account.bankName': optFilter.sorts.bankName}}] : [];
 
         let strMatch =
             NumMatch =
@@ -493,32 +493,16 @@ TransactionSchema.static({
             if (parseInt(key) == key) {// pure numeric //TODO !isNaN('123') true
                 NumMatch = {
                     $or: [
-                        {
-                            getAccount: {
-                                $elemMatch: {
-                                    IBAN: {$regex: regex, $options: "i"}
-                                }
-                            }
-                        },
-                        {
-                            transactionId: parseInt(key)
-                        }
+                        {'account.IBAN': {$regex: regex, $options: "i"}},
+                        {transactionId: parseInt(key)}
                     ]
                 }
 
             } else {
                 strMatch = {
                     $or: [
-                        {
-                            getAccount: {
-                                $elemMatch: {
-                                    bankName: {$regex: regex, $options: "i"}
-                                }
-                            }
-                        },
-                        {
-                            'getUser.fullName': {$regex: regex, $options: "i"}
-                        }
+                        {'account.bankName': {$regex: regex, $options: "i"}},
+                        {'user.fullName': {$regex: regex, $options: "i"}}
                     ]
                 }
             }
@@ -583,17 +567,12 @@ TransactionSchema.static({
                     as: 'getAccount'
                 }
             },
-            {$match: strMatch},
-            {$match: NumMatch},
-            {$sort: optFilter.sorts},
-            {$skip: optFilter.pagination.page * optFilter.pagination.limit},
-            {$limit: optFilter.pagination.limit},
             {
                 $project: {
                     _id: 0,
                     id: "$_id",
                     user: '$getUser',
-                    account: '$getAccount',
+                    account: {$arrayElemAt: ['$getAccount', 0]},
                     situation: 1,
                     price: {$toString: {$abs: "$price"}},
                     date: {
@@ -605,13 +584,18 @@ TransactionSchema.static({
                     transactionId: 1
                 },
             },
+            {$match: strMatch},
+            {$match: NumMatch},
+            {$sort: optFilter.sorts},
+            {$skip: optFilter.pagination.page * optFilter.pagination.limit},
+            {$limit: optFilter.pagination.limit},
             ...sortFullName,
             ...sortBankName,
             {
                 $group: {
                     _id: null,
                     items: {$push: '$$ROOT'},
-                    total: {$sum: 1}
+                    // total: {$sum: 1}
                 }
             },
             // get Total
@@ -660,6 +644,15 @@ TransactionSchema.static({
                                 ],
                                 as: 'getAccount'
                             }
+                        },
+                        {
+                            $project: {
+                                _id: 0,
+                                id: "$_id",
+                                user: '$getUser',
+                                account: {$arrayElemAt: ['$getAccount', 0]},
+                                transactionId: 1
+                            },
                         },
                         {$match: strMatch},
                         {$match: NumMatch},
