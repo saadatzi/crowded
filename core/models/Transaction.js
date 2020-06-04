@@ -567,23 +567,7 @@ TransactionSchema.static({
                     as: 'getAccount'
                 }
             },
-            {
-                $project: {
-                    _id: 0,
-                    id: "$_id",
-                    user: '$getUser',
-                    account: {$arrayElemAt: ['$getAccount', 0]},
-                    situation: 1,
-                    price: {$toString: {$abs: "$price"}},
-                    date: {
-                        $dateToString: {/*format: "%Y/%m/%d %H:%M:%S",*/
-                            date: "$createdAt", //$eventDate
-                            timezone: "Asia/Kuwait"
-                        }
-                    },
-                    transactionId: 1
-                },
-            },
+            {$addFields: {user: '$getUser', account: {$arrayElemAt: ['$getAccount', 0]}}},
             {$match: strMatch},
             {$match: NumMatch},
             {
@@ -594,6 +578,23 @@ TransactionSchema.static({
                         {$sort: optFilter.sorts},
                         {$skip: optFilter.pagination.page * optFilter.pagination.limit},
                         {$limit: optFilter.pagination.limit},
+                        {
+                            $project: {
+                                _id: 0,
+                                id: "$_id",
+                                user: 1,
+                                account: 1,
+                                situation: 1,
+                                price: {$toString: {$abs: "$price"}},
+                                date: {
+                                    $dateToString: {/*format: "%Y/%m/%d %H:%M:%S",*/
+                                        date: "$createdAt", //$eventDate
+                                        timezone: "Asia/Kuwait"
+                                    }
+                                },
+                                transactionId: 1
+                            },
+                        },
                     ],
                     totalCount: [
                         {$count: 'total'}
