@@ -670,7 +670,7 @@ TransactionSchema.static({
             },
         ])
             .then(async result => {
-                // console.info("&&&&&&&&&&&&&&&&&&&&&&&&&&&& transactrion result %j: ", result);
+                console.info("&&&&&&&&&&&&&&&&&&&&&&&&&&&& transactrion result %j: ", result);
                 let items = [],
                     total = 0;
                 if (result.length > 0) {
