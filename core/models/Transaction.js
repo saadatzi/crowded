@@ -584,97 +584,109 @@ TransactionSchema.static({
                     transactionId: 1
                 },
             },
-            {$match: strMatch},
-            {$match: NumMatch},
-            {$sort: optFilter.sorts},
-            {$skip: optFilter.pagination.page * optFilter.pagination.limit},
-            {$limit: optFilter.pagination.limit},
-            ...sortFullName,
-            ...sortBankName,
             {
-                $group: {
-                    _id: null,
-                    items: {$push: '$$ROOT'},
-                    // total: {$sum: 1}
-                }
-            },
-            // get Total
-            {
-                $lookup: {
-                    from: 'transactions',
-                    pipeline: [
-                        {$match: criteria},
-                        {$match: optFilter.filters},
-                        {
-                            $lookup: {
-                                from: 'users',
-                                let: {primaryUserId: "$userId"},
-                                pipeline: [
-                                    {$match: {$expr: {$eq: ["$$primaryUserId", "$_id"]}}},
-                                ],
-                                as: 'getUser'
-                            }
-                        },
-                        {$unwind: {path: "$getUser", preserveNullAndEmptyArrays: false}},
-                        {
-                            $lookup: {
-                                from: 'bankaccounts',
-                                let: {primaryAccountId: "$accountId"},
-                                pipeline: [
-                                    {$match: {$expr: {$eq: ["$$primaryAccountId", "$_id"]}}},
-                                    {
-                                        $lookup: {
-                                            from: 'banknames',
-                                            foreignField: '_id',
-                                            localField: 'bankNameId',
-                                            as: "getBankName"
-                                        }
-                                    },
-                                    //get bank name
-                                    {
-                                        $project: {
-                                            _id: 0,
-                                            id: '$_id',
-                                            fullName: {$concat: ['$firstname', ' ', '$lastname']},
-                                            IBAN: 1,
-                                            civilId: 1,
-                                            bankName: {$arrayElemAt: ['$getBankName.name_en', 0]}
-                                        }
-                                    },
-                                ],
-                                as: 'getAccount'
-                            }
-                        },
-                        {
-                            $project: {
-                                _id: 0,
-                                id: "$_id",
-                                user: '$getUser',
-                                account: {$arrayElemAt: ['$getAccount', 0]},
-                                transactionId: 1
-                            },
-                        },
+                $facet: {
+                    items: [
                         {$match: strMatch},
                         {$match: NumMatch},
-                        {$count: 'total'},
+                        {$sort: optFilter.sorts},
+                        {$skip: optFilter.pagination.page * optFilter.pagination.limit},
+                        {$limit: optFilter.pagination.limit},
+                        ...sortFullName,
+                        ...sortBankName,
                     ],
-                    as: 'getTotal'
+                    totalCount: [
+                        {
+                            $count: 'total'
+                        }
+                    ]
                 }
             },
-            {
-                $project: {
-                    _id: 0,
-                    items: 1,
-                    total: {$arrayElemAt: ["$getTotal.total", 0]},
-                }
-            },
+
+            // {
+            //     $group: {
+            //         _id: null,
+            //         items: {$push: '$$ROOT'},
+            //         // total: {$sum: 1}
+            //     }
+            // },
+            // get Total
+            // {
+            //     $lookup: {
+            //         from: 'transactions',
+            //         pipeline: [
+            //             {$match: criteria},
+            //             {$match: optFilter.filters},
+            //             {
+            //                 $lookup: {
+            //                     from: 'users',
+            //                     let: {primaryUserId: "$userId"},
+            //                     pipeline: [
+            //                         {$match: {$expr: {$eq: ["$$primaryUserId", "$_id"]}}},
+            //                     ],
+            //                     as: 'getUser'
+            //                 }
+            //             },
+            //             {$unwind: {path: "$getUser", preserveNullAndEmptyArrays: false}},
+            //             {
+            //                 $lookup: {
+            //                     from: 'bankaccounts',
+            //                     let: {primaryAccountId: "$accountId"},
+            //                     pipeline: [
+            //                         {$match: {$expr: {$eq: ["$$primaryAccountId", "$_id"]}}},
+            //                         {
+            //                             $lookup: {
+            //                                 from: 'banknames',
+            //                                 foreignField: '_id',
+            //                                 localField: 'bankNameId',
+            //                                 as: "getBankName"
+            //                             }
+            //                         },
+            //                         //get bank name
+            //                         {
+            //                             $project: {
+            //                                 _id: 0,
+            //                                 id: '$_id',
+            //                                 fullName: {$concat: ['$firstname', ' ', '$lastname']},
+            //                                 IBAN: 1,
+            //                                 civilId: 1,
+            //                                 bankName: {$arrayElemAt: ['$getBankName.name_en', 0]}
+            //                             }
+            //                         },
+            //                     ],
+            //                     as: 'getAccount'
+            //                 }
+            //             },
+            //             {
+            //                 $project: {
+            //                     _id: 0,
+            //                     id: "$_id",
+            //                     user: '$getUser',
+            //                     account: {$arrayElemAt: ['$getAccount', 0]},
+            //                     transactionId: 1
+            //                 },
+            //             },
+            //             {$match: strMatch},
+            //             {$match: NumMatch},
+            //             {$count: 'total'},
+            //         ],
+            //         as: 'getTotal'
+            //     }
+            // },
+            // {
+            //     $project: {
+            //         _id: 0,
+            //         items: 1,
+            //         total: {$arrayElemAt: ["$getTotal.total", 0]},
+            //     }
+            // },
         ])
             .then(async result => {
-                // console.info("&&&&&&&&&&&&&&&&&&&&&&&&&&&& transactrion result %j: ", result);
+                console.info("&&&&&&&&&&&&&&&&&&&&&&&&&&&& transactrion result %j: ", result);
                 let items = [],
                     total = 0;
                 if (result.length > 0) {
-                    total = result[0].total ? result[0].total : 0;
+                    total = result[0].totalCount ? result[0].totalCount[0].total : 0;
                     // delete result[0].total;
                     items = result[0].items;
                 }
