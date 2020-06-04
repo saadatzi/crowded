@@ -584,20 +584,18 @@ TransactionSchema.static({
                     transactionId: 1
                 },
             },
+            {$match: strMatch},
+            {$match: NumMatch},
             {
                 $facet: {
                     items: [
-                        {$match: strMatch},
-                        {$match: NumMatch},
+                        ...sortFullName,
+                        ...sortBankName,
                         {$sort: optFilter.sorts},
                         {$skip: optFilter.pagination.page * optFilter.pagination.limit},
                         {$limit: optFilter.pagination.limit},
-                        ...sortFullName,
-                        ...sortBankName,
                     ],
                     totalCount: [
-                        {$match: strMatch},
-                        {$match: NumMatch},
                         {$count: 'total'}
                     ]
                 }
