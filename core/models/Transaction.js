@@ -665,7 +665,7 @@ TransactionSchema.static({
                 $project: {
                     _id: 0,
                     items: 1,
-                    total: 1//{$arrayElemAt: ["$getTotal", 0]},
+                    total: {$arrayElemAt: ["$getTotal", 0]},
                 }
             },
         ])
