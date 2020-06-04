@@ -7,7 +7,7 @@ const NZ = require('../../utils/nz');
 // Validation requirements
 const Joi = require('@hapi/joi');
 const JoiConfigs = require('./../joiConfigs');
-const { joiValidate } = require('./../utils');
+const { joiValidate, grabSettings } = require('./../utils');
 
 // Grab controller
 const bankAccountController = require('../../controllers/bankAccount');
@@ -59,7 +59,7 @@ const listSchema = JoiConfigs.schemas.list({
 //TODO add  authorization([{BANK: 'R'}]),
 //TODO please use promise .catch & .then | use log.error important in catch
 //TODO joiValidate first middleware If possible & accessKey zero(0) not need, use(default value is 0)
-router.post('/name', verifyTokenPanel(), joiValidate(listSchema, 0), async (req, res) => {
+router.post('/name', verifyTokenPanel(), grabSettings(), joiValidate(listSchema, 0), async (req, res) => {
     let bankNames = await bankNameController.getListPanel(req._body);
     new NZ.Response(bankNames).send(res);
 });

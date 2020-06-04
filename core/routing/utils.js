@@ -1,4 +1,6 @@
 const NZ = require('./../utils/nz');
+const Setting = require('../models/Setting');
+
 const accessors = {
 	0: {key: 'body'},
 	1: {
@@ -38,7 +40,18 @@ const joiValidate = (schema, accessKey = 0) => (req, res, next) => {
 		else data = req[key];
 	});
 	if (shouldParse) data = JSON.parse(data);
-	let {value, error} = schema.validate(data);
+
+
+	// see if we're dealing with a needy schema
+	// if it's not a regular one, it must be function which intakes settings and returns the schema
+	// so be it
+	if(schema.validate === undefined){
+		if(!req._settings) console.error('Dynamic validation schema needs settings, please use "grabSettings" middleware before you pass on a schema like this');
+		schema = schema(req._settings || {})
+	}
+
+	let {value,error} = schema.validate(data);
+
 
 	if(error)
 		return new NZ.Response(false, reduceJoiMessages(error), 400).send(res);
@@ -48,4 +61,16 @@ const joiValidate = (schema, accessKey = 0) => (req, res, next) => {
 	return next();
 };
 
-module.exports = { joiValidate };
+const grabSettings = () => {
+	return async (req, res, next) => {
+		let settings = await Setting.find({});
+		let modified = {};
+		for (let i = 0, len = settings.length; i < len; i++) {
+			modified[settings[i].key] = settings[i].value;
+		}
+		req._settings = modified;
+		next();
+	}
+};
+
+module.exports = { joiValidate, grabSettings };

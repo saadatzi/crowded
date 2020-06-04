@@ -9,7 +9,7 @@ const deviceController = require('../../controllers/device');
 const NZ = require('../../utils/nz');
 const {uploader} = require('../../utils/fileManager');
 const {verifyTokenPanel, authorization} = require('../../utils/validation');
-const {joiValidate} = require('../utils');
+const {joiValidate, grabSettings} = require('../utils');
 const JoiConfigs = require('../joiConfigs');
 const settings = require('../../utils/settings');
 
@@ -134,7 +134,7 @@ router.delete('/', verifyTokenPanel(), joiValidate(hasValidIdSchema, 0), authori
  * Get Interests
  * @return list of interests
  */
-router.post('/', joiValidate(listSchema), verifyTokenPanel(), authorization([{INTEREST: 'R'}]), async function (req, res) {
+router.post('/', grabSettings(), joiValidate(listSchema), verifyTokenPanel(), authorization([{INTEREST: 'R'}]), async function (req, res) {
     // !! NOTE that joi-filtered data is now in req._body not req.body !!
     interestController.getManyPanel(req._body)
         .then(result => {

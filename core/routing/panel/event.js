@@ -3,7 +3,7 @@ const express = require('express')
 
 const Joi = require('@hapi/joi');
 const JoiConfigs = require('../joiConfigs');
-const {joiValidate} = require('../utils');
+const {joiValidate, grabSettings} = require('../utils');
 
 // Instantiate the Device Model
 const eventController = require('../../controllers/event');
@@ -110,6 +110,7 @@ const listSchema = JoiConfigs.schemas.list({
         from: 1
     }
 });
+
 
 /**
  *  Add Event Image
@@ -275,7 +276,7 @@ router.put('/activate', joiValidate(activateSchema), verifyTokenPanel(), authori
  */
 //______________________Get Event_____________________//
 //TODO JOI Validation
-router.post('/', joiValidate(listSchema), verifyTokenPanel(), authorization([{EVENT: 'R'}]), async (req, res) => {
+router.post('/', grabSettings(), joiValidate(listSchema), verifyTokenPanel(), authorization([{EVENT: 'R'}]), async (req, res) => {
     console.info('API: Get event/init %j', {body: req.body});
 
     eventController.list(req.userId, req._body, req.auth.accessLevel.EVENT[0].R.level)

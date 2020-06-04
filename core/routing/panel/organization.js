@@ -9,7 +9,7 @@ const { verifyTokenPanel, authorization } = require('../../utils/validation');
 
 const Joi = require('@hapi/joi');
 const JoiConfigs = require('./../joiConfigs');
-const { joiValidate } = require('./../utils');
+const { joiValidate, grabSettings} = require('./../utils');
 
 // models
 const Admin = require('../../models/Admin');
@@ -134,7 +134,7 @@ router.put('/activate', joiValidate(activateSchema), verifyTokenPanel(), authori
  *  Get List Organizations
  * @return Organizations
  */
-router.post('/', verifyTokenPanel(), authorization([{ORGANIZATION: 'R'}]), joiValidate(listSchema,0) ,async (req, res) => {
+router.post('/', verifyTokenPanel(), authorization([{ORGANIZATION: 'R'}]),  grabSettings(), joiValidate(listSchema,0) ,async (req, res) => {
     console.info('API: Get Organization List/init');
 
     organizationController.getManyPanel(req._body)

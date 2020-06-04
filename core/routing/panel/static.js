@@ -3,7 +3,7 @@ const express = require('express')
 
 const Joi = require('@hapi/joi');
 const JoiConfigs = require('./../joiConfigs');
-const {joiValidate} = require('./../utils');
+const {joiValidate, grabSettings } = require('./../utils');
 
 // Instantiate the Device Model
 const staticController = require('../../controllers/static');
@@ -39,7 +39,7 @@ const editSchema = Joi.object().keys({
  * Get Statics
  * @return List Static
  */
-router.post('/', verifyTokenPanel(), joiValidate(listSchema, 0), authorization([{PAGE: 'R'}]), async (req, res) => {
+router.post('/', verifyTokenPanel(), grabSettings(), joiValidate(listSchema, 0), authorization([{PAGE: 'R'}]), async (req, res) => {
     console.info('API: Get Static list %j', {body: req._body});
 
     staticController.list(req._body)

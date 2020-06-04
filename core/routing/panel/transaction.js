@@ -3,7 +3,7 @@ const express = require('express')
 
 const Joi = require('@hapi/joi');
 const JoiConfigs = require('../joiConfigs');
-const {joiValidate} = require('../utils');
+const {joiValidate, grabSettings } = require('../utils');
 
 const {sendNotification} = require('../../utils/call');
 const settings = require('../../utils/settings');
@@ -54,7 +54,7 @@ const listSchema = JoiConfigs.schemas.list({
  * @return Users
  */
 //______________________Get Transaction _____________________//
-router.post('/', joiValidate(listSchema), verifyTokenPanel(), authorization([{TRANSACTION: 'R'}]), async (req, res) => {
+router.post('/', grabSettings(), joiValidate(listSchema), verifyTokenPanel(), authorization([{TRANSACTION: 'R'}]), async (req, res) => {
     console.info('API: Get Transaction event/init body:', req._body);
 
     transactionController.getPanelTransaction(req._body)
