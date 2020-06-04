@@ -740,7 +740,7 @@ EventSchema.static({
                     pipeline: [
                         {$match: {userId: mongoose.Types.ObjectId(userId)}},
                         {$match: {$expr: {$eq: ["$$primaryEventId", "$eventId"]}}},
-                        {$project: {_id: 0, status: "$status"}},
+                        {$project: {_id: 0, status: "$status", updatedAt: 1}},
                     ],
                     as: 'getUserEvents'
                 }
