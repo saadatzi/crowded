@@ -746,7 +746,7 @@ EventSchema.static({
                 }
             },
             {$unwind: {path: "$getUserEvents", preserveNullAndEmptyArrays: false}},
-            {$sort: {from: -1}},
+            {$sort: {from: -1}},//'getUserEvents.updatedAt': -1,
             {$skip: limit * page},
             {$limit: limit + 1},
             // {$unwind: "$images"},

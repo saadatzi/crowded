@@ -519,7 +519,7 @@ TransactionSchema.static({
                             }
                         },
                         {
-                            getAccount: {
+                            getUser: {
                                 $elemMatch: {
                                     fullName: {$regex: regex, $options: "i"}
                                 }
