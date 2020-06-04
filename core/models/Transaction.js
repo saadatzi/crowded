@@ -508,8 +508,8 @@ TransactionSchema.static({
             }
         }
 
-        console.info("##################### getPanel Transaction strMatch: %j", strMatch);
-        console.info("##################### getPanel Transaction NumMatch: %j", NumMatch);
+        // console.info("##################### getPanel Transaction strMatch: %j", strMatch);
+        // console.info("##################### getPanel Transaction NumMatch: %j", NumMatch);
 
         return await this.aggregate([
             {$match: criteria}, //Optimization
@@ -670,12 +670,12 @@ TransactionSchema.static({
             },
         ])
             .then(async result => {
-                console.info("&&&&&&&&&&&&&&&&&&&&&&&&&&&& transactrion result %j: ", result);
+                // console.info("&&&&&&&&&&&&&&&&&&&&&&&&&&&& transactrion result %j: ", result);
                 let items = [],
                     total = 0;
                 if (result.length > 0) {
                     total = result[0].total ? result[0].total : 0;
-                    delete result[0].total;
+                    // delete result[0].total;
                     items = result[0].items;
                 }
                 optFilter.pagination.total = total;
