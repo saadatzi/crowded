@@ -508,7 +508,7 @@ TransactionSchema.static({
             }
         }
 
-        console.info("##################### getPanel Transaction optFilter.sorts: %j", optFilter.sorts);
+        // console.info("##################### getPanel Transaction optFilter.sorts: %j", optFilter.sorts);
         // console.info("##################### getPanel Transaction NumMatch: %j", NumMatch);
 
         return await this.aggregate([
@@ -681,7 +681,7 @@ TransactionSchema.static({
             // },
         ])
             .then(async result => {
-                console.info("&&&&&&&&&&&&&&&&&&&&&&&&&&&& transactrion result %j: ", result);
+                // console.info("&&&&&&&&&&&&&&&&&&&&&&&&&&&& transactrion result %j: ", result);
                 let items = [],
                     total = 0;
                 if (result.length > 0) {
