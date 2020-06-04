@@ -508,7 +508,7 @@ TransactionSchema.static({
             }
         }
 
-        // console.info("##################### getPanel Transaction strMatch: %j", strMatch);
+        console.info("##################### getPanel Transaction optFilter.sorts: %j", optFilter.sorts);
         // console.info("##################### getPanel Transaction NumMatch: %j", NumMatch);
 
         return await this.aggregate([
