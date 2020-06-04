@@ -530,7 +530,8 @@ TransactionSchema.static({
             }
         }
 
-        console.info("##################### getPanel Transaction optFilter After: ", optFilter);
+        console.info("##################### getPanel Transaction strMatch: ", strMatch);
+        console.info("##################### getPanel Transaction NumMatch: ", NumMatch);
 
         return await this.aggregate([
             {$match: criteria}, //Optimization
@@ -565,6 +566,7 @@ TransactionSchema.static({
                     let: {primaryAccountId: "$accountId"},
                     pipeline: [
                         {$match: {$expr: {$eq: ["$$primaryAccountId", "$_id"]}}},
+                        //get bank name
                         {
                             $lookup: {
                                 from: 'banknames',
@@ -573,7 +575,6 @@ TransactionSchema.static({
                                 as: "getBankName"
                             }
                         },
-                        //get bank name
                         {
                             $project: {
                                 _id: 0,
