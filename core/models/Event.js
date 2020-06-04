@@ -751,27 +751,26 @@ EventSchema.static({
             {$limit: limit + 1},
             // {$unwind: "$images"},
             // {$sort: {'images.order': 1}},
-            {
-                $group: {
-                    _id: "$_id",
-                    image: {$first: {url: {$concat: [settings.media_domain, "$imagePicker"]}}}, //$push
-                    title: {$first: `$title_${lang}`},
-                    value: {$first: {$toString: "$value"}},
-                    attendance: {$first: `$attendance`},
-                    from: {$first: `$from`},
-                    to: {$first: `$to`},
-                    userEventStatus: {$first: `$getUserEvents.status`}
-                }
-            },
+            // {
+            //     $group: {
+            //         _id: "$_id",
+            //         image: {$first:}, //$push
+            //         title: {$first: },
+            //         value: {$first: },
+            //         attendance: {$first: ``},
+            //         from: {$first: `$from`},
+            //         to: {$first: `$to`},
+            //         userEventStatus: {$first: ``}
+            //     }
+            // },
             {
                 $project: {
                     _id: 0,
                     id: "$_id",
-                    title: 1,
-                    image: 1,
-                    // dec: 1,
-                    value: 1,
-                    attendance: 1,
+                    title: `$title_${lang}`,
+                    image: {url: {$concat: [settings.media_domain, "$imagePicker"]}},
+                    value: {$toString: "$value"},
+                    attendance: '$attendance',
                     date: {
                         day: {$toString: {$dayOfMonth: {date: "$from", timezone: "Asia/Kuwait"}}},
                         month: {
@@ -817,11 +816,11 @@ EventSchema.static({
                         to: {$dateToString: {date: `$to`, timezone: "Asia/Kuwait", format: "%H:%M"}}
                     },
                     // getUserEvents: 1,
-                    userEventStatus: 1
+                    userEventStatus: '$getUserEvents.status'
                     // _eventIds: 1,
                 }
             },
-            {$sort: {id: -1}},
+            // {$sort: {id: -1}},
         ])
             // .exec()
             .then(events => events)
