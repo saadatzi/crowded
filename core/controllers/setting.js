@@ -95,20 +95,19 @@ settingController.prototype.list = async (optFilter) => {
 
 /**
  *
- * @param {Object} 
+ * @param {Array} settings
  *
  * @return Settings
  */
-settingController.prototype.update = async (payload) => {
+settingController.prototype.update = async (settings) => {
+    return Promise.all(settings.map(async setting => {
+        return await Setting.findByIdAndUpdate(setting.id, {value: setting.value})
+            .catch(err => {
+                console.error("!!!setting update failed: ", err);
+                throw err;
+            })
+    }))
 
-    let toUpdate = {};
-    payload.value ? toUpdate.value = payload.value : null;
-
-    return await Setting.findByIdAndUpdate(payload.id, toUpdate)
-        .catch(err => {
-            console.error("!!!setting update failed: ", err);
-            throw err;
-        })
 };
 
 

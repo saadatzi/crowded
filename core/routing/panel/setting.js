@@ -13,13 +13,16 @@ const NZ = require('../../utils/nz');
 const {verifyTokenPanel, authorization} = require('../../utils/validation');
 
 
-const editSchema = Joi.object().keys({
+const editItemSchema = Joi.object().keys({
     id: JoiConfigs.isMongoId,
     valueType: Joi.string().valid('String', 'Boolean', 'Number').required(),
     value: Joi.any()
         .when('valueType', {is: Joi.string().valid('String'), then: Joi.string().required()})
         .when('valueType', {is: Joi.string().valid('Number'), then: JoiConfigs.number})
         .when('valueType', {is: Joi.string().valid('Boolean'), then: JoiConfigs.boolInt})
+});
+const editSchema = Joi.object().keys({
+    settings: JoiConfigs.array(true, editItemSchema)
 });
 
 const listSchema = JoiConfigs.schemas.list({
@@ -55,11 +58,10 @@ router.post('/', verifyTokenPanel(), joiValidate(listSchema), authorization([{SE
  */
 router.put('/edit', verifyTokenPanel(), joiValidate(editSchema), authorization([{SETTING: 'RU'}]), async (req, res) => {
     console.info('API: Edit Setting %j', {body: req.body});
-
-    settingController.update(req.body)
+    settingController.update(req.body.settings)
         .then(result => {
-            if (!result) throw {code: 400, message: "Sth went wrong!"};
-            new NZ.Response(null, "Setting page succefully edited", 200).send(res);
+            if (!result) throw {code: 404, message: "Sth went wrong!"};
+            new NZ.Response(true, "Setting page successfully edited", 200).send(res);
         })
         .catch(err => {
             console.error("Setting Get Catch err:", err)
