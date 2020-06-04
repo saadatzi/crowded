@@ -459,8 +459,6 @@ TransactionSchema.static({
     getPanel: async function (optFilter) {
         const criteria = {isDebtor: true};
 
-        console.info("##################### getPanel Transaction optFilter: ", optFilter);
-
         if (optFilter.filters.fromDate || optFilter.filters.toDate) {
             let fromDate = new Date(2020, 1, 1); // 2020/1/1
             let toDate = new Date();
@@ -530,8 +528,8 @@ TransactionSchema.static({
             }
         }
 
-        console.info("##################### getPanel Transaction strMatch: ", strMatch);
-        console.info("##################### getPanel Transaction NumMatch: ", NumMatch);
+        console.info("##################### getPanel Transaction strMatch: %j", strMatch);
+        console.info("##################### getPanel Transaction NumMatch: %j", NumMatch);
 
         return await this.aggregate([
             {$match: criteria}, //Optimization
