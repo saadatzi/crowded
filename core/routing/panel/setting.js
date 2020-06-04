@@ -64,7 +64,7 @@ router.put('/edit', verifyTokenPanel(), joiValidate(editSchema), authorization([
             new NZ.Response(true, "Setting page successfully edited", 200).send(res);
         })
         .catch(err => {
-            console.error("Setting Get Catch err:", err)
+            console.error("Setting Get Catch err:", err);
             new NZ.Response(null, err.message, err.code || 500).send(res);
         })
 });
