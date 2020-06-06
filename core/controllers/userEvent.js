@@ -238,7 +238,7 @@ userEventController.prototype.addElapsed = async (userId, eventId, elapsed, coor
                 userEvent.save();
                 if (isFinished) {
                     return eventController.get(eventId)
-                        .then(async event => {
+                        .then( event => {
                             if (elapsed >= event.attendance) {
                                 return newUserEventController.setStatus(userId, eventId, 'SUCCESS')
                                     .then(result => {
