@@ -261,7 +261,7 @@ router.put('/activate', joiValidate(activateSchema), verifyTokenPanel(), authori
     eventController.update(req.body.eventId, {status: req.body.isActive})
         .then(event => {
             const resultMessage = req.body.isActive ? 'Event Activation successful!' : 'Event Deactivation successful!';
-            new NZ.Response(!!event, event ? resultMessage : 'Not Found!', event ? 200 : 404).send(res);
+            new NZ.Response(!!event, event ? resultMessage : 'Event not Found!', event ? 200 : 404).send(res);
         })
         .catch(err => {
             console.error("Event Update Catch err:", err);

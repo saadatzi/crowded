@@ -64,6 +64,7 @@ const joiValidate = (schema, accessKey = 0) => (req, res, next) => {
 const grabSettings = () => {
 	return async (req, res, next) => {
 		let settings = await Setting.find({});
+		console.warn("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ grabSettings: ", settings);
 		let modified = {};
 		for (let i = 0, len = settings.length; i < len; i++) {
 			modified[settings[i].key] = settings[i].value;

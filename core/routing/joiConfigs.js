@@ -51,8 +51,6 @@ module.exports = {
             // gets built by the custom criteria
             // then gets built by the settings coming from the middleware before it
             return (settings) => {
-                console.warn("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ grabSettings: ", settings);
-                console.warn("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ settings['limitationList']: ", settings['limitationList']);
                 if (!optFilter || !Object.keys(optFilter).length) throw { message: "optFilter must be defined" };
                 if (!optFilter.defaultSorts || !Object.keys(optFilter.defaultSorts).length) throw { message: "optFilter.defaultSorts must be defined and non-empty" };
 
