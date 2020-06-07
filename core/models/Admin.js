@@ -299,8 +299,7 @@ AdminSchema.static({
 
 
         return this.aggregate([
-            {$match: baseCriteria},
-            {$match: regexMatch},
+            {$match: {$and: [baseCriteria, regexMatch]}},
             {$match: optFilter.filters},
             {$sort: optFilter.sorts},
             {$skip: optFilter.pagination.page * optFilter.pagination.limit},
@@ -319,11 +318,12 @@ AdminSchema.static({
                     items: {$push: '$$ROOT'},
                 }
             },
+            //Get total
             {
                 $lookup: {
                     from: 'admins',
                     pipeline: [
-                        {$match: regexMatch},
+                        {$match: {$and: [baseCriteria, regexMatch]}},
                         {$match: optFilter.filters},
                         {$count: 'total'},
                     ],

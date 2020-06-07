@@ -406,10 +406,12 @@ userEventController.prototype.nextHourEvent = async () => {
     return await UserEvent.jobNextHourEvent()
         .then(result => {
             //Update informed notification Event
-            const eventIds = [];
-            result.map(hr => {eventIds.push(hr.eventId)});
-            eventController.update({_id: {$in: eventIds}}, {informed: true})
-                .catch(err => console.error("eventController updateMany informed notification Catch", err));
+            if (result.length > 0) {
+                const eventIds = [];
+                result.map(hr => {eventIds.push(hr.eventId)});
+                eventController.update({_id: {$in: eventIds}}, {informed: true})
+                    .catch(err => console.error("eventController updateMany informed notification Catch", err));
+            }
             return result;
         })
         .catch(err => {
