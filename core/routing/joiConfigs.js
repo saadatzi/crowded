@@ -72,7 +72,8 @@ module.exports = {
                     Joi.object().optional()
                         .keys({
                             page: Joi.number().greater(-1).default(0),
-                            // limit: Joi.number().greater(0).default(() => {
+                            limit: Joi.number().greater(0),
+                            //.default(() => {
                             //     return settings['limitationList'] ? parseInt(settings['limitationList']) : settingsConf.panel.defaultLimitPage
                             // }),
                             ...optFilter.pagination

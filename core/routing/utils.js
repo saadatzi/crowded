@@ -57,7 +57,7 @@ const joiValidate = (schema, accessKey = 0) => (req, res, next) => {
 		return new NZ.Response(false, reduceJoiMessages(error), 400).send(res);
 
 	//add limit in listSchema
-	if (value.pagination && req._settings) value.pagination.limit = parseInt(req._settings['limitationList']);
+	if (value.pagination && req._settings && !value.pagination.limit) value.pagination.limit = parseInt(req._settings['limitationList']);
 
 
 	req._body = value;
