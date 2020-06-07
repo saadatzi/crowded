@@ -78,8 +78,9 @@ OrganizationSchema.static({
 
 
         return this.aggregate([
-            {$match: baseCriteria},
-            {$match: regexMatch},
+            {$match: {$and: [baseCriteria, regexMatch]}},
+            // {$match: baseCriteria},
+            // {$match: regexMatch},
             {$match: optFilter.filters},
             {$sort: optFilter.sorts},
             {$skip: optFilter.pagination.page * optFilter.pagination.limit},
@@ -105,11 +106,12 @@ OrganizationSchema.static({
                     items: {$push: '$$ROOT'},
                 }
             },
+            //get Total
             {
                 $lookup: {
                     from: 'organizations',
                     pipeline: [
-                        {$match: regexMatch},
+                        {$match: {$and: [baseCriteria, regexMatch]}},
                         {$match: optFilter.filters},
                         {$count: 'total'},
                     ],
