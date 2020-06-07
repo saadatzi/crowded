@@ -4,7 +4,6 @@ const Joi = require('@hapi/joi');
 const settingsConf = require('../utils/settings');
 
 
-
 module.exports = {
     title: Joi.string().min(3).max(255).required(),
     strOptional: Joi.string().optional(),
@@ -30,18 +29,18 @@ module.exports = {
             return helpers.error('any.invalid');
         }
     }, "custom validation"),
-    sort: Joi.number().valid(-1,1),
+    sort: Joi.number().valid(-1, 1),
 
     strValid: (items, isRequired = true) => isRequired ? Joi.string().valid(...items).required() : Joi.string().valid(...items).optional(),
     phone: (isRequired = true) => isRequired ? Joi.string().min(4).max(13).required() : Joi.string().min(4).max(13).optional(),
     datetime: (isRequired = true) => isRequired ? Joi.date().required() : Joi.date().optional(),
     email: (isRequired = true) => isRequired ?
-        Joi.string().email({ minDomainSegments: 2, tlds: { allow: ['com', 'net', 'org'] } }).required() :
-        Joi.string().email({ minDomainSegments: 2, tlds: { allow: ['com', 'net', 'org'] } }).allow('').optional(),
+        Joi.string().email({minDomainSegments: 2, tlds: {allow: ['com', 'net', 'org']}}).required() :
+        Joi.string().email({minDomainSegments: 2, tlds: {allow: ['com', 'net', 'org']}}).allow('').optional(),
     description: (isRequired = true) => isRequired ? Joi.string().min(3).max(1023).required() : Joi.string().min(3).max(1023).optional(),
     array: (isRequired = true, items = Joi.any()) => isRequired ? Joi.array().items(items).required() : Joi.array().items(items).optional(),
     arrayLength: (min, max, items = Joi.any()) => Joi.array().min(min).max(max).items(items).required(),
-    object: (item = Joi.any()) => Joi.object({ item }),
+    object: (item = Joi.any()) => Joi.object({item}),
 
     // Frequently used validation schemas
     schemas: {
@@ -50,39 +49,36 @@ module.exports = {
             // this schema is two level dynamic
             // gets built by the custom criteria
             // then gets built by the settings coming from the middleware before it
-            return (settings) => {
-                if (!optFilter || !Object.keys(optFilter).length) throw { message: "optFilter must be defined" };
-                if (!optFilter.defaultSorts || !Object.keys(optFilter.defaultSorts).length) throw { message: "optFilter.defaultSorts must be defined and non-empty" };
+            if (!optFilter || !Object.keys(optFilter).length) throw {message: "optFilter must be defined"};
+            if (!optFilter.defaultSorts || !Object.keys(optFilter.defaultSorts).length) throw {message: "optFilter.defaultSorts must be defined and non-empty"};
 
-                optFilter.filters = optFilter.filters && Object.keys(optFilter.filters).length ? optFilter.filters : {};
-                optFilter.pagination = optFilter.pagination && Object.keys(optFilter.pagination).length ? optFilter.pagination : {};
-                optFilter.sorts = optFilter.sorts && Object.keys(optFilter.sorts).length ? optFilter.sorts : {};
-                return Joi.object().keys({
-                    search:
-                        Joi.string().allow("").optional().default(""),
-                    filters:
-                        Joi.object().optional()
-                            .keys({
-                                ...optFilter.filters
-                            })
-                            .default(),
+            optFilter.filters = optFilter.filters && Object.keys(optFilter.filters).length ? optFilter.filters : {};
+            optFilter.pagination = optFilter.pagination && Object.keys(optFilter.pagination).length ? optFilter.pagination : {};
+            optFilter.sorts = optFilter.sorts && Object.keys(optFilter.sorts).length ? optFilter.sorts : {};
+            return Joi.object().keys({
+                search:
+                    Joi.string().allow("").optional().default(""),
+                filters:
+                    Joi.object().optional()
+                        .keys({
+                            ...optFilter.filters
+                        })
+                        .default(),
 
-                    sorts: Joi.object().keys(optFilter.sorts)
-                        .not().empty({})
-                        .default(optFilter.defaultSorts),
-                    pagination:
-                        Joi.object().optional()
-                            .keys({
-                                page: Joi.number().greater(-1).default(0),
-                                limit: Joi.number().greater(0).default(() => {
-                                    return settings['limitationList'] ? parseInt(settings['limitationList']) : settingsConf.panel.defaultLimitPage
-                                }),
-                                ...optFilter.pagination
-                            })
-                            .default(),
-                });
-            }
-
+                sorts: Joi.object().keys(optFilter.sorts)
+                    .not().empty({})
+                    .default(optFilter.defaultSorts),
+                pagination:
+                    Joi.object().optional()
+                        .keys({
+                            page: Joi.number().greater(-1).default(0),
+                            // limit: Joi.number().greater(0).default(() => {
+                            //     return settings['limitationList'] ? parseInt(settings['limitationList']) : settingsConf.panel.defaultLimitPage
+                            // }),
+                            ...optFilter.pagination
+                        })
+                        .default(),
+            });
         }
 
 

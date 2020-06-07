@@ -45,16 +45,20 @@ const joiValidate = (schema, accessKey = 0) => (req, res, next) => {
 	// see if we're dealing with a needy schema
 	// if it's not a regular one, it must be function which intakes settings and returns the schema
 	// so be it
-	if(schema.validate === undefined){
-		if(!req._settings) console.error('Dynamic validation schema needs settings, please use "grabSettings" middleware before you pass on a schema like this');
-		schema = schema(req._settings || {})
-	}
+	// if(schema.validate === undefined){
+	// 	if(!req._settings) console.error('Dynamic validation schema needs settings, please use "grabSettings" middleware before you pass on a schema like this');
+	// 	schema = schema(req._settings || {})
+	// }
 
 	let {value,error} = schema.validate(data);
 
 
 	if(error)
 		return new NZ.Response(false, reduceJoiMessages(error), 400).send(res);
+
+	//add limit in listSchema
+	if (value.pagination && req._settings) value.pagination.limit = parseInt(req._settings['limitationList']);
+
 
 	req._body = value;
 
@@ -64,7 +68,6 @@ const joiValidate = (schema, accessKey = 0) => (req, res, next) => {
 const grabSettings = () => {
 	return async (req, res, next) => {
 		let settings = await Setting.find({});
-		console.warn("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ grabSettings: ", settings);
 		let modified = {};
 		for (let i = 0, len = settings.length; i < len; i++) {
 			modified[settings[i].key] = settings[i].value;
