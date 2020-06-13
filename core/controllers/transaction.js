@@ -8,6 +8,10 @@ const accountController = require('./bankAccount');
 const settings = require('../utils/settings');
 const moment = require('moment-timezone');
 
+const Json2csvParser = require("json2csv").Parser;
+const fs = require("fs");
+const path = require('path');
+
 const transactionController = function () {
 };
 
@@ -235,6 +239,42 @@ transactionController.prototype.getPanelTransaction = async (optFilter) => {
 
 };
 
+/**
+ * get Export Transaction
+ *
+ * @param {Object} optFilter
+ *
+ * @return link file
+ */
+transactionController.prototype.getExportTransaction = async (optFilter) => {
+    return await Transaction.getExport(optFilter)
+        .then(transactions => {
+            const json2csvParser = new Json2csvParser({header: true});
+            const csvData = json2csvParser.parse(transactions);
+            const exportDir = path.join(settings.media_path, 'transaction');
+            const exportName = `export_${Date.now()}.csv`;
+            fs.writeFile(`${exportDir}/${exportName}`, csvData, function (error) {
+                if (error) throw error;
+                console.log("Write to crowdedTransaction_Date.csv successfully!");
+            });
+
+            //Delete tmp export file after 5 min
+            setTimeout(() => {
+                fs.unlink(`${exportDir}/${exportName}`, (err) => {
+                    if (err) console.error(err)
+                    console.log("Delete to crowdedTransaction_Date.csv successfully!");
+                })
+            }, 18000000);//36000000 10min , 18000000 5min
+
+            return {url: `${settings.media_domain}transaction/${exportName}`};
+        })
+        .catch(err => {
+            console.error("!!!Transaction getAll failed: ", err);
+            throw err;
+        })
+
+};
+
 
 /**
  * get total cost/income
@@ -246,13 +286,13 @@ transactionController.prototype.getPanelTransaction = async (optFilter) => {
  *
  * @return List Transaction
  */
-transactionController.prototype.getTotalCostIncome = async (admin, accLevel,from , to) => {
-    return await Transaction.getTotal(admin,from, to,accLevel)
-            // .then(transactions => transactions)
-            .catch(err => {
-                console.error("!!!Transaction getAll failed: ", err);
-                throw err;
-            });
+transactionController.prototype.getTotalCostIncome = async (admin, accLevel, from, to) => {
+    return await Transaction.getTotal(admin, from, to, accLevel)
+        // .then(transactions => transactions)
+        .catch(err => {
+            console.error("!!!Transaction getAll failed: ", err);
+            throw err;
+        });
 
 };
 
@@ -286,15 +326,13 @@ transactionController.prototype.getPanelChart = async (admin, accLevel, optFilte
 
 
     return await Transaction.getPanelChart(admin, from, to, groupBy, accLevel)
-    .catch(err => {
-        console.error("!!!Transaction getAll failed: ", err);
-        throw err;
-    });
-
+        .catch(err => {
+            console.error("!!!Transaction getAll failed: ", err);
+            throw err;
+        });
 
 
 };
-
 
 
 /**

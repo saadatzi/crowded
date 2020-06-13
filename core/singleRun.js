@@ -1,6 +1,7 @@
 const {googleStaticImage} = require('./utils/map');
 const settings = require('./utils/settings');
 const areaController = require('./controllers/area');
+const fs = require('fs');
 
 
 // DEV-TEMPORARY
@@ -23,6 +24,15 @@ const eventController = require('./controllers/event');
     console.log("******* single run **********");
     // googleStaticImage(35.7485728, 51.4080562);
     // eventController.update({},{$set: {informed: false}})
+
+    
+    //Create path dir need
+    if (!fs.existsSync(`${settings.media_path}_map`)) {
+        fs.mkdirSync(`${settings.media_path}_map`);
+    }
+    if (!fs.existsSync(`${settings.media_path}transaction`)) {
+        fs.mkdirSync(`${settings.media_path}transaction`);
+    }
 
     //TODO initDATABASE
     if (settings.initDataDB) {

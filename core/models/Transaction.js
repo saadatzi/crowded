@@ -696,6 +696,158 @@ TransactionSchema.static({
     },
 
     /**
+     * Panel List All Transaction for Export
+     *
+     * @param {Object} optFilter
+     */
+    getExport: async function (optFilter) {
+        const criteria = {isDebtor: true};
+
+        if (optFilter.filters.fromDate || optFilter.filters.toDate) {
+            let fromDate = new Date(2020, 1, 1); // 2020/1/1
+            let toDate = new Date();
+            if (optFilter.filters.fromDate) {
+                fromDate = optFilter.filters.fromDate;
+                // delete optFilter.filters.fromDate;
+                fromDate = String(fromDate).length > 10 ? fromDate / 1000 : fromDate;
+
+                fromDate = moment.unix(fromDate).startOf('day').toDate();
+            }
+            if (optFilter.filters.toDate) {
+                toDate = optFilter.filters.toDate;
+                // delete optFilter.filters.toDate;
+                toDate = String(toDate).length > 10 ? toDate / 1000 : toDate;
+
+                toDate = moment.unix(toDate).endOf('day').toDate();
+            }
+            criteria.createdAt = {$gt: fromDate, $lt: toDate};
+        }
+        if (optFilter.filters.situation) criteria.situation = optFilter.filters.situation;
+
+        const sortFullName = optFilter.sorts.fullName ? [{$sort: {'user.fullName': optFilter.sorts.fullName}}] : [];
+        const sortBankName = optFilter.sorts.bankName ? [{$sort: {'account.bankName': optFilter.sorts.bankName}}] : [];
+
+        let strMatch =
+            NumMatch =
+                {};
+        if (optFilter.search) {
+            let key = optFilter.search;
+            let regex = new RegExp(key);
+
+            if (parseInt(key) == key) {// pure numeric //TODO !isNaN('123') true
+                NumMatch = {
+                    $or: [
+                        {'account.IBAN': {$regex: regex, $options: "i"}},
+                        {transactionId: parseInt(key)}
+                    ]
+                }
+
+            } else {
+                strMatch = {
+                    $or: [
+                        {'account.bankName': {$regex: regex, $options: "i"}},
+                        {'user.fullName': {$regex: regex, $options: "i"}}
+                    ]
+                }
+            }
+        }
+
+        // console.info("##################### getPanel Transaction optFilter.sorts: %j", optFilter.sorts);
+        // console.info("##################### getPanel Transaction NumMatch: %j", NumMatch);
+
+        return await this.aggregate([
+            {$match: criteria}, //Optimization
+            // {$match: optFilter.filters},
+            //get user info
+            {
+                $lookup: {
+                    from: 'users',
+                    let: {primaryUserId: "$userId"},
+                    pipeline: [
+                        {$match: {$expr: {$eq: ["$$primaryUserId", "$_id"]}}},
+                        {
+                            $project: {
+                                _id: 0,
+                                id: '$_id',
+                                fullName: {$concat: ['$firstname', ' ', '$lastname']},
+                                sex: 1,
+                                nationality: 1,
+                                isActive: {$cond: {if: {$eq: ["$status", 1]}, then: true, else: false}},
+                            }
+                        },
+                    ],
+                    as: 'getUser'
+                }
+            },
+            {$unwind: {path: "$getUser", preserveNullAndEmptyArrays: false}},
+            //get Account info
+            {
+                $lookup: {
+                    from: 'bankaccounts',
+                    let: {primaryAccountId: "$accountId"},
+                    pipeline: [
+                        {$match: {$expr: {$eq: ["$$primaryAccountId", "$_id"]}}},
+                        //get bank name
+                        {
+                            $lookup: {
+                                from: 'banknames',
+                                foreignField: '_id',
+                                localField: 'bankNameId',
+                                as: "getBankName"
+                            }
+                        },
+                        {
+                            $project: {
+                                _id: 0,
+                                id: '$_id',
+                                fullName: {$concat: ['$firstname', ' ', '$lastname']},
+                                IBAN: 1,
+                                civilId: 1,
+                                bankName: {$arrayElemAt: ['$getBankName.name_en', 0]}
+                            }
+                        },
+                    ],
+                    as: 'getAccount'
+                }
+            },
+            {$addFields: {user: '$getUser', account: {$arrayElemAt: ['$getAccount', 0]}}},
+            {$match: strMatch},
+            {$match: NumMatch},
+            ...sortFullName,
+            ...sortBankName,
+            {$sort: optFilter.sorts},
+            {
+                $project: {
+                    _id: 0,
+                    id: "$_id",
+                    transactionId: 1,
+                    'user_id': "$user.id",
+                    'user_nationality': "$user.nationality",
+                    'user_fullName': "$user.fullName",
+                    'account_id': "$account.id",
+                    'account_IBAN': "$account.IBAN",
+                    'account_civilId': "$account.civilId",
+                    'account_fullName': "$account.fullName",
+                    'account_bankName': "$account.bankName",
+                    situation: 1,
+                    price: {$toString: {$abs: "$price"}},
+                    date: {
+                        $dateToString: {/*format: "%Y/%m/%d %H:%M:%S",*/
+                            date: "$createdAt", //$eventDate
+                            timezone: "Asia/Kuwait"
+                        }
+                    },
+                },
+            }
+        ])
+            .then(async result => {
+                // console.info("&&&&&&&&&&&&&&&&&&&&&&&&&&&& transactrion result %j: ", result);
+                return result;
+            })
+            .catch(err => console.error("getMyTransaction  Catch", err));
+    },
+
+    /**
      * Total Earned Transaction
      *
      */

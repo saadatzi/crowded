@@ -55,9 +55,27 @@ const listSchema = JoiConfigs.schemas.list({
  */
 //______________________Get Transaction _____________________//
 router.post('/', grabSettings(), joiValidate(listSchema), verifyTokenPanel(), authorization([{TRANSACTION: 'R'}]), async (req, res) => {
-    console.info('API: Get Transaction event/init body:', req._body);
+    console.info('API: Get Transaction/init body:', req._body);
 
     transactionController.getPanelTransaction(req._body)
+        .then(result => {
+            new NZ.Response(result).send(res);
+        })
+        .catch(err => {
+            console.error("Get Transaction Catch err:", err);
+            new NZ.Response(null, err.message, err.code || 500).send(res);
+        })
+});
+
+/**
+ * Get  Transaction
+ * @return Users
+ */
+//______________________Get Transaction _____________________//
+router.post('/export', joiValidate(listSchema), verifyTokenPanel(), authorization([{TRANSACTION: 'R'}]), async (req, res) => {
+    console.info('API: Get Transaction export/init body:', req._body);
+
+    transactionController.getExportTransaction(req._body)
         .then(result => {
             new NZ.Response(result).send(res);
         })

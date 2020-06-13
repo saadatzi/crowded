@@ -3,6 +3,8 @@ const url = require('url');
 const settings = require('./settings');
 const NZ = require('./nz');
 
+const download = require('image-downloader');
+
 
 const fs = require('fs');
 
@@ -231,13 +233,6 @@ function get_static_style(styles) {
 
     return result.join('&');
 }
-
-
-const download = require('image-downloader');
-if (!fs.existsSync(`${settings.media_path}_map`)) {
-    fs.mkdirSync(`${settings.media_path}_map`);
-}
-
 
 const googleStaticImage = (lat, lng) => {
     return new Promise(resolve => {
