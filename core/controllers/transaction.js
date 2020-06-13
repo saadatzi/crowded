@@ -264,7 +264,7 @@ transactionController.prototype.getExportTransaction = async (optFilter) => {
                     if (err) console.error(err)
                     console.log("Delete to crowdedTransaction_Date.csv successfully!");
                 })
-            }, 18000000);//36000000 10min , 18000000 5min
+            }, 300000);//600000 10min , 300000 5min
 
             return {url: `${settings.media_domain}transaction/${exportName}`};
         })
