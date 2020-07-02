@@ -1399,6 +1399,18 @@ EventSchema.static({
                 }
             },
             {
+                $lookup: {
+                    from: 'userevents',
+                    let: {primaryEventId: "$_id"},
+                    pipeline: [
+                        {$match: {$expr: {$eq: ["$$primaryEventId", "$eventId"]}}},
+
+                        {$group: {_id: {status: "$status"}, count:{$sum:1}}},
+                    ],
+                    as: 'getUserEvents'
+                }
+            },
+            {
                 $project: {
                     _id: 0,
                     id: "$_id",
@@ -1420,7 +1432,8 @@ EventSchema.static({
                             timezone: "Asia/Kuwait"
                         }
                     },
-                    organization: {$arrayElemAt: ["$getOrganization", 0]}
+                    organization: {$arrayElemAt: ["$getOrganization", 0]},
+                    getUserEvents: 1
                 }
             },
         ])
