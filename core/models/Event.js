@@ -1405,7 +1405,7 @@ EventSchema.static({
                     pipeline: [
                         {$match: {$expr: {$eq: ["$$primaryEventId", "$eventId"]}}},
                         {$group: {_id: {status: "$status"}, count:{$sum:1}}},
-                        {$project: {_id: 0, status: "$_id.status"}}
+                        {$project: {_id: 0, status: "$_id.status", count: "$count"}}
                         // {$sort: {'_id.status': 1}},
 
                     ],
