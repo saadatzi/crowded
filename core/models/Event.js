@@ -1220,11 +1220,10 @@ EventSchema.static({
 
     /**
      *
-     * @param {String} options
+     * @param {ObjecId} id
      */
-    async getOnePanel(options) {
-        if (!options) throw {message: "Missing criteria for Event.getOnePanel!"};
-        const baseCriteria = {status: {$in: [0, 1]}, _id: mongoose.Types.ObjectId(options._id)};
+    async getOnePanel(id) {
+        const baseCriteria = {status: {$in: [0, 1]}, _id: mongoose.Types.ObjectId(id)};
         return await this.aggregate([
             {$match: baseCriteria},
             //get Area & clean
@@ -1242,7 +1241,6 @@ EventSchema.static({
                                         input: "$childs",
                                         as: "child",
                                         in: {
-                                            _id: 0,
                                             id: '$$child._id',
                                             name_en: '$$child.name_en',
                                             name_ar: '$$child.name_ar'
@@ -1357,6 +1355,72 @@ EventSchema.static({
                     // rawInterests: "$interests",
                     interests: 1,
                     allowedRadius: 1
+                }
+            },
+        ])
+            // .exec()
+            .then(event => event[0])
+            .catch(err => console.error(err));
+
+    },
+
+
+    /**
+     * Get Report
+     * @param {ObjectId} id
+     */
+    async getReport(id) {
+        const baseCriteria = {status: {$in: [0, 1]}, _id: mongoose.Types.ObjectId(id)};
+        return await this.aggregate([
+            {$match: baseCriteria},
+            //get organization info
+            {
+                $lookup: {
+                    from: 'organizations',
+                    let: {primaryOrgId: "$orgId"},
+                    pipeline: [
+                        {$match: {$expr: {$eq: ["$$primaryOrgId", "$_id"]}}},
+                        {
+                            $project: {
+                                _id: 0,
+                                id: '$_id',
+                                title: 1,
+                                image: {
+                                    $cond: [
+                                        {$ne: ["$image", ""]},
+                                        {url: {$concat: [settings.media_domain, "$image"]}},
+                                        null
+                                    ]
+                                }
+                            }
+                        },
+                    ],
+                    as: 'getOrganization'
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    id: "$_id",
+                    title_en: 1,
+                    title_ar: 1,
+                    createdAt: 1,
+                    updatedAt: 1,
+                    isActive: {$cond: {if: {$eq: ["$status", 1]}, then: true, else: false}},
+                    value: {$toString: "$value"},
+                    from: {
+                        $dateToString: {
+                            date: '$from',
+                            timezone: "Asia/Kuwait"
+                        }
+                    },
+                    to: {
+                        $dateToString: {
+                            date: '$to',
+                            timezone: "Asia/Kuwait"
+                        }
+                    },
+                    organization: {$arrayElemAt: ["$getOrganization", 0]}
                 }
             },
         ])

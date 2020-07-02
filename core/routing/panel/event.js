@@ -322,10 +322,26 @@ router.delete('/', verifyTokenPanel(), joiValidate(hasValidIdSchema), authorizat
  */
 router.get('/:id', verifyTokenPanel(), authorization([{EVENT: 'R'}]), async (req, res) => {
     console.info('API: Get event Detail/init ', req.params);
-    let options = {
-        _id: req.params.id
-    };
-    eventController.getOnePanel(options)
+
+    eventController.getOnePanel(req.params.id)
+        .then(result => {
+            new NZ.Response(result).send(res);
+        })
+        .catch(err => {
+            console.error('API: Get event Detail catch ', err);
+            new NZ.Response(null, err.message, 500).send(res);
+        });
+
+});
+
+
+/**
+ * Get Event Report
+ */
+router.get('/report/:id', verifyTokenPanel(), authorization([{EVENT: 'R'}]), async (req, res) => {
+    console.info('API: Get event Report/init ', req.params);
+
+    eventController.getReport(req.params.id)
         .then(result => {
             new NZ.Response(result).send(res);
         })
