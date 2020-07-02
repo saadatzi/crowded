@@ -59,7 +59,7 @@ EventSchema.pre('save', function (next) {
     if (!event.isNew && event.images[event.images.length - 1] && !event.images[event.images.length - 1].order) {
         const maxOrder = Math.max.apply(Math, event.images.map(function (o) {
             return o.order
-        }))
+        }));
         event.images[event.images.length - 1].order = maxOrder + 1;
     }
     next();
@@ -1405,7 +1405,8 @@ EventSchema.static({
                     pipeline: [
                         {$match: {$expr: {$eq: ["$$primaryEventId", "$eventId"]}}},
                         {$group: {_id: {status: "$status"}, count:{$sum:1}}},
-                        {$sort: {'_id.status': 1}},
+                        {$project: {_id: 0, status: "$_id.status"}}
+                        // {$sort: {'_id.status': 1}},
 
                     ],
                     as: 'getUserEvents'
@@ -1434,7 +1435,7 @@ EventSchema.static({
                         }
                     },
                     organization: {$arrayElemAt: ["$getOrganization", 0]},
-                    getUserEvents: 1
+                    userReport: "$getUserEvents"
                 }
             },
         ])
