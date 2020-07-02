@@ -1404,8 +1404,9 @@ EventSchema.static({
                     let: {primaryEventId: "$_id"},
                     pipeline: [
                         {$match: {$expr: {$eq: ["$$primaryEventId", "$eventId"]}}},
-                        {$sort: {status: 1}},
                         {$group: {_id: {status: "$status"}, count:{$sum:1}}},
+                        {$sort: {'_id.status': 1}},
+
                     ],
                     as: 'getUserEvents'
                 }
