@@ -34,7 +34,7 @@ dashboardController.prototype.getStats = async (admin, optFilter, accessLevel) =
     }
 
     try {
-        
+
         let availableYears = await eventController.getAvailableYears(admin._id, accessLevel.EVENT[0].R.level);
 
         let totalEventsCount = await eventController.countTotal(admin._id, accessLevel.EVENT[0].R.level, from, to);
@@ -47,6 +47,12 @@ dashboardController.prototype.getStats = async (admin, optFilter, accessLevel) =
 
         let panelChart = await transactionController.getPanelChart(admin, accessLevel.EVENT[0].R.level, optFilter);
 
+        let liveEvent = await Event.liveListAndUsers(admin, accessLevel.EVENT[0].R.level)
+            .catch(err => {
+                console.error("!!!Event countWaitingForApprovalOwnAny failed: ", err);
+                throw err;
+            })
+
 
         return {
             availableYears,
@@ -54,7 +60,8 @@ dashboardController.prototype.getStats = async (admin, optFilter, accessLevel) =
             waitingForApprovalCount,
             upcomingEvents,
             totalCostIncome,
-            panelChart
+            panelChart,
+            liveEvent
         };
     } catch (err) {
         console.error('getStat Failed', err);
@@ -111,7 +118,6 @@ dashboardController.prototype.getCalendar = async (admin, monthFlag, accessLevel
         let transactionsLen = transactions.length;
 
 
-
         let calendar = [];
 
         for (let i = 0; i < transactionsLen; i++) {
@@ -128,7 +134,7 @@ dashboardController.prototype.getCalendar = async (admin, monthFlag, accessLevel
             }
         }
 
-        calendar = calendar.filter(i=>!!i);
+        calendar = calendar.filter(i => !!i);
 
         return calendar;
     } catch (err) {

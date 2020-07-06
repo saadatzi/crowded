@@ -397,7 +397,7 @@ EventSchema.static({
     /**
      * List Waiting for Approval OwnAny
      */
-    listWaitingForApprovalOwnAny(userId, accessLevel) {
+    async listWaitingForApprovalOwnAny(userId, accessLevel) {
         const baseCriteria = {status: 1};
         if (accessLevel === 'OWN') baseCriteria.owner = mongoose.Types.ObjectId(userId);
         return this.aggregate([
@@ -433,6 +433,54 @@ EventSchema.static({
             })
             .catch(err => console.error(err));
     },
+
+    /**
+     * List Live Event and user OwnAny
+     *
+     * List Live Event (OWN,GROUP,ANY)
+     *
+     * @param {Object} admin
+     * @param {String} accessLevel
+     *
+     * @return List of Event & count Active in Event
+     */
+    async liveListAndUsers(admin, accessLevel) {
+        const baseCriteria = {status: 1, from: {$lte: new Date()}, to: {$gte: new Date()}};
+        if (accessLevel === 'OWN') baseCriteria.owner = mongoose.Types.ObjectId(admin._id);
+        if (accessLevel === 'GROUP') baseCriteria.orgId = mongoose.Types.ObjectId(admin.organizationId);
+        return this.aggregate([
+            {$match: baseCriteria},
+            {
+                $lookup: {
+                    from: 'userevents',
+                    let: {primaryEventId: "$_id"},
+                    pipeline: [
+                        {$match: {$expr: {$and: [
+                                        {$in: ["$status", ["ACTIVE", "CONTINUE"]]},
+                                        {$eq: ["$$primaryEventId", "$eventId"]}
+                                    ]}}},
+                        // {$count: 'total'},
+                    ],
+                    as: 'getUserEvents'
+                }
+            },
+            {$addFields: {getUserEventsTotal: {$size: "$getUserEvents"}}},
+            {
+                $project: {
+                    _id: 0,
+                    id: "$_id",
+                    title_en: 1,
+                    image: {url: {$concat: [settings.media_domain, "$imagePicker"]}},
+                    totalActive: "$getUserEventsTotal",
+                },
+            }
+        ])
+            .then(result => {
+                return result;
+            })
+            .catch(err => console.error(err));
+    },
+
 
     async listUpcomingEventsOwnAny(userId, accessLevel) {
         const accessLevelMatch = {status: {$in: [0, 1]}};
