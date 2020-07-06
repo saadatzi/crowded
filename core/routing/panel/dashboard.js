@@ -53,6 +53,18 @@ router.post('/', joiValidate(getStatsSchema), verifyTokenPanel(), authorization(
 });
 
 /**
+ *  Get waiting for Approval list
+ */
+router.get('/waitingApproval', verifyTokenPanel(), authorization([{EVENT: 'R'}]), async (req, res) => {
+    console.info('API: Dashboard  waiting_for_Approval/init %j', {body: req.body});
+    await dashboardController.getWaitingApproval(req._admin, req.auth.accessLevel.EVENT[0].R.level)
+        .then(result => new NZ.Response(result).send(res))
+        .catch(err => {
+            new NZ.Response(err.message, err.code).send(res);
+        });
+});
+
+/**
  * Get calendar data
  */
 router.post('/calendar', verifyTokenPanel(), joiValidate(calendarFiltersSchema), authorization([{EVENT: 'R'}]), async (req, res) => {

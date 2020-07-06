@@ -31,8 +31,9 @@ const EventSchema = new Schema({
     },
     allowedRadius: {type: Number, default: 0},
     status: {type: Number, default: 0}, // 1 active, 0 deActive, 2 softDelete, 3 hardDelete
-    //TODO why comment allowedApplyTime???!!
     allowedApplyTime: Date,
+    numberMale: {type: Number, default: 0},
+    numberFemale: {type: Number, default: 0},
     orgId: {type: Schema.Types.ObjectId, ref: 'Organization'},
     informed: {type: Boolean, default: false},
 }, {timestamps: true});
@@ -355,6 +356,84 @@ EventSchema.static({
             .catch(err => console.error(err));
     },
 
+    /**
+     * List Waiting for Approval group
+     */
+    listWaitingForApprovalGroup(orgId) {
+        return this.aggregate([
+            {$match: {status: 1, orgId: mongoose.Types.ObjectId(orgId)}},
+            {
+                $lookup: {
+                    from: 'userevents',
+                    let: {primaryEventId: "$_id"},
+                    pipeline: [
+                        {$match: {$expr: {$and: [
+                                        {$eq: ["$status", "APPLIED"]},
+                                        {$eq: ["$$primaryEventId", "$eventId"]}
+                                    ]}}},
+                        // {$count: 'total'},
+                    ],
+                    as: 'getUserEvents'
+                }
+            },
+            {$addFields: {getUserEventsTotal: {$size: "$getUserEvents"}}},
+            {$unwind: {path: "$getUserEvents", preserveNullAndEmptyArrays: false}},
+            {
+                $project: {
+                    _id: 0,
+                    id: "$_id",
+                    title_en: 1,
+                    image: {url: {$concat: [settings.media_domain, "$imagePicker"]}},
+                    totalApplied: "$getUserEventsTotal",
+                },
+            }
+        ])
+            .then(result => {
+                return result;
+            })
+            .catch(err => console.error(err));
+    },
+
+    /**
+     * List Waiting for Approval OwnAny
+     */
+    listWaitingForApprovalOwnAny(userId, accessLevel) {
+        const baseCriteria = {status: 1};
+        if (accessLevel === 'OWN') baseCriteria.owner = mongoose.Types.ObjectId(userId);
+        return this.aggregate([
+            {$match: baseCriteria},
+            {
+                $lookup: {
+                    from: 'userevents',
+                    let: {primaryEventId: "$_id"},
+                    pipeline: [
+                        {$match: {$expr: {$and: [
+                                        {$eq: ["$status", "APPLIED"]},
+                                        {$eq: ["$$primaryEventId", "$eventId"]}
+                                    ]}}},
+                        // {$count: 'total'},
+                    ],
+                    as: 'getUserEvents'
+                }
+            },
+            {$addFields: {getUserEventsTotal: {$size: "$getUserEvents"}}},
+            {$unwind: {path: "$getUserEvents", preserveNullAndEmptyArrays: false}},
+            {
+                $project: {
+                    _id: 0,
+                    id: "$_id",
+                    title_en: 1,
+                    image: {url: {$concat: [settings.media_domain, "$imagePicker"]}},
+                    totalApplied: "$getUserEventsTotal",
+                },
+            }
+        ])
+            .then(result => {
+                return result;
+            })
+            .catch(err => console.error(err));
+    },
+
     async listUpcomingEventsOwnAny(userId, accessLevel) {
         const accessLevelMatch = {status: {$in: [0, 1]}};
         if (accessLevel === 'OWN') accessLevelMatch.owner = mongoose.Types.ObjectId(userId);
@@ -663,6 +742,44 @@ EventSchema.static({
         return await this.aggregate([
             ...geoNear,
             {$match: criteria},
+            //filter on number of people how Approved
+            {
+                $lookup: {
+                    from: 'userevents',
+                    let: {primaryEventId: "$_id"},
+                    pipeline: [
+                        {$match: {$expr: {$and: [{$eq: ["$$primaryEventId", "$eventId"]}, {$eq: ["$status", "APPROVED"]}]}}},
+                        {$group: {_id: null, approvedCount: {$sum: 1}}},
+                    ],
+                    as: 'getUserEvents'
+                }
+            },
+            {
+                $addFields: {
+                    peopleCount: {$add: ["$numberMale", "$numberFemale"]},
+                    totalApproved: {$cond: [{$gt: [{$size: "$getUserEvents"}, 0]}, {$arrayElemAt: ["$getUserEvents.approvedCount", 0]}, 0]}
+                }
+            },
+            {
+                $match:
+                    {
+                        $expr:
+                            {
+                                $or: [
+                                    {
+                                        $and: [
+                                            {$gt: ["$peopleCount", 0]},
+                                            {$lt: ["$totalApproved", "$peopleCount"]}
+                                        ]
+                                    },
+                                    {$eq: ["$peopleCount", 0]}
+                                ]
+                            }
+                    }
+            },
+
+
+            // {$unwind: {path: "$getUserEvents", preserveNullAndEmptyArrays: false}},
             //get Area name
             {
                 $lookup: {
@@ -702,6 +819,8 @@ EventSchema.static({
                         from: {$dateToString: {date: `$from`, timezone: "Asia/Kuwait", format: "%H:%M"}},
                         to: {$dateToString: {date: `$to`, timezone: "Asia/Kuwait", format: "%H:%M"}}
                     },
+                    totalApproved: 1,
+                    peopleCount: 1,
                 }
             },
         ])
@@ -1201,7 +1320,7 @@ EventSchema.static({
         await settingController.getByKey('allowToLate')
             .then(async tooLate => {
                 if (tooLate && !isNaN(tooLate.value)) {
-                    const isAllowTooLate =  parseInt(tooLate.value) === 1;
+                    const isAllowTooLate = parseInt(tooLate.value) === 1;
                     //if not allow add attendance to end Date
                     if (!isAllowTooLate) {
                         await Event.findById(id)
@@ -1287,6 +1406,8 @@ EventSchema.static({
                     from: {$first: `$from`},
                     to: {$first: `$to`},
                     area: {$first: `$getArea`},
+                    numberMale: {$first: `$numberMale`},
+                    numberFemale: {$first: `$numberFemale`},
                     getArea_en: {$first: `$getArea.childs.name_en`},
                     getArea_ar: {$first: `$getArea.childs.name_ar`},
                     _address_en: {$first: `$address_en`},
@@ -1354,7 +1475,9 @@ EventSchema.static({
                     // __interests: 1 ,
                     // rawInterests: "$interests",
                     interests: 1,
-                    allowedRadius: 1
+                    allowedRadius: 1,
+                    numberMale: 1,
+                    numberFemale: 1
                 }
             },
         ])
@@ -1398,13 +1521,14 @@ EventSchema.static({
                     as: 'getOrganization'
                 }
             },
+            //get count of participants
             {
                 $lookup: {
                     from: 'userevents',
                     let: {primaryEventId: "$_id"},
                     pipeline: [
                         {$match: {$expr: {$eq: ["$$primaryEventId", "$eventId"]}}},
-                        {$group: {_id: {status: "$status"}, count:{$sum:1}}},
+                        {$group: {_id: {status: "$status"}, count: {$sum: 1}}},
                         {$project: {_id: 0, status: "$_id.status", count: "$count"}}
                         // {$sort: {'_id.status': 1}},
 
@@ -1435,7 +1559,7 @@ EventSchema.static({
                         }
                     },
                     organization: {$arrayElemAt: ["$getOrganization", 0]},
-                    userReport: "$getUserEvents"
+                    participantsReport: "$getUserEvents"
                 }
             },
         ])

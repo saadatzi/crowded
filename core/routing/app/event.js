@@ -62,10 +62,10 @@ router.get('/', verifyToken(), async function (req, res) {
     }
     eventController.get(optionFilter)
         .then(result => {
-            console.info("*** Event List.length :", result.length);
+            // console.info("*** Event List.length :", result.length);
             // console.info("*** Event List: ", result);
             let nextPage = null;
-            if (result.length > settings.event.limitPage) {
+            if (result && result.length > settings.event.limitPage) {
                 nextPage = page + 1;
                 result.pop();
             }

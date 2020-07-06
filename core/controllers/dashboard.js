@@ -4,6 +4,8 @@
 const moment = require('moment-timezone');
 const eventController = require('./event');
 const transactionController = require('./transaction');
+const Event = require('../models/Event');
+
 
 const dashboardController = function () {
 };
@@ -57,6 +59,32 @@ dashboardController.prototype.getStats = async (admin, optFilter, accessLevel) =
     } catch (err) {
         console.error('getStat Failed', err);
         throw err;
+    }
+
+};
+
+/**
+ * List Waiting for Approval (OWN,GROUP,ANY)
+ *
+ * @param {Object} admin
+ * @param {String} accessLevel
+ *
+ * @return List of Event & count waiting for approval
+ */
+dashboardController.prototype.getWaitingApproval = async (admin, accessLevel) => {
+
+    if (accessLevel === 'GROUP') {
+        return await Event.listWaitingForApprovalGroup(admin.organizationId)
+            .catch(err => {
+                console.error("!!!Event countWaitingForApprovalGroup failed: ", err);
+                throw err;
+            })
+    } else {
+        return await Event.listWaitingForApprovalOwnAny(admin._id, accessLevel)
+            .catch(err => {
+                console.error("!!!Event countWaitingForApprovalOwnAny failed: ", err);
+                throw err;
+            })
     }
 
 };

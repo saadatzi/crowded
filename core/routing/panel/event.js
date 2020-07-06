@@ -56,6 +56,8 @@ const addSchema = Joi.object().keys({
     address_en: JoiConfigs.description(),
     lat: JoiConfigs.price,
     lng: JoiConfigs.price,
+    numberMale: JoiConfigs.numberOptional,
+    numberFemale: JoiConfigs.numberOptional,
     interests: JoiConfigs.arrayLength(1, 100, JoiConfigs.isMongoId),
     allowedRadius: Joi.number().integer().min(50).max(2000).required(),
 });
