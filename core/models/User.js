@@ -8,7 +8,7 @@ const UserSchema = new Schema({
     firstname: String,
     lastname: String,
     image: String,
-    sex: Number,
+    sex: Number, // 1: Man, 2: woman
     birthDate: Date,
     phone: String,
     nationality: String,
@@ -137,9 +137,9 @@ UserSchema.static({
                     }
                 ]
             };
-            if(optFilter.search.length>7){
+            if (optFilter.search.length > 7) {
                 regexMatch.$or.push({
-                    phone: {$regex: regex, $options:"i"}
+                    phone: {$regex: regex, $options: "i"}
                 })
             }
         }
@@ -317,15 +317,16 @@ UserSchema.static({
                     }
                 ]
             };
-            if(optFilter.search.length>7){
+            if (optFilter.search.length > 7) {
                 regexMatch.$or.push({
-                    phone: {$regex: regex, $options:"i"}
+                    phone: {$regex: regex, $options: "i"}
                 })
             }
         }
 
         return await this.aggregate([
             {$match: criteria},
+            //get userEvent
             {
                 $lookup: {
                     from: 'userevents',
@@ -341,73 +342,152 @@ UserSchema.static({
             {$unwind: {path: "$getUserEvents", preserveNullAndEmptyArrays: false}},
             {$match: regexMatch},
             {$match: optFilter.filters},
-            {$sort: optFilter.sorts},
-            {$skip: optFilter.pagination.page * optFilter.pagination.limit},
-            {$limit: optFilter.pagination.limit},
-            {
-                $project: {
-                    _id: 0,
-                    id: "$_id",
-                    firstname: 1,
-                    lastname: 1,
-                    image: {url: {$concat: [settings.media_domain, "$image"]}},
-                    sex: 1,
-                    nationality: 1,
-                    status: '$getUserEvents.status'
-                }
-            },
-            {$sort: {status: 1}},
-            {
-                $group: {
-                    _id: null,
-                    items: {$push: '$$ROOT'},
-                }
-            },
-            //Get total
+            //get Event
             {
                 $lookup: {
-                    from: 'users',
+                    from: 'events',
                     pipeline: [
-                        {$match: criteria},
-                        {
-                            $lookup: {
-                                from: 'userevents',
-                                let: {primaryUserId: "$_id"},
-                                pipeline: [
-                                    {$match: {eventId: mongoose.Types.ObjectId(optFilter.eventId)}},
-                                    {$match: {$expr: {$eq: ["$$primaryUserId", "$userId"]}}},
-                                    {$project: {_id: 0, status: "$status"}},
-                                ],
-                                as: 'getCountUserEvents'
-                            }
-                        },
-                        {$unwind: {path: "$getCountUserEvents", preserveNullAndEmptyArrays: false}},
-                        {$match: regexMatch},
-                        {$match: optFilter.filters},
-                        {$count: 'total'},
+                        {$match: {_id: mongoose.Types.ObjectId(optFilter.eventId)}},
                     ],
-                    as: 'getTotal'
+                    as: 'getEvent'
                 }
             },
             {
-                $project: {
-                    _id: 0,
-                    items: 1,
-                    total: {$arrayElemAt: ["$getTotal", 0]},
+                $facet: {
+                    items: [
+                        {$sort: optFilter.sorts},
+                        {$skip: optFilter.pagination.page * optFilter.pagination.limit},
+                        {$limit: optFilter.pagination.limit},
+                        {
+                            $project: {
+                                _id: 0,
+                                id: "$_id",
+                                firstname: 1,
+                                lastname: 1,
+                                image: {url: {$concat: [settings.media_domain, "$image"]}},
+                                sex: 1,
+                                nationality: 1,
+                                status: '$getUserEvents.status'
+                            }
+                        },
+                        {$sort: {status: 1}},
+                    ],
+                    numberParticipants: [
+                        {
+                            $lookup: {
+                                from: 'users',
+                                // let: {primaryUserId: "$getUserEventAPPROVED.userId"},
+                                pipeline: [
+                                    //get userEvent APPROVED
+                                    {
+                                        $lookup: {
+                                            from: 'userevents',
+                                            let: {primaryUserId: "$_id"},
+                                            pipeline: [
+                                                {$match: {$and: [{eventId: mongoose.Types.ObjectId(optFilter.eventId)}, {status: "APPROVED"}]}},
+                                                {$match: {$expr: {$eq: ["$$primaryUserId", "$userId"]}}},
+                                            ],
+                                            as: 'getUserEventAPPROVED'
+                                        }
+                                    },
+                                    {$unwind: {path: "$getUserEventAPPROVED", preserveNullAndEmptyArrays: false}},
+                                    {
+                                        $facet: {
+                                            totalApproved: [
+                                                {$count: 'total'}
+                                            ],
+                                            maleCount: [
+                                                {$match: {sex: 1}},
+                                                {$count: 'total'}
+                                            ],
+                                            femaleCount: [
+                                                {$match: {sex: 2}},
+                                                {$count: 'total'}
+                                            ],
+                                        }
+                                    },
+                                    {
+                                        $project: {
+                                            _id: 0,
+                                            people: {$cond: [{$gt: [{$size: "$totalApproved"}, 0]}, {$arrayElemAt: ['$totalApproved.total', 0]}, 0]},
+                                            male: {$cond: [{$gt: [{$size: "$maleCount"}, 0]}, {$arrayElemAt: ['$maleCount.total', 0]}, 0]},
+                                            female: {$cond: [{$gt: [{$size: "$femaleCount"}, 0]}, {$arrayElemAt: ['$femaleCount.total', 0]}, 0]}
+                                        }
+                                    }
+                                ],
+                                as: 'getUsersGender'
+                            }
+                        },
+                        {
+                            $project: {
+                                _id: 0,
+                                eventNeed: {
+                                    people: {$arrayElemAt: ["$getEvent.numberPeople", 0]},
+                                    male: {$arrayElemAt: ["$getEvent.numberMale", 0]},
+                                    female: {$arrayElemAt: ["$getEvent.numberFemale", 0]},
+                                },
+                                approved: {$arrayElemAt: ['$getUsersGender', 0]}
+                            }
+                        }
+                    ],
+
+                    totalCount: [
+                        {$count: 'total'}
+                    ]
                 }
             },
+
+
+            // {
+            //     $group: {
+            //         _id: null,
+            //         items: {$push: '$$ROOT'},
+            //     }
+            // },
+            // //Get total
+            // {
+            //     $lookup: {
+            //         from: 'users',
+            //         pipeline: [
+            //             {$match: criteria},
+            //             {
+            //                 $lookup: {
+            //                     from: 'userevents',
+            //                     let: {primaryUserId: "$_id"},
+            //                     pipeline: [
+            //                         {$match: {eventId: mongoose.Types.ObjectId(optFilter.eventId)}},
+            //                         {$match: {$expr: {$eq: ["$$primaryUserId", "$userId"]}}},
+            //                         {$project: {_id: 0, status: "$status"}},
+            //                     ],
+            //                     as: 'getCountUserEvents'
+            //                 }
+            //             },
+            //             {$unwind: {path: "$getCountUserEvents", preserveNullAndEmptyArrays: false}},
+            //             {$match: regexMatch},
+            //             {$match: optFilter.filters},
+            //             {$count: 'total'},
+            //         ],
+            //         as: 'getTotal'
+            //     }
+            // },
+            // {
+            //     $project: {
+            //         _id: 0,
+            //         items: 1,
+            //         total: {$arrayElemAt: ["$getTotal", 0]},
+            //     }
+            // },
         ])
             // .exec()
             .then(result => {
                 let items = [],
                     total = 0;
-                if (result.length > 0) {
-                    total = result[0].total.total;
-                    delete result[0].total;
+                if (result.length > 0 && result[0].items.length > 0) {
+                    total = result[0].totalCount ? result[0].totalCount[0].total : 0;
                     items = result[0].items;
                 }
                 optFilter.pagination.total = total;
-                return {explain: optFilter, items};
+                return {explain: optFilter, items, numberParticipants: result[0].numberParticipants[0]};
             })
             .catch(err => console.error("getAllInEvent  Catch", err));
     },

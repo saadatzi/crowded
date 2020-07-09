@@ -7,6 +7,7 @@ const eventController = require('./event');
 const accountController = require('./bankAccount');
 const settings = require('../utils/settings');
 const moment = require('moment-timezone');
+const shortid = require('shortid');
 
 const Json2csvParser = require("json2csv").Parser;
 const fs = require("fs");
@@ -252,7 +253,7 @@ transactionController.prototype.getExportTransaction = async (optFilter) => {
             const json2csvParser = new Json2csvParser({header: true});
             const csvData = json2csvParser.parse(transactions);
             const exportDir = path.join(settings.media_path, 'transaction');
-            const exportName = `export_${Date.now()}.csv`;
+            const exportName = `export_${Date.now()}_${shortid.generate()}.csv`;
             fs.writeFile(`${exportDir}/${exportName}`, csvData, function (error) {
                 if (error) throw error;
                 console.log("Write to crowdedTransaction_Date.csv successfully!");

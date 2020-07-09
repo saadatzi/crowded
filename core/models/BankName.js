@@ -3,6 +3,7 @@ const Schema = mongoose.Schema;
 const BankNameSchema = new Schema({
     name_en: { type: String, required: true },
     name_ar: { type: String, required: true },
+    code: String,
     status: { type: Number, default: 1 }, // 1 active, 0 deActive, 2 softDelete, 3 hardDelete
 },
     {
@@ -98,23 +99,24 @@ BankNameSchema.static({
                     id: "$_id",
                     name_en: 1,
                     name_ar: 1,
-                    boundAccounts: { $arrayElemAt: ["$_boundAccounts", 0] },
+                    code: 1,
+                    boundAccounts: { $arrayElemAt: ["$_boundAccounts.total", 0] },
                     createdAt: 1,
                     updatedAt: 1,
                     isActive: { $cond: { if: { $eq: ["$status", 1] }, then: true, else: false } },
                 }
             },
-            {
-                $project: {
-                    id: 1,
-                    name_en: 1,
-                    boundAccounts: "$boundAccounts.total",
-                    name_ar: 1,
-                    createdAt: 1,
-                    updatedAt: 1,
-                    isActive: 1
-                }
-            }
+            // {
+            //     $project: {
+            //         id: 1,
+            //         name_en: 1,
+            //         boundAccounts: "$boundAccounts.total",
+            //         name_ar: 1,
+            //         createdAt: 1,
+            //         updatedAt: 1,
+            //         isActive: 1
+            //     }
+            // }
         ])
             .then(result => {
                 return result[0];
@@ -177,19 +179,20 @@ BankNameSchema.static({
                 $project: {
                     _id: 0,
                     id: "$_id",
-                    boundAccounts: { $arrayElemAt: ["$_boundAccounts", 0] },
+                    boundAccounts: { $arrayElemAt: ["$_boundAccounts.total", 0] },
                     name_en: 1,
-                    name_ar: 1
+                    name_ar: 1,
+                    code: 1
                 }
             },
-            {
-                $project: {
-                    id: 1,
-                    boundAccounts: "$boundAccounts.total",
-                    name_en: 1,
-                    name_ar: 1
-                }
-            },
+            // {
+            //     $project: {
+            //         id: 1,
+            //         boundAccounts: "$boundAccounts.total",
+            //         name_en: 1,
+            //         name_ar: 1
+            //     }
+            // },
             {
                 $group: {
                     _id: null,

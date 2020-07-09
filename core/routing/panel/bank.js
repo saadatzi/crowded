@@ -25,12 +25,13 @@ const { verifyTokenPanel } = require('../../utils/validation');
 
 const addSchema = Joi.object().keys({
     name_en: JoiConfigs.title,
-    name_ar: JoiConfigs.title
+    name_ar: JoiConfigs.title,
+    code: JoiConfigs.title
 });
 
 const editSchema = addSchema.keys({
-    id: JoiConfigs.isMongoId
-})
+    id: JoiConfigs.isMongoId,
+});
 
 const deleteSchema =  Joi.object().keys({
     id: JoiConfigs.isMongoId
@@ -85,7 +86,7 @@ router.post('/name/add', verifyTokenPanel(), joiValidate(addSchema, 0), async (r
 /**
  Add Bank Name
 */
-router.put('/name/edit', verifyTokenPanel(), joiValidate(editSchema, 0), async (req, res) => {
+router.put('/name/edit', verifyTokenPanel(), joiValidate(editSchema), async (req, res) => {
     let bankName = await bankNameController.edit(req._body);
     new NZ.Response("Successfully edited bank name!").send(res);
 });

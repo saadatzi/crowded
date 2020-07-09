@@ -32,6 +32,7 @@ const EventSchema = new Schema({
     allowedRadius: {type: Number, default: 0},
     status: {type: Number, default: 0}, // 1 active, 0 deActive, 2 softDelete, 3 hardDelete
     allowedApplyTime: Date,
+    numberPeople: {type: Number, default: 0},
     numberMale: {type: Number, default: 0},
     numberFemale: {type: Number, default: 0},
     orgId: {type: Schema.Types.ObjectId, ref: 'Organization'},
@@ -804,7 +805,7 @@ EventSchema.static({
             },
             {
                 $addFields: {
-                    peopleCount: {$add: ["$numberMale", "$numberFemale"]},
+                    // peopleCount: {$add: ["$numberMale", "$numberFemale"]},
                     totalApproved: {$cond: [{$gt: [{$size: "$getUserEvents"}, 0]}, {$arrayElemAt: ["$getUserEvents.approvedCount", 0]}, 0]}
                 }
             },
@@ -816,11 +817,11 @@ EventSchema.static({
                                 $or: [
                                     {
                                         $and: [
-                                            {$gt: ["$peopleCount", 0]},
-                                            {$lt: ["$totalApproved", "$peopleCount"]}
+                                            {$gt: ["$numberPeople", 0]},
+                                            {$lt: ["$totalApproved", "$numberPeople"]}
                                         ]
                                     },
-                                    {$eq: ["$peopleCount", 0]}
+                                    {$eq: ["$numberPeople", 0]}
                                 ]
                             }
                     }
@@ -868,7 +869,7 @@ EventSchema.static({
                         to: {$dateToString: {date: `$to`, timezone: "Asia/Kuwait", format: "%H:%M"}}
                     },
                     totalApproved: 1,
-                    peopleCount: 1,
+                    numberPeople: 1,
                 }
             },
         ])
@@ -1454,6 +1455,7 @@ EventSchema.static({
                     from: {$first: `$from`},
                     to: {$first: `$to`},
                     area: {$first: `$getArea`},
+                    numberPeople: {$first: `$numberPeople`},
                     numberMale: {$first: `$numberMale`},
                     numberFemale: {$first: `$numberFemale`},
                     getArea_en: {$first: `$getArea.childs.name_en`},
@@ -1524,6 +1526,7 @@ EventSchema.static({
                     // rawInterests: "$interests",
                     interests: 1,
                     allowedRadius: 1,
+                    numberPeople: 1,
                     numberMale: 1,
                     numberFemale: 1
                 }

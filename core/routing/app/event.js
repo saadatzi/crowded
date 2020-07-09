@@ -40,12 +40,14 @@ const detailSchema =  Joi.object().keys({
 //______________________Get Event_____________________//
 router.get('/', verifyToken(), async function (req, res) {
     console.info('API: Get event/init req.query', req.query);
+    //TODO move to aggregate
     let selected;
     if (req.userId) {
         selected = await userController.get(req.userId, 'id');
     } else {
         selected = await deviceController.get(req.deviceId, 'id');
     }
+
     const criteria = {};
     //if empty interests select all Event
     if (selected.interests && selected.interests.length > 0) criteria.interests = {$in: selected.interests};

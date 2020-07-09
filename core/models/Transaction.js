@@ -684,7 +684,7 @@ TransactionSchema.static({
                 // console.info("&&&&&&&&&&&&&&&&&&&&&&&&&&&& transactrion result %j: ", result);
                 let items = [],
                     total = 0;
-                if (result.length > 0) {
+                if (result.length > 0 && result[0].items.length > 0) {
                     total = result[0].totalCount ? result[0].totalCount[0].total : 0;
                     // delete result[0].total;
                     items = result[0].items;
@@ -803,7 +803,8 @@ TransactionSchema.static({
                                 fullName: {$concat: ['$firstname', ' ', '$lastname']},
                                 IBAN: 1,
                                 civilId: 1,
-                                bankName: {$arrayElemAt: ['$getBankName.name_en', 0]}
+                                bankName: {$arrayElemAt: ['$getBankName.name_en', 0]},
+                                bankCode: {$arrayElemAt: ['$getBankName.code', 0]}
                             }
                         },
                     ],
@@ -819,24 +820,25 @@ TransactionSchema.static({
             {
                 $project: {
                     _id: 0,
-                    id: "$_id",
-                    transactionId: 1,
-                    'user_id': "$user.id",
-                    'user_nationality': "$user.nationality",
-                    'user_fullName': "$user.fullName",
-                    'account_id': "$account.id",
-                    'account_IBAN': "$account.IBAN",
-                    'account_civilId': "$account.civilId",
-                    'account_fullName': "$account.fullName",
-                    'account_bankName': "$account.bankName",
-                    situation: 1,
-                    price: {$toString: {$abs: "$price"}},
-                    date: {
-                        $dateToString: {/*format: "%Y/%m/%d %H:%M:%S",*/
-                            date: "$createdAt", //$eventDate
-                            timezone: "Asia/Kuwait"
-                        }
-                    },
+                    // id: "$_id",
+                    'Payment Serial Number': "$transactionId",
+                    // 'user_id': "$user.id",
+                    // 'user_nationality': "$user.nationality",
+                    // 'Beneficiary Name': "$user.fullName",
+                    'Beneficiary Name': "$account.fullName",
+                    'Beneficiary Civil Id': "$account.civilId",
+                    // 'account_id': "$account.id",
+                    'Account': "$account.IBAN",
+                    // 'account_fullName': "$account.fullName",
+                    'Beneficiary Bank': "$account.bankCode",
+                    'Payment Currency': "KWD",
+                    'Payment Amount': {$toString: {$abs: "$price"}},
+                    // date: {
+                    //     $dateToString: {/*format: "%Y/%m/%d %H:%M:%S",*/
+                    //         date: "$createdAt", //$eventDate
+                    //         timezone: "Asia/Kuwait"
+                    //     }
+                    // },
                 },
             }
         ])
