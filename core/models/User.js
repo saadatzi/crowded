@@ -384,7 +384,7 @@ UserSchema.static({
                                             from: 'userevents',
                                             let: {primaryUserId: "$_id"},
                                             pipeline: [
-                                                {$match: {$and: [{eventId: mongoose.Types.ObjectId(optFilter.eventId)}, {status: "APPROVED"}]}},
+                                                {$match: {$and: [{eventId: mongoose.Types.ObjectId(optFilter.eventId)}, {status: {$in: ['APPROVED', 'ACTIVE', 'LEFT', 'PAUSED', 'CONTINUE', 'SUCCESS', 'MISSED',]}}]}},
                                                 {$match: {$expr: {$eq: ["$$primaryUserId", "$userId"]}}},
                                             ],
                                             as: 'getUserEventAPPROVED'
