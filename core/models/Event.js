@@ -408,16 +408,13 @@ EventSchema.static({
                     from: 'userevents',
                     let: {primaryEventId: "$_id"},
                     pipeline: [
-                        {$match: {$expr: {$and: [
-                                        {$eq: ["$status", "APPLIED"]},
-                                        {$eq: ["$$primaryEventId", "$eventId"]}
-                                    ]}}},
-                        // {$count: 'total'},
+                        {$match: {status: "APPLIED"}},
+                        {$match: {$expr: {$eq: ["$$primaryEventId", "$eventId"]}}},
+                        {$group: {_id: "$eventId", count: {$sum: 1}}}
                     ],
                     as: 'getUserEvents'
                 }
             },
-            {$addFields: {getUserEventsTotal: {$size: "$getUserEvents"}}},
             {$unwind: {path: "$getUserEvents", preserveNullAndEmptyArrays: false}},
             {
                 $project: {
@@ -425,7 +422,7 @@ EventSchema.static({
                     id: "$_id",
                     title_en: 1,
                     image: {url: {$concat: [settings.media_domain, "$imagePicker"]}},
-                    totalApplied: "$getUserEventsTotal",
+                    totalApplied: "$getUserEvents.count",
                 },
             }
         ])
