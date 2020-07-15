@@ -56,7 +56,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "yarn && NODE_ENV=development && pm2 start ./app.js --watch && pm2 logs"
+    "dev": "yarn && NODE_ENV=development && pm2 --name 'Crowded' start ./app.js --watch && pm2 logs"
   },
   "keywords": [
     "microservice",
