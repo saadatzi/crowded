@@ -11,7 +11,7 @@ const dashboardController = function () {
 };
 
 /**
- * Login User Panel
+ * Dashboard Panel
  *
  */
 dashboardController.prototype.getStats = async (admin, optFilter, accessLevel) => {
@@ -67,6 +67,20 @@ dashboardController.prototype.getStats = async (admin, optFilter, accessLevel) =
         console.error('getStat Failed', err);
         throw err;
     }
+
+};
+
+/**
+ * Dashboard Live event
+ *
+ */
+dashboardController.prototype.getLive = async (admin, accessLevel) => {
+
+    return await Event.liveListAndUsers(admin, accessLevel.EVENT[0].R.level)
+        .catch(err => {
+            console.error("!!!Event countWaitingForApprovalOwnAny failed: ", err);
+            throw err;
+        })
 
 };
 

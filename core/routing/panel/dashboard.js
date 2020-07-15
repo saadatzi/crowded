@@ -53,6 +53,19 @@ router.post('/', joiValidate(getStatsSchema), verifyTokenPanel(), authorization(
 });
 
 /**
+ *  Get Live event Info
+ */
+router.get('/live', verifyTokenPanel(), authorization([{EVENT: 'R'}]), async (req, res) => {
+    console.info('API: Dashboard get LiveEvent/init %j', {body: req.body});
+    await dashboardController.getLive(req._admin, req.auth.accessLevel)
+        .then(result => new NZ.Response(result).send(res))
+        .catch(err => {
+            new NZ.Response(err.message, err.code).send(res);
+        })
+
+});
+
+/**
  *  Get waiting for Approval list
  */
 router.get('/waitingApproval', verifyTokenPanel(), authorization([{EVENT: 'R'}]), async (req, res) => {
