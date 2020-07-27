@@ -205,7 +205,7 @@ transactionController.prototype.requestWithdraw = async (userId, accountId, tota
 /**
  * manage Transaction (Paid/Unpaid)
  *
- * @param {ObjectId} transactionId
+ * @param {Object | ObjectId} transactionId
  * @param {Boolean} isPaid
  *
  * @return List Transaction
@@ -409,6 +409,24 @@ transactionController.prototype.update = async (optFilter, newValue) => {
 
 
 };
+
+/**
+ * get Transaction
+ *
+ * @param {Object} optFilter
+ *
+ * @return List Transaction
+ */
+transactionController.prototype.get = async (optFilter) => {
+    return await Transaction.find(optFilter)
+        // .then(transactions => transactions)
+        .catch(err => {
+            console.error("!!!Transaction get failed: ", err);
+            throw err;
+        })
+
+};
+
 const newTransactionController = new transactionController();
 
 module.exports = newTransactionController;
